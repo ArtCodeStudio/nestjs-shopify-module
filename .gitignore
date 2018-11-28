@@ -1,0 +1,5 @@
+ormconfig.json
+node_modules/
+package-lock.json
+src/config.service.ts
+.vscode/
