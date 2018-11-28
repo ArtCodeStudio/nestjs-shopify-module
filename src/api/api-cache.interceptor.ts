@@ -1,6 +1,6 @@
 import { Injectable, CacheInterceptor, ExecutionContext } from '@nestjs/common';
 import { DebugService } from 'debug.service';
-import { ConfigService } from 'config.service';
+//import { ConfigService } from 'config.service';
 
 @Injectable()
 export class ApiCacheInterceptor extends CacheInterceptor {
@@ -41,7 +41,7 @@ export class ApiCacheInterceptor extends CacheInterceptor {
       return undefined;
     }
     let host = this.getClientHost(request);
-    if (host === ConfigService.app.host) {
+  /*  if (host === ConfigService.app.host) {
       // this.logger.debug(`request from backend`, request.user);
 
       // Do not cache if no user is logged in
@@ -50,7 +50,7 @@ export class ApiCacheInterceptor extends CacheInterceptor {
       }
 
       host = request.user.shop.domain;
-    }
+    }*/
     key = `${host}:${key}`;
     this.logger.debug(`trackBy cache by ${key}`);
     return key;

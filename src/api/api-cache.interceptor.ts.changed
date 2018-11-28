@@ -1,0 +1,117 @@
+import { Inject, Injectable, Optional, NestInterceptor, HttpServer, ExecutionContext, CACHE_MANAGER } from '@nestjs/common';
+const CACHE_KEY_METADATA = 'cache_module:cache_key';
+import { DebugService } from 'debug.service';
+import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
+import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
+
+
+import { Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
+
+// NOTE (external)
+// We need to deduplicate them here due to the circular dependency
+// between core and common packages
+const HTTP_SERVER_REF = 'HTTP_SERVER_REF';
+const REFLECTOR = 'Reflector';
+
+@Injectable()
+export class ApiCacheInterceptor implements NestInterceptor {
+  protected readonly isHttpApp: boolean;
+
+  constructor(
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    private readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Optional()
+    @Inject(HTTP_SERVER_REF)
+    protected readonly httpServer: HttpServer,
+    @Inject(CACHE_MANAGER) protected readonly cacheManager: any,
+    @Inject(REFLECTOR) protected readonly reflector,
+  ) {
+    this.isHttpApp = httpServer && !!httpServer.getRequestMethod;
+  }
+
+  async intercept(
+    context: ExecutionContext,
+    call$: Observable<any>,
+  ): Promise<Observable<any>> {
+    const key = this.trackBy(context);
+    if (!key) {
+      return call$;
+    }
+    try {
+      const value = await this.cacheManager.get(key);
+      if (value) {
+        return of(value);
+      }
+      return call$.pipe(tap(response => this.cacheManager.set(key, response)));
+    } catch {
+      return call$;
+    }
+  }
+
+  logger = new DebugService(`shopify:ApiCacheInterceptor`);
+
+  // TODO move to utils
+  getClientHost(request) {
+    let host;
+    if ((request.headers as any).origin) {
+      // request from shopify theme
+      host = (request.headers as any).origin.split('://')[1];
+    } else {
+      // request from app backend
+      host = (request.headers as any).host;
+    }
+    return host;
+  }
+
+  // TODO move to utils
+  isLoggedIn(request) {
+    this.logger.debug('isLoggedIn', request.user);
+    if (request.user !== null && typeof request.user === 'object') {
+      return true;
+    }
+    return false;
+  }
+
+  private superTrackBy(context: ExecutionContext): string | undefined {
+    if (!this.isHttpApp) {
+      return this.reflector.get(CACHE_KEY_METADATA, context.getHandler());
+    }
+    const request = context.getArgByIndex(0);
+    if (this.httpServer.getRequestMethod(request) !== 'GET') {
+      return undefined;
+    }
+    return this.httpServer.getRequestUrl(request);
+  }
+
+  /**
+   * Cache by url and host
+   * @param context
+   */
+  trackBy(context: ExecutionContext): string | undefined {
+    const request = context.getArgByIndex(0);
+    let key = this.superTrackBy(context);
+    this.logger.debug(`trackBy check key ${key}`);
+    if (!key) {
+      return undefined;
+    }
+    let host = this.getClientHost(request);
+    if (host === this.shopifyModuleOptions.appHost) {
+      // this.logger.debug(`request from backend`, request.user);
+
+      // Do not cache if no user is logged in
+      if (!this.isLoggedIn(request)) {
+        return undefined;
+      }
+
+      host = request.user.shop.domain;
+    }
+    key = `${host}:${key}`;
+    this.logger.debug(`trackBy cache by ${key}`);
+    return key;
+  }
+}
+
+
+
+

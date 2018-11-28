@@ -5,7 +5,7 @@ import { Roles } from '../guards/roles.decorator'; // '../../app.module';
 import { IShopifyShop } from './interfaces/shop';
 import { ShopService } from './shop.service';
 
-import { DebugService } from '../../debug.service';
+import { DebugService } from '../debug.service';
 
 @Controller('shopify/shop')
 export class ShopController {

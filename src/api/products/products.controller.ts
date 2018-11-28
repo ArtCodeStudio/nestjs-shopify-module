@@ -1,10 +1,10 @@
 import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
 
 import { ProductsService } from './products.service';
-import { DebugService } from 'debug.service';
+import { DebugService } from '../../debug.service';
 
-import { ShopifyApiGuard } from 'shopify/guards/shopify-api.guard';
-import { Roles } from 'shopify/guards/roles.decorator';
+import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
+import { Roles } from '../../guards/roles.decorator';
 
 @Controller('shopify/api/products')
 export class ProductsController {

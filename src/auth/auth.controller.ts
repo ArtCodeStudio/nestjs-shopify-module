@@ -1,17 +1,22 @@
-import { Controller, Get, Req, Res, Next, Session, Query, Param, HttpStatus } from '@nestjs/common';
+import { Inject, Controller, Get, Req, Res, Next, Session, Query, Param, HttpStatus } from '@nestjs/common';
 import * as passport from 'passport';
 import { ShopifyAuthStrategy } from './auth.strategy';
 import { ShopifyConnectService } from './connect.service';
-import { DebugService } from 'debug.service';
-import { ConfigService } from 'config.service';
-import { Roles } from 'shopify/guards/roles.decorator';
+import { DebugService } from '../debug.service';
+import { ShopifyModuleOptions} from '../interfaces/shopify-module-options';
+import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
+
+import { Roles } from '../guards/roles.decorator';
 
 @Controller('shopify/auth')
 export class ShopifyAuthController {
 
   protected logger = new DebugService('shopify:AuthController');
 
-  constructor(private readonly shopifyConnectService: ShopifyConnectService) {
+  constructor(
+    private readonly shopifyConnectService: ShopifyConnectService,
+    @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions
+  ) {
 
   }
 
@@ -30,10 +35,10 @@ export class ShopifyAuthController {
 
     this.logger.debug('auth called', `AuthController:${shop}`);
 
-    passport.use(`shopify-${shop}`, new ShopifyAuthStrategy(shop, this.shopifyConnectService));
+    passport.use(`shopify-${shop}`, new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions));
 
     return passport.authenticate(`shopify-${shop}`, {
-      scope: ConfigService.shopify.scope,
+      scope: this.shopifyModuleOptions.scope,
       shop: req.query.shop,
     } as any)(req, res, next);
   }

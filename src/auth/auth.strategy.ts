@@ -1,13 +1,12 @@
 import { use, serializeUser, deserializeUser } from 'passport';
-import {  } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-shopify'; // https://github.com/danteata/passport-shopify
 import { ShopifyConnectService } from './connect.service';
-import { DebugService } from '../../debug.service';
+import { DebugService } from '../debug.service';
 import { ShopifyAuthController } from './auth.controller';
 import { IShopifyAuthProfile } from './interfaces/profile';
-import { ConfigService } from '../../config.service';
 import { IShopifyConnect } from '../interfaces/user-request';
+import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 
 export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
 
@@ -15,12 +14,16 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
 
   protected authController: ShopifyAuthController;
 
-  constructor( shop: string, private shopifyConnectService: ShopifyConnectService ) {
+  constructor(
+    shop: string,
+    private shopifyConnectService: ShopifyConnectService,
+    private readonly shopifyModuleOptions: ShopifyModuleOptions
+  ) {
     super (
       {
-        clientID: ConfigService.shopify.clientID,
-        clientSecret: ConfigService.shopify.clientSecret,
-        callbackURL: ConfigService.shopify.callbackURL,
+        clientID: shopifyModuleOptions.clientID,
+        clientSecret: shopifyModuleOptions.clientSecret,
+        callbackURL: shopifyModuleOptions.callbackURL,
         shop,
       },
       /* this.validate, */
@@ -46,6 +49,7 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
 
     return this.shopifyConnectService.connectOrUpdate(profile, accessToken)
     .then((user) => {
+      this.logger.debug(`user`, user);
       return done(null, user); // see AuthStrategy -> serializeUser
     })
     .catch((err) => {

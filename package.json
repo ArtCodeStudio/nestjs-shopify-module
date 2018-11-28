@@ -5,5 +5,22 @@
   "main": "src/index.ts",
   "author": "Moritz Raguschat<moritz@jumplink.me>, Pascal Garber<pascal@jumplink.eu>",
   "license": "proprietary",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@nestjs/common": "^5.4.0",
+    "@nestjs/core": "^5.4.0",
+    "@nestjs/passport": "^5.1.0",
+    "@types/cache-manager": "^1.2.6",
+    "@types/passport": "^0.4.7",
+    "cache-manager": "^2.9.0",
+    "cache-manager-redis": "^0.6.0",
+    "deepmerge": "^2.2.1",
+    "mongoose": "^5.3.14",
+    "p-map": "^2.0.0",
+    "passport": "^0.4.0",
+    "passport-shopify": "^0.1.2",
+    "reflect-metadata": "^0.1.12",
+    "rxjs": "^6.3.3",
+    "shopify-prime": "^2.11.0"
+  }
 }

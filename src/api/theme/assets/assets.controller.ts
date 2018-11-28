@@ -1,9 +1,9 @@
 import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
 
-import { Roles } from 'shopify/guards/roles.decorator';
-import { DebugService } from 'debug.service';
-import { ShopifyThemeAssetService } from 'shopify/api/theme/assets/assets.service';
-import { ShopifyApiGuard } from 'shopify/guards/shopify-api.guard';
+import { Roles } from '../../../guards/roles.decorator';
+import { DebugService } from '../../../debug.service';
+import { ShopifyThemeAssetService } from './assets.service';
+import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
 import * as url from 'url';
 
 @Controller('shopify/api/themes')

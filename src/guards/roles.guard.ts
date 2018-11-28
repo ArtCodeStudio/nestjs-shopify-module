@@ -4,7 +4,7 @@ import { Reflector } from '@nestjs/core';
 
 import { IUserRequest, IShopifyConnect } from '../interfaces/user-request';
 import { TRoles } from '../auth/interfaces/role';
-import { DebugService } from '../../debug.service';
+import { DebugService } from '../debug.service';
 
 /**
  *

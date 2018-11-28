@@ -1,12 +1,11 @@
 import { CanActivate, ExecutionContext, Injectable, Inject } from '@nestjs/common';
 import { Observable } from 'rxjs';
 
-import { IUserRequest } from 'shopify/interfaces/user-request';
-import { ShopifyConnectService } from 'shopify/auth/connect.service';
-import { ShopifyAuthService } from 'shopify/auth/auth.service';
+import { IUserRequest } from '../interfaces/user-request';
+import { ShopifyConnectService } from '../auth/connect.service';
+import { ShopifyAuthService } from '../auth/auth.service';
 
-import { DebugService } from 'debug.service';
-import { ConfigService } from 'config.service';
+import { DebugService } from '../debug.service';
 
 /**
  *

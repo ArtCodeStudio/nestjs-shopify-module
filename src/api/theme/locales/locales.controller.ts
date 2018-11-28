@@ -1,19 +1,20 @@
-import { Controller, Param, UseGuards, Req, Res, Get, HttpStatus, UseInterceptors } from '@nestjs/common';
+import { Inject, Controller, Param, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
 
-import { Roles } from 'shopify/guards/roles.decorator';
-import { DebugService } from 'debug.service';
-import { ShopifyLocalesService } from 'shopify/api/theme/locales/shopify-locales.service';
-import { ShopifyApiGuard } from 'shopify/guards/shopify-api.guard';
-import { ShopifyConnectService } from 'shopify/auth/connect.service';
-import { IShopifyConnect } from 'shopify/auth/interfaces/connect';
-import { ApiCacheInterceptor } from 'shopify/api/api-cache.interceptor';
-import { ShopifyError } from 'shopify-prime/infrastructure/shopify_error';
+import { Roles } from '../../../guards/roles.decorator';
+import { DebugService } from '../../../debug.service';
+import { ShopifyLocalesService } from '../../../api/theme/locales/shopify-locales.service';
+import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
+import { ShopifyConnectService } from '../../../auth/connect.service';
+import { IShopifyConnect } from '../../../auth/interfaces/connect';
+import { Infrastructure } from 'shopify-prime';
+
+import { SHOPIFY_MODULE_OPTIONS } from '../../../shopify.constants';
+import { ShopifyModuleOptions } from '../../../interfaces/shopify-module-options';
 
 import * as url from 'url';
 
 // WORKAROUND for https://github.com/nestjs/nest/issues/1016
 import * as cacheManager from 'cache-manager';
-import { ConfigService } from 'config.service';
 import { Cache } from '../../api-cache.d';
 
 @Controller('shopify/api/themes')
@@ -23,9 +24,12 @@ export class LocalesController {
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   // WORKAROUND for https://github.com/nestjs/nest/issues/1016
-  redisCache: Cache = cacheManager.caching(ConfigService.cache) as any as Cache;
+  redisCache: Cache = cacheManager.caching(this.shopifyModuleOptions.cache) as any as Cache;
 
-  constructor(private readonly shopifyConnectService: ShopifyConnectService) {
+  constructor(
+    private readonly shopifyConnectService: ShopifyConnectService,
+    @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions,
+  ) {
   }
 
   /**
@@ -53,7 +57,7 @@ export class LocalesController {
       this.logger.debug(`assets`, locale);
       return res.jsonp(locale);
     })
-    .catch((error: ShopifyError) => {
+    .catch((error: Infrastructure.ShopifyError) => {
       this.logger.debug(error);
       if (error.statusCode === 404) {
         error.message = `Locales in theme ${themeId} not found.`;
@@ -68,7 +72,7 @@ export class LocalesController {
         id: themeId,
         stack: undefined,
       };
-      if (ConfigService.app.debug && error.stack) {
+      if (this.shopifyModuleOptions.debug && error.stack) {
         errorRes.stack = error.stack;
       }
       return res.status(error.statusCode).jsonp(errorRes);
@@ -94,7 +98,7 @@ export class LocalesController {
     .then((assets) => {
       return res.jsonp(assets);
     })
-    .catch((error: ShopifyError) => {
+    .catch((error: Infrastructure.ShopifyError) => {
       this.logger.error(error);
       const errorRes = {
         name: error.name,
@@ -103,7 +107,7 @@ export class LocalesController {
         id: themeId,
         stack: undefined,
       };
-      if (ConfigService.app.debug && error.stack) {
+      if (this.shopifyModuleOptions.debug && error.stack) {
         errorRes.stack = error.stack;
       }
       return res.status(error.statusCode).jsonp(errorRes);
@@ -136,7 +140,7 @@ export class LocalesController {
       this.logger.debug(`assets`, locale);
       return res.jsonp(locale);
     })
-    .catch((error: ShopifyError) => {
+    .catch((error: Infrastructure.ShopifyError) => {
       this.logger.error(error);
       if (error.statusCode === 404) {
         error.message = `Local file ${filename} in theme ${themeId} not found.`;
@@ -148,7 +152,7 @@ export class LocalesController {
         id: themeId,
         stack: undefined,
       };
-      if (ConfigService.app.debug && error.stack) {
+      if (this.shopifyModuleOptions.debug && error.stack) {
         errorRes.stack = error.stack;
       }
       return res.status(error.statusCode).jsonp(errorRes);
@@ -182,7 +186,7 @@ export class LocalesController {
       this.logger.debug(`assets`, locale);
       return res.jsonp(locale);
     })
-    .catch((error: ShopifyError) => {
+    .catch((error: Infrastructure.ShopifyError) => {
       this.logger.error(error);
       if (error.statusCode === 404) {
         error.message = `Section file ${filename} in theme ${themeId} not found.`;
@@ -195,7 +199,7 @@ export class LocalesController {
         filename,
         stack: undefined,
       };
-      if (ConfigService.app.debug && error.stack) {
+      if (this.shopifyModuleOptions.debug && error.stack) {
         errorRes.stack = error.stack;
       }
       return res.status(error.statusCode).jsonp(errorRes);
@@ -243,7 +247,7 @@ export class LocalesController {
       (error as any).statusCode = 404;
       throw error;
     })
-    .catch((error: ShopifyError) => {
+    .catch((error: Infrastructure.ShopifyError) => {
       this.logger.error(error);
       if (error.statusCode === 404) {
         error.message = `Locales with path ${propertyPath} in theme ${themeId} not found.`;
@@ -256,7 +260,7 @@ export class LocalesController {
         path,
         stack: undefined,
       };
-      if (ConfigService.app.debug && error.stack) {
+      if (this.shopifyModuleOptions.debug && error.stack) {
         errorRes.stack = error.stack;
       }
       return res.status(error.statusCode).jsonp(errorRes);

@@ -1,6 +1,5 @@
-import {  } from '@nestjs/common';
 import { RecurringCharges } from 'shopify-prime';
-import { ConfigService } from 'config.service';
+import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 
 /**
  * @see https://github.com/nozzlegear/Shopify-Prime#create-a-recurring-charge
@@ -9,12 +8,16 @@ export class ChargeService extends RecurringCharges {
 
   protected return_url = `http://localhost:3000/shopify/charge/callback`;
 
-  constructor(shopDomain: string, shopAccessToken: string) {
+  constructor(
+    shopDomain: string,
+    shopAccessToken: string,
+    private readonly shopifyModuleOptions: ShopifyModuleOptions,
+  ) {
     super(shopDomain, shopAccessToken);
   }
 
   private getPlanByName(name: string) {
-    const plans = ConfigService.charges.plans;
+    const plans = this.shopifyModuleOptions.plans;
     for (const plan of plans) {
       if (plan.name === name) {
         return plan;

@@ -1,11 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
-import { IUserRequest } from 'shopify/interfaces/user-request';
-import { DebugService } from 'debug.service';
-import { ConfigService } from 'config.service';
+import { IUserRequest } from '../interfaces/user-request';
+import { DebugService } from '../debug.service';
+import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
+import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 
 @Injectable()
 export class ShopifyAuthService {
+  constructor(
+    @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions
+  ){}
   protected logger = new DebugService('shopify:AuthService');
 
   /**
@@ -68,7 +72,7 @@ export class ShopifyAuthService {
     }
 
     // if the host is the host of the app backend the user needs to be logged in
-    if (host === ConfigService.app.host) {
+    if (host === this.shopifyModuleOptions.appHost) {
       if (!this.isLoggedIn(request)) {
         return null;
       }

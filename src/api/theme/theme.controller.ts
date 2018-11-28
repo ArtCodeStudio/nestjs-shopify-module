@@ -1,10 +1,10 @@
 import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
 
-import { Roles } from 'shopify/guards/roles.decorator';
+import { Roles } from '../../guards/roles.decorator';
 import { DebugService } from 'debug.service';
-import { ShopifyThemeService } from 'shopify/api/theme/theme.service';
-import { ShopifyThemeAssetService } from 'shopify/api/theme/assets/assets.service';
-import { ShopifyApiGuard } from 'shopify/guards/shopify-api.guard';
+import { ShopifyThemeService } from '../../api/theme/theme.service';
+import { ShopifyThemeAssetService } from '../../api/theme/assets/assets.service';
+import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 
 @Controller('shopify/api/themes')
 export class ThemeController {

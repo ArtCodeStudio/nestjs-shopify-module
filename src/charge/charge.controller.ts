@@ -1,11 +1,16 @@
-import { Controller, Param, Get, Req, Res, Session, HttpStatus, Query} from '@nestjs/common';
+import { Inject, Controller, Param, Get, Req, Res, Session, HttpStatus, Query} from '@nestjs/common';
 import { ChargeService } from './charge.service';
-import { DebugService } from '../../debug.service';
+import { DebugService } from '../debug.service';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { Roles } from '../guards/roles.decorator';
+import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
+import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 
 @Controller('shopify/charge')
 export class ChargeController {
+  constructor(
+    @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions
+  ){}
 
   protected debug = new DebugService('ChargeController').debug;
 
@@ -15,7 +20,7 @@ export class ChargeController {
     this.debug('req.user', req.user);
     const user = req.user as IShopifyConnect;
     // this.debug('session.user', session.user);
-    const chargeService = new ChargeService(user.myshopify_domain, user.accessToken );
+    const chargeService = new ChargeService(user.myshopify_domain, user.accessToken, this.shopifyModuleOptions );
     return chargeService.createByName(name)
     .then((charge) => {
       this.debug('charge', charge);

@@ -3,7 +3,7 @@ import { Model, Types } from 'mongoose';
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { IShopifyShop } from './interfaces/shop';
-import { DebugService } from '../../debug.service';
+import { DebugService } from '../debug.service';
 
 @Injectable()
 export class ShopService {
