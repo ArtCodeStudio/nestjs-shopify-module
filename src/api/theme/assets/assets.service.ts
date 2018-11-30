@@ -64,7 +64,7 @@ export class ShopifyThemeAssetService extends Assets {
     }
   }
 
-  async list(id: number, options: CustomAssetListOptions = {}) {
+  async list(id: number, options: CustomAssetListOptions = {}): Promise<Models.Asset[]> {
     return super.list(id, options)
     .then((assetData) => {
       // this.logger.debug('assetData', assetData);

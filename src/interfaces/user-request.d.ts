@@ -1,5 +1,5 @@
 import { Request } from '@nestjs/common';
-import { IShopifyConnect } from 'shopify/auth/interfaces/connect';
+import { IShopifyConnect } from '../auth/interfaces/connect';
 
 // TODO move ti interfaces
 interface IUserRequest extends Request {

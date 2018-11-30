@@ -2,7 +2,7 @@
   "name": "nest-shopify",
   "version": "0.0.1",
   "description": "Nest module for Shopify app backend",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "author": "Moritz Raguschat<moritz@jumplink.me>, Pascal Garber<pascal@jumplink.eu>",
   "license": "proprietary",
   "private": true,
@@ -21,6 +21,6 @@
     "passport-shopify": "^0.1.2",
     "reflect-metadata": "^0.1.12",
     "rxjs": "^6.3.3",
-    "shopify-prime": "^2.11.0"
+    "shopify-prime": "git+https://github.com/JumpLink/Shopify-Prime.git"
   }
 }

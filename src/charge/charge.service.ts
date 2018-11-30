@@ -1,4 +1,4 @@
-import { RecurringCharges } from 'shopify-prime';
+import { RecurringCharges, Models } from 'shopify-prime';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 
 /**
@@ -30,7 +30,7 @@ export class ChargeService extends RecurringCharges {
    * TODO save accepted plans in database
    * @param plan
    */
-  async createByName(planName?: string) {
+  async createByName(planName?: string): Promise<Models.RecurringCharge> {
     let plan;
     if (!planName) {
       plan = this.getPlanByName('Default');

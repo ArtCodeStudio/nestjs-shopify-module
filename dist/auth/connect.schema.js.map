@@ -1,0 +1,1 @@
+{"version":3,"file":"connect.schema.js","sourceRoot":"","sources":["../../src/auth/connect.schema.ts"],"names":[],"mappings":";;AAAA,qCAAqC;AACrC,qDAAwD;AAE3C,QAAA,oBAAoB,GAAG,IAAI,QAAQ,CAAC,MAAM,CAAC;IACtD,SAAS,EAAE,MAAM;IACjB,gBAAgB,EAAE,MAAM;IACxB,WAAW,EAAE,MAAM;IACnB,SAAS,EAAE,IAAI;IACf,SAAS,EAAE,IAAI;IACf,KAAK,EAAE,CAAC,MAAM,CAAC;IACf,IAAI,EAAE,+BAAiB;CACxB,CAAC,CAAC"}
