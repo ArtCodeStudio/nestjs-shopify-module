@@ -1,8 +1,7 @@
 {
   "name": "nest-shopify",
   "version": "0.0.1",
-  "main": "dist/index.js",
-  "declarations": "typings/index.d.ts",
+  "main": "src/index.ts",
   "description": "Nest module for Shopify app backend",
   "author": "Moritz Raguschat<moritz@jumplink.me>, Pascal Garber<pascal@jumplink.eu>",
   "license": "proprietary",
