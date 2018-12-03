@@ -1,17 +1,17 @@
 {
   "name": "nest-shopify",
   "version": "0.0.1",
-  "description": "Nest module for Shopify app backend",
   "main": "dist/index.js",
+  "declarations": "typings/index.d.ts",
+  "description": "Nest module for Shopify app backend",
   "author": "Moritz Raguschat<moritz@jumplink.me>, Pascal Garber<pascal@jumplink.eu>",
   "license": "proprietary",
   "private": true,
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.json"
+  },
   "dependencies": {
-    "@nestjs/common": "^5.4.0",
-    "@nestjs/core": "^5.4.0",
     "@nestjs/passport": "^5.1.0",
-    "@types/cache-manager": "^1.2.6",
-    "@types/passport": "^0.4.7",
     "cache-manager": "^2.9.0",
     "cache-manager-redis": "^0.6.0",
     "deepmerge": "^2.2.1",
@@ -19,8 +19,20 @@
     "p-map": "^2.0.0",
     "passport": "^0.4.0",
     "passport-shopify": "^0.1.2",
-    "reflect-metadata": "^0.1.12",
-    "rxjs": "^6.3.3",
     "shopify-prime": "git+https://github.com/JumpLink/Shopify-Prime.git"
+  },
+  "devDependencies": {
+    "@nestjs/common": "^5.4.0",
+    "@nestjs/core": "^5.4.0",
+    "@types/cache-manager": "^1.2.6",
+    "@types/passport": "^0.4.7",
+    "reflect-metadata": "^0.1.12",
+    "rxjs": "^6.3.3"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^5.4.0",
+    "@nestjs/core": "^5.4.0",
+    "reflect-metadata": "^0.1.12",
+    "rxjs": "^6.3.3"
   }
 }
