@@ -18,7 +18,7 @@
     "p-map": "^2.0.0",
     "passport": "^0.4.0",
     "passport-shopify": "^0.1.2",
-    "shopify-prime": "^2.11.0"
+    "shopify-prime": "git+https://github.com/JumpLink/Shopify-Prime.git"
   },
   "devDependencies": {
     "@nestjs/common": "^5.4.0",

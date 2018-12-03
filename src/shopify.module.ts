@@ -51,6 +51,7 @@ import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
 })
 export class ShopifyModule implements NestModule {
   static forRoot(options: ShopifyModuleOptions, database): DynamicModule {
+    console.log('FUCK IT');
     const shopifyModuleOptions = {
       provide: SHOPIFY_MODULE_OPTIONS,
       useValue: options
