@@ -35,7 +35,11 @@ export class ShopifyAuthController {
 
     this.logger.debug('auth called', `AuthController:${shop}`);
 
-    passport.use(`shopify-${shop}`, new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions));
+    const shopifyAuthStrategy = new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions)
+
+    const pass = passport.use(`shopify-${shop}`, shopifyAuthStrategy);
+    pass.serializeUser(shopifyAuthStrategy.serializeUser.bind(shopifyAuthStrategy));
+    pass.deserializeUser(shopifyAuthStrategy.deserializeUser.bind(shopifyAuthStrategy));
 
     return passport.authenticate(`shopify-${shop}`, {
       scope: this.shopifyModuleOptions.scope,

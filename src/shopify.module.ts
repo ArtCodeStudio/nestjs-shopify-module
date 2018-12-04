@@ -67,7 +67,6 @@ import { Mongoose } from 'mongoose';
 })
 export class ShopifyModule implements NestModule {
   static forRoot(options: ShopifyModuleOptions, database: Mongoose): DynamicModule {
-    console.warn('options', options);
     const shopifyModuleOptions = {
       provide: SHOPIFY_MODULE_OPTIONS,
       useValue: options

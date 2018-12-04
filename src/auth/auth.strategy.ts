@@ -1,4 +1,3 @@
-import { use, serializeUser, deserializeUser } from 'passport';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-shopify'; // https://github.com/danteata/passport-shopify
 import { ShopifyConnectService } from './connect.service';
@@ -29,13 +28,12 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
       /* this.validate, */
     );
 
-    serializeUser(this.serializeUser.bind(this));
-
-    deserializeUser(this.deserializeUser.bind(this));
+    // serializeUser(this.serializeUser.bind(this));
+    // deserializeUser(this.deserializeUser.bind(this));
   }
 
   /**
-   * Verify callback method, called insite of the InstagramAuthStrategy
+   * Verify callback method, called insite of the ShopifyAuthStrategy
    * @param shop
    * @param accessToken
    * @param refreshToken
@@ -47,25 +45,29 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
     this.logger.debug(`refreshToken`, refreshToken);
     this.logger.debug(`profile`, profile);
 
-    return this.shopifyConnectService.connectOrUpdate(profile, accessToken)
+    this.shopifyConnectService.connectOrUpdate(profile, accessToken)
     .then((user) => {
-      this.logger.debug(`user`, user);
+      if (!user) {
+        throw new Error('Error on connect or update user');
+      }
+      this.logger.debug(`validate user`, user);
       return done(null, user); // see AuthStrategy -> serializeUser
     })
     .catch((err) => {
+      this.logger.error('Error on ShopifyAuthStrategy.validate');
       this.logger.error(err);
       return done(err);
     });
   }
 
-  serializeUser(user: IShopifyConnect, done) {
+  public serializeUser(user: IShopifyConnect, done) {
     this.logger.debug(`serializeUser user id`, user.shopifyID);
     return done(null, user.shopifyID);
   }
 
-  deserializeUser(id: number, done) {
+  public deserializeUser(id: number, done) {
     this.logger.debug(`deserializeUser`, id);
-    return this.shopifyConnectService.findByShopifyId(id)
+    this.shopifyConnectService.findByShopifyId(id)
     .then((user) => {
       return done(null, user);
     })
