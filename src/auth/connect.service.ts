@@ -14,9 +14,6 @@ export class ShopifyConnectService {
     private readonly shopifyConnectModel: Model<IShopifyConnect>,
   ) {}
 
-  /**
-   * @see http://typeorm.io/#/repository-api
-   */
   async connectOrUpdate(userProfile: IShopifyAuthProfile, accessToken) {
     this.logger.debug('connectOrUpdate', userProfile.username);
     const now = new Date();

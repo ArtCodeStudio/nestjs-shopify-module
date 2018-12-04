@@ -1,3 +1,5 @@
+import { IPlan } from '../charge/interfaces/plan';
+
 export interface ShopifyModuleOptions {
   clientID: string;
   clientSecret: string;
@@ -5,6 +7,9 @@ export interface ShopifyModuleOptions {
   appHost: string;
   debug: boolean;
   scope: string[];
-  plans: any;
+  charges: {
+    plans: IPlan[];
+    frontend_return_url: string;
+  };
   cache: any;
 }

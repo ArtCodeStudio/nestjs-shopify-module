@@ -2,6 +2,7 @@ import { Module, DynamicModule, CacheModule, NestModule, MiddlewareConsumer } fr
 import { APP_GUARD } from '@nestjs/core';
 import { ShopifyAuthController } from './auth/auth.controller';
 import { shopifyConnectProviders } from './auth/connect.providers';
+import { chargeProviders } from './charge/charge.providers';
 import { ShopifyConnectService } from './auth/connect.service';
 import { ChargeController } from './charge/charge.controller';
 import { ChargeService } from './charge/charge.service';
@@ -40,6 +41,7 @@ import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
     ChargeService,
     ShopifyConnectService,
     ShopService,
+    ...chargeProviders,
     ...shopifyConnectProviders,
     ShopifyAuthService,
     SyncService,
@@ -51,7 +53,6 @@ import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
 })
 export class ShopifyModule implements NestModule {
   static forRoot(options: ShopifyModuleOptions, database): DynamicModule {
-    console.log('FUCK IT');
     const shopifyModuleOptions = {
       provide: SHOPIFY_MODULE_OPTIONS,
       useValue: options

@@ -60,7 +60,7 @@ export class ShopifyAuthController {
 
     return passport.authenticate(`shopify-${shop}`, {
       failureRedirect: `failure/${shop}`,
-      successRedirect: `success/${shop}`,
+      successRedirect: `/view/settings`, // `success/${shop}`,
       session: true,
       userProperty: 'user', // defaults to 'user' if omitted
     })(req, res, next);
@@ -112,7 +112,30 @@ export class ShopifyAuthController {
   }
 
   /**
-   * Get a connected instagram account by id
+   * Get connected shopify account by current user
+   * @param res
+   * @param req
+   */
+  @Get('/connected/current')
+  @Roles('shopify-staff-member')
+  connectCurrent(@Res() res, @Req() req) {
+    return this.shopifyConnectService.findByDomain(req.user.shop.domain)
+    .then((connect) => {
+      return res.json(connect);
+    })
+    .catch((error: Error) => {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({
+        message: `Failure on get connected shopify account.`,
+        info: error.message,
+        name: error.name,
+      });
+    });
+  }
+
+  /**
+   * Get a connected shopify account by id
    * @param res
    * @param req
    */
@@ -133,5 +156,25 @@ export class ShopifyAuthController {
         id,
       });
     });
+  }
+
+  @Get('/logout')
+  @Roles('shopify-staff-member')
+  logout(@Res() res, @Req() req) {
+    req.logout();
+    return res.redirect('/view/settings'); // TODO change url and store them in config
+  }
+
+  /**
+   * Check if the current user (the request comes from) is logged in
+   * @param res
+   * @param req
+   */
+  @Get('/loggedIn')
+  loggedIn(@Res() res, @Req() req) {
+    if (req.user) {
+      return res.json(true);
+    }
+    return res.json(false);
   }
 }
