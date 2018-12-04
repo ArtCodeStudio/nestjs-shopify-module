@@ -28,6 +28,8 @@ import { ProductsController } from './api/products/products.controller';
 import { SHOPIFY_MODULE_OPTIONS } from './shopify.constants';
 import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
 
+import * as mongoose from 'mongoose';
+
 @Module({
   providers: [
     // inectable guard
@@ -52,7 +54,7 @@ import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
   exports: [ShopifyConnectService, ShopifyApiGuard, ShopifyAuthService],
 })
 export class ShopifyModule implements NestModule {
-  static forRoot(options: ShopifyModuleOptions, database): DynamicModule {
+  static forRoot(options: ShopifyModuleOptions, database: typeof mongoose): DynamicModule {
     const shopifyModuleOptions = {
       provide: SHOPIFY_MODULE_OPTIONS,
       useValue: options
@@ -88,3 +90,5 @@ export class ShopifyModule implements NestModule {
       .forRoutes(LocalesController);
   }
 }
+
+export { ShopifyAuthService };

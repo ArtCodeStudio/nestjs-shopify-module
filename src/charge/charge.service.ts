@@ -4,7 +4,7 @@ import { Model, Types } from 'mongoose';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 
 import { IAvailableCharge } from './interfaces/availableCharge';
-import { IPlan } from './interfaces/plan';
+import { IPlan, IPlanDocument } from './interfaces/plan';
 
 /**
  * @see https://github.com/nozzlegear/Shopify-Prime#create-a-recurring-charge
@@ -15,7 +15,7 @@ export class ChargeService {
 
   constructor(
     @Inject('PlanModelToken')
-    private readonly planModel: Model<IAvailableCharge>,
+    private readonly planModel: Model<IPlanDocument>,
   ) {}
 
   /**
@@ -50,7 +50,7 @@ export class ChargeService {
    * @param plan
    */
   async createByName(user: IShopifyConnect, planName: string = 'Default') {
-    const plan = this.getPlanByName(planName);
+    const plan = await this.getPlanByName(planName);
 
     if (!plan) {
       throw new Error('Charge not found');

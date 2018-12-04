@@ -1,3 +1,5 @@
+import { Document } from 'mongoose';
+
 export interface IPlan {
   name: string;
   price: number;
@@ -6,3 +8,5 @@ export interface IPlan {
   visible: boolean;
   return_url: string;
 }
+
+export interface IPlanDocument extends IPlan, Document {};
