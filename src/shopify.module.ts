@@ -27,7 +27,7 @@ import { ProductsController } from './api/products/products.controller';
 import { SHOPIFY_MODULE_OPTIONS } from './shopify.constants';
 import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
 
-import * as mongoose from 'mongoose';
+import { Mongoose } from 'mongoose';
 
 @Module({
   providers: [
@@ -42,17 +42,32 @@ import * as mongoose from 'mongoose';
     ChargeService,
     ShopifyConnectService,
     ShopService,
-    ...shopifyConnectProviders,
     ShopifyAuthService,
     SyncService,
     OrdersService,
     ProductsService,
   ],
-  controllers: [ShopifyAuthController, ChargeController, ShopController, ApiController, ThemeController, AssetsController, LocalesController, OrdersController, ProductsController],
-  exports: [ShopifyConnectService, ShopifyApiGuard, ShopifyAuthService, ChargeService],
+  controllers: [
+    ShopifyAuthController,
+    ChargeController,
+    ShopController,
+    ApiController,
+    ThemeController,
+    AssetsController,
+    LocalesController,
+    OrdersController,
+    ProductsController,
+  ],
+  exports: [
+    ShopifyConnectService,
+    ShopifyApiGuard,
+    ShopifyAuthService,
+    ChargeService,
+  ],
 })
 export class ShopifyModule implements NestModule {
-  static forRoot(options: ShopifyModuleOptions, database: typeof mongoose): DynamicModule {
+  static forRoot(options: ShopifyModuleOptions, database: Mongoose): DynamicModule {
+    console.warn('options', options);
     const shopifyModuleOptions = {
       provide: SHOPIFY_MODULE_OPTIONS,
       useValue: options
@@ -66,6 +81,11 @@ export class ShopifyModule implements NestModule {
       providers: [
         shopifyModuleOptions,
         mongooseDatabase,
+        ...shopifyConnectProviders(database),
+      ],
+      exports: [
+        mongooseDatabase,
+        ...shopifyConnectProviders(database),
       ]
     }
   }
