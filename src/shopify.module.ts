@@ -2,7 +2,6 @@ import { Module, DynamicModule, CacheModule, NestModule, MiddlewareConsumer } fr
 import { APP_GUARD } from '@nestjs/core';
 import { ShopifyAuthController } from './auth/auth.controller';
 import { shopifyConnectProviders } from './auth/connect.providers';
-import { chargeProviders } from './charge/charge.providers';
 import { ShopifyConnectService } from './auth/connect.service';
 import { ChargeController } from './charge/charge.controller';
 import { ChargeService } from './charge/charge.service';
@@ -43,7 +42,6 @@ import * as mongoose from 'mongoose';
     ChargeService,
     ShopifyConnectService,
     ShopService,
-    ...chargeProviders,
     ...shopifyConnectProviders,
     ShopifyAuthService,
     SyncService,
@@ -51,7 +49,7 @@ import * as mongoose from 'mongoose';
     ProductsService,
   ],
   controllers: [ShopifyAuthController, ChargeController, ShopController, ApiController, ThemeController, AssetsController, LocalesController, OrdersController, ProductsController],
-  exports: [ShopifyConnectService, ShopifyApiGuard, ShopifyAuthService],
+  exports: [ShopifyConnectService, ShopifyApiGuard, ShopifyAuthService, ChargeService],
 })
 export class ShopifyModule implements NestModule {
   static forRoot(options: ShopifyModuleOptions, database: typeof mongoose): DynamicModule {

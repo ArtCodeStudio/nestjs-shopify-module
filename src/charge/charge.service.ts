@@ -2,6 +2,7 @@ import { Inject } from '@nestjs/common';
 import { RecurringCharges, Models } from 'shopify-prime';
 import { Model, Types } from 'mongoose';
 import { IShopifyConnect } from '../auth/interfaces/connect';
+import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 
 import { IAvailableCharge } from './interfaces/availableCharge';
 import { IPlan, IPlanDocument } from './interfaces/plan';
@@ -14,8 +15,7 @@ export class ChargeService {
   protected return_url = `http://localhost:3000/shopify/charge/callback`;
 
   constructor(
-    @Inject('PlanModelToken')
-    private readonly planModel: Model<IPlanDocument>,
+    private readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {}
 
   /**
@@ -41,24 +41,37 @@ export class ChargeService {
    * @param plan
    */
   private getPlanByName(name: string) {
-    let query: any = { name };
-    return this.planModel.findOne(query).exec();
+    const plans = this.shopifyModuleOptions.charges.plans;
+    for (const plan of plans) {
+      if (plan.name === name) {
+        return plan;
+      }
+    }
+    return null;
   }
 
   /**
-   * Create a new charge, if plan was already accepted just activate this charge
+   * Create a new charge from a plan object
+   * @param plan
+   */
+  create(user: IShopifyConnect, plan) {
+    const recurringCharges = new RecurringCharges(user.myshopify_domain, user.accessToken);
+    return recurringCharges.create(plan);
+  }
+
+  /**
+   * Create a new charge by plan name, if plan was allready accepted just activate this charge
    * @param plan
    */
   async createByName(user: IShopifyConnect, planName: string = 'Default') {
-    const plan = await this.getPlanByName(planName);
+    const plan = this.getPlanByName(planName);
 
     if (!plan) {
       throw new Error('Charge not found');
     }
 
     // Check if the plan was already accepted
-    const recurringCharges = new RecurringCharges(user.myshopify_domain, user.accessToken);
-    return recurringCharges.list()
+    return this.listCharges(user)
     .then(async (prevPlans) => {
       for (const prevPlan of prevPlans) {
         if (
@@ -75,7 +88,7 @@ export class ChargeService {
         }
       }
       // If plan was not activated before, create it
-      return recurringCharges.create(plan);
+      return this.create(user, plan);
     });
 
   }
@@ -123,10 +136,9 @@ export class ChargeService {
    */
   async available(user: IShopifyConnect, all: boolean = false) {
     return this.active(user)
-    .then(async (activePlan) => {
+    .then((activePlan) => {
       const plans: IAvailableCharge[] = [];
-      const allPlans: IPlan[] = await this.planModel.find().exec();
-      for (const plan of allPlans) {
+      for (const plan of this.shopifyModuleOptions.charges.plans) {
         const availablePlan: IAvailableCharge = {
           name: plan.name,
           price: plan.price,
