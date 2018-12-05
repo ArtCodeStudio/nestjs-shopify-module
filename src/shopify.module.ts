@@ -27,6 +27,7 @@ import { ProductsController } from './api/products/products.controller';
 import { SHOPIFY_MODULE_OPTIONS } from './shopify.constants';
 import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
 
+import { PassportStatic } from 'passport';
 import { Mongoose } from 'mongoose';
 
 @Module({
@@ -66,7 +67,7 @@ import { Mongoose } from 'mongoose';
   ],
 })
 export class ShopifyModule implements NestModule {
-  static forRoot(options: ShopifyModuleOptions, database: Mongoose): DynamicModule {
+  static forRoot(options: ShopifyModuleOptions, database: Mongoose, passport: PassportStatic): DynamicModule {
     const shopifyModuleOptions = {
       provide: SHOPIFY_MODULE_OPTIONS,
       useValue: options
@@ -75,9 +76,16 @@ export class ShopifyModule implements NestModule {
       provide: 'defaultDatabase',
       useValue: database,
     };
+
+    const passportProvider = {
+      provide: 'Passport',
+      useValue: passport,
+    };
+
     return {
       module: ShopifyModule,
       providers: [
+        passportProvider,
         shopifyModuleOptions,
         mongooseDatabase,
         ...shopifyConnectProviders(database),

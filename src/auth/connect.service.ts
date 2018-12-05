@@ -29,10 +29,10 @@ export class ShopifyConnectService {
     });
 
     return this.findByDomain(newShopifyConnect.myshopify_domain)
-    .then((user) => {
+    .then(async (user) => {
       // update
       if (user) {
-        this.logger.debug(`update`, newShopifyConnect);
+        this.logger.debug(`update newShopifyConnect.myshopify_domain:`, newShopifyConnect.myshopify_domain);
         return this.shopifyConnectModel.updateOne({shopifyID: newShopifyConnect.shopifyID}, {
           myshopify_domain: newShopifyConnect.myshopify_domain,
           accessToken: newShopifyConnect.accessToken,
@@ -73,7 +73,7 @@ export class ShopifyConnectService {
   async findByShopifyId(id: number) {
     return this.shopifyConnectModel.findOne({shopifyID: id}).exec()
     .then((user: IShopifyConnect) => {
-      this.logger.debug(`findByShopifyId`, user);
+      this.logger.debug(`findByShopifyId user.myshopify_domain:`, user.myshopify_domain);
       return user;
     });
   }

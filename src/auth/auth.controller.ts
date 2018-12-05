@@ -1,13 +1,13 @@
 import { Inject, Controller, Get, Req, Res, Next, Session, Query, Param, HttpStatus } from '@nestjs/common';
-import * as passport from 'passport';
+import { PassportStatic } from 'passport';
 import { ShopifyAuthStrategy } from './auth.strategy';
-import { ShopifyConnectService } from './connect.service';
+import { ShopifyConnectService} from './connect.service';
 import { DebugService } from '../debug.service';
 import { ShopifyModuleOptions} from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
+import { IShopifyConnect } from './interfaces/connect'
 
 import { Roles } from '../guards/roles.decorator';
-
 @Controller('shopify/auth')
 export class ShopifyAuthController {
 
@@ -15,7 +15,8 @@ export class ShopifyAuthController {
 
   constructor(
     private readonly shopifyConnectService: ShopifyConnectService,
-    @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions
+    @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Inject('Passport') private readonly passport: PassportStatic,
   ) {
 
   }
@@ -35,15 +36,21 @@ export class ShopifyAuthController {
 
     this.logger.debug('auth called', `AuthController:${shop}`);
 
-    const shopifyAuthStrategy = new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions)
+    const shopifyAuthStrategy = new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions, this.passport)
 
-    const pass = passport.use(`shopify-${shop}`, shopifyAuthStrategy);
-    pass.serializeUser(shopifyAuthStrategy.serializeUser.bind(shopifyAuthStrategy));
-    pass.deserializeUser(shopifyAuthStrategy.deserializeUser.bind(shopifyAuthStrategy));
+    this.passport.use(`shopify-${shop}`, shopifyAuthStrategy);
+    // passport.serializeUser((user: IShopifyConnect, done) => {
+    //   this.logger.debug('serializeUser myshopify_domain', user.myshopify_domain);
+    //   shopifyAuthStrategy.serializeUser(user, done);
+    // });
+    // passport.deserializeUser((id: number, done) => {
+    //   this.logger.debug('deserializeUser id', id);
+    //   shopifyAuthStrategy.deserializeUser(id, done);
+    // });
 
-    return passport.authenticate(`shopify-${shop}`, {
+    return this.passport.authenticate(`shopify-${shop}`, {
       scope: this.shopifyModuleOptions.scope,
-      shop: req.query.shop,
+      shop: shop,
     } as any)(req, res, next);
   }
 
@@ -62,7 +69,7 @@ export class ShopifyAuthController {
 
     this.logger.debug('callback called', `AuthController:${shop}`);
 
-    return passport.authenticate(`shopify-${shop}`, {
+    return this.passport.authenticate(`shopify-${shop}`, {
       failureRedirect: `failure/${shop}`,
       successRedirect: `/view/settings`, // `success/${shop}`,
       session: true,
@@ -77,7 +84,7 @@ export class ShopifyAuthController {
    */
   @Get('/success/:shop')
   success(@Param('shop') shop, @Res() res, @Req() req) {
-    passport.unuse(`shopify-${shop}`);
+    this.passport.unuse(`shopify-${shop}`);
     return res.json({
       message: 'successfully logged in',
       shop: req.user.shop,
@@ -91,7 +98,7 @@ export class ShopifyAuthController {
    */
   @Get('/failure/:shop')
   failure(@Param('shop') shop, @Res() res, @Req() req) {
-    passport.unuse(`shopify-${shop}`);
+    this.passport.unuse(`shopify-${shop}`);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR)
     .json({ message: `Failure on oauth autentification`, shop });
   }
@@ -103,14 +110,14 @@ export class ShopifyAuthController {
    */
   @Get('/connected')
   @Roles('admin')
-  connects(@Res() res, @Req() req) {
+  async connects(@Res() res, @Req() req) {
     return this.shopifyConnectService.findAll()
     .then((connects) => {
       return res.json(connects);
     })
     .catch((error: Error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR)
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: `Failure on get connected shopify accounts`});
     });
   }
@@ -122,14 +129,14 @@ export class ShopifyAuthController {
    */
   @Get('/connected/current')
   @Roles('shopify-staff-member')
-  connectCurrent(@Res() res, @Req() req) {
+  async connectCurrent(@Res() res, @Req() req) {
     return this.shopifyConnectService.findByDomain(req.user.shop.domain)
     .then((connect) => {
       return res.json(connect);
     })
     .catch((error: Error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR)
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({
         message: `Failure on get connected shopify account.`,
         info: error.message,
@@ -145,14 +152,14 @@ export class ShopifyAuthController {
    */
   @Get('/connected/:id')
   @Roles('admin')
-  connect(@Param('id') id, @Res() res, @Req() req) {
+  async connect(@Param('id') id, @Res() res, @Req() req) {
     return this.shopifyConnectService.findByShopifyId(Number(id))
     .then((connect) => {
       return res.json(connect);
     })
     .catch((error: Error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR)
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({
         message: `Failure on get connected shopify account with id ${id}.`,
         info: error.message,
