@@ -30,14 +30,8 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
       },
     );
 
-    this.passport.serializeUser((user: IShopifyConnect, done) => {
-      console.error('serializeUser');
-      return this.serializeUser(user, done);
-    });
-    this.passport.deserializeUser((id: number, done) => {
-      console.error('deserializeUser');
-      return this.deserializeUser(id, done);
-    });
+    this.passport.serializeUser(this.serializeUser.bind(this));
+    this.passport.deserializeUser(this.deserializeUser.bind(this));
   }
 
   /**

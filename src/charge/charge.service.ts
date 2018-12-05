@@ -1,21 +1,21 @@
 import { Inject } from '@nestjs/common';
 import { RecurringCharges, Models } from 'shopify-prime';
-import { Model, Types } from 'mongoose';
+import { DebugService } from '../debug.service';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
+import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 
 import { IAvailableCharge } from './interfaces/availableCharge';
-import { IPlan, IPlanDocument } from './interfaces/plan';
 
 /**
  * @see https://github.com/nozzlegear/Shopify-Prime#create-a-recurring-charge
  */
 export class ChargeService {
 
-  protected return_url = `http://localhost:3000/shopify/charge/callback`;
+  protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
-    private readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {}
 
   /**

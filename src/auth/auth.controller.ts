@@ -39,14 +39,6 @@ export class ShopifyAuthController {
     const shopifyAuthStrategy = new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions, this.passport)
 
     this.passport.use(`shopify-${shop}`, shopifyAuthStrategy);
-    // passport.serializeUser((user: IShopifyConnect, done) => {
-    //   this.logger.debug('serializeUser myshopify_domain', user.myshopify_domain);
-    //   shopifyAuthStrategy.serializeUser(user, done);
-    // });
-    // passport.deserializeUser((id: number, done) => {
-    //   this.logger.debug('deserializeUser id', id);
-    //   shopifyAuthStrategy.deserializeUser(id, done);
-    // });
 
     return this.passport.authenticate(`shopify-${shop}`, {
       scope: this.shopifyModuleOptions.scope,

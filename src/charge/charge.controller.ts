@@ -1,4 +1,4 @@
-import { Inject, Controller, Param, Get, Req, Res, Session, HttpStatus, Query} from '@nestjs/common';
+import { Inject, Controller, Param, Get, Req, Res, Session, HttpStatus, Query } from '@nestjs/common';
 import { ChargeService } from './charge.service';
 import { DebugService } from '../debug.service';
 import { IShopifyConnect } from '../auth/interfaces/connect';
@@ -10,11 +10,11 @@ import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 @Controller('shopify/charge')
 export class ChargeController {
 
-  protected debug = new DebugService('ChargeController').debug;
+  protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
-    @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions,
-    private readonly chargeService: ChargeService
+    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    protected readonly chargeService: ChargeService
   ){}
 
   /**
@@ -29,7 +29,7 @@ export class ChargeController {
     const user = req.user as IShopifyConnect;
     return this.chargeService.listCharges(user)
     .then((charges) => {
-      this.debug('charges', charges);
+      this.logger.debug('charges', charges);
       return res.jsonp(charges);
     })
     .catch((error) => {
@@ -46,7 +46,7 @@ export class ChargeController {
     const user = req.user as IShopifyConnect;
     return this.chargeService.active(user)
     .then((charge: Models.RecurringCharge | null) => {
-      this.debug('charge', charge);
+      this.logger.debug('charge', charge);
       return res.jsonp(charge);
     })
     .catch((error) => {
@@ -59,11 +59,12 @@ export class ChargeController {
    */
   @Get('/available')
   @Roles('shopify-staff-member')
-  async available(@Req() req, @Res() res, @Session() session ) {
+  async available(@Req() req, @Res() res) {
     const user = req.user as IShopifyConnect;
+    this.logger.debug('available');
     return this.chargeService.available(user)
     .then((plans) => {
-      this.debug('available plans', plans);
+      this.logger.debug('available plans', plans);
       return res.jsonp(plans);
     })
     .catch((error) => {
@@ -80,7 +81,7 @@ export class ChargeController {
   @Get('/activate')
   @Roles('shopify-staff-member')
   async activate(@Query('charge_id') chargeId, @Req() req, @Res() res) {
-    this.debug('activate', chargeId);
+    this.logger.debug('activate', chargeId);
     const user = req.user as IShopifyConnect;
     return this.chargeService.getChargeById(user, chargeId)
     .then(async (charge: Models.RecurringCharge) => {
@@ -88,7 +89,7 @@ export class ChargeController {
         return this.chargeService.activate(user, charge.id)
         .then((result) => {
           charge.status = 'active';
-          this.debug('result', result);
+          this.logger.debug('result', result);
           // return res.jsonp(charge);
           return res.redirect(this.shopifyModuleOptions.charges.frontend_return_url);
         });
@@ -111,12 +112,12 @@ export class ChargeController {
   @Get('/create/:name')
   @Roles('shopify-staff-member')
   async create(@Param('name') name: string, @Req() req, @Res() res) {
-    this.debug('req.user', req.user);
+    this.logger.debug('req.user', req.user);
     const user = req.user as IShopifyConnect;
-    // this.debug('session.user', session.user);
+    // this.logger.debug('session.user', session.user);
     return this.chargeService.createByName(user, name)
     .then((charge) => {
-      this.debug('charge', charge);
+      this.logger.debug('charge', charge);
       if (charge) {
         return res.redirect(charge.confirmation_url);
       } else {
