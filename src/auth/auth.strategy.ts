@@ -23,10 +23,10 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
   ) {
     super (
       {
-        clientID: shopifyModuleOptions.clientID,
-        clientSecret: shopifyModuleOptions.clientSecret,
-        callbackURL: shopifyModuleOptions.callbackURL,
-        shop,
+          clientID: shopifyModuleOptions.clientID,
+          clientSecret: shopifyModuleOptions.clientSecret,
+          callbackURL: shopifyModuleOptions.callbackURL,
+          shop,
       },
     );
 
@@ -53,13 +53,12 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
         throw new Error('Error on connect or update user');
       }
       this.logger.debug(`validate user, user.myshopify_domain: `, user.myshopify_domain);
-      return done(null, user); // see AuthStrategy -> serializeUser
+      return user; // see AuthStrategy -> serializeUser
     })
     .catch((err) => {
       this.logger.debug('Error on ShopifyAuthStrategy', err);
       this.logger.error(err);
-      done(err);
-      return err;
+      throw err;
     });
   }
 
