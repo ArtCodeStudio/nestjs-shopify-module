@@ -2,6 +2,7 @@ import { Module, DynamicModule, CacheModule, NestModule, MiddlewareConsumer } fr
 import { APP_GUARD } from '@nestjs/core';
 import { ShopifyAuthController } from './auth/auth.controller';
 import { shopifyConnectProviders } from './auth/connect.providers';
+import { shopifyApiProviders } from './api/api.providers';
 import { ShopifyConnectService } from './auth/connect.service';
 import { ChargeController } from './charge/charge.controller';
 import { ChargeService } from './charge/charge.service';
@@ -26,9 +27,10 @@ import { OrdersController } from './api/orders/orders.controller';
 import { ProductsController } from './api/products/products.controller';
 import { SHOPIFY_MODULE_OPTIONS } from './shopify.constants';
 import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
-
 import { PassportStatic } from 'passport';
 import { Mongoose } from 'mongoose';
+import { ApiService } from './api/api.service';
+
 
 @Module({
   providers: [
@@ -47,6 +49,7 @@ import { Mongoose } from 'mongoose';
     SyncService,
     OrdersService,
     ProductsService,
+    ApiService,
   ],
   controllers: [
     ShopifyAuthController,
@@ -89,10 +92,12 @@ export class ShopifyModule implements NestModule {
         shopifyModuleOptions,
         mongooseDatabase,
         ...shopifyConnectProviders(database),
+        ...shopifyApiProviders(database),
       ],
       exports: [
         mongooseDatabase,
         ...shopifyConnectProviders(database),
+        ...shopifyApiProviders(database),
       ]
     }
   }

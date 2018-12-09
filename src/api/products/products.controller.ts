@@ -6,19 +6,68 @@ import { DebugService } from '../../debug.service';
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
 
+
 @Controller('shopify/api/products')
 export class ProductsController {
+  constructor(
+    protected readonly productsService: ProductsService
+  ) {};
   logger = new DebugService(`shopify:${this.constructor.name}`);
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get()
   list(@Req() req, @Res() res) {
-    const productsService = new ProductsService(req.user.myshopify_domain, req.user.accessToken);
+    return this.productsService.list(req.user)
+    .then((products) => {
+      return res.jsonp(products);
+    })
+    .catch((error: Error) => {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    });
+  }
 
-    return productsService.list()
-    .then((orders) => {
-      this.logger.debug(`themes`, orders);
-      return res.jsonp(orders);
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('all')
+  listAll(@Req() req, @Res() res) {
+    return this.productsService.listAll(req.user)
+    .then((products) => {
+      return res.jsonp(products);
+    })
+    .catch((error: Error) => {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    });
+  }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('count')
+  count(@Req() req, @Res() res) {
+    return this.productsService.count(req.user)
+    .then((count) => {
+      return res.jsonp(count);
+    })
+    .catch((error: Error) => {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    });
+  }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('sync')
+  sync(@Req() req, @Res() res) {
+    return this.productsService.count(req.user)
+    .then((count) => {
+      return res.jsonp(count);
     })
     .catch((error: Error) => {
       this.logger.error(error);
