@@ -12,6 +12,16 @@ export class OrdersService {
     private readonly orderModel: Model<OrderDocument>,
   ) {}
 
+  public async get(user: IShopifyConnect, id: number) {
+    const orders = new Orders(user.myshopify_domain, user.accessToken);
+    const order = await orders.get(id);
+    if (order) {
+      const dbOrder = new this.orderModel(order);
+      console.log('saving order', await this.orderModel.update({id: id}, dbOrder, {upsert: true}).exec());
+    }
+    return order;
+  }
+
   public async count(user: IShopifyConnect, options?: Options.OrderListOptions): Promise<number> {
     const orders = new Orders(user.myshopify_domain, user.accessToken);
     return await orders.count(options);
@@ -33,5 +43,9 @@ export class OrdersService {
     .then(results => {
       return [].concat.apply([], results);
     })
+  }
+
+  public async sync(user: IShopifyConnect) {
+
   }
 }

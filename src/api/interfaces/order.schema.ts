@@ -16,6 +16,7 @@ import { TaxLineSchema } from './tax-line.schema';
 export type OrderDocument = Order & Document;
 
 export const OrderSchema = new Schema({
+  id: Number,
   billing_address: AddressSchema,
   browser_ip: String,
   buyer_accepts_marketing: Boolean,

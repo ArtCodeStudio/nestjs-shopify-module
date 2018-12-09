@@ -13,6 +13,7 @@ export class OrdersController {
     protected readonly ordersService: OrdersService
   ) {};
   logger = new DebugService(`shopify:${this.constructor.name}`);
+
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get()
@@ -28,6 +29,24 @@ export class OrdersController {
       });
     });
   }
+
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get(':id')
+  get(@Req() req, @Res() res, @Param('id') id: number) {
+    return this.ordersService.get(req.user, id)
+    .then((order) => {
+      return res.jsonp(order);
+    })
+    .catch((error: Error) => {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    });
+  }
+
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
