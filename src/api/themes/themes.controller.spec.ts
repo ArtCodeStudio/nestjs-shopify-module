@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ThemeController } from './theme.controller';
+import { ThemesController } from './themes.controller';
 
-describe('Theme Controller', () => {
+describe('Themes Controller', () => {
   let module: TestingModule;
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      controllers: [ThemeController],
+      controllers: [ThemesController],
     }).compile();
   });
   it('should be defined', () => {
-    const controller: ThemeController = module.get<ThemeController>(ThemeController);
+    const controller: ThemesController = module.get<ThemesController>(ThemesController);
     expect(controller).toBeDefined();
   });
 });

@@ -12,13 +12,13 @@ import { IShopifyShop } from './shop/interfaces/shop';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './guards/roles.decorator';
 import { ShopifyApiGuard } from './guards/shopify-api.guard';
-import { ApiController } from './api/api.controller';
-import { ShopifyThemeService } from './api/theme/theme.service';
-import { ThemeController } from './api/theme/theme.controller';
+import { ThemesService } from './api/themes/themes.service';
+import { ThemesController } from './api/themes/themes.controller';
 import { ShopifyAuthService } from './auth/auth.service';
-import { ShopifyThemeAssetService } from './api/theme/assets/assets.service';
-import { AssetsController } from './api/theme/assets/assets.controller';
-import { LocalesController } from './api/theme/locales/locales.controller';
+import { AssetsService } from './api/themes/assets/assets.service';
+import { LocalesService } from './api/themes/locales/locales.service';
+import { AssetsController } from './api/themes/assets/assets.controller';
+import { LocalesController } from './api/themes/locales/locales.controller';
 import { GetShopMiddleware } from './middlewares/get-shop.middleware';
 import { SyncService } from './sync/sync.service';
 import { OrdersService } from './api/orders/orders.service';
@@ -29,7 +29,6 @@ import { SHOPIFY_MODULE_OPTIONS } from './shopify.constants';
 import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
 import { PassportStatic } from 'passport';
 import { Mongoose } from 'mongoose';
-import { ApiService } from './api/api.service';
 
 
 @Module({
@@ -49,14 +48,15 @@ import { ApiService } from './api/api.service';
     SyncService,
     OrdersService,
     ProductsService,
-    ApiService,
+    ThemesService,
+    AssetsService,
+    LocalesService,
   ],
   controllers: [
     ShopifyAuthController,
     ChargeController,
     ShopController,
-    ApiController,
-    ThemeController,
+    ThemesController,
     AssetsController,
     LocalesController,
     OrdersController,
@@ -105,11 +105,7 @@ export class ShopifyModule implements NestModule {
     consumer
       .apply(GetShopMiddleware)
       .with('ShopifyModule')
-      .forRoutes(ApiController)
-
-      .apply(GetShopMiddleware)
-      .with('ShopifyModule')
-      .forRoutes(ThemeController)
+      .forRoutes(ThemesController)
 
       .apply(GetShopMiddleware)
       .with('ShopifyModule')

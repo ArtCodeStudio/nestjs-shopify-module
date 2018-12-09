@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ShopifyThemeAssetService } from './assets.service';
+import { AssetsService } from './assets.service';
 
-describe('ShopifyThemeAssetService', () => {
+describe('AssetsService', () => {
   let service: ShopifyThemeAssetService;
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ShopifyThemeAssetService],
+      providers: [AssetsService],
     }).compile();
-    service = module.get<ShopifyThemeAssetService>(ShopifyThemeAssetService);
+    service = module.get<AssetsService>(AssetsService);
   });
   it('should be defined', () => {
     expect(service).toBeDefined();

@@ -1,5 +1,8 @@
-import { } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Options, Models, Assets } from 'shopify-prime';
+import { AssetDocument } from '../../interfaces/asset.schema';
+import { IShopifyConnect } from '../../../auth/interfaces/connect';
+import { Model, Types } from 'mongoose';
 import { DebugService } from 'debug.service';
 
 export interface CustomAssetListOptions extends Options.FieldOptions {
@@ -11,8 +14,12 @@ export interface ICustomAsset extends Models.Asset {
   json?: any;
 }
 
-export class ShopifyThemeAssetService extends Assets {
-
+@Injectable()
+export class AssetsService {
+  constructor(
+    @Inject('AssetModelToken')
+    private readonly assetModel: Model<AssetDocument>,
+  ) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   // https://stackoverflow.com/a/273810/1465919
@@ -64,8 +71,9 @@ export class ShopifyThemeAssetService extends Assets {
     }
   }
 
-  async list(id: number, options: CustomAssetListOptions = {}): Promise<Models.Asset[]> {
-    return super.list(id, options)
+  async list(user: IShopifyConnect, id: number, options: CustomAssetListOptions = {}): Promise<Models.Asset[]> {
+    const assets = new Assets(user.myshopify_domain, user.accessToken);
+    return assets.list(id, options)
     .then((assetData) => {
       // this.logger.debug('assetData', assetData);
       assetData = assetData.filter((asset) => {
@@ -83,8 +91,9 @@ export class ShopifyThemeAssetService extends Assets {
     });
   }
 
-  async get(id: number, key: string, options: Options.FieldOptions = {}) {
-    return super.get(id, key, options)
+  async get(user: IShopifyConnect, id: number, key: string, options: Options.FieldOptions = {}) {
+    const assets = new Assets(user.myshopify_domain, user.accessToken);
+    return assets.get(id, key, options)
     .then((assetData: ICustomAsset) => {
       // this.logger.debug(`assetData`, assetData);
       if (assetData.content_type === 'application/json') {

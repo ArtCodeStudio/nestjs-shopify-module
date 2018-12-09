@@ -3,6 +3,8 @@ import { OrderSchema, OrderDocument} from './interfaces/order.schema';
 import { ProductSchema, ProductDocument} from './interfaces/product.schema';
 import { CustomerSchema, CustomerDocument } from './interfaces/customer.schema';
 import { TransactionSchema, TransactionDocument} from './interfaces/transaction.schema';
+import { ThemeSchema, ThemeDocument} from './interfaces/theme.schema';
+import { AssetSchema, AssetDocument} from './interfaces/asset.schema';
 
 export const shopifyApiProviders = (connection: Mongoose) => {
   return [
@@ -21,6 +23,14 @@ export const shopifyApiProviders = (connection: Mongoose) => {
     {
       provide: 'TransactionModelToken',
       useValue: <Model<TransactionDocument>> connection.model('shopify_transaction', TransactionSchema),
+    },
+    {
+      provide: 'ThemeModelToken',
+      useValue: <Model<ThemeDocument>> connection.model('shopify_theme', ThemeSchema),
+    },
+    {
+      provide: 'AssetModelToken',
+      useValue: <Model<AssetDocument>> connection.model('shopify_asset', AssetSchema),
     },
   ];
 }

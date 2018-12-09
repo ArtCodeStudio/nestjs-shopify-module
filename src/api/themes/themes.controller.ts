@@ -2,17 +2,17 @@ import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '
 
 import { Roles } from '../../guards/roles.decorator';
 import { DebugService } from 'debug.service';
-import { ShopifyThemeService } from '../../api/theme/theme.service';
-import { ShopifyThemeAssetService } from '../../api/theme/assets/assets.service';
+import { ThemesService } from './themes.service';
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 
 @Controller('shopify/api/themes')
-export class ThemeController {
+export class ThemesController {
 
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
-  constructor() {
-  }
+  constructor(
+    protected readonly themesService: ThemesService
+  ) {  }
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -21,9 +21,7 @@ export class ThemeController {
     @Req() req,
     @Res() res,
   ) {
-    const themeService = new ShopifyThemeService(req.user.myshopify_domain, req.user.accessToken);
-
-    return themeService.list()
+    this.themesService.list(req.user)
     .then((themes) => {
       this.logger.debug(`themes`, themes);
       return res.jsonp(themes);
@@ -44,9 +42,7 @@ export class ThemeController {
     @Req() req,
     @Res() res,
   ) {
-    const themeService = new ShopifyThemeService(req.user.myshopify_domain, req.user.accessToken);
-
-    return themeService.get(themeId)
+    this.themesService.get(req.user, themeId)
     .then((theme) => {
       this.logger.debug(`theme`, theme);
       return res.jsonp(theme);

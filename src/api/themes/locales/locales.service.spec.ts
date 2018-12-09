@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ShopifyThemeService } from './theme.service';
+import { LocalesService } from './locales.service';
 
-describe('ShopifyThemeService', () => {
-  let service: ShopifyThemeService;
+describe('LocalesService', () => {
+  let service: LocalesService;
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ShopifyThemeService],
+      providers: [LocalesService],
     }).compile();
-    service = module.get<ShopifyThemeService>(ShopifyThemeService);
+    service = module.get<LocalesService>(LocalesService);
   });
   it('should be defined', () => {
     expect(service).toBeDefined();

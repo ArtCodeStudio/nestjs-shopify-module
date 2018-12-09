@@ -1,5 +1,6 @@
-import { } from '@nestjs/common';
-import { ShopifyThemeAssetService, CustomAssetListOptions, ICustomAsset } from '../assets/assets.service';
+import { Inject, Injectable } from '@nestjs/common';
+import { AssetsService, CustomAssetListOptions, ICustomAsset } from '../assets/assets.service';
+import { IShopifyConnect } from '../../../auth/interfaces/connect';
 import { Options, Models } from 'shopify-prime';
 import { DebugService } from 'debug.service';
 
@@ -22,14 +23,13 @@ export interface CustomLocaleListOptions extends CustomAssetListOptions {
   lang_code?: string;
 }
 
-export class ShopifyLocalesService {
+export class LocalesService {
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
-  assetService: ShopifyThemeAssetService;
   shopDomain: string;
 
-  constructor(shopDomain: string, accessToken: string) {
-    this.assetService = new ShopifyThemeAssetService(shopDomain, accessToken);
+  constructor(
+    protected readonly assetsService: AssetsService) {
   }
 
   /**
@@ -38,10 +38,10 @@ export class ShopifyLocalesService {
    * @param filename
    * @param options
    */
-  async getLocalFile(id: number, filename: string, options: Options.FieldOptions = {}): Promise<ILocaleFile> {
+  async getLocalFile(user: IShopifyConnect, id: number, filename: string, options: Options.FieldOptions = {}): Promise<ILocaleFile> {
     const key = `locales/${filename}`;
     this.logger.debug('getLocalFile', filename);
-    return this.assetService.get(id, key, options)
+    return this.assetsService.get(user, id, key, options)
     .then((asset) => {
       const locale: ILocaleFile = this.parseLangCode(asset);
       return {
@@ -55,10 +55,10 @@ export class ShopifyLocalesService {
     });
   }
 
-  async listSections(id: number, options: CustomAssetListOptions = {}): Promise<ILocaleFile[]> {
+  async listSections(user: IShopifyConnect, id: number, options: CustomAssetListOptions = {}): Promise<ILocaleFile[]> {
     options.content_type = 'text/x-liquid';
     options.key_starts_with = 'sections/';
-    return this.assetService.list(id, options)
+    return this.assetsService.list(user, id, options)
     .then((assets) => {
       this.logger.debug('assets', assets);
       const locales: ILocaleFile[] = assets;
@@ -75,9 +75,9 @@ export class ShopifyLocalesService {
    * @param filename
    * @param options
    */
-  async getSectionFile(id: number, filename: string, options: CustomAssetListOptions = {}): Promise<ILocaleFile> {
+  async getSectionFile(user: IShopifyConnect, id: number, filename: string, options: CustomAssetListOptions = {}): Promise<ILocaleFile> {
     const key = `sections/${filename}`;
-    return this.assetService.get(id, key, options)
+    return this.assetsService.get(user, id, key, options)
     .then((asset: ICustomAsset) => {
       let locales: any = null;
       if (asset.json && asset.json.locales) {
@@ -99,13 +99,13 @@ export class ShopifyLocalesService {
    * @param id
    * @param options
    */
-  private async getSectionAll(id: number, options: CustomAssetListOptions = {}): Promise<ILocales> {
+  private async getSectionAll(user: IShopifyConnect, id: number, options: CustomAssetListOptions = {}): Promise<ILocales> {
     // get locales from sections/*.liquid files
-    return this.listSections(id, options)
+    return this.listSections(user, id, options)
     .then(async (sectionLocales) => {
       const result = await pMap(sectionLocales, async (sectionLocale) => {
         const filename = path.basename(sectionLocale.key);
-        return await this.getSectionFile(id, filename);
+        return await this.getSectionFile(user, id, filename);
       });
       return result;
     })
@@ -143,16 +143,16 @@ export class ShopifyLocalesService {
    * @param filename
    * @param options
    */
-  async getByLangCode(id: number, langCode: string, options: Options.FieldOptions = {}): Promise<ILocaleFile> {
+  async getByLangCode(user: IShopifyConnect, id: number, langCode: string, options: Options.FieldOptions = {}): Promise<ILocaleFile> {
     let filename = `${langCode}.json`;
-    return this.getLocalFile(id, filename, options)
+    return this.getLocalFile(user, id, filename, options)
     .then((locale) => {
       return locale;
     })
     // if file was not found tryp to get the file with .default after the lanuage code
     .catch(async () => {
       filename = `${langCode}.default.json`;
-      return this.getLocalFile(id, filename, options)
+      return this.getLocalFile(user, id, filename, options)
       .then((locale) => {
         return locale;
       });
@@ -164,13 +164,13 @@ export class ShopifyLocalesService {
    * @param id
    * @param options {langcode: 'de'} would only return german locales
    */
-  async getAll(id: number, options: CustomLocaleListOptions = {}): Promise<ILocales> {
-    return this.list(id, options)
+  async getAll(user: IShopifyConnect, id: number, options: CustomLocaleListOptions = {}): Promise<ILocales> {
+    return this.list(user, id, options)
     // get locales from locales/*.json files
     .then(async (locales) => {
       const result = await pMap(locales, async (locale) => {
         const filename = path.basename(locale.key);
-        return await this.getLocalFile(id, filename);
+        return await this.getLocalFile(user, id, filename);
       });
       return result;
     })
@@ -190,10 +190,10 @@ export class ShopifyLocalesService {
    * @param filename
    * @param options
    */
-  async get(id: number, properties?: string[], options: Options.FieldOptions = {}) {
-    return this.getAll(id, options)
+  async get(user: IShopifyConnect, id: number, properties?: string[], options: Options.FieldOptions = {}) {
+    return this.getAll(user, id, options)
     .then(async (mergedLocales: ILocales) => {
-      return this.getSectionAll(id, options)
+      return this.getSectionAll(user, id, options)
       .then(async (mergedSectionLocales) => {
         // this.logger.debug('merge section', mergedSectionLocales.en.sections, mergedLocales.en.sections);
         return merge(mergedSectionLocales, mergedLocales);
@@ -222,10 +222,10 @@ export class ShopifyLocalesService {
    * @param id theme id
    * @param options
    */
-  async list(id: number, options: CustomLocaleListOptions = {}): Promise<ILocaleFile[]> {
+  async list(user: IShopifyConnect, id: number, options: CustomLocaleListOptions = {}): Promise<ILocaleFile[]> {
     options.content_type = 'application/json';
     options.key_starts_with = 'locales/';
-    return this.assetService.list(id, options)
+    return this.assetsService.list(user, id, options)
     .then((_assets: ICustomAsset[]) => {
       const assets: ILocaleFile[] = _assets;
       assets.forEach((locale) => {
