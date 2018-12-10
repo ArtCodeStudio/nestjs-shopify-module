@@ -45,6 +45,7 @@ export const ProductImageSchema = new Schema({
 });
 
 export const ProductSchema = new Schema({
+  id: {type: Number, index: {unique: true}},
   title: String,
   body_html: String,
   created_at: String,

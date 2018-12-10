@@ -29,7 +29,8 @@ import { SHOPIFY_MODULE_OPTIONS } from './shopify.constants';
 import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
 import { PassportStatic } from 'passport';
 import { Mongoose } from 'mongoose';
-
+import { TransactionsController } from './api/orders/transactions/transactions.controller';
+import { TransactionsService } from './api/orders/transactions/transactions.service';
 
 @Module({
   providers: [
@@ -51,6 +52,7 @@ import { Mongoose } from 'mongoose';
     ThemesService,
     AssetsService,
     LocalesService,
+    TransactionsService,
   ],
   controllers: [
     ShopifyAuthController,
@@ -61,6 +63,7 @@ import { Mongoose } from 'mongoose';
     LocalesController,
     OrdersController,
     ProductsController,
+    TransactionsController,
   ],
   exports: [
     ShopifyConnectService,
@@ -113,7 +116,11 @@ export class ShopifyModule implements NestModule {
 
       .apply(GetShopMiddleware)
       .with('ShopifyModule')
-      .forRoutes(LocalesController);
+      .forRoutes(LocalesController)
+
+      .apply(GetShopMiddleware)
+      .with('ShopifyModule')
+      .forRoutes(TransactionsController);
   }
 }
 

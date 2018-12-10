@@ -8,7 +8,7 @@ export const FulfillmentSchema = new Schema({
   created_at: String,
   line_items: [LineItemSchema],
   order_id: Number,
-  receipt: String, // string or json?
+  receipt: Object, // arbitrary object without defined interface
   status: String,
   tracking_company: String,
   tracking_number: String,

@@ -5,6 +5,7 @@ import { PaymentDetailsSchema } from './payment-details.schema';
 export type TransactionDocument = Transaction & Document;
 
 export const TransactionSchema = new Schema({
+  id: {type: Number, index: {unique: true}},
   amount: String,
   authorization: String,
   created_at: String,
@@ -14,7 +15,7 @@ export const TransactionSchema = new Schema({
   payment_details: PaymentDetailsSchema,
   kind: String,
   order_id: Number,
-  receipt: String, // arbitrary object: saved as json string
+  receipt: Object, // arbitrary object without defined interface
   error_code: String,
   status: String,
   test: Boolean,

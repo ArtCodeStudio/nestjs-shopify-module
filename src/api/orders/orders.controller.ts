@@ -1,6 +1,6 @@
 import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
 
-import { OrdersService } from './orders.service';
+import { OrdersService, OrderListOptions, OrderCountOptions } from './orders.service';
 import { DebugService } from '../../debug.service';
 
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
@@ -17,10 +17,44 @@ export class OrdersController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get()
-  list(@Req() req, @Res() res) {
-    return this.ordersService.list(req.user)
+  list(@Req() req, @Res() res, @Query() options: OrderListOptions) {
+    return this.ordersService.list(req.user, {...options, sync: true, status: 'any'})
     .then((orders) => {
       return res.jsonp(orders);
+    })
+    .catch((error: Error) => {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    });
+  }
+
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('all')
+  listAll(@Req() req, @Res() res, @Query() options: OrderListOptions) {
+    return this.ordersService.listAll(req.user, {...options, sync: true, status: 'any'})
+    .then((orders) => {
+      return res.jsonp(orders);
+    })
+    .catch((error: Error) => {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    });
+  }
+
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('count')
+  count(@Req() req, @Res() res,  @Query() options: OrderCountOptions) {
+    return this.ordersService.count(req.user, options)
+    .then((count) => {
+      return res.jsonp(count);
     })
     .catch((error: Error) => {
       this.logger.error(error);
@@ -38,55 +72,6 @@ export class OrdersController {
     return this.ordersService.get(req.user, id)
     .then((order) => {
       return res.jsonp(order);
-    })
-    .catch((error: Error) => {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
-    });
-  }
-
-
-  @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('all')
-  listAll(@Req() req, @Res() res) {
-    return this.ordersService.listAll(req.user)
-    .then((orders) => {
-      return res.jsonp(orders);
-    })
-    .catch((error: Error) => {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
-    });
-  }
-
-  @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('count')
-  count(@Req() req, @Res() res) {
-    return this.ordersService.count(req.user)
-    .then((count) => {
-      return res.jsonp(count);
-    })
-    .catch((error: Error) => {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
-    });
-  }
-
-  @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('sync')
-  sync(@Req() req, @Res() res) {
-    return this.ordersService.count(req.user)
-    .then((count) => {
-      return res.jsonp(count);
     })
     .catch((error: Error) => {
       this.logger.error(error);
