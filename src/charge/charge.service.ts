@@ -90,7 +90,6 @@ export class ChargeService {
       // If plan was not activated before, create it
       return this.create(user, plan);
     });
-
   }
 
   /**
