@@ -23,6 +23,7 @@ export interface CustomLocaleListOptions extends CustomAssetListOptions {
   lang_code?: string;
 }
 
+@Injectable()
 export class LocalesService {
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
