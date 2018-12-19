@@ -5,6 +5,7 @@ import { DebugService } from '../../debug.service';
 
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
+import { Readable } from 'stream';
 
 
 @Controller('shopify/api/products')
@@ -19,7 +20,7 @@ export class ProductsController {
   @Get()
   async list(@Req() req, @Res() res, @Query() options: ProductListOptions) {
     try {
-      return res.jsonp(await this.productsService.listFromShopify(req.user, {...options, sync: true}));
+      return res.jsonp(await this.productsService.listFromShopify(req.user, {...options}));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -43,16 +44,10 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('all')
-  async listAllFromShopify(@Req() req, @Res() res, @Query() options: ProductListOptions) {
-    try {
-      return res.jsonp(await this.productsService.listAllFromShopify(req.user, {...options, sync: true}));
-    } catch (error) {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
-    }
+  listAllFromShopify(@Req() req, @Query() options: ProductListOptions): Readable {
+    return this.productsService.listAllFromShopifyStream(req.user, {...options});
   }
+
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -67,6 +62,21 @@ export class ProductsController {
       });
     }
   }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('synced/diff')
+  async diffSynced(@Req() req, @Res() res) {
+    try {
+      return res.jsonp(await this.productsService.diffSynced(req.user));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
+
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')

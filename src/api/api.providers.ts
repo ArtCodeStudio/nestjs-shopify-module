@@ -6,7 +6,8 @@ import { TransactionSchema, TransactionDocument} from './interfaces/transaction.
 import { ThemeSchema, ThemeDocument} from './interfaces/theme.schema';
 import { AssetSchema, AssetDocument} from './interfaces/asset.schema';
 
-function getDbModel<DocumentType extends Document>(connection: Mongoose, shopName: string, resourceName: string, schema: Schema) {
+function getDbModel<DocumentType extends Document>(connection: Mongoose, myShopifyDomain: string, resourceName: string, schema: Schema) {
+  const shopName = myShopifyDomain.replace('.myshopify.com', '');
   const modelName = `shopify-${shopName}:${resourceName}`;
   try {
     return <Model<DocumentType>>connection.model(modelName);
@@ -17,10 +18,6 @@ function getDbModel<DocumentType extends Document>(connection: Mongoose, shopNam
 
 export const shopifyApiProviders = (connection: Mongoose) => {
   return [
-    {
-      provide: 'DbModelToken',
-      useValue: (myshopifyDomain: string, resourceName: string, schema?: Schema) => getDbModel(connection, myshopifyDomain.replace('.myshopify.com', ''), resourceName, schema),
-    },
     {
       provide: 'OrderModelToken',
       useValue: (myshopifyDomain) => getDbModel<OrderDocument>(connection, myshopifyDomain, 'order', OrderSchema),

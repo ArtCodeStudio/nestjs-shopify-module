@@ -4,6 +4,8 @@ import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Product } from 'shopify-prime/models';
 import { ProductDocument } from '../interfaces/product.schema';
 import { Model, Types } from 'mongoose';
+import { getDiff } from '../../helpers/diff';
+import { Readable } from 'stream';
 
 export interface ProductListOptions extends Options.ProductListOptions {
   sync?: boolean;
@@ -66,16 +68,19 @@ export class ProductsService {
     return await this.productModel(user.shop.myshopify_domain).find({});
   }
 
+  public async diffSynced(user: IShopifyConnect): Promise<any[]> {
+    const fromDb = await this.listFromDb(user);
+    const fromShopify = await this.listAllFromShopify(user);
+    let dbObj;
+    return fromShopify.map(obj => (dbObj = fromDb.find(x => x.id === obj.id)) && getDiff(obj, dbObj));
+  }
+
   /**
    * Gets a list of all of the shop's products.
    * @param options Options for filtering the results.
    */
   public async listAllFromShopify(user: IShopifyConnect, options?: ProductListOptions): Promise<Product[]> {
     const products = new Products(user.myshopify_domain, user.accessToken);
-    const sync = options && options.sync;
-    if (sync) {
-      delete options.sync;
-    }
     const count = await products.count(options);
     const itemsPerPage = 250;
     const pages = Math.ceil(count/itemsPerPage);
@@ -87,5 +92,24 @@ export class ProductsService {
     .then(results => {
       return [].concat.apply([], results);
     })
+  }
+
+  /**
+   * Gets a list of all of the shop's orders.
+   * @param options Options for filtering the results.
+   */
+  public listAllFromShopifyStream(user: IShopifyConnect, options?: ProductListOptions): Readable {
+    const products = new Products(user.myshopify_domain, user.accessToken);
+    const stream = new Readable({objectMode: true, read: s=>s});
+    products.count(options).then(count => {
+      const itemsPerPage = 250;
+      const pages = Math.ceil(count/itemsPerPage);
+      Promise.all(Array(pages).fill(0).map(
+        (x, i) => this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
+          .then(objects => objects.forEach(obj => stream.push(obj)))
+      ))
+      .then(_ => stream.push(null));
+    });
+    return stream;
   }
 }

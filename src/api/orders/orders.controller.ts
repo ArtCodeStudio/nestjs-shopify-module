@@ -6,6 +6,8 @@ import { DebugService } from '../../debug.service';
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
 
+import { Readable } from 'stream';
+
 
 @Controller('shopify/api/orders')
 export class OrdersController {
@@ -19,7 +21,7 @@ export class OrdersController {
   @Get()
   async list(@Req() req, @Res() res, @Query() options: OrderListOptions) {
     try {
-      return res.jsonp(await this.ordersService.listFromShopify(req.user, {...options, sync: true, status: 'any'}));
+      return res.jsonp(await this.ordersService.listFromShopify(req.user, {...options, status: 'any'}));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -43,10 +45,17 @@ export class OrdersController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('all')
-  async listAllFromShopify(@Req() req, @Res() res, @Query() options: OrderListOptions) {
+  listAllFromShopify(@Req() req, @Query() options: OrderListOptions): Readable {
+    return this.ordersService.listAllFromShopifyStream(req.user, {...options, status: 'any'});
+  }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('synced/count')
+  async countFromDb(@Req() req, @Res() res,  @Query() options: OrderCountOptions) {
     try {
-      return res.jsonp(await this.ordersService.listAllFromShopify(req.user, {...options, sync: true, status: 'any'}));
-    } catch (error) {
+      return res.jsonp(await this.ordersService.countFromDb(req.user, options));
+    } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -56,10 +65,10 @@ export class OrdersController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get('synced/count')
-  async countFromDb(@Req() req, @Res() res,  @Query() options: OrderCountOptions) {
+  @Get('synced/diff')
+  async diffSynced(@Req() req, @Res() res) {
     try {
-      return res.jsonp(await this.ordersService.countFromDb(req.user, options));
+      return res.jsonp(await this.ordersService.diffSynced(req.user));
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
