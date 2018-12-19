@@ -104,9 +104,16 @@ export class ProductsService {
     products.count(options).then(count => {
       const itemsPerPage = 250;
       const pages = Math.ceil(count/itemsPerPage);
+      let countDown = pages;
+      stream.push('[\n');
       Promise.all(Array(pages).fill(0).map(
         (x, i) => this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
-          .then(objects => objects.forEach(obj => stream.push(obj)))
+          .then(objects => {
+            countDown--;
+            objects.forEach((obj, i) => {
+              stream.push(JSON.stringify([obj], null, 2).slice(2,-2) + (countDown > 0 || (i!==objects.length-1) ? ',': '\n]'));
+            });
+          })
       ))
       .then(_ => stream.push(null));
     });

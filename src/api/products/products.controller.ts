@@ -1,4 +1,4 @@
-import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
+import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus, Header } from '@nestjs/common';
 
 import { ProductsService, ProductListOptions, ProductCountOptions } from './products.service';
 import { DebugService } from '../../debug.service';
@@ -44,8 +44,9 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('all')
-  listAllFromShopify(@Req() req, @Query() options: ProductListOptions): Readable {
-    return this.productsService.listAllFromShopifyStream(req.user, {...options});
+  @Header('Content-type', 'application/json')
+  listAllFromShopify(@Req() req, @Res() res, @Query() options: ProductListOptions) {
+    this.productsService.listAllFromShopifyStream(req.user, {...options}).pipe(res);
   }
 
 

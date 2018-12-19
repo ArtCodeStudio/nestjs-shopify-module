@@ -1,4 +1,4 @@
-import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
+import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus, Header } from '@nestjs/common';
 
 import { OrdersService, OrderListOptions, OrderCountOptions } from './orders.service';
 import { DebugService } from '../../debug.service';
@@ -45,8 +45,9 @@ export class OrdersController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('all')
-  listAllFromShopify(@Req() req, @Query() options: OrderListOptions): Readable {
-    return this.ordersService.listAllFromShopifyStream(req.user, {...options, status: 'any'});
+  @Header('Content-type', 'application/json')
+  listAllFromShopify(@Req() req, @Res() res, @Query() options: OrderListOptions) {
+    this.ordersService.listAllFromShopifyStream(req.user, {...options, status: 'any'}).pipe(res);
   }
 
   @UseGuards(ShopifyApiGuard)
