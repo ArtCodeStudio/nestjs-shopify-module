@@ -16,7 +16,7 @@ export const LineItemPropertySchema = new Schema({
 
 export const LineItemSchema = new Schema({
   id: {type: Number, index: {unique: true}},
-  admin_graphgl_api_id: String,
+  admin_graphql_api_id: String,
   discount_allocations: [DiscountAllocationSchema],
   destination_location: LocationSchema,
   fulfillable_quantity: Number,
@@ -45,4 +45,6 @@ export const LineItemSchema = new Schema({
   total_discount: String,
   total_discount_set: PriceSetSchema,
   properties: [LineItemPropertySchema],
+}, {
+  minimize: false,
 });

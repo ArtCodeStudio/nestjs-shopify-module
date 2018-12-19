@@ -63,10 +63,10 @@ export const ProductSchema = new Schema({
   metafields_global_title_tag: String,
   metafields_global_description_tag: String,
 });
-
+/*
 ProductSchema.set('toJSON', {
   transform: function(doc, ret, options) {
     delete ret._id;
     delete ret.__v;
   }
-});
+});*/

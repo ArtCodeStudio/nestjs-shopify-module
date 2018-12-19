@@ -12,4 +12,6 @@ export const LocationSchema = new Schema({
   address2: String,
   city: String,
   zip: String,
+}, {
+  minimize: false,
 });

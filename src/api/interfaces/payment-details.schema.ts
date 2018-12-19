@@ -9,4 +9,6 @@ export const PaymentDetailsSchema = new Schema({
   cvv_result_code: String,
   credit_card_number: String,
   credit_card_company: String,
+}, {
+  minimize: false,
 });

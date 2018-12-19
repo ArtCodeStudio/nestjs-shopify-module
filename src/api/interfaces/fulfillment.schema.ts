@@ -7,6 +7,7 @@ export type FulfillmentDocument = Fulfillment & Document;
 export const FulfillmentSchema = new Schema({
   id: {type: Number, index: {unique: true}},
   created_at: String,
+  admin_graphql_api_id: String,
   line_items: [LineItemSchema],
   location_id: Number,
   name: String,
@@ -23,4 +24,6 @@ export const FulfillmentSchema = new Schema({
   tracking_urls: [String],
   updated_at: String,
   variant_inventory_management: String,
+}, {
+  minimize: false,
 });

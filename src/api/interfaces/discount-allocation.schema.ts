@@ -9,6 +9,7 @@ export const DiscountAllocationSchema = new Schema({
   amount_set: PriceSetSchema,
   discount_application_index: Number,
 }, {
-  _id: false
+  _id: false,
+  minimize: false,
 });
 

@@ -91,6 +91,7 @@ export const OrderSchema = new Schema({
   updated_at: String,
   user_id: Number,
 }, {
+  minimize: false,
 });
 /*
 OrderSchema.set('toJSON', {

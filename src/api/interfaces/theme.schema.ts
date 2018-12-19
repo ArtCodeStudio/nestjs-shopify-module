@@ -11,4 +11,6 @@ export const ThemeSchema = new Schema({
   theme_store_id: Number,
   previewable: Boolean,
   processing: Boolean,
+}, {
+  minimize: false,
 });

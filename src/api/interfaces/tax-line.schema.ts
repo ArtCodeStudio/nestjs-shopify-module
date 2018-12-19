@@ -11,11 +11,13 @@ export const TaxLineSchema = new Schema({
   price_set: PriceSetSchema,
 }, {
   _id: false,
+  minimize: false,
 });
+/*
 TaxLineSchema.set('toJSON', {
   transform: function(doc, ret, options) {
     delete ret._id;
     delete ret.__parentArray;
     delete ret.__index;
   }
-});
+});*/
