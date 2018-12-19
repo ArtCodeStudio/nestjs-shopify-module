@@ -4,6 +4,7 @@ import { Address } from 'shopify-prime/models';
 export type AddressDocument = Address & Document;
 
 export const AddressSchema = new Schema({
+  id: Number,
   address1: String,
   address2: String,
   city: String,
@@ -11,6 +12,7 @@ export const AddressSchema = new Schema({
   country: String,
   country_code: String,
   country_name: String,
+  customer_id: Number,
   default: Boolean,
   first_name: String,
   last_name: String,
@@ -21,4 +23,6 @@ export const AddressSchema = new Schema({
   province: String,
   province_code: String,
   zip: String,
+}, {
+  minimize: false,
 });

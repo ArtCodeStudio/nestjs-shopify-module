@@ -8,6 +8,7 @@ export const DiscountCodeSchema = new Schema({
   code: String,
   type: String,
 }, {
-  _id: false
+  _id: false,
+  minimize: false
 });
 

@@ -10,6 +10,7 @@ export const ShippingLineSchema = new Schema({
   id: {type: Number, index: {unique: true}},
   carrier_identifier: String,
   code: String,
+  delivery_category: Object, // undocumented, always null in all known test data
   discount_allocations: [DiscountAllocationSchema],
   discounted_price: String,
   discounted_price_set: PriceSetSchema,
@@ -20,4 +21,6 @@ export const ShippingLineSchema = new Schema({
   source: String,
   title: String,
   tax_lines: [TaxLineSchema],
+}, {
+  minimize: false,
 });

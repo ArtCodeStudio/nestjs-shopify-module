@@ -14,4 +14,5 @@ export const PriceSetSchema = new Schema({
   }
 }, {
   _id: false,
+  minimize: false,
 });

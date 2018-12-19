@@ -13,4 +13,6 @@ export const AssetSchema = new Schema({
   theme_id: Number,
   updated_at: String,
   value: String,
+}, {
+  minimize: false,
 });

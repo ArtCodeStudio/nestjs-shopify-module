@@ -14,6 +14,7 @@ export const DiscountApplicationSchema = new Schema({
   value: String,
   value_type: String,
 }, {
-  _id: false
+  _id: false,
+  minimize: false,
 });
 
