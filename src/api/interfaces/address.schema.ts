@@ -14,6 +14,8 @@ export const AddressSchema = new Schema({
   default: Boolean,
   first_name: String,
   last_name: String,
+  latitude: Number,
+  longitude: Number,
   name: String,
   phone: String,
   province: String,
