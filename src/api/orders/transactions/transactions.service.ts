@@ -35,6 +35,8 @@ export class TransactionsService {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
     return await transactions.count(orderId);
   }
+
+
   public async list(user: IShopifyConnect, orderId: number, options?: TransactionListOptions): Promise<Transaction[]> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
     const data = await transactions.list(orderId, options);

@@ -10,4 +10,6 @@ export const ClientDetailsSchema = new Schema({
   browser_width: String,
   session_height: String,
   user_agent: String,
+}, {
+  _id: false,
 });

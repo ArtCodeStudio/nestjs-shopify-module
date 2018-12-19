@@ -16,55 +16,76 @@ export interface ProductCountOptions extends Options.ProductCountOptions {
 export class ProductsService {
   constructor(
     @Inject('ProductModelToken')
-    private readonly productModel: Model<ProductDocument>,
+    private readonly productModel: (shopName: string) => Model<ProductDocument>,
   ) {}
 
-  public async get(user: IShopifyConnect, id: number, sync: boolean = true) {
+  public async getFromShopify(user: IShopifyConnect, id: number, sync?: true) {
     const products = new Products(user.myshopify_domain, user.accessToken);
-    const product = await products.get(id);
-    if (product && sync) {
-      //const dbProduct = new this.productModel(product);
-      //console.log('saving product', await this.productModel.update({id: id}, dbProduct, {upsert: true}).exec());
-      console.log('saving product', await this.productModel.findOneAndUpdate({id: product.id}, product, {upsert: true}));
+    const res = await products.get(id);
+    if (sync) {
+      await this.saveOne(user, res);
     }
-    return product;
   }
 
-  public async count(user: IShopifyConnect, options?: Options.ProductCountOptions): Promise<number> {
+  public async getFromDb(user: IShopifyConnect, id: number) {
+    return await this.productModel(user.shop.myshopify_domain).find({id});
+  }
+
+  public async countFromShopify(user: IShopifyConnect, options?: Options.ProductCountOptions): Promise<number> {
     const products = new Products(user.myshopify_domain, user.accessToken);
     return await products.count(options);
   }
-  public async list(user: IShopifyConnect, options?: ProductListOptions): Promise<Product[]> {
-    const products = new Products(user.myshopify_domain, user.accessToken);
-    const data = await products.list(options);
-    if (options && options.sync) {
-      // TODO: how to use bulk methods?
-      data.forEach(async product => {
-        console.log('saving product', await this.productModel.findOneAndUpdate({id: product.id}, product, {upsert: true}));
-      });
-    }
-    return data;
+  public async countFromDb(user: IShopifyConnect, options?: Options.ProductCountOptions): Promise<number> {
+    return await this.productModel(user.shop.myshopify_domain).count({});
   }
+
+  public async listFromShopify(user: IShopifyConnect, options?: ProductListOptions): Promise<Product[]> {
+    const products = new Products(user.myshopify_domain, user.accessToken);
+    let sync = options && options.sync;
+    if (sync) {
+      delete options.sync;
+    }
+    const res = await products.list(options);
+    if (sync) {
+      await this.saveMany(user, res);
+    }
+    return res;
+  }
+
+  public async saveMany(user: IShopifyConnect, products: Product[]) {
+    const model = this.productModel(user.shop.myshopify_domain);
+    return products.map(async (product: Product) => await model.findOneAndUpdate({id: product.id}, product, {upsert: true}));
+  }
+
+  public async saveOne(user: IShopifyConnect, product: Product) {
+    const model = this.productModel(user.shop.myshopify_domain);
+    return await model.findOneAndUpdate({id: product.id}, product);
+  }
+
+  public async listFromDb(user: IShopifyConnect): Promise<Product[]> {
+    return await this.productModel(user.shop.myshopify_domain).find({});
+  }
+
   /**
    * Gets a list of all of the shop's products.
    * @param options Options for filtering the results.
    */
-  public async listAll(user: IShopifyConnect, options?: ProductListOptions): Promise<Product[]> {
-    const products = new Products(user.myshopify_domain, user.accessToken)
+  public async listAllFromShopify(user: IShopifyConnect, options?: ProductListOptions): Promise<Product[]> {
+    const products = new Products(user.myshopify_domain, user.accessToken);
+    const sync = options && options.sync;
+    if (sync) {
+      delete options.sync;
+    }
     const count = await products.count(options);
     const itemsPerPage = 250;
     const pages = Math.ceil(count/itemsPerPage);
     return await Promise.all(
       Array(pages).fill(0).map(
-        (x, i) => this.list(user, {...options, page: i+1, limit: itemsPerPage})
+        (x, i) => this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
       )
     )
     .then(results => {
       return [].concat.apply([], results);
     })
-  }
-
-  public async sync(user: IShopifyConnect) {
-
   }
 }

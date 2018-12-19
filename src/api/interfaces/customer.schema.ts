@@ -5,6 +5,7 @@ import { AddressSchema } from './address.schema';
 export type CustomerDocument = Customer & Document;
 
 export const CustomerSchema = new Schema({
+  id: Number,
   accepts_marketing: Boolean,
   addresses: [AddressSchema],
   created_at: String,

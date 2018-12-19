@@ -9,6 +9,8 @@ export const TransactionSchema = new Schema({
   amount: String,
   authorization: String,
   created_at: String,
+  currency: String,
+  device_ide: Number,
   device_id: String,
   gateway: String,
   source_name: String,
@@ -20,5 +22,4 @@ export const TransactionSchema = new Schema({
   status: String,
   test: Boolean,
   user_id: Number,
-  currency: String,
 });

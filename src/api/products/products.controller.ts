@@ -17,67 +17,96 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get()
-  list(@Req() req, @Res() res, @Query() options: ProductListOptions) {
-    return this.productsService.list(req.user, {...options, sync: true})
-    .then((products) => {
-      return res.jsonp(products);
-    })
-    .catch((error: Error) => {
+  async list(@Req() req, @Res() res, @Query() options: ProductListOptions) {
+    try {
+      return res.jsonp(await this.productsService.listFromShopify(req.user, {...options, sync: true}));
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
       });
-    });
+    }
   }
 
+  @Get('synced')
+  async listFromDb(@Req() req, @Res() res) {
+    try {
+      return res.jsonp(await this.productsService.listFromDb(req.user));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('all')
-  listAll(@Req() req, @Res() res, @Query() options: ProductListOptions) {
-    return this.productsService.listAll(req.user, {...options, sync: true})
-    .then((products) => {
-      return res.jsonp(products);
-    })
-    .catch((error: Error) => {
+  async listAllFromShopify(@Req() req, @Res() res, @Query() options: ProductListOptions) {
+    try {
+      return res.jsonp(await this.productsService.listAllFromShopify(req.user, {...options, sync: true}));
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
       });
-    });
+    }
   }
 
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('synced/count')
+  async countFromDb(@Req() req, @Res() res,  @Query() options: ProductCountOptions) {
+    try {
+      return res.jsonp(await this.productsService.countFromDb(req.user, options));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('count')
-  count(@Req() req, @Res() res,  @Query() options: ProductCountOptions) {
-    return this.productsService.count(req.user, options)
-    .then((count) => {
-      return res.jsonp(count);
-    })
-    .catch((error: Error) => {
+  async countFromShopify(@Req() req, @Res() res,  @Query() options: ProductCountOptions) {
+    try {
+      return res.jsonp(await this.productsService.countFromShopify(req.user, options));
+    } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
       });
-    });
+    }
   }
 
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('synced/:id')
+  async getFromDb(@Req() req, @Res() res, @Param('id') id: number) {
+    try {
+      return res.jsonp(await this.productsService.getFromDb(req.user, id));
+    } catch (error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get(':id')
-  get(@Req() req, @Res() res, @Param('id') id: number) {
-    return this.productsService.get(req.user, id)
-    .then((product) => {
-      return res.jsonp(product);
-    })
-    .catch((error: Error) => {
+  async getFromShopify(@Req() req, @Res() res, @Param('id') id: number) {
+    try {
+      return res.jsonp(await this.productsService.getFromShopify(req.user, id));
+    } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
       });
-    });
+    }
   }
 }
