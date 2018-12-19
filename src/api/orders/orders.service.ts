@@ -22,12 +22,13 @@ export class OrdersService {
     private readonly orderModel: (shopName: string) => Model<OrderDocument>,
   ) {}
 
-  public async getFromShopify(user: IShopifyConnect, id: number, sync?: true) {
+  public async getFromShopify(user: IShopifyConnect, id: number, sync?: boolean) {
     const orders = new Orders(user.myshopify_domain, user.accessToken);
     const res = await orders.get(id);
     if (sync) {
       await this.saveOne(user, res);
     }
+    return res;
   }
 
   public async getFromDb(user: IShopifyConnect, id: number) {

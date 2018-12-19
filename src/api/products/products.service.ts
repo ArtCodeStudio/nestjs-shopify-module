@@ -21,12 +21,13 @@ export class ProductsService {
     private readonly productModel: (shopName: string) => Model<ProductDocument>,
   ) {}
 
-  public async getFromShopify(user: IShopifyConnect, id: number, sync?: true) {
+  public async getFromShopify(user: IShopifyConnect, id: number, sync?: boolean) {
     const products = new Products(user.myshopify_domain, user.accessToken);
     const res = await products.get(id);
     if (sync) {
       await this.saveOne(user, res);
     }
+    return res;
   }
 
   public async getFromDb(user: IShopifyConnect, id: number) {
