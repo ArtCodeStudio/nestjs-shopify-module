@@ -32,7 +32,7 @@ export class OrdersService {
   }
 
   public async getFromDb(user: IShopifyConnect, id: number) {
-    return await this.orderModel(user.shop.myshopify_domain).find({id});
+    return await this.orderModel(user.shop.myshopify_domain).findOne({id}).select('-_id -__v').lean();
   }
 
   public async countFromShopify(user: IShopifyConnect, options?: Options.OrderCountOptions): Promise<number> {
@@ -71,15 +71,17 @@ export class OrdersService {
   }
 
   public async listFromDb(user: IShopifyConnect): Promise<Order[]> {
-    return await this.orderModel(user.shop.myshopify_domain).find({});
+    return await this.orderModel(user.shop.myshopify_domain).find({}).select('-_id -__v').lean();
   }
 
-  public async diffSynced(user: IShopifyConnect): Promise<any[]> {
+  public async diffSynced(user: IShopifyConnect): Promise<any> {
     const fromDb = await this.listFromDb(user);
-    const fromShopify = await this.listAllFromShopify(user);
+    const fromShopify = await this.listAllFromShopify(user, {status: 'any'});
+    console.log('from DB', fromDb.length);
+    console.log('from Shopify', fromShopify.length);
     let dbObj;
-    return fromShopify.map(obj => (dbObj = fromDb.find(x => x.id === obj.id)) && getDiff(obj, dbObj).filter(x=>x.operation!=='update'))
-    .filter(x=>!!x && x.length>0);
+    return fromShopify.map(obj => (dbObj = fromDb.find(x => x.id === obj.id)) && {[obj.id]: getDiff(obj, dbObj).filter(x=>x.operation!=='update' && !x.path.endsWith('._id'))})
+    .reduce((a,c)=>({...a, ...c}), {})
   }
 
   /**

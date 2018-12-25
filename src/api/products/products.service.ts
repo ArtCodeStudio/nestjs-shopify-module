@@ -66,14 +66,16 @@ export class ProductsService {
   }
 
   public async listFromDb(user: IShopifyConnect): Promise<Product[]> {
-    return await this.productModel(user.shop.myshopify_domain).find({});
+    
+    return await this.productModel(user.shop.myshopify_domain).find({}).select('-_id -__v').lean();
   }
 
-  public async diffSynced(user: IShopifyConnect): Promise<any[]> {
+  public async diffSynced(user: IShopifyConnect): Promise<any> {
     const fromDb = await this.listFromDb(user);
     const fromShopify = await this.listAllFromShopify(user);
     let dbObj;
-    return fromShopify.map(obj => (dbObj = fromDb.find(x => x.id === obj.id)) && getDiff(obj, dbObj));
+    return fromShopify.map(obj => (dbObj = fromDb.find(x => x.id === obj.id)) && {[obj.id]: getDiff(obj, dbObj).filter(x=>x.operation!=='update' && !x.path.endsWith('._id'))})
+    .reduce((a,c)=>({...a, ...c}), {})
   }
 
   /**
