@@ -50,7 +50,7 @@ export class LocalesController {
     // WORKAROUND for https://github.com/nestjs/nest/issues/1016
     const key = JSON.stringify({name: `shopify/api/themes/${themeId}`, myshopify_domain: shopifyConnect.shop.myshopify_domain});
     return this.redisCache.wrap<any>(key, () => {
-      return this.localesService.get(req.user, themeId);
+      return this.localesService.get(req.shopifyConnect, themeId);
     })
     .then((locale) => {
       this.logger.debug(`assets`, locale);
@@ -91,7 +91,7 @@ export class LocalesController {
     @Res() res,
     @Param('theme_id') themeId: number,
   ) {
-    this.localesService.list(req.user, themeId)
+    this.localesService.list(req.shopifyConnect, themeId)
     .then((assets) => {
       return res.jsonp(assets);
     })
@@ -174,7 +174,7 @@ export class LocalesController {
     const path = url.parse(req.url).pathname;
     filename = path.substring(path.lastIndexOf('/'));
 
-    return this.localesService.getSectionFile(req.user, themeId, filename)
+    return this.localesService.getSectionFile(req.shopifyConnect, themeId, filename)
     .then((locale) => {
       this.logger.debug(`assets`, locale);
       return res.jsonp(locale);
@@ -228,7 +228,7 @@ export class LocalesController {
       propertyPath = path.substring(path.lastIndexOf(findStr) + findStr.length);
       const properties = propertyPath.split('/');
 
-      return this.localesService.get(req.user, themeId, properties);
+      return this.localesService.get(req.shopifyConnect, themeId, properties);
     })
     .then((locale) => {
       this.logger.debug(`assets`, locale);
