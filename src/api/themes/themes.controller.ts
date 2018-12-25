@@ -36,6 +36,26 @@ export class ThemesController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
+  @Get('active')
+  getActiveTheme(
+    @Req() req,
+    @Res() res,
+  ) {
+    this.themesService.getActive(req.user)
+    .then((theme) => {
+      this.logger.debug(`theme`, theme);
+      return res.jsonp(theme);
+    })
+    .catch((error: Error) => {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    });
+  }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
   @Get(':theme_id')
   getTheme(
     @Param('theme_id') themeId: number,
