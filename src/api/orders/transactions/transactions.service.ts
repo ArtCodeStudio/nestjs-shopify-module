@@ -4,6 +4,8 @@ import { IShopifyConnect } from '../../../auth/interfaces/connect';
 import { Transaction } from 'shopify-prime/models';
 import { TransactionDocument } from '../../interfaces/transaction.schema';
 import { Model, Types } from 'mongoose';
+import { getDiff } from '../../../helpers/diff';
+
 
 export interface TransactionBaseOptions extends Options.TransactionBaseOptions {
   sync?: boolean;
@@ -17,25 +19,27 @@ export interface TransactionListOptions extends Options.TransactionListOptions {
 export class TransactionsService {
   constructor(
     @Inject('TransactionModelToken')
-    private readonly transactionModel: Model<TransactionDocument>,
+    private readonly transactionModel: (shopName: string) => Model<TransactionDocument>,
   ) {}
 
-  public async get(user: IShopifyConnect, orderId: number, id: number, options?: TransactionBaseOptions, sync: boolean = true) {
+  public async getFromShopify(user: IShopifyConnect, order_id: number, id: number, options?: TransactionBaseOptions): Promise<Transaction> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
-    const transaction = await transactions.get(orderId, id, options);
-    if (transaction && sync) {
-      //const dbTransaction = new this.transactionModel(transaction);
-      //console.log('saving transaction', await this.transactionModel.update({id: id}, dbTransaction, {upsert: true}).exec());
-      console.log('saving transaction', await this.transactionModel.findOneAndUpdate({id: transaction.id}, transaction, {upsert: true}));
+    const res = await transactions.get(order_id, id);
+    if (options && options.sync) {
+      await this.saveOne(user, res);
     }
-    return transaction;
+    return res;
   }
 
-  public async count(user: IShopifyConnect, orderId: number): Promise<number> {
+  public async countFromShopify(user: IShopifyConnect, orderId: number): Promise<number> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
     return await transactions.count(orderId);
   }
 
+  public async countFromDb(user: IShopifyConnect, orderId: number): Promise<number> {
+    return await this.transactionModel(user.shop.myshopify_domain).count({});
+
+  }
 
   public async list(user: IShopifyConnect, orderId: number, options?: TransactionListOptions): Promise<Transaction[]> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
@@ -43,13 +47,50 @@ export class TransactionsService {
     if (options && options.sync) {
       // TODO: how to use bulk methods?
       data.forEach(async transaction => {
-        console.log('saving transaction', await this.transactionModel.findOneAndUpdate({id: transaction.id}, transaction, {upsert: true}));
+        console.log('saving transaction', await this.transactionModel(user.shop.myshopify_domain).findOneAndUpdate({id: transaction.id}, transaction, {upsert: true}));
       });
     }
     return data;
   }
 
-  public async sync(user: IShopifyConnect) {
+  public async saveMany(user: IShopifyConnect, transactions: Transaction[]) {
+    const model = this.transactionModel(user.shop.myshopify_domain);
+    return transactions.map(async (transaction: Transaction) => await model.findOneAndUpdate({id: transaction.id}, transaction, {upsert: true}));
+  }
 
+  public async saveOne(user: IShopifyConnect, transaction: Transaction) {
+    const model = this.transactionModel(user.shop.myshopify_domain);
+    return await model.findOneAndUpdate({id: transaction.id}, transaction);
+  }
+
+  public async listFromDb(user: IShopifyConnect, order_id?: number): Promise<Transaction[]> {
+    return await this.transactionModel(user.shop.myshopify_domain).find(order_id?{order_id}:{}).select('-_id -__v').lean();
+  }
+
+  public async listFromShopify(user: IShopifyConnect, order_id: number, options?: TransactionListOptions): Promise<Transaction[]> {
+    const transactions = new Transactions(user.myshopify_domain, user.accessToken);
+    let sync = options && options.sync;
+    if (sync) {
+      delete options.sync;
+    }
+    const res = await transactions.list(order_id, options);
+    if (sync) {
+      try {
+        await this.saveMany(user, res);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    return res;
+  }
+
+  public async diffSynced(user: IShopifyConnect, order_id: number): Promise<any> {
+    const fromDb = await this.listFromDb(user);
+    const fromShopify = await this.listFromShopify(user, order_id);
+    console.log('from DB', fromDb.length);
+    console.log('from Shopify', fromShopify.length);
+    let dbObj;
+    return fromShopify.map(obj => (dbObj = fromDb.find(x => x.id === obj.id)) && {[obj.id]: getDiff(obj, dbObj).filter(x=>x.operation!=='update' && !x.path.endsWith('._id'))})
+    .reduce((a,c)=>({...a, ...c}), {})
   }
 }

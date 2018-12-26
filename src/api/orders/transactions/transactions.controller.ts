@@ -1,5 +1,7 @@
 import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
 
+import { IUserRequest } from '../../../interfaces/user-request';
+import { IShopifyConnect } from '../../../auth/interfaces/connect';
 import { TransactionsService, TransactionBaseOptions, TransactionListOptions } from './transactions.service';
 import { DebugService } from '../../../debug.service';
 
@@ -17,8 +19,8 @@ export class TransactionsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get()
-  list(@Req() req, @Res() res, @Param('order_id') orderId, @Query() options: TransactionListOptions) {
-    return this.transactionsService.list(req.user, orderId, {...options, sync: true})
+  list(@Req() req: IUserRequest, @Res() res, @Param('order_id') orderId, @Query() options: TransactionListOptions) {
+    return this.transactionsService.list(req.shopifyConnect, orderId, {...options, sync: true})
     .then((transactions) => {
       return res.jsonp(transactions);
     })
@@ -34,8 +36,8 @@ export class TransactionsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('count')
-  count(@Req() req, @Res() res, @Param('order_id') orderId) {
-    return this.transactionsService.count(req.user, orderId)
+  count(@Req() req: IUserRequest, @Res() res, @Param('order_id') orderId) {
+    return this.transactionsService.countFromShopify(req.shopifyConnect, orderId)
     .then((count) => {
       return res.jsonp(count);
     })
@@ -51,8 +53,8 @@ export class TransactionsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get(':id')
-  get(@Req() req, @Res() res, @Param('order_id') orderId, @Param('id') id: number, @Query() options: TransactionBaseOptions) {
-    return this.transactionsService.get(req.user, orderId, id, options)
+  get(@Req() req: IUserRequest, @Res() res, @Param('order_id') orderId, @Param('id') id: number, @Query() options: TransactionBaseOptions) {
+    return this.transactionsService.getFromShopify(req.shopifyConnect, orderId, id, options)
     .then((transaction) => {
       return res.jsonp(transaction);
     })
