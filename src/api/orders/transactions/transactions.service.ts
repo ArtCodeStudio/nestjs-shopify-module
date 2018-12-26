@@ -31,6 +31,10 @@ export class TransactionsService {
     return res;
   }
 
+  public async getFromDb(user: IShopifyConnect, id: number, order_id?: number) {
+    return await this.transactionModel(user.shop.myshopify_domain).findOne(order_id?{order_id, id}:{id}).select('-_id -__v').lean();
+  }
+
   public async countFromShopify(user: IShopifyConnect, orderId: number): Promise<number> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
     return await transactions.count(orderId);
@@ -39,18 +43,6 @@ export class TransactionsService {
   public async countFromDb(user: IShopifyConnect, orderId: number): Promise<number> {
     return await this.transactionModel(user.shop.myshopify_domain).count({});
 
-  }
-
-  public async list(user: IShopifyConnect, orderId: number, options?: TransactionListOptions): Promise<Transaction[]> {
-    const transactions = new Transactions(user.myshopify_domain, user.accessToken);
-    const data = await transactions.list(orderId, options);
-    if (options && options.sync) {
-      // TODO: how to use bulk methods?
-      data.forEach(async transaction => {
-        console.log('saving transaction', await this.transactionModel(user.shop.myshopify_domain).findOneAndUpdate({id: transaction.id}, transaction, {upsert: true}));
-      });
-    }
-    return data;
   }
 
   public async saveMany(user: IShopifyConnect, transactions: Transaction[]) {

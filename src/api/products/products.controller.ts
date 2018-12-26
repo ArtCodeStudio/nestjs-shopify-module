@@ -99,7 +99,7 @@ export class ProductsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get('synced/:id')
+  @Get(':id/synced')
   async getFromDb(@Req() req: IUserRequest, @Res() res, @Param('id') id: number) {
     try {
       return res.jsonp(await this.productsService.getFromDb(req.shopifyConnect, id));
