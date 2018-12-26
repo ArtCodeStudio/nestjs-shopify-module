@@ -4,7 +4,7 @@ import { ShopifyConnectService } from '../auth/connect.service';
 import { DebugService } from '../debug.service';
 
 @Injectable()
-export class GetShopMiddleware implements NestMiddleware {
+export class GetShopifyConnectMiddleware implements NestMiddleware {
   logger = new DebugService(`shopify:${this.constructor.name}`);
   constructor(
     private readonly shopifyAuthService: ShopifyAuthService,
