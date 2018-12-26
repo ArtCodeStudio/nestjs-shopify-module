@@ -32,6 +32,8 @@ import { Mongoose } from 'mongoose';
 import { TransactionsController } from './api/orders/transactions/transactions.controller';
 import { TransactionsService } from './api/orders/transactions/transactions.service';
 import { EventService } from './event.service';
+import { WebhooksController } from './webhooks/webhooks.controller';
+import { WebhooksService } from './webhooks/webhooks.service';
 
 @Module({
   providers: [
@@ -55,6 +57,7 @@ import { EventService } from './event.service';
     LocalesService,
     TransactionsService,
     EventService,
+    WebhooksService,
   ],
   controllers: [
     ShopifyAuthController,
@@ -66,6 +69,7 @@ import { EventService } from './event.service';
     OrdersController,
     ProductsController,
     TransactionsController,
+    WebhooksController,
   ],
   exports: [
     ShopifyConnectService,
