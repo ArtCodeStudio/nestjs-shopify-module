@@ -16,6 +16,9 @@ export class GetShopMiddleware implements NestMiddleware {
     return async (req, res, next) => {
       const shopDomain = this.shopifyAuthService.getShop(req);
       this.logger.debug('shopDomain', shopDomain);
+      if (!shopDomain) {
+        return next();
+      }
       return this.shopifyConnectService.findByDomain(shopDomain)
       .then((shopifyConnect) => {
         this.logger.debug('shopifyConnect', shopifyConnect);

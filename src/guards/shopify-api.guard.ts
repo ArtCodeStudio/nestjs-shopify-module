@@ -36,22 +36,14 @@ class ShopifyApiGuard implements CanActivate {
       return false;
     }
 
-    // The client host or the users logged in shop domain must be saved in the database
-    // TODO move to middleware?
-    return this.shopifyConnectService.findByDomain(shop)
-    .then((shopifyConnect) => {
-      this.logger.debug(`shopifyConnectService.findByDomain result`, shopifyConnect);
-      if (shopifyConnect && shopifyConnect.shop) {
-        if (shop === shopifyConnect.shop.domain || shop === shopifyConnect.shop.myshopify_domain) {
-          return true;
-        }
-      }
+    // See get-shop.middleware.ts
+    if (!request.shopifyConnect) {
       return false;
-    })
-    .catch((error) => {
-      this.logger.error(error);
-      return false;
-    });
+    }
+
+    if (shop === request.shopifyConnect.shop.domain || shop === request.shopifyConnect.shop.myshopify_domain) {
+      return true;
+    }
   }
 
 }

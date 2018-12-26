@@ -59,15 +59,13 @@ export class ShopifyConnectService {
    * @param domain
    */
   async findByDomain(domain: string) {
-    let query: any = {'shop.domain': domain};
-    return this.shopifyConnectModel.findOne(query).exec()
-    .then((shopifyConnect) => {
-      if (shopifyConnect === null) {
-        query = {'shop.myshopify_domain': domain};
-        return this.shopifyConnectModel.findOne(query).exec();
-      }
-      return shopifyConnect;
-    });
+    if (domain.endsWith('.myshopify.com')) {
+      const query = {'shop.myshopify_domain': domain};
+      return this.shopifyConnectModel.findOne(query).exec();
+    } else {
+      let query: any = {'shop.domain': domain};
+      return this.shopifyConnectModel.findOne(query).exec()
+    }
   }
 
   async findByShopifyId(id: number) {
