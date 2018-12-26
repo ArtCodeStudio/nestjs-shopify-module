@@ -31,6 +31,7 @@ import { PassportStatic } from 'passport';
 import { Mongoose } from 'mongoose';
 import { TransactionsController } from './api/orders/transactions/transactions.controller';
 import { TransactionsService } from './api/orders/transactions/transactions.service';
+import { EventService } from './event.service';
 
 @Module({
   providers: [
@@ -53,6 +54,7 @@ import { TransactionsService } from './api/orders/transactions/transactions.serv
     AssetsService,
     LocalesService,
     TransactionsService,
+    EventService,
   ],
   controllers: [
     ShopifyAuthController,
@@ -70,6 +72,7 @@ import { TransactionsService } from './api/orders/transactions/transactions.serv
     ShopifyApiGuard,
     ShopifyAuthService,
     ChargeService,
+    EventService,
   ],
 })
 export class ShopifyModule implements NestModule {

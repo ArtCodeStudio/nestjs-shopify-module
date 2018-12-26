@@ -3,6 +3,7 @@ import { Model, Types } from 'mongoose';
 import { IShopifyAuthProfile } from './interfaces/profile';
 import { DebugService } from '../debug.service';
 import { IShopifyConnect } from './interfaces/connect';
+import { EventService } from '../event.service';
 
 @Injectable()
 export class ShopifyConnectService {
@@ -12,6 +13,7 @@ export class ShopifyConnectService {
   constructor(
     @Inject('ShopifyConnectModelToken')
     private readonly shopifyConnectModel: Model<IShopifyConnect>,
+    private readonly event: EventService,
   ) {}
 
   async connectOrUpdate(userProfile: IShopifyAuthProfile, accessToken) {
@@ -46,7 +48,11 @@ export class ShopifyConnectService {
       }
       // create
       this.logger.debug(`create`);
-      return this.shopifyConnectModel.create(newShopifyConnect);
+      return this.shopifyConnectModel.create(newShopifyConnect)
+      .then((shopifyConnect) => {
+        this.event.emit('app/installed', shopifyConnect);
+        return shopifyConnect;
+      });
     });
   }
 
