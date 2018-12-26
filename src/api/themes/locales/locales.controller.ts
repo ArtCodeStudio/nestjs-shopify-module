@@ -131,7 +131,7 @@ export class LocalesController {
     // WORKAROUND to get full filename param
     const path = url.parse(req.url).pathname;
     filename = path.substring(path.lastIndexOf('/'));
-    return this.localesService.getLocalFile(req.user, themeId, filename)
+    return this.localesService.getLocalFile(req.shopifyConnect, themeId, filename)
     .then((locale) => {
       this.logger.debug(`assets`, locale);
       return res.jsonp(locale);

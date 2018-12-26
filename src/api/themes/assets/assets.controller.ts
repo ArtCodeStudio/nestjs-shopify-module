@@ -4,6 +4,8 @@ import { Roles } from '../../../guards/roles.decorator';
 import { DebugService } from '../../../debug.service';
 import { AssetsService } from './assets.service';
 import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
+import { IShopifyConnect } from '../../../auth/interfaces/connect';
+import { IUserRequest } from '../../../interfaces/user-request';
 import * as url from 'url';
 
 @Controller('shopify/api/themes')
@@ -24,11 +26,11 @@ export class AssetsController {
   @Roles('shopify-staff-member')
   @Get(':theme_id/assets')
   async listThemeAssets(
-    @Req() req,
+    @Req() req: IUserRequest,
     @Res() res,
     @Param('theme_id') themeId: number,
   ) {
-    return this.assetsService.list(req.user, themeId)
+    return this.assetsService.list(req.shopifyConnect, themeId)
     .then((assets) => {
       this.logger.debug(`themes`, assets);
       return res.jsonp(assets);
@@ -53,13 +55,13 @@ export class AssetsController {
   @UseGuards(ShopifyApiGuard)
   @Get(':theme_id/assets/assets/:filename')
   async getThemeAssetAsset(
-    @Req() req,
+    @Req() req: IUserRequest,
     @Res() res,
     @Param('theme_id') themeId: number,
     @Param('filename') filename: string,
   ) {
     const key = 'assets/' + filename;
-    return this.assetsService.get(req.user, themeId, key)
+    return this.assetsService.get(req.shopifyConnect, themeId, key)
     .then((asset) => {
       this.logger.debug(`asset assets`, asset);
       return res.jsonp(asset);
@@ -85,13 +87,13 @@ export class AssetsController {
   @UseGuards(ShopifyApiGuard)
   @Get(':theme_id/assets/templates/:filename')
   async getThemeAssetTemplate(
-    @Req() req,
+    @Req() req: IUserRequest,
     @Res() res,
     @Param('theme_id') themeId: number,
     @Param('filename') filename: string,
   ) {
     const key = 'templates/' + filename;
-    return this.assetsService.get(req.user, themeId, key)
+    return this.assetsService.get(req.shopifyConnect, themeId, key)
     .then((asset) => {
       this.logger.debug(`asset templates`, asset);
       return res.jsonp(asset);
@@ -117,13 +119,13 @@ export class AssetsController {
   @UseGuards(ShopifyApiGuard)
   @Get(':theme_id/assets/snippets/:filename')
   async getThemeAssetSnippets(
-    @Req() req,
+    @Req() req: IUserRequest,
     @Res() res,
     @Param('theme_id') themeId: number,
     @Param('filename') filename: string,
   ) {
     const key = 'snippets/' + filename;
-    return this.assetsService.get(req.user, themeId, key)
+    return this.assetsService.get(req.shopifyConnect, themeId, key)
     .then((asset) => {
       this.logger.debug(`asset snippets`, asset);
       return res.jsonp(asset);
@@ -150,7 +152,7 @@ export class AssetsController {
   @Roles('shopify-staff-member')
   @Get(':theme_id/assets/:key*')
   async getThemeAsset(
-    @Req() req,
+    @Req() req: IUserRequest,
     @Res() res,
     @Param('theme_id') themeId: number,
     @Param('key') key: string,
@@ -159,7 +161,7 @@ export class AssetsController {
     const path = url.parse(req.url).pathname;
     key = path.substring(path.lastIndexOf(key));
 
-    return this.assetsService.get(req.user, themeId, key)
+    return this.assetsService.get(req.shopifyConnect, themeId, key)
     .then((asset) => {
       this.logger.debug(`asset`, asset);
       return res.jsonp(asset);

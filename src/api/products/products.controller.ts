@@ -6,6 +6,8 @@ import { DebugService } from '../../debug.service';
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
 import { Readable } from 'stream';
+import { IUserRequest } from '../../interfaces/user-request';
+import { IShopifyConnect } from '../../auth/interfaces/connect';
 
 
 @Controller('shopify/api/products')
@@ -18,9 +20,9 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get()
-  async list(@Req() req, @Res() res, @Query() options: ProductListOptions) {
+  async list(@Req() req: IUserRequest, @Res() res, @Query() options: ProductListOptions) {
     try {
-      return res.jsonp(await this.productsService.listFromShopify(req.user, {...options}));
+      return res.jsonp(await this.productsService.listFromShopify(req.shopifyConnect, {...options}));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -29,10 +31,12 @@ export class ProductsController {
     }
   }
 
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
   @Get('synced')
-  async listFromDb(@Req() req, @Res() res) {
+  async listFromDb(@Req() req: IUserRequest, @Res() res) {
     try {
-      return res.jsonp(await this.productsService.listFromDb(req.user));
+      return res.jsonp(await this.productsService.listFromDb(req.shopifyConnect));
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -45,17 +49,17 @@ export class ProductsController {
   @Roles('shopify-staff-member')
   @Get('all')
   @Header('Content-type', 'application/json')
-  listAllFromShopify(@Req() req, @Res() res, @Query() options: ProductListOptions) {
-    this.productsService.listAllFromShopifyStream(req.user, {...options}).pipe(res);
+  listAllFromShopify(@Req() req: IUserRequest, @Res() res, @Query() options: ProductListOptions) {
+    this.productsService.listAllFromShopifyStream(req.shopifyConnect, {...options}).pipe(res);
   }
 
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('synced/count')
-  async countFromDb(@Req() req, @Res() res,  @Query() options: ProductCountOptions) {
+  async countFromDb(@Req() req: IUserRequest, @Res() res,  @Query() options: ProductCountOptions) {
     try {
-      return res.jsonp(await this.productsService.countFromDb(req.user, options));
+      return res.jsonp(await this.productsService.countFromDb(req.shopifyConnect, options));
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -67,9 +71,9 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('synced/diff')
-  async diffSynced(@Req() req, @Res() res) {
+  async diffSynced(@Req() req: IUserRequest, @Res() res) {
     try {
-      return res.jsonp(await this.productsService.diffSynced(req.user));
+      return res.jsonp(await this.productsService.diffSynced(req.shopifyConnect));
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -82,9 +86,9 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('count')
-  async countFromShopify(@Req() req, @Res() res,  @Query() options: ProductCountOptions) {
+  async countFromShopify(@Req() req: IUserRequest, @Res() res,  @Query() options: ProductCountOptions) {
     try {
-      return res.jsonp(await this.productsService.countFromShopify(req.user, options));
+      return res.jsonp(await this.productsService.countFromShopify(req.shopifyConnect, options));
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -96,9 +100,9 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('synced/:id')
-  async getFromDb(@Req() req, @Res() res, @Param('id') id: number) {
+  async getFromDb(@Req() req: IUserRequest, @Res() res, @Param('id') id: number) {
     try {
-      return res.jsonp(await this.productsService.getFromDb(req.user, id));
+      return res.jsonp(await this.productsService.getFromDb(req.shopifyConnect, id));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -110,9 +114,9 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get(':id')
-  async getFromShopify(@Req() req, @Res() res, @Param('id') id: number) {
+  async getFromShopify(@Req() req: IUserRequest, @Res() res, @Param('id') id: number) {
     try {
-      return res.jsonp(await this.productsService.getFromShopify(req.user, id));
+      return res.jsonp(await this.productsService.getFromShopify(req.shopifyConnect, id));
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({

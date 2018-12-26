@@ -4,6 +4,8 @@ import { Roles } from '../../guards/roles.decorator';
 import { DebugService } from 'debug.service';
 import { ThemesService } from './themes.service';
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
+import { IUserRequest } from '../../interfaces/user-request';
+import { IShopifyConnect } from '../../auth/interfaces/connect';
 
 @Controller('shopify/api/themes')
 export class ThemesController {
@@ -18,7 +20,7 @@ export class ThemesController {
   @Roles('shopify-staff-member')
   @Get()
   getThemes(
-    @Req() req,
+    @Req() req: IUserRequest,
     @Res() res,
   ) {
     this.themesService.list(req.user)
