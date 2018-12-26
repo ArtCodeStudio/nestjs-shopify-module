@@ -120,6 +120,14 @@ export class ShopifyModule implements NestModule {
 
       .apply(GetShopifyConnectMiddleware)
       .with('ShopifyModule')
+      .forRoutes(ProductsController)
+
+      .apply(GetShopifyConnectMiddleware)
+      .with('ShopifyModule')
+      .forRoutes(OrdersController)
+
+      .apply(GetShopifyConnectMiddleware)
+      .with('ShopifyModule')
       .forRoutes(TransactionsController);
   }
 }
