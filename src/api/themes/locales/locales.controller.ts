@@ -6,6 +6,7 @@ import { LocalesService } from './locales.service';
 import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
 import { ShopifyConnectService } from '../../../auth/connect.service';
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
+import { IUserRequest } from '../../../interfaces/user-request';
 import { Infrastructure } from 'shopify-prime';
 
 import { SHOPIFY_MODULE_OPTIONS } from '../../../shopify.constants';
@@ -42,11 +43,11 @@ export class LocalesController {
   @UseGuards(ShopifyApiGuard)
   @Get(':theme_id/locales')
   async getFullLocale(
-    @Req() req,
+    @Req() req: IUserRequest,
     @Res() res,
     @Param('theme_id') themeId: number,
   ) {
-    const shopifyConnect = (req.shopifyConnect as IShopifyConnect);
+    const shopifyConnect = req.shopifyConnect;
     // WORKAROUND for https://github.com/nestjs/nest/issues/1016
     const key = JSON.stringify({name: `shopify/api/themes/${themeId}`, myshopify_domain: shopifyConnect.shop.myshopify_domain});
     return this.redisCache.wrap<any>(key, () => {
@@ -87,7 +88,7 @@ export class LocalesController {
   @UseGuards(ShopifyApiGuard)
   @Get(':theme_id/locales/list')
   async listLocales(
-    @Req() req,
+    @Req() req: IUserRequest,
     @Res() res,
     @Param('theme_id') themeId: number,
   ) {
@@ -122,7 +123,7 @@ export class LocalesController {
   @UseGuards(ShopifyApiGuard)
   @Get(':theme_id/locales/*.json')
   async getLocale(
-    @Req() req,
+    @Req() req: IUserRequest,
     @Res() res,
     @Param('theme_id') themeId: number,
     @Param('*.json') filename: string,
@@ -165,7 +166,7 @@ export class LocalesController {
   @UseGuards(ShopifyApiGuard)
   @Get(':theme_id/locales/*.liquid')
   async getSectionLocale(
-    @Req() req,
+    @Req() req: IUserRequest,
     @Res() res,
     @Param('theme_id') themeId: number,
     @Param('filename') filename: string,
@@ -210,7 +211,7 @@ export class LocalesController {
   @UseGuards(ShopifyApiGuard)
   @Get(':theme_id/locales/:property_path*')
   async getFullLocaleByProperty(
-    @Req() req,
+    @Req() req: IUserRequest,
     @Res() res,
     @Param('theme_id') themeId: number,
     @Param('property_path*') propertyPath: string,

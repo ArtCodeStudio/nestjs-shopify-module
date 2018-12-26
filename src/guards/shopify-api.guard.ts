@@ -28,22 +28,11 @@ class ShopifyApiGuard implements CanActivate {
   }
 
   validateRequest(request: IUserRequest) {
-    const shop = this.shopifyAuthService.getShop(request);
-
-    this.logger.debug(`validateRequest shop`, shop);
-
-    if (shop === null) {
-      return false;
-    }
-
     // See get-shop.middleware.ts
-    if (!request.shopifyConnect) {
-      return false;
-    }
-
-    if (shop === request.shopifyConnect.shop.domain || shop === request.shopifyConnect.shop.myshopify_domain) {
+    if (request.shopifyConnect) {
       return true;
     }
+    return false;
   }
 
 }
