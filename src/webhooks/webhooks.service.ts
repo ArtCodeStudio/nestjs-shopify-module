@@ -7,7 +7,7 @@ import { IShopifyConnect } from '../auth/interfaces/connect';
 export class WebhooksService {
   public create(shopifyConnect: IShopifyConnect, topic: string) {
     const webhooks = new Webhooks(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
-    webhooks.create({
+    return webhooks.create({
       address: 'https://gobd-next.artandcode.studio/webhooks/'+topic,
       topic
     });

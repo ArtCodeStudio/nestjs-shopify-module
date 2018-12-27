@@ -20,6 +20,7 @@ import { LocalesService } from './api/themes/locales/locales.service';
 import { AssetsController } from './api/themes/assets/assets.controller';
 import { LocalesController } from './api/themes/locales/locales.controller';
 import { GetShopifyConnectMiddleware } from './middlewares/get-shopify-connect.middleware';
+import { VerifyWebhookMiddleware } from './middlewares/verify-webhook.middleware';
 import { SyncService } from './sync/sync.service';
 import { OrdersService } from './api/orders/orders.service';
 import { ProductsService } from './api/products/products.service';
@@ -137,7 +138,11 @@ export class ShopifyModule implements NestModule {
 
       .apply(GetShopifyConnectMiddleware)
       .with('ShopifyModule')
-      .forRoutes(TransactionsController);
+      .forRoutes(TransactionsController)
+
+      .apply(GetShopifyConnectMiddleware, VerifyWebhookMiddleware)
+      .with('ShopifyModule')
+      .forRoutes(WebhooksController);
   }
 }
 
