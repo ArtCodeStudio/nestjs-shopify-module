@@ -14,11 +14,12 @@ export class WebhooksController {
   @Post('orders/updated')
   async ordersUpdated(@Req() req: Request, @Res() res, @Body() body) {
     this.logger.debug(`Webhook 'orders/updated'`, body);
+    res.sendStatus(200);
   }
   @Get('create')
   async createWebhook(@Req() req: IUserRequest, @Res() res, @Query('topic') topic) {
     const result = await this.webhooksService.create(req.shopifyConnect, topic);
     this.logger.debug(`Create webhook result`, result);
-    res.jsonp(result);
+    return res.jsonp(result);
   }
 }
