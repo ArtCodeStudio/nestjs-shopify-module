@@ -101,11 +101,13 @@ export class ShopifyModule implements NestModule {
         passportProvider,
         shopifyModuleOptions,
         mongooseDatabase,
+        GetShopifyConnectMiddleware,
         ...shopifyConnectProviders(database),
         ...shopifyApiProviders(database),
       ],
       exports: [
         mongooseDatabase,
+        GetShopifyConnectMiddleware,
         ...shopifyConnectProviders(database),
         ...shopifyApiProviders(database),
       ]

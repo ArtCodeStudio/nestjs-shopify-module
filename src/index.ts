@@ -15,3 +15,5 @@ export { ShopifyShopSchema } from './shop/shop.schema';
 export { IShopifyShop } from './shop/interfaces/shop';
 
 export { IShopifyConnect } from './auth/interfaces/connect';
+
+export { GetShopifyConnectMiddleware } from './middlewares/get-shopify-connect.middleware';

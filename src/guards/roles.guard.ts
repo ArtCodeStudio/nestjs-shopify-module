@@ -20,7 +20,7 @@ export class RolesGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    const roles = this.reflector.get<string[]>('roles', context.getHandler());
+    const roles = this.reflector.get<string[]>('roles', context.getHandler()) as TRoles;
     return this.validateRequest(request, roles);
   }
 
@@ -45,10 +45,10 @@ export class RolesGuard implements CanActivate {
     return hasRoule;
   }
 
-  validateRequest(request: IUserRequest, roles) {
+  validateRequest(request: IUserRequest, roles?: TRoles) {
 
     // if no roles are passt using @Roles('admin') this route do not need any role so activate this with true
-    if (!roles) {
+    if (!roles || roles.length === 0) {
       return true;
     }
 
