@@ -17,8 +17,16 @@ export class ProductsController {
   ) {};
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
+  /**
+   * Retrieves a list of products directly from shopify.
+   * @param req 
+   * @param res 
+   * @param options 
+   * 
+   * @see https://help.shopify.com/en/api/reference/products/product#index
+   */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles() // Allowed from shop frontend
   @Get()
   async list(@Req() req: IUserRequest, @Res() res, @Query() options: ProductListOptions) {
     try {
@@ -26,11 +34,20 @@ export class ProductsController {
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
+        apiRateLimitReached: error.apiRateLimitReached,
+        message: error.generic ? error.generic : error.message,
       });
     }
   }
 
+  /**
+   * Retrieves a list of products from the app database.
+   * @param req 
+   * @param res 
+   * @param options 
+   * 
+   * @see https://help.shopify.com/en/api/reference/products/product#index
+   */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('synced')
@@ -40,11 +57,19 @@ export class ProductsController {
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
+        message: error.generic ? error.generic : error.message,
       });
     }
   }
 
+  /**
+   * Retrieves a all products as a stream directly from shopify.
+   * @param req 
+   * @param res 
+   * @param options 
+   * 
+   * @see https://help.shopify.com/en/api/reference/products/product#count
+   */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('all')
@@ -53,9 +78,16 @@ export class ProductsController {
     this.productsService.listAllFromShopifyStream(req.shopifyConnect, {...options}).pipe(res);
   }
 
-
+  /**
+   * Retrieves a count of products from the app database.
+   * @param req 
+   * @param res 
+   * @param options 
+   * 
+   * @see https://help.shopify.com/en/api/reference/products/product#count
+   */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles() // Allowed from shop frontend
   @Get('synced/count')
   async countFromDb(@Req() req: IUserRequest, @Res() res,  @Query() options: ProductCountOptions) {
     try {
@@ -68,23 +100,14 @@ export class ProductsController {
     }
   }
 
+  /**
+   * Retrieves a count of products directly from shopify.
+   * @param req 
+   * @param res 
+   * @param options 
+   */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('synced/diff')
-  async diffSynced(@Req() req: IUserRequest, @Res() res) {
-    try {
-      return res.jsonp(await this.productsService.diffSynced(req.shopifyConnect));
-    } catch(error) {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
-    }
-  }
-
-
-  @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles() // Allowed from shop frontend
   @Get('count')
   async countFromShopify(@Req() req: IUserRequest, @Res() res,  @Query() options: ProductCountOptions) {
     try {
@@ -92,13 +115,22 @@ export class ProductsController {
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
+        apiRateLimitReached: error.apiRateLimitReached,
+        message: error.generic ? error.generic : error.message,
       });
     }
   }
 
+  /**
+   * Retrieves a single product from the app database.
+   * @param req 
+   * @param res 
+   * @param id Product id
+   * 
+   * @see https://help.shopify.com/en/api/reference/products/product#show
+   */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles() // Allowed from shop frontend
   @Get(':id/synced')
   async getFromDb(@Req() req: IUserRequest, @Res() res, @Param('id') id: number) {
     try {
@@ -111,12 +143,40 @@ export class ProductsController {
     }
   }
 
+  /**
+   * Retrieves a single product directly from shopify.
+   * @param req 
+   * @param res 
+   * @param id Product id
+   * 
+   * @see https://help.shopify.com/en/api/reference/products/product#show
+   */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles() // Allowed from shop frontend
   @Get(':id')
   async getFromShopify(@Req() req: IUserRequest, @Res() res, @Param('id') id: number) {
     try {
       return res.jsonp(await this.productsService.getFromShopify(req.shopifyConnect, id));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        apiRateLimitReached: error.apiRateLimitReached,
+        message: error.generic ? error.generic : error.message,
+      });
+    }
+  }
+
+  /**
+   * Helper route to check the sync
+   * @param req 
+   * @param res 
+   */
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('synced/diff')
+  async diffSynced(@Req() req: IUserRequest, @Res() res) {
+    try {
+      return res.jsonp(await this.productsService.diffSynced(req.shopifyConnect));
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
