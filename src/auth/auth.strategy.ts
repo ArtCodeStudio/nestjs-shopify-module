@@ -36,13 +36,16 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
 
   /**
    * Verify callback method, called insite of the ShopifyAuthStrategy
+   * 
+   * @note Do not use verifiedDone callback function, this leads to "Cannot set headers after they are sent to the client"
+   * 
    * @param shop
    * @param accessToken
    * @param refreshToken
    * @param profile
    * @param verifiedDone
    */
-  async validate(accessToken: string, refreshToken: string, profile: IShopifyAuthProfile, done) {
+  async validate(accessToken: string, refreshToken: string, profile: IShopifyAuthProfile, verifiedDone: (error?: Error | null, user?: any) => void) {
     // this.logger.debug(`accessToken`, accessToken);
     // this.logger.debug(`refreshToken`, refreshToken);
     // this.logger.debug(`profile.displayName`, profile.displayName);
