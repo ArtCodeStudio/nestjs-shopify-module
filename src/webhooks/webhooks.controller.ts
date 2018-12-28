@@ -17,7 +17,11 @@ export class WebhooksController {
    * Create a webhook
    */
   @Get('create')
-  async createWebhook(@Req() req: IUserRequest, @Res() res: Response, @Query('topic') topic) {
+  async createWebhook(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Query('topic') topic,
+  ) {
     const result = await this.webhooksService.create(req.shopifyConnect, topic);
     this.logger.debug(`Create webhook result`, result);
     return res.jsonp(result);
@@ -27,7 +31,7 @@ export class WebhooksController {
    * Catch-all method for all webhooks of the form topic = :resource/:event, i.e. orders/updated
    */
   @Post(':resource/:event')
-  async ordersUpdated(
+  async catchWebhook(
     @Res() res: Response,
     @Headers('x-shopify-shop-domain') myShopifyDomain: string,
     @Param('resource') resource: string,

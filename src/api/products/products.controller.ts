@@ -41,6 +41,7 @@ export class ProductsController {
     @Query('product_type') product_type: string,
     @Query('published_at_max') published_at_max: string,
     @Query('published_at_min') published_at_min: string,
+    @Query('published_status') published_status: string,
     @Query('since_id') since_id: number,
     @Query('sync') sync: boolean,
     @Query('title') title: string,
@@ -49,7 +50,9 @@ export class ProductsController {
     @Query('vendor') vendor: string,
   ) {
     try {
-      const published_status: 'published' | 'unpublished' | 'any' = 'published'; // For security reasons, only return public products
+      if (!req.user) {
+        published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
+      }
       return res.jsonp(await this.productsService.listFromShopify(req.shopifyConnect, {
         collection_id,
         created_at_max,
@@ -180,6 +183,9 @@ export class ProductsController {
     @Query('vendor') vendor: string,
   ) {
     try {
+      if (!req.user) {
+        published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
+      }
       return res.jsonp(await this.productsService.countFromDb(req.shopifyConnect, {
         collection_id,
         created_at_max,
@@ -224,6 +230,9 @@ export class ProductsController {
     @Query('vendor') vendor: string,
   ) {
     try {
+      if (!req.user) {
+        published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
+      }
       return res.jsonp(await this.productsService.countFromShopify(req.shopifyConnect, {
         collection_id,
         created_at_max,
