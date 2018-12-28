@@ -1,8 +1,6 @@
 import {
   Inject,
   Controller,
-  Request,
-  Response,
   Get,
   Req,
   Res,
@@ -12,6 +10,12 @@ import {
   Param,
   HttpStatus,
 } from '@nestjs/common';
+
+import { 
+  Request,
+  Response,
+} from 'express';
+
 import { PassportStatic } from 'passport';
 import { ShopifyAuthStrategy } from './auth.strategy';
 import { ShopifyConnectService} from './connect.service';

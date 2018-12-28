@@ -1,4 +1,4 @@
-import { Request } from '@nestjs/common';
+import { Request } from 'express';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 
 interface IUserRequest extends Request {

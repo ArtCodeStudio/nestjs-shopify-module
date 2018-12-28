@@ -2,9 +2,10 @@
 # yarn lockfile v1
 
 
-"@nestjs/common@^5.4.0":
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-5.4.0.tgz#74aa7da0d6931349b0a2cbe813b83ad77c2797ec"
+"@nestjs/common@^5.5.0":
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-5.5.0.tgz#6427d440f96e23c38945620fd74cb6ec61da8224"
+  integrity sha512-Ifh1D4ypsJYs/3YBIocU+X5yuAZSVKuCsz8kaKB4ZUO5WwJjh4/x6hlr4A+9XUMe8fPLtYXVohJoRUU5HbwyIA==
   dependencies:
     axios "0.18.0"
     cli-color "1.2.0"
@@ -12,9 +13,10 @@
     multer "1.3.0"
     uuid "3.3.2"
 
-"@nestjs/core@^5.4.0":
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/@nestjs/core/-/core-5.4.0.tgz#0c082ef019b5e435a9330feb3fe0101f3978af4e"
+"@nestjs/core@^5.5.0":
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/@nestjs/core/-/core-5.5.0.tgz#4f80bcfda1b964a6e1702c32f0afcbcc4a1706f7"
+  integrity sha512-XPUjSJyex6KMdTUKK1oeD7ea9mNLcwlSEbcKV7OWaNHIVq/XJaFpbzjbmd+/U/ZZaO1IWhpisfLW9gr/O8eb4w==
   dependencies:
     "@nuxtjs/opencollective" "0.1.0"
     body-parser "1.18.3"
@@ -76,7 +78,7 @@
     "@types/node" "*"
     "@types/range-parser" "*"
 
-"@types/express@*":
+"@types/express@*", "@types/express@^4.16.0":
   version "4.16.0"
   resolved "https://registry.yarnpkg.com/@types/express/-/express-4.16.0.tgz#6d8bc42ccaa6f35cf29a2b7c3333cb47b5a32a19"
   dependencies:
@@ -96,10 +98,10 @@
     "@types/bson" "*"
     "@types/node" "*"
 
-"@types/mongoose@^5.3.2":
-  version "5.3.2"
-  resolved "https://registry.yarnpkg.com/@types/mongoose/-/mongoose-5.3.2.tgz#ca22bed08681a5533254d830b33db6fd939c12be"
-  integrity sha512-BodywHKMSpitNsfktZiWfdYT+irLYHeLuknYk59zGTNpm8uoNZ1pLCH+dWMC3k2SlgiP7qL8ij+OlCRXDWkSrQ==
+"@types/mongoose@^5.3.5":
+  version "5.3.5"
+  resolved "https://registry.yarnpkg.com/@types/mongoose/-/mongoose-5.3.5.tgz#9e84a5ddebfb404adc3b5afa90b41e7474397870"
+  integrity sha512-SLnO5co2keWe1PLuf9mVm3WSZGUH+JNSOjw/szJEWUelTKwRt/+FaTvfgc9j+XIlHs8zZSfRbvFIh/PC+3KJhA==
   dependencies:
     "@types/mongodb" "*"
     "@types/node" "*"
@@ -727,9 +729,10 @@ mongoose-legacy-pluralize@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/mongoose-legacy-pluralize/-/mongoose-legacy-pluralize-1.0.2.tgz#3ba9f91fa507b5186d399fb40854bff18fb563e4"
 
-mongoose@^5.3.14:
-  version "5.3.14"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.3.14.tgz#14fb782423561187e8e4264deb9e213156ca3ea6"
+mongoose@^5.4.1:
+  version "5.4.1"
+  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.4.1.tgz#0e1535bb2653426c9ee8fffbf4fa0ba57bb196e7"
+  integrity sha512-9lST8rek83apkG+gv4exI56kJ8/aJ7nZP+zAL1ezOhgfDqQM/S4U1DcsF1hL0cOTSmcip8BdT1xby9ItCFmbvA==
   dependencies:
     async "2.6.1"
     bson "~1.1.0"
@@ -1055,6 +1058,11 @@ setprototypeof@1.1.0:
     node-fetch "^1.6.3"
     tap-bail "^1.0.0"
     url-join "^2.0.2"
+
+shopify-token@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/shopify-token/-/shopify-token-3.0.3.tgz#faee7dd01559d6f9899f4a9123a415439a3e4462"
+  integrity sha512-FW8l5D+hbGf7D8ko/MVins5SDXG5f7hSOk1usS5vSxNy+PSSg25/M35/7Ubp6agrA5hyJ7oGE3a8j3MpPHXcBQ==
 
 sliced@1.0.1:
   version "1.0.1"

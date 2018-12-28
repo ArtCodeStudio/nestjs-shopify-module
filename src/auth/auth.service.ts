@@ -1,4 +1,5 @@
-import { Inject, Injectable, Request } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { Request } from 'express';
 
 import { IUserRequest } from '../interfaces/user-request';
 import { IShopifyConnect } from './interfaces/connect'

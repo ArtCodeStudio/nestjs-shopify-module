@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Req, Request, Res, Body, Query } from '@nestjs/common';
+import { Controller, Post, Get, Req, Res, Body, Query } from '@nestjs/common';
+import { Request } from 'express';
 import { IUserRequest } from '../interfaces/user-request';
 import { WebhooksService } from './webhooks.service';
 import { DebugService } from '../debug.service';
