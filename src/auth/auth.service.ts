@@ -119,7 +119,8 @@ export class ShopifyAuthService {
           }
           this.logger.debug(`validate user, user.myshopify_domain: `, user.myshopify_domain);
           // Passport stores the user in req.user
-          session.user = user;
+          session[`user-${user.myshopify_domain}`] = user;
+          session.shop = user.myshopify_domain;
           return user;
         })
         .catch((err) => {
@@ -164,6 +165,11 @@ export class ShopifyAuthService {
    * Get the shop the request comes from.
    * If a shop string is returned, the request is either from a shop theme or the backend app with logged in user,
    * otherwise null is returend
+   * 
+   * This is method can be used on auth stuff because this method only returns the shop on allowed hosts.
+   * 
+   * TODO IMPORTANT Replace this method with a more secure proxy: https://help.shopify.com/en/api/guides/application-proxies
+   * 
    * @param request
    */
   getShop(request: IUserRequest): string | null {
@@ -205,5 +211,57 @@ export class ShopifyAuthService {
     }
 
     return shop;
+  }
+
+  /**
+   * Like getShop but always returns the myshopify_domain if found
+   * 
+   * TODO IMPORTANT Replace this method with a more secure proxy: https://help.shopify.com/en/api/guides/application-proxies
+   * 
+   * @param request 
+   */
+  async getMyShopifyDomain(request: IUserRequest) {
+    const anyDomain = this.getShop(request);
+    if (!anyDomain) {
+      throw new Error('Shop not found!');
+    }
+    if (anyDomain.endsWith('.myshopify.com')) {
+      return anyDomain;
+    }
+    return this.shopifyConnectService.findByDomain(anyDomain)
+    .then((shopifyConnect) => {
+      this.logger.debug('getMyShopifyDomain', shopifyConnect.myshopify_domain);
+      return shopifyConnect.myshopify_domain;
+    });
+  }
+
+  /**
+   * Unsecure version of getMyShopifyDomain, do not use this on dangerous authentications only if you know what you are doing
+   * 
+   * TODO IMPORTANT Replace this method with a more secure proxy: https://help.shopify.com/en/api/guides/application-proxies
+   * 
+   * @param request
+   */
+  async getMyShopifyDomainUnsecure(request: IUserRequest) {
+    let domain: string;
+    let host = this.getClientHost(request);
+    if (host !== this.shopifyModuleOptions.appHost) {
+      // the shop domain is the domain where the request comes from
+      domain = host;
+    }
+    if (!domain && (request as any).query.shop) {
+      domain = (request as any).query.shop;
+    }
+    if (!domain) {
+      throw new Error('Shop not found!');
+    }
+    if (domain.endsWith('.myshopify.com')) {
+      return domain;
+    }
+    return this.shopifyConnectService.findByDomain(domain)
+    .then((shopifyConnect) => {
+      this.logger.debug('getMyShopifyDomain', shopifyConnect.myshopify_domain);
+      return shopifyConnect.myshopify_domain;
+    });
   }
 }

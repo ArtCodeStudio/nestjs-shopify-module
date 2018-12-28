@@ -114,7 +114,6 @@ export class ChargeController {
   async create(@Param('name') name: string, @Req() req, @Res() res) {
     this.logger.debug('req.user', req.user);
     const user = req.user as IShopifyConnect;
-    // this.logger.debug('session.user', session.user);
     return this.chargeService.createByName(user, name)
     .then((charge) => {
       this.logger.debug('charge', charge);

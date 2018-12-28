@@ -53,8 +53,6 @@ export class ShopifyAuthController {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
     }
 
-    // session.shop = shop;
-
     this.logger.debug('auth called', `AuthController:${shop}`);
 
     const shopifyAuthStrategy = new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions, this.passport)
@@ -89,8 +87,6 @@ export class ShopifyAuthController {
     }
 
     const oAuthConnect = this.shopifyAuthService.oAuthConnect(req, shop);
-
-    // session.shop = shop;
     session.nonce = oAuthConnect.nonce;
 
     return res.json({authUrl: oAuthConnect.authUrl});
@@ -156,7 +152,7 @@ export class ShopifyAuthController {
       failureRedirect: `failure/${shop}`,
       successRedirect: `/view/settings`,
       session: true,
-      userProperty: 'user', // TODO set to `user-${shop}`
+      userProperty: `user-${shop}`,
     })(req, res, next);
   }
 
