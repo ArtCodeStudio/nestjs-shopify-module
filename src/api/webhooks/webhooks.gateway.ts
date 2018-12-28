@@ -32,6 +32,16 @@ export class WebhooksGateway {
     });
   }
 
+  @SubscribeMessage('events')
+  findAll(client, data): Observable<WsResponse<number>> {
+    return from([1, 2, 3]).pipe(map(item => ({ event: 'events', data: item })));
+  }
+
+  @SubscribeMessage('identity')
+  async identity(client, data: number): Promise<number> {
+    return data;
+  }
+
 }
 
 

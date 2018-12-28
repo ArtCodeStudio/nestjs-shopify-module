@@ -248,7 +248,7 @@ export class ShopifyAuthService {
 
     // Get shop from header
     if (request.headers) {
-      if (request.headers.shop) {
+      if (request.headers.shop || request.headers['x-shopify-shop-domain']) {
         /**
          * Note: You Can set the shop header in the client for each jquery request by:
          * 
@@ -266,7 +266,7 @@ export class ShopifyAuthService {
          *   Utils.setRequestHeaderEachRequest('shop', shop);
          * ```
          */
-        shop = request.headers.shop as string;
+        shop = (request.headers.shop as string) || (request.headers['x-shopify-shop-domain'] as string);
         if (shop.endsWith('.myshopify.com')) {
           return shop;
         }
