@@ -43,7 +43,7 @@ export class ShopifyAuthService {
   oAuthConnect(request: IUserRequest, myshopify_domain?: string) {
 
     if (!myshopify_domain) {
-      myshopify_domain = this.getShop(request);
+      myshopify_domain = this.getShopSecureForThemeClients(request);
     }
 
     if (!myshopify_domain) {
@@ -121,6 +121,7 @@ export class ShopifyAuthService {
           this.logger.debug(`validate user, user.myshopify_domain: `, user.myshopify_domain);
           // Passport stores the user in req.user
           session[`user-${user.myshopify_domain}`] = user;
+          // For fallback if no shop is set in request.headers
           session.shop = user.myshopify_domain;
           return user;
         })
@@ -134,7 +135,7 @@ export class ShopifyAuthService {
   }
 
   async getShopifyConnectByRequest(request: IUserRequest): Promise<IShopifyConnect | null> {
-    const shopDomain = this.getShop(request);
+    const shopDomain = this.getShopSecureForThemeClients(request);
     this.logger.debug('shopDomain', shopDomain);
     if (!shopDomain) {
       return null;
@@ -167,17 +168,15 @@ export class ShopifyAuthService {
    * If a shop string is returned, the request is either from a shop theme or the backend app with logged in user,
    * otherwise null is returend
    * 
-   * This is method can be used on auth stuff because this method only returns the shop on allowed hosts.
-   * 
-   * TODO IMPORTANT Replace this method with a more secure proxy: https://help.shopify.com/en/api/guides/application-proxies
-   * 
+   * This is method can be used to get the shopifyConnect object because this method only returns the shop on allowed hosts.
+   *  
    * @param request
    */
-  getShop(request: IUserRequest): string | null {
+  getShopSecureForThemeClients(request: IUserRequest): string | null {
     let shop = null;
     const host = this.getClientHost(request);
 
-    this.logger.debug('validateRequest', host);
+    this.logger.debug('getShopSecureForThemeClients', host);
 
     if (!host) {
       this.logger.debug(`no host!`);
@@ -215,14 +214,12 @@ export class ShopifyAuthService {
   }
 
   /**
-   * Like getShop but always returns the myshopify_domain if found
-   * 
-   * TODO IMPORTANT Replace this method with a more secure proxy: https://help.shopify.com/en/api/guides/application-proxies
+   * Like SecureForThemeClients but always returns the myshopify_domain if found
    * 
    * @param request 
    */
-  async getMyShopifyDomain(request: IUserRequest) {
-    const anyDomain = this.getShop(request);
+  async getMyShopifyDomainSecureForThemeClients(request: IUserRequest) {
+    const anyDomain = this.getShopSecureForThemeClients(request);
     if (!anyDomain) {
       throw new Error('Shop not found!');
     }
@@ -237,29 +234,64 @@ export class ShopifyAuthService {
   }
 
   /**
-   * Unsecure version of getMyShopifyDomain, do not use this on dangerous authentications only if you know what you are doing
+   * Unsecure version of getMyShopifyDomainSecureForThemeClients.
    * 
-   * TODO IMPORTANT Replace this method with a more secure proxy: https://help.shopify.com/en/api/guides/application-proxies
+   * This also returns the shopify domain if just the shop is set has query param or header param.
+   * 
+   * Do not use this on dangerous authentications like get the shopifyConnect object
+   * only if you know what you are doing.
    * 
    * @param request
    */
   async getMyShopifyDomainUnsecure(request: IUserRequest) {
-    let domain: string;
-    let host = this.getClientHost(request);
-    if (host !== this.shopifyModuleOptions.appHost) {
-      // the shop domain is the domain where the request comes from
-      domain = host;
+    let shop: string;
+
+    // Get shop from header
+    if (request.headers) {
+      if (request.headers.shop) {
+        /**
+         * Note: You Can set the shop header in the client for each jquery request by:
+         * 
+         * ```
+         *  JQuery.ajaxSetup({
+         *    beforeSend: (xhr: JQueryXHR) => {
+         *      xhr.setRequestHeader('shop', shop);
+         *    },
+         *  });
+         * ```
+         * 
+         * Or on riba with:
+         * 
+         * ```
+         *   Utils.setRequestHeaderEachRequest('shop', shop);
+         * ```
+         */
+        shop = request.headers.shop as string;
+        if (shop.endsWith('.myshopify.com')) {
+          return shop;
+        }
+      }
+      // From shopify theme
+      if (request.headers.origin) {
+        shop = (request.headers as any).origin.split('://')[1];
+        if (shop.endsWith('.myshopify.com')) {
+          return shop;
+        }
+      }
     }
-    if (!domain && (request as any).query.shop) {
-      domain = (request as any).query.shop;
+
+    // Get shop from query param
+    if (request.query.shop) {
+      shop = request.query.shop;
+      if (shop.endsWith('.myshopify.com')) {
+        return shop;
+      }
     }
-    if (!domain) {
+    if (!shop) {
       throw new Error('Shop not found!');
     }
-    if (domain.endsWith('.myshopify.com')) {
-      return domain;
-    }
-    return this.shopifyConnectService.findByDomain(domain)
+
+    return this.shopifyConnectService.findByDomain(shop)
     .then((shopifyConnect) => {
       this.logger.debug('getMyShopifyDomain', shopifyConnect.myshopify_domain);
       return shopifyConnect.myshopify_domain;

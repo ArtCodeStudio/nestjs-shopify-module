@@ -54,11 +54,11 @@ export class LocalesController {
       return this.localesService.get(req.shopifyConnect, themeId);
     })
     .then((locale) => {
-      this.logger.debug(`assets`, locale);
+      // this.logger.debug(`assets`, locale);
       return res.jsonp(locale);
     })
     .catch((error: Infrastructure.ShopifyError) => {
-      this.logger.debug(error);
+      this.logger.error(error);
       if (error.statusCode === 404) {
         error.message = `Locales in theme ${themeId} not found.`;
       }
@@ -133,7 +133,7 @@ export class LocalesController {
     filename = path.substring(path.lastIndexOf('/'));
     return this.localesService.getLocalFile(req.shopifyConnect, themeId, filename)
     .then((locale) => {
-      this.logger.debug(`assets`, locale);
+      // this.logger.debug(`assets`, locale);
       return res.jsonp(locale);
     })
     .catch((error: Infrastructure.ShopifyError) => {
@@ -177,7 +177,7 @@ export class LocalesController {
 
     return this.localesService.getSectionFile(req.shopifyConnect, themeId, filename)
     .then((locale) => {
-      this.logger.debug(`assets`, locale);
+      // this.logger.debug(`assets`, locale);
       return res.jsonp(locale);
     })
     .catch((error: Infrastructure.ShopifyError) => {
@@ -232,7 +232,7 @@ export class LocalesController {
       return this.localesService.get(req.shopifyConnect, themeId, properties);
     })
     .then((locale) => {
-      this.logger.debug(`assets`, locale);
+      // this.logger.debug(`assets`, locale);
       if (locale) {
         return res.jsonp(locale);
       }

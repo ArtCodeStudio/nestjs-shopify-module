@@ -5,6 +5,7 @@ import { Reflector } from '@nestjs/core';
 import { IUserRequest, IShopifyConnect } from '../interfaces/user-request';
 import { TRoles } from '../auth/interfaces/role';
 import { DebugService } from '../debug.service';
+import { ShopifyAuthService } from '../auth/auth.service'
 
 /**
  *
@@ -14,7 +15,10 @@ export class RolesGuard implements CanActivate {
 
   protected logger = new DebugService('shopify:RolesGuard');
 
-  constructor(private readonly reflector: Reflector) {}
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly shopifyAuthService: ShopifyAuthService,
+    ) {}
 
   canActivate(
     context: ExecutionContext,
@@ -24,24 +28,13 @@ export class RolesGuard implements CanActivate {
     return this.validateRequest(request, roles);
   }
 
-  // todo move to utils
-  isLoggedIn(request: IUserRequest) {
-    this.logger.debug('isLoggedIn', request.user);
-    if (request.user !== null && typeof request.user === 'object') {
-      return true;
-    }
-    return false;
-  }
-
   hasRole(user: IShopifyConnect, roles: TRoles) {
-    this.logger.debug('hasRole', roles, user.roles);
+    // this.logger.debug('hasRole', roles, user.roles);
     const hasRoule = user.roles.some((role) => {
-      this.logger.debug('hasRole role', role);
+      // this.logger.debug('hasRole role', role);
       return roles.includes(role);
     });
-
     this.logger.debug('hasRole result', hasRoule);
-
     return hasRoule;
   }
 
@@ -53,7 +46,7 @@ export class RolesGuard implements CanActivate {
     }
 
     // Only logged in users can have any role
-    if (!this.isLoggedIn(request)) {
+    if (!this.shopifyAuthService.isLoggedIn(request)) {
       return false;
     }
 

@@ -154,7 +154,7 @@ export class ShopifyAuthController {
 
     return this.passport.authenticate(`shopify-${shop}`, {
       failureRedirect: `failure/${shop}`,
-      successRedirect: `/view/settings`,
+      successRedirect: `/success/${shop}`,
       session: true,
       userProperty: `user-${shop}`,
     })(req, res, next);
@@ -166,12 +166,12 @@ export class ShopifyAuthController {
    * @param req
    */
   @Get('/success/:shop')
-  success(@Param('shop') shop, @Res() res: Response, @Req() req: Request) {
+  success(@Param('shop') shop, @Res() res: Response, @Req() req: Request, @Session() session) {
+    // For fallback if no shop is set in request.headers
+    session.shop = shop;
     this.passport.unuse(`shopify-${shop}`);
-    return res.json({
-      message: 'successfully logged in',
-      shop: req.user.shop,
-    });
+    // Redirect to view TODO get this from config
+    return res.redirect('/view/settings');
   }
 
   /**

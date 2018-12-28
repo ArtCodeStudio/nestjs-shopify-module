@@ -43,20 +43,19 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
    * @param verifiedDone
    */
   async validate(accessToken: string, refreshToken: string, profile: IShopifyAuthProfile, done) {
-    this.logger.debug(`accessToken`, accessToken);
-    this.logger.debug(`refreshToken`, refreshToken);
-    this.logger.debug(`profile.displayName`, profile.displayName);
+    // this.logger.debug(`accessToken`, accessToken);
+    // this.logger.debug(`refreshToken`, refreshToken);
+    // this.logger.debug(`profile.displayName`, profile.displayName);
 
     return this.shopifyConnectService.connectOrUpdate(profile, accessToken)
     .then((user) => {
       if (!user) {
         throw new Error('Error on connect or update user');
       }
-      this.logger.debug(`validate user, user.myshopify_domain: `, user.myshopify_domain);
+      // this.logger.debug(`validate user, user.myshopify_domain: `, user.myshopify_domain);
       return user; // see AuthStrategy -> serializeUser
     })
     .catch((err) => {
-      this.logger.debug('Error on validate', err);
       this.logger.error(err);
       throw err;
     });

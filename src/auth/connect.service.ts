@@ -77,7 +77,7 @@ export class ShopifyConnectService {
   async findByShopifyId(id: number) {
     return this.shopifyConnectModel.findOne({shopifyID: id}).exec()
     .then((user: IShopifyConnect) => {
-      this.logger.debug(`findByShopifyId user.myshopify_domain:`, user.myshopify_domain);
+      // (`findByShopifyId user.myshopify_domain:`, user.myshopify_domain);
       return user;
     });
   }

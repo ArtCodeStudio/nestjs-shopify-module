@@ -17,11 +17,30 @@ export class GetUserMiddleware implements NestMiddleware {
         // DO nothing
         // this.logger.debug(error);
       });
+
+      /**
+       * If shop is not set you need to add the shop to your header on your shopify app client code like this:
+       * 
+       * ```
+       *  JQuery.ajaxSetup({
+       *    beforeSend: (xhr: JQueryXHR) => {
+       *      xhr.setRequestHeader('shop', shop);
+       *    },
+       *  });
+       * ```
+       * 
+       * Or on riba with:
+       * 
+       * ```
+       *   Utils.setRequestHeaderEachRequest('shop', shop);
+       * ```
+       */
       if (!shop && req.session.shop) {
+        // Fallback, Shopify App clientsite code does not seem to support multiple logged in apps users
         shop = req.session.shop;
       }
       if (!shop) {
-        this.logger.debug('WARNING shop not found, use the first user, please fix me');
+        this.logger.warn('Shop not found');
         return next();
       }
       req.session.shop = shop;

@@ -41,7 +41,7 @@ export class LocalesService {
    */
   async getLocalFile(user: IShopifyConnect, id: number, filename: string, options: Options.FieldOptions = {}): Promise<ILocaleFile> {
     const key = `locales/${filename}`;
-    this.logger.debug('getLocalFile', filename);
+    // this.logger.debug('getLocalFile', filename);
     return this.assetsService.get(user, id, key, options)
     .then((asset) => {
       const locale: ILocaleFile = this.parseLangCode(asset);
@@ -61,7 +61,7 @@ export class LocalesService {
     options.key_starts_with = 'sections/';
     return this.assetsService.list(user, id, options)
     .then((assets) => {
-      this.logger.debug('assets', assets);
+      // this.logger.debug('assets', assets);
       const locales: ILocaleFile[] = assets;
       locales.forEach((locale) => {
         locale = this.parseLangCode(locale);
@@ -203,13 +203,13 @@ export class LocalesService {
     // applay filter
     .then((mergedLocales) => {
       if (properties && properties.length) {
-        this.logger.debug('properties', properties);
+        // this.logger.debug('properties', properties);
         for (const property of properties) {
-          this.logger.debug('property', property);
+          // this.logger.debug('property', property);
           if (mergedLocales[property]) {
             mergedLocales = mergedLocales[property];
           } else {
-            this.logger.debug('null on', property);
+            // this.logger.debug('null on', property);
             return null;
           }
         }

@@ -25,7 +25,7 @@ export class ThemesController {
   ) {
     this.themesService.list(req.user)
     .then((themes) => {
-      this.logger.debug(`themes`, themes);
+      // this.logger.debug(`themes`, themes);
       return res.jsonp(themes);
     })
     .catch((error: Error) => {
@@ -45,7 +45,7 @@ export class ThemesController {
   ) {
     this.themesService.getActive(req.user)
     .then((theme) => {
-      this.logger.debug(`theme`, theme);
+      // this.logger.debug(`theme`, theme);
       return res.jsonp(theme);
     })
     .catch((error: Error) => {
@@ -66,7 +66,7 @@ export class ThemesController {
   ) {
     this.themesService.get(req.user, themeId)
     .then((theme) => {
-      this.logger.debug(`theme`, theme);
+      // this.logger.debug(`theme`, theme);
       return res.jsonp(theme);
     })
     .catch((error: Error) => {

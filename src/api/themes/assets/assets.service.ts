@@ -40,7 +40,7 @@ export class AssetsService {
     const endSchema = this.regexIndexOf(asset.value, /{%\s*?endschema\s*?%}/gm, true);
     const startLiquid = 0;
     const endLiquid = this.regexIndexOf(asset.value, /{%\s*?endschema\s*?%}/gm, true);
-    this.logger.debug(`startSchema: ${startSchema} endSchema: ${endSchema}`);
+    // this.logger.debug(`startSchema: ${startSchema} endSchema: ${endSchema}`);
     if (startSchema >= 0 && endSchema >= 0) {
       const sectionSchemaString = asset.value.substring(startSchema, endSchema).trim();
       const sectionLiquidString = asset.value.substring(startLiquid, endLiquid).trim();
@@ -48,7 +48,7 @@ export class AssetsService {
       try {
         sectionSchema = asset.value = JSON.parse(sectionSchemaString);
       } catch (error) {
-        this.logger.debug(`error`, error, sectionSchemaString);
+        this.logger.error(error, sectionSchemaString);
         // if parse json fails return normal asset file
         return asset;
       }
