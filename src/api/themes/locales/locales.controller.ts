@@ -1,5 +1,5 @@
 import { Inject, Controller, Param, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
-
+import { Response } from 'express';
 import { Roles } from '../../../guards/roles.decorator';
 import { DebugService } from '../../../debug.service';
 import { LocalesService } from './locales.service';
@@ -44,7 +44,7 @@ export class LocalesController {
   @Get(':theme_id/locales')
   async getFullLocale(
     @Req() req: IUserRequest,
-    @Res() res,
+    @Res() res: Response,
     @Param('theme_id') themeId: number,
   ) {
     const shopifyConnect = req.shopifyConnect;
@@ -124,7 +124,7 @@ export class LocalesController {
   @Get(':theme_id/locales/*.json')
   async getLocale(
     @Req() req: IUserRequest,
-    @Res() res,
+    @Res() res: Response,
     @Param('theme_id') themeId: number,
     @Param('*.json') filename: string,
   ) {
@@ -167,7 +167,7 @@ export class LocalesController {
   @Get(':theme_id/locales/*.liquid')
   async getSectionLocale(
     @Req() req: IUserRequest,
-    @Res() res,
+    @Res() res: Response,
     @Param('theme_id') themeId: number,
     @Param('filename') filename: string,
   ) {
@@ -212,7 +212,7 @@ export class LocalesController {
   @Get(':theme_id/locales/:property_path*')
   async getFullLocaleByProperty(
     @Req() req: IUserRequest,
-    @Res() res,
+    @Res() res: Response,
     @Param('theme_id') themeId: number,
     @Param('property_path*') propertyPath: string,
   ) {

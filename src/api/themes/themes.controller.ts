@@ -1,5 +1,5 @@
 import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
-
+import { Response } from 'express';
 import { Roles } from '../../guards/roles.decorator';
 import { DebugService } from 'debug.service';
 import { ThemesService } from './themes.service';
@@ -21,7 +21,7 @@ export class ThemesController {
   @Get()
   getThemes(
     @Req() req: IUserRequest,
-    @Res() res,
+    @Res() res: Response,
   ) {
     this.themesService.list(req.user)
     .then((themes) => {
@@ -41,7 +41,7 @@ export class ThemesController {
   @Get('active')
   getActiveTheme(
     @Req() req,
-    @Res() res,
+    @Res() res: Response,
   ) {
     this.themesService.getActive(req.user)
     .then((theme) => {
@@ -62,7 +62,7 @@ export class ThemesController {
   getTheme(
     @Param('theme_id') themeId: number,
     @Req() req,
-    @Res() res,
+    @Res() res: Response,
   ) {
     this.themesService.get(req.user, themeId)
     .then((theme) => {

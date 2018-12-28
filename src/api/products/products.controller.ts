@@ -7,6 +7,7 @@ import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
 import { Readable } from 'stream';
 import { IUserRequest } from '../../interfaces/user-request';
+import { Response } from 'express';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 
 
@@ -28,7 +29,7 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
   @Get()
-  async list(@Req() req: IUserRequest, @Res() res, @Query() options: ProductListOptions) {
+  async list(@Req() req: IUserRequest, @Res() res: Response, @Query() options: ProductListOptions) {
     try {
       return res.jsonp(await this.productsService.listFromShopify(req.shopifyConnect, {...options}));
     } catch (error) {
@@ -51,7 +52,7 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('synced')
-  async listFromDb(@Req() req: IUserRequest, @Res() res) {
+  async listFromDb(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.productsService.listFromDb(req.shopifyConnect));
     } catch(error) {
@@ -74,7 +75,7 @@ export class ProductsController {
   @Roles('shopify-staff-member')
   @Get('all')
   @Header('Content-type', 'application/json')
-  listAllFromShopify(@Req() req: IUserRequest, @Res() res, @Query() options: ProductListOptions) {
+  listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Query() options: ProductListOptions) {
     this.productsService.listAllFromShopifyStream(req.shopifyConnect, {...options}).pipe(res);
   }
 
@@ -89,7 +90,7 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
   @Get('synced/count')
-  async countFromDb(@Req() req: IUserRequest, @Res() res,  @Query() options: ProductCountOptions) {
+  async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: ProductCountOptions) {
     try {
       return res.jsonp(await this.productsService.countFromDb(req.shopifyConnect, options));
     } catch(error) {
@@ -109,7 +110,7 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
   @Get('count')
-  async countFromShopify(@Req() req: IUserRequest, @Res() res,  @Query() options: ProductCountOptions) {
+  async countFromShopify(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: ProductCountOptions) {
     try {
       return res.jsonp(await this.productsService.countFromShopify(req.shopifyConnect, options));
     } catch(error) {
@@ -132,7 +133,7 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
   @Get(':id/synced')
-  async getFromDb(@Req() req: IUserRequest, @Res() res, @Param('id') id: number) {
+  async getFromDb(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
     try {
       return res.jsonp(await this.productsService.getFromDb(req.shopifyConnect, id));
     } catch (error) {
@@ -154,7 +155,7 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
   @Get(':id')
-  async getFromShopify(@Req() req: IUserRequest, @Res() res, @Param('id') id: number) {
+  async getFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
     try {
       return res.jsonp(await this.productsService.getFromShopify(req.shopifyConnect, id));
     } catch(error) {
@@ -174,7 +175,7 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('synced/diff')
-  async diffSynced(@Req() req: IUserRequest, @Res() res) {
+  async diffSynced(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.productsService.diffSynced(req.shopifyConnect));
     } catch(error) {

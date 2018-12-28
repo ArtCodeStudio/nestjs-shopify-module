@@ -1,5 +1,5 @@
 import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
-
+import { Response } from 'express';
 import { Roles } from '../../../guards/roles.decorator';
 import { DebugService } from '../../../debug.service';
 import { AssetsService } from './assets.service';
@@ -27,7 +27,7 @@ export class AssetsController {
   @Get(':theme_id/assets')
   async listThemeAssets(
     @Req() req: IUserRequest,
-    @Res() res,
+    @Res() res: Response,
     @Param('theme_id') themeId: number,
   ) {
     return this.assetsService.list(req.shopifyConnect, themeId)
@@ -56,7 +56,7 @@ export class AssetsController {
   @Get(':theme_id/assets/assets/:filename')
   async getThemeAssetAsset(
     @Req() req: IUserRequest,
-    @Res() res,
+    @Res() res: Response,
     @Param('theme_id') themeId: number,
     @Param('filename') filename: string,
   ) {
@@ -88,7 +88,7 @@ export class AssetsController {
   @Get(':theme_id/assets/templates/:filename')
   async getThemeAssetTemplate(
     @Req() req: IUserRequest,
-    @Res() res,
+    @Res() res: Response,
     @Param('theme_id') themeId: number,
     @Param('filename') filename: string,
   ) {
@@ -120,7 +120,7 @@ export class AssetsController {
   @Get(':theme_id/assets/snippets/:filename')
   async getThemeAssetSnippets(
     @Req() req: IUserRequest,
-    @Res() res,
+    @Res() res: Response,
     @Param('theme_id') themeId: number,
     @Param('filename') filename: string,
   ) {
@@ -153,7 +153,7 @@ export class AssetsController {
   @Get(':theme_id/assets/:key*')
   async getThemeAsset(
     @Req() req: IUserRequest,
-    @Res() res,
+    @Res() res: Response,
     @Param('theme_id') themeId: number,
     @Param('key') key: string,
   ) {

@@ -1,4 +1,5 @@
-import { Inject, Injectable, NestMiddleware, MiddlewareFunction, Request } from '@nestjs/common';
+import { Inject, Injectable, NestMiddleware, MiddlewareFunction } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { ShopifyAuthService } from '../auth/auth.service';
 import { ShopifyConnectService } from '../auth/connect.service';
 import { DebugService } from '../debug.service';
@@ -6,7 +7,6 @@ import { DebugService } from '../debug.service';
 import { ShopifyModuleOptions} from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS} from '../shopify.constants';
 import { isAuthenticWebhook } from 'shopify-prime/auth';
-import * as crypto from 'crypto';
 import * as concat from 'concat-stream';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class VerifyWebhookMiddleware implements NestMiddleware {
 
   }
   async resolve(...args: any[]): Promise<MiddlewareFunction> {
-    return async (req, res, next) => {
+    return async (req: Request, res: Response, next) => {
       this.logger.debug('verifyWebhook middleware');
       this.logger.debug('req.headers', req.headers);
       const hmac = req.headers['x-shopify-hmac-sha256'];
@@ -37,6 +37,7 @@ export class VerifyWebhookMiddleware implements NestMiddleware {
         } catch (e) {
           req.body = {};
           this.logger.debug(`webhook failed parsing body`);
+          res.status(415).send({ error: 'INVALID JSON'})
         }
         if (hmac) {
           if (isAuthenticWebhook(req.headers, rawBody, this.shopifyModuleOptions.clientSecret)) {
@@ -53,7 +54,7 @@ export class VerifyWebhookMiddleware implements NestMiddleware {
           */
           } else {
             this.logger.debug('invalid webhook hmac:', hmac, req.body);
-            res.status(401).send({ error: 'INVALID HMAC' });
+            res.status(403).send({ error: 'INVALID HMAC' });
             // TODO: How to throw error?
             // return ctx.throw(401, 'SHOPIFY_POLICIES_WEBHOOK_INVALID_HMAC');
           }

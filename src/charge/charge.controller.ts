@@ -1,4 +1,6 @@
 import { Inject, Controller, Param, Get, Req, Res, Session, HttpStatus, Query } from '@nestjs/common';
+import { Response } from 'express';
+import { IUserRequest } from '../interfaces/user-request';
 import { ChargeService } from './charge.service';
 import { DebugService } from '../debug.service';
 import { IShopifyConnect } from '../auth/interfaces/connect';
@@ -25,7 +27,7 @@ export class ChargeController {
    */
   @Get()
   @Roles('shopify-staff-member')
-  async list(@Req() req, @Res() res, @Session() session ) {
+  async list(@Req() req: IUserRequest, @Res() res: Response, @Session() session ) {
     const user = req.user as IShopifyConnect;
     return this.chargeService.listCharges(user)
     .then((charges) => {
@@ -42,7 +44,7 @@ export class ChargeController {
    */
   @Get('/active')
   @Roles('shopify-staff-member')
-  async active(@Req() req, @Res() res, @Session() session ) {
+  async active(@Req() req: IUserRequest, @Res() res: Response, @Session() session ) {
     const user = req.user as IShopifyConnect;
     return this.chargeService.active(user)
     .then((charge: Models.RecurringCharge | null) => {
@@ -59,7 +61,7 @@ export class ChargeController {
    */
   @Get('/available')
   @Roles('shopify-staff-member')
-  async available(@Req() req, @Res() res) {
+  async available(@Req() req: IUserRequest, @Res() res: Response) {
     const user = req.user as IShopifyConnect;
     this.logger.debug('available');
     return this.chargeService.available(user)
@@ -80,7 +82,7 @@ export class ChargeController {
    */
   @Get('/activate')
   @Roles('shopify-staff-member')
-  async activate(@Query('charge_id') chargeId, @Req() req, @Res() res) {
+  async activate(@Query('charge_id') chargeId, @Req() req: IUserRequest, @Res() res: Response) {
     this.logger.debug('activate', chargeId);
     const user = req.user as IShopifyConnect;
     return this.chargeService.getChargeById(user, chargeId)
@@ -111,7 +113,7 @@ export class ChargeController {
    */
   @Get('/create/:name')
   @Roles('shopify-staff-member')
-  async create(@Param('name') name: string, @Req() req, @Res() res) {
+  async create(@Param('name') name: string, @Req() req: IUserRequest, @Res() res: Response) {
     this.logger.debug('req.user', req.user);
     const user = req.user as IShopifyConnect;
     return this.chargeService.createByName(user, name)
