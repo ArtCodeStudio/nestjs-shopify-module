@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@nestjs/passport": "^5.1.0",
+    "@nestjs/websockets": "^5.5.0",
     "@types/mongoose": "^5.3.5",
     "cache-manager": "^2.9.0",
     "cache-manager-redis": "^0.6.0",
@@ -20,8 +21,9 @@
     "p-map": "^2.0.0",
     "passport": "^0.4.0",
     "passport-shopify": "^0.1.2",
-    "shopify-prime": "git+https://github.com/JumpLink/Shopify-Prime.git",
-    "shopify-token": "^3.0.3"
+    "shopify-prime": "JumpLink/Shopify-Prime#master",
+    "shopify-token": "^3.0.3",
+    "socket.io-redis": "^5.2.0"
   },
   "devDependencies": {
     "@nestjs/common": "^5.5.0",

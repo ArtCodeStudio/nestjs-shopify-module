@@ -36,6 +36,7 @@ import { TransactionsService } from './api/orders/transactions/transactions.serv
 import { EventService } from './event.service';
 import { WebhooksController } from './webhooks/webhooks.controller';
 import { WebhooksService } from './webhooks/webhooks.service';
+import { WebhooksGateway } from './api/webhooks/webhooks.gateway';
 
 @Module({
   providers: [
@@ -60,6 +61,7 @@ import { WebhooksService } from './webhooks/webhooks.service';
     TransactionsService,
     EventService,
     WebhooksService,
+    WebhooksGateway,
   ],
   controllers: [
     ShopifyAuthController,

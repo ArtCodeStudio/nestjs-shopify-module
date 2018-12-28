@@ -41,7 +41,6 @@ export class GetUserMiddleware implements NestMiddleware {
       }
       if (!shop) {
         this.logger.warn('Shop not found');
-        return next();
       }
       req.session.shop = shop;
       // WORAROUND for AuthService.oAuthConnect wich stores the user in the session
