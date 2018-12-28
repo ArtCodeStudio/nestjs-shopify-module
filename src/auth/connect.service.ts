@@ -13,7 +13,7 @@ export class ShopifyConnectService {
   constructor(
     @Inject('ShopifyConnectModelToken')
     private readonly shopifyConnectModel: Model<IShopifyConnect>,
-    private readonly event: EventService,
+    private readonly eventService: EventService,
   ) {}
 
   async connectOrUpdate(userProfile: IShopifyAuthProfile, accessToken: string) {
@@ -50,7 +50,7 @@ export class ShopifyConnectService {
       this.logger.debug(`create`);
       return this.shopifyConnectModel.create(newShopifyConnect)
       .then((shopifyConnect) => {
-        this.event.emit('app/installed', shopifyConnect);
+        this.eventService.emit('app/installed', shopifyConnect);
         return shopifyConnect;
       });
     });

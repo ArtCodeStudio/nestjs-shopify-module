@@ -11,7 +11,7 @@ export class WebhooksController {
     protected readonly webhooksService: WebhooksService,
     protected readonly eventService: EventService,
   ) {};
-  logger = new DebugService(`shopify:${this.constructor.name}`);
+  logger = new DebugService(`controller:${this.constructor.name}`);
 
   /**
    * Create a webhook

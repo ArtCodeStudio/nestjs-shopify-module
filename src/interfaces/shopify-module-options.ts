@@ -15,4 +15,7 @@ export interface ShopifyModuleOptions {
     frontend_return_url: string;
   };
   cache: any;
+  webhooks: {
+    autoSubscribe: string[];
+  }
 }
