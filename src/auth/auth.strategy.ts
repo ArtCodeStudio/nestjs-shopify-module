@@ -23,10 +23,10 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
   ) {
     super (
       {
-          clientID: shopifyModuleOptions.clientID,
-          clientSecret: shopifyModuleOptions.clientSecret,
-          callbackURL: shopifyModuleOptions.callbackURL,
-          shop,
+        clientID: shopifyModuleOptions.clientID,
+        clientSecret: shopifyModuleOptions.clientSecret,
+        callbackURL: shopifyModuleOptions.callbackURL,
+        shop,
       },
     );
 
@@ -42,7 +42,7 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
    * @param profile
    * @param verifiedDone
    */
-  async validate(accessToken, refreshToken, profile: IShopifyAuthProfile, done) {
+  async validate(accessToken: string, refreshToken: string, profile: IShopifyAuthProfile, done) {
     this.logger.debug(`accessToken`, accessToken);
     this.logger.debug(`refreshToken`, refreshToken);
     this.logger.debug(`profile.displayName`, profile.displayName);
@@ -56,7 +56,7 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
       return user; // see AuthStrategy -> serializeUser
     })
     .catch((err) => {
-      this.logger.debug('Error on ShopifyAuthStrategy', err);
+      this.logger.debug('Error on validate', err);
       this.logger.error(err);
       throw err;
     });

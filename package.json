@@ -7,23 +7,25 @@
   "license": "proprietary",
   "private": true,
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.json"
+    "build": "rm -rf dist && tsc -p tsconfig.json",
+    "link": "npm link && npm install && npm link shopify-prime"
   },
   "dependencies": {
     "@nestjs/passport": "^5.1.0",
-    "@types/mongoose": "^5.3.2",
+    "@types/mongoose": "^5.3.5",
     "cache-manager": "^2.9.0",
     "cache-manager-redis": "^0.6.0",
     "deepmerge": "^2.2.1",
-    "mongoose": "^5.3.14",
+    "mongoose": "^5.4.1",
     "p-map": "^2.0.0",
     "passport": "^0.4.0",
     "passport-shopify": "^0.1.2",
-    "shopify-prime": "git+https://github.com/JumpLink/Shopify-Prime.git"
+    "shopify-prime": "git+https://github.com/JumpLink/Shopify-Prime.git",
+    "shopify-token": "^3.0.3"
   },
   "devDependencies": {
-    "@nestjs/common": "^5.4.0",
-    "@nestjs/core": "^5.4.0",
+    "@nestjs/common": "^5.5.0",
+    "@nestjs/core": "^5.5.0",
     "@types/cache-manager": "^1.2.6",
     "@types/passport": "^0.4.7",
     "reflect-metadata": "^0.1.12",

@@ -1,7 +1,21 @@
-import { Inject, Controller, Get, Req, Res, Next, Session, Query, Param, HttpStatus } from '@nestjs/common';
+import {
+  Inject,
+  Controller,
+  Request,
+  Response,
+  Get,
+  Req,
+  Res,
+  Next,
+  Session,
+  Query,
+  Param,
+  HttpStatus,
+} from '@nestjs/common';
 import { PassportStatic } from 'passport';
 import { ShopifyAuthStrategy } from './auth.strategy';
 import { ShopifyConnectService} from './connect.service';
+import { ShopifyAuthService} from './auth.service';
 import { DebugService } from '../debug.service';
 import { ShopifyModuleOptions} from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
@@ -15,6 +29,7 @@ export class ShopifyAuthController {
 
   constructor(
     private readonly shopifyConnectService: ShopifyConnectService,
+    private readonly shopifyAuthService: ShopifyAuthService,
     @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions,
     @Inject('Passport') private readonly passport: PassportStatic,
   ) {
@@ -27,12 +42,18 @@ export class ShopifyAuthController {
    * @param req
    */
   @Get()
-  oAuthConnect(@Query('shop') shop, @Req() req, @Res() res, @Next() next, @Session() session) {
+  oAuthConnect(
+    @Query('shop') shop,
+    @Req() req,
+    @Res() res,
+    @Next() next,
+    @Session() session
+  ) {
     if (typeof shop !== 'string') {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
     }
 
-    session.shop = shop;
+    // session.shop = shop;
 
     this.logger.debug('auth called', `AuthController:${shop}`);
 
@@ -44,6 +65,76 @@ export class ShopifyAuthController {
       scope: this.shopifyModuleOptions.scope,
       shop: shop,
     } as any)(req, res, next);
+  }
+
+  /**
+   * Alternative for route 'shopify/auth'
+   * Used for auth with a clientsite redirect (needed in the shopify iframe).
+   * @param shop 
+   * @param req 
+   * @param res 
+   * @param next 
+   * @param session 
+   */
+  @Get('/iframe')
+  oAuthConnectIframe(
+    @Query('shop') shop,
+    @Req() req,
+    @Res() res,
+    @Next() next,
+    @Session() session
+  ) {
+    if (typeof shop !== 'string') {
+      return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
+    }
+
+    const oAuthConnect = this.shopifyAuthService.oAuthConnect(req, shop);
+
+    // session.shop = shop;
+    session.nonce = oAuthConnect.nonce;
+
+    return res.json({authUrl: oAuthConnect.authUrl});
+  }
+
+  /**
+   * Alternative for route 'shopify/auth/callback'
+   * Used for auth with a clientsite auth (needed in the shopify iframe).
+   * @param shop 
+   * @param code 
+   * @param hmac 
+   * @param state 
+   * @param timestamp 
+   * @param req 
+   * @param res 
+   * @param next 
+   * @param session 
+   */
+  @Get('callback/iframe')
+  oAuthConnectIframeCallback(
+    @Query('shop') shop,
+    @Query('code') code,
+    @Query('hmac') hmac,
+    @Query('state') state,
+    @Query('timestamp') timestamp,
+    @Req() req,
+    @Res() res,
+    @Next() next,
+    @Session() session
+  ) {
+    if (typeof shop !== 'string') {
+      return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
+    }
+
+    session.nonce = undefined;
+
+    return this.shopifyAuthService.oAuthCallback(hmac, session.nonce, state, code, shop, timestamp, session)
+    .then(async (shopifyConnect) => {
+      return res.redirect(`/view/settings?shop=${shop}`);
+    })
+    .catch((error: Error) => {
+      return res.redirect(`failure/${shop}`);
+    });
+
   }
 
   /**
@@ -63,9 +154,9 @@ export class ShopifyAuthController {
 
     return this.passport.authenticate(`shopify-${shop}`, {
       failureRedirect: `failure/${shop}`,
-      successRedirect: `/view/settings`, // `success/${shop}`,
+      successRedirect: `/view/settings`,
       session: true,
-      userProperty: 'user', // defaults to 'user' if omitted
+      userProperty: 'user', // TODO set to `user-${shop}`
     })(req, res, next);
   }
 
@@ -121,7 +212,7 @@ export class ShopifyAuthController {
    */
   @Get('/connected/current')
   @Roles('shopify-staff-member')
-  async connectCurrent(@Res() res, @Req() req) {
+  async connectCurrent(@Req() req, @Res() res) {
     return this.shopifyConnectService.findByDomain(req.user.shop.domain)
     .then((connect) => {
       return res.json(connect);

@@ -16,11 +16,11 @@ export class ShopifyConnectService {
     private readonly event: EventService,
   ) {}
 
-  async connectOrUpdate(userProfile: IShopifyAuthProfile, accessToken) {
+  async connectOrUpdate(userProfile: IShopifyAuthProfile, accessToken: string) {
     this.logger.debug('connectOrUpdate', userProfile.username);
     const now = new Date();
     const newShopifyConnect = new this.shopifyConnectModel({
-      _id: Types.ObjectId(userProfile.id),
+      // _id: Types.ObjectId(userProfile.id),
       shopifyID: Number(userProfile.id),
       myshopify_domain: userProfile._json.shop.myshopify_domain,
       shop: userProfile._json.shop,
@@ -64,7 +64,7 @@ export class ShopifyConnectService {
    * Find connected user by shopify domain or myshopify_domain
    * @param domain
    */
-  async findByDomain(domain: string) {
+  async findByDomain(domain: string): Promise<IShopifyConnect | null> {
     if (domain.endsWith('.myshopify.com')) {
       const query = {'shop.myshopify_domain': domain};
       return this.shopifyConnectModel.findOne(query).exec();

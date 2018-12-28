@@ -1,4 +1,4 @@
-import { Module, DynamicModule, CacheModule, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module, DynamicModule, CacheModule, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ShopifyAuthController } from './auth/auth.controller';
 import { shopifyConnectProviders } from './auth/connect.providers';
@@ -19,6 +19,7 @@ import { AssetsService } from './api/themes/assets/assets.service';
 import { LocalesService } from './api/themes/locales/locales.service';
 import { AssetsController } from './api/themes/assets/assets.controller';
 import { LocalesController } from './api/themes/locales/locales.controller';
+import { GetUserMiddleware } from './middlewares/get-user.middleware';
 import { GetShopifyConnectMiddleware } from './middlewares/get-shopify-connect.middleware';
 import { VerifyWebhookMiddleware } from './middlewares/verify-webhook.middleware';
 import { SyncService } from './sync/sync.service';
@@ -103,12 +104,14 @@ export class ShopifyModule implements NestModule {
         shopifyModuleOptions,
         mongooseDatabase,
         GetShopifyConnectMiddleware,
+        GetUserMiddleware,
         ...shopifyConnectProviders(database),
         ...shopifyApiProviders(database),
       ],
       exports: [
         mongooseDatabase,
         GetShopifyConnectMiddleware,
+        GetUserMiddleware,
         ...shopifyConnectProviders(database),
         ...shopifyApiProviders(database),
       ]
@@ -116,6 +119,16 @@ export class ShopifyModule implements NestModule {
   }
   configure(consumer: MiddlewareConsumer) {
     consumer
+
+      .apply(GetUserMiddleware)
+      .forRoutes({
+        path: '*', method: RequestMethod.ALL
+      })
+
+      .apply(GetShopifyConnectMiddleware)
+      .with('ShopifyModule')
+      .forRoutes(ShopifyAuthController)
+
       .apply(GetShopifyConnectMiddleware)
       .with('ShopifyModule')
       .forRoutes(ThemesController)

@@ -4,6 +4,9 @@ export interface ShopifyModuleOptions {
   clientID: string;
   clientSecret: string;
   callbackURL: string;
+  iframeCallbackURL: string;
+  // successRedirectURL?: string;
+  // failureRedirectURL?: string;
   appHost: string;
   debug: boolean;
   scope: string[];
