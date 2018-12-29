@@ -29,12 +29,23 @@ export class WebhooksGateway {
 
   @SubscribeMessage('products/update')
   productsUpdate(client, data): Observable<WsResponse<Models.Product>> {
-    return Observable.create((observer: Observer<Models.Product>) => {
-      this.eventService.on('products/update', (myShopifyDomain: string, product: Models.Product) => {
+    return Observable.create((observer: Observer<WsResponse<Models.Product>>) => {
+      this.eventService.on('webhook:products/update', (myShopifyDomain: string, product: Models.Product) => {
         this.logger.debug('products/update', myShopifyDomain, product);
-        observer.next(product);
+        observer.next({
+          event: 'products/update',
+          data: product,
+        });
       });
     });
+  }
+
+  @SubscribeMessage('products/test')
+  productsTest(client, data): Observable<WsResponse<string>> {
+    // return Observable.create((observer: Observer<string>) => {
+    //   observer.next('test');
+    // });
+    return from(['a', 'b', 'c']).pipe(map(item => ({ event: 'products/test', data: item })));
   }
 
   @SubscribeMessage('events')

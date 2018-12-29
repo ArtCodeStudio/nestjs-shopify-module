@@ -30,13 +30,13 @@ export class VerifyWebhookMiddleware implements NestMiddleware {
       req.pipe(concat(data => {
         rawBody = data;
 
-        this.logger.debug(`webhook rawBody:`, rawBody);
+        // this.logger.debug(`webhook rawBody:`, rawBody);
         try {
           req.body = JSON.parse(rawBody);
-          this.logger.debug(`webhook parsed body:`, rawBody);
+          // this.logger.debug(`webhook parsed body:`, rawBody);
         } catch (e) {
           req.body = {};
-          this.logger.debug(`webhook failed parsing body`);
+          this.logger.error(`webhook failed parsing body: ${rawBody}`);
           res.status(415).send({ error: 'INVALID JSON'})
         }
         if (hmac) {
@@ -53,7 +53,7 @@ export class VerifyWebhookMiddleware implements NestMiddleware {
             return next();
           */
           } else {
-            this.logger.debug('invalid webhook hmac:', hmac, req.body);
+            this.logger.error(`invalid webhook hmac: ${hmac}`);
             res.status(403).send({ error: 'INVALID HMAC' });
             // TODO: How to throw error?
             // return ctx.throw(401, 'SHOPIFY_POLICIES_WEBHOOK_INVALID_HMAC');
