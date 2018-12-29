@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Webhooks } from 'shopify-prime';
+import { Webhook } from 'shopify-prime/models';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants'
@@ -57,4 +58,8 @@ export class WebhooksService {
     });
   }
 
+  public async list(user: IShopifyConnect): Promise<Webhook[]> {
+    const webhooks = new Webhooks(user.myshopify_domain, user.accessToken);
+    return await webhooks.list();
+  }
 }

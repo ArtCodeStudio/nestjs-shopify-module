@@ -1,4 +1,6 @@
-import { Controller, Post, Get, Req, Res, Body, Query, Headers, Param } from '@nestjs/common';
+import { UseGuards, Controller, Post, Get, Req, Res, Body, Query, Headers, Param } from '@nestjs/common';
+import { ShopifyApiGuard } from '../guards/shopify-api.guard';
+import { Roles } from '../guards/roles.decorator';
 import { Request, Response } from 'express';
 import { IUserRequest } from '../interfaces/user-request';
 import { WebhooksService } from './webhooks.service';
@@ -44,4 +46,12 @@ export class WebhooksController {
     this.eventService.emit(`webhook:${topic}`, myShopifyDomain, body);
     this.eventService.emit(`webhook:${myShopifyDomain}:${topic}`, body);
   }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('admin')
+  @Get('')
+  listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response) {
+    return res.jsonp(this.webhooksService.list(req.shopifyConnect));
+  }
+
 }
