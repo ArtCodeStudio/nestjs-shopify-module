@@ -4,16 +4,20 @@ import {
   WebSocketServer,
   WsResponse,
 } from '@nestjs/websockets';
-import { from, Observable } from 'rxjs';
+import { from, Observable, Observer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { EventService } from '../../event.service';
+import { DebugService } from '../../debug.service';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Models } from 'shopify-prime';
 
 // https://github.com/chanlito/simple-todos/blob/c73022fb15fa47cd974057d3486207e70283579c/server/app/app.gateway.ts
 @WebSocketGateway({path: '/webhooks.io'})
 export class WebhooksGateway {
+
   @WebSocketServer() server;
+
+  logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(private readonly eventService: EventService) {
 
@@ -24,9 +28,10 @@ export class WebhooksGateway {
   }
 
   @SubscribeMessage('products/update')
-  productsUpdate(client, data): Observable<WsResponse<number>> {
-    return Observable.create(function(observer) {
-      this.eventService.on('products/update', (product: Models.Product) => {
+  productsUpdate(client, data): Observable<WsResponse<Models.Product>> {
+    return Observable.create((observer: Observer<Models.Product>) => {
+      this.eventService.on('products/update', (myShopifyDomain: string, product: Models.Product) => {
+        this.logger.debug('products/update', myShopifyDomain, product);
         observer.next(product);
       });
     });

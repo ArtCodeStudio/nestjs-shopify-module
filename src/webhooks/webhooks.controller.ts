@@ -13,7 +13,7 @@ export class WebhooksController {
     protected readonly webhooksService: WebhooksService,
     protected readonly eventService: EventService,
   ) {};
-  logger = new DebugService(`controller:${this.constructor.name}`);
+  logger = new DebugService(`shopify:${this.constructor.name}`);
 
   /**
    * Create a webhook
@@ -41,7 +41,7 @@ export class WebhooksController {
     @Body() body: any
   ) {
     const topic = `${resource}/${event}`
-    this.logger.debug(`Webhook ${topic}`, body);
+    this.logger.debug(`[${myShopifyDomain}] Webhook ${topic}`, body);
     res.sendStatus(200);
     this.eventService.emit(`webhook:${topic}`, myShopifyDomain, body);
     this.eventService.emit(`webhook:${myShopifyDomain}:${topic}`, body);
@@ -50,8 +50,10 @@ export class WebhooksController {
   @UseGuards(ShopifyApiGuard)
   @Roles('admin')
   @Get('')
-  listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response) {
-    return res.jsonp(this.webhooksService.list(req.shopifyConnect));
+  async listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response) {
+    const webhooks = await this.webhooksService.list(req.shopifyConnect);
+    this.logger.debug(`webhooks`, webhooks);
+    return res.jsonp(webhooks);
   }
 
 }

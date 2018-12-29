@@ -161,7 +161,7 @@ export class ShopifyModule implements NestModule {
 
       .apply(VerifyWebhookMiddleware)
       .with('ShopifyModule')
-      .forRoutes('webhooks/orders/updated');
+      .forRoutes('webhooks/:resource/:event');
   }
 }
 

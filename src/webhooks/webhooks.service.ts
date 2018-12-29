@@ -60,6 +60,6 @@ export class WebhooksService {
 
   public async list(user: IShopifyConnect): Promise<Webhook[]> {
     const webhooks = new Webhooks(user.myshopify_domain, user.accessToken);
-    return await webhooks.list();
+    return webhooks.list();
   }
 }
