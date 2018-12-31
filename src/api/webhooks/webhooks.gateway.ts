@@ -4,15 +4,18 @@ import {
   WebSocketServer,
   WsResponse,
 } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
+import { UseGuards} from '@nestjs/common';
 import { from, Observable, Observer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { EventService } from '../../event.service';
 import { DebugService } from '../../debug.service';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Models } from 'shopify-prime';
+import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
+import { Roles } from '../../guards/roles.decorator';
 
-// https://github.com/chanlito/simple-todos/blob/c73022fb15fa47cd974057d3486207e70283579c/server/app/app.gateway.ts
-@WebSocketGateway({path: '/webhooks.io'})
+@WebSocketGateway({path: '/api/webhooks'})
 export class WebhooksGateway {
 
   @WebSocketServer() server;
@@ -20,15 +23,15 @@ export class WebhooksGateway {
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(private readonly eventService: EventService) {
-
     this.eventService.on('app/installed', (shopifyConnect: IShopifyConnect) => {
 
     });
-
   }
 
+  @UseGuards(ShopifyApiGuard)
+  @Roles() // Allowed from shop frontend
   @SubscribeMessage('products/update')
-  productsUpdate(client, data): Observable<WsResponse<Models.Product>> {
+  productsUpdate(client: Socket, data): Observable<WsResponse<Models.Product>> {
     return Observable.create((observer: Observer<WsResponse<Models.Product>>) => {
       this.eventService.on('webhook:products/update', (myShopifyDomain: string, product: Models.Product) => {
         this.logger.debug('products/update', myShopifyDomain, product);
@@ -41,20 +44,17 @@ export class WebhooksGateway {
   }
 
   @SubscribeMessage('products/test')
-  productsTest(client, data): Observable<WsResponse<string>> {
-    // return Observable.create((observer: Observer<string>) => {
-    //   observer.next('test');
-    // });
+  productsTest(client: Socket, data): Observable<WsResponse<string>> {
     return from(['a', 'b', 'c']).pipe(map(item => ({ event: 'products/test', data: item })));
   }
 
   @SubscribeMessage('events')
-  findAll(client, data): Observable<WsResponse<number>> {
+  findAll(client: Socket, data): Observable<WsResponse<number>> {
     return from([1, 2, 3]).pipe(map(item => ({ event: 'events', data: item })));
   }
 
   @SubscribeMessage('identity')
-  async identity(client, data: number): Promise<number> {
+  async identity(client: Socket, data: number): Promise<number> {
     return data;
   }
 

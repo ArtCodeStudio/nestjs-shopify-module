@@ -10,6 +10,7 @@ import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 import { ShopifyConnectService } from './connect.service';
 import * as ShopifyToken from 'shopify-token'; // https://github.com/lpinca/shopify-token
 import { Shops, Options } from 'shopify-prime';
+import { Session } from '../interfaces/session';
 
 @Injectable()
 export class ShopifyAuthService {
@@ -23,9 +24,9 @@ export class ShopifyAuthService {
    * Check if user is logged in on request
    * @param request
    */
-  isLoggedIn(request: IUserRequest) {
+  isLoggedIn(session: Session) {
     this.logger.debug('isLoggedIn');
-    if (request.user !== null && typeof request.user === 'object') {
+    if (session.user !== null && typeof session.user === 'object') {
       return true;
     }
     return false;
@@ -134,7 +135,7 @@ export class ShopifyAuthService {
     });
   }
 
-  async getShopifyConnectByRequest(request: IUserRequest): Promise<IShopifyConnect | null> {
+  async getShopifyConnectByRequestSecureForThemeClients(request: IUserRequest): Promise<IShopifyConnect | null> {
     const shopDomain = this.getShopSecureForThemeClients(request);
     this.logger.debug('shopDomain', shopDomain);
     if (!shopDomain) {
@@ -151,14 +152,14 @@ export class ShopifyAuthService {
    * Get the client host on request
    * @param request
    */
-  getClientHost(request: Request) {
+  getClientHost(request: IUserRequest) {
     let host: string;
-    if ((request.headers as any).origin) {
+    if (request.headers.origin) {
       // request comes from shopify theme
-      host = (request.headers as any).origin.split('://')[1];
+      host = (request.headers.origin as string).split('://')[1];
     } else {
       // request from app backend
-      host = (request.headers as any).host;
+      host = request.headers.host;
     }
     return host;
   }
@@ -199,7 +200,7 @@ export class ShopifyAuthService {
 
     // if the host is the host of the app backend the user needs to be logged in
     if (host === this.shopifyModuleOptions.appHost) {
-      if (!this.isLoggedIn(request)) {
+      if (!this.isLoggedIn(request.session)) {
         return null;
       }
       // the shop domain is the shop domain of the logged in user

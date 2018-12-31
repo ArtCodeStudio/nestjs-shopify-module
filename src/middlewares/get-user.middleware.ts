@@ -46,13 +46,20 @@ export class GetUserMiddleware implements NestMiddleware {
       // WORAROUND for AuthService.oAuthConnect wich stores the user in the session
       if (req.session) {
         if(req.session[`user-${shop}`]) {
-          req.user = req.session[`user-${shop}`];
+          // set to session (for websockets)
+          req.session.user = req.session[`user-${shop}`];
+          // set to request (for passport and co)
+          req.user = req.session.user;
           return next();
         }
       }
 
       if(req[`user-${shop}`]) {
+        // set to request (for passport and co)
         req.user = req[`user-${shop}`];
+        // set to session (for websockets)
+        req.session.user = req.user;
+        
         return next();
       }
 

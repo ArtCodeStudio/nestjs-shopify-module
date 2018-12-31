@@ -16,13 +16,17 @@ export class GetShopifyConnectMiddleware implements NestMiddleware {
       if (req.session && req.session.user) {
         req.user = req.session.user;
       }
-      this.shopifyAuthService.getShopifyConnectByRequest(req)
+      this.shopifyAuthService.getShopifyConnectByRequestSecureForThemeClients(req)
       .then((shopifyConnect: IShopifyConnect | null) => {
         this.logger.debug('shopifyConnect', shopifyConnect);
         if (!shopifyConnect) {
           return next();
         }
-        req.shopifyConnect = shopifyConnect;
+        // set to session
+        req.session.shopifyConnect = shopifyConnect;
+
+        // set to request
+        req.shopifyConnect = req.session.shopifyConnect;
         return next();
       });
     };
