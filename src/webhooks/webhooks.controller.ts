@@ -18,6 +18,8 @@ export class WebhooksController {
   /**
    * Create a webhook
    */
+  @UseGuards(ShopifyApiGuard)
+  @Roles()
   @Get('create')
   async createWebhook(
     @Req() req: IUserRequest,

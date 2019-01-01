@@ -1,4 +1,5 @@
 import { IPlan } from '../charge/interfaces/plan';
+import { Topic } from '../interfaces/webhook';
 
 export interface ShopifyModuleOptions {
   clientID: string;
@@ -16,6 +17,6 @@ export interface ShopifyModuleOptions {
   };
   cache: any;
   webhooks: {
-    autoSubscribe: string[];
+    autoSubscribe: Topic[];
   }
 }

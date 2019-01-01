@@ -22,7 +22,7 @@
     "p-map": "^2.0.0",
     "passport": "^0.4.0",
     "passport-shopify": "^0.1.2",
-    "shopify-prime": "JumpLink/Shopify-Prime#master",
+    "shopify-prime": "github:JumpLink/Shopify-Prime#master",
     "shopify-token": "^3.0.3",
     "socket.io-redis": "^5.2.0"
   },

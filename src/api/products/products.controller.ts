@@ -41,7 +41,7 @@ export class ProductsController {
     @Query('product_type') product_type: string,
     @Query('published_at_max') published_at_max: string,
     @Query('published_at_min') published_at_min: string,
-    @Query('published_status') published_status: string,
+    @Query('published_status') published_status: 'published' | 'unpublished' | 'any',
     @Query('since_id') since_id: number,
     @Query('sync') sync: boolean,
     @Query('title') title: string,
