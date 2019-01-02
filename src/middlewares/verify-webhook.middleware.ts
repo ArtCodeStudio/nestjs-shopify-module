@@ -8,6 +8,7 @@ import { ShopifyModuleOptions} from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS} from '../shopify.constants';
 import { isAuthenticWebhook } from 'shopify-prime/auth';
 import * as concat from 'concat-stream';
+import { IUserRequest } from '../interfaces/user-request';
 
 @Injectable()
 export class VerifyWebhookMiddleware implements NestMiddleware {
@@ -20,7 +21,7 @@ export class VerifyWebhookMiddleware implements NestMiddleware {
 
   }
   async resolve(...args: any[]): Promise<MiddlewareFunction> {
-    return async (req: Request, res: Response, next) => {
+    return async (req: IUserRequest, res: Response, next) => {
       this.logger.debug('verifyWebhook middleware');
       this.logger.debug('req.headers', req.headers);
       const hmac = req.headers['x-shopify-hmac-sha256'];

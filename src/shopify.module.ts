@@ -19,6 +19,7 @@ import { AssetsService } from './api/themes/assets/assets.service';
 import { LocalesService } from './api/themes/locales/locales.service';
 import { AssetsController } from './api/themes/assets/assets.controller';
 import { LocalesController } from './api/themes/locales/locales.controller';
+import { GetRequestTypeMiddleware } from './middlewares/get-request-type.middleware';
 import { GetUserMiddleware } from './middlewares/get-user.middleware';
 import { GetShopifyConnectMiddleware } from './middlewares/get-shopify-connect.middleware';
 import { VerifyWebhookMiddleware } from './middlewares/verify-webhook.middleware';
@@ -106,6 +107,7 @@ export class ShopifyModule implements NestModule {
         shopifyModuleOptions,
         mongooseDatabase,
         GetShopifyConnectMiddleware,
+        GetRequestTypeMiddleware,
         GetUserMiddleware,
         ...shopifyConnectProviders(database),
         ...shopifyApiProviders(database),
@@ -113,6 +115,7 @@ export class ShopifyModule implements NestModule {
       exports: [
         mongooseDatabase,
         GetShopifyConnectMiddleware,
+        GetRequestTypeMiddleware,
         GetUserMiddleware,
         ...shopifyConnectProviders(database),
         ...shopifyApiProviders(database),
@@ -121,6 +124,12 @@ export class ShopifyModule implements NestModule {
   }
   configure(consumer: MiddlewareConsumer) {
     consumer
+
+    .apply(GetRequestTypeMiddleware)
+    .forRoutes({
+      path: '*', method: RequestMethod.ALL
+    })
+
 
       .apply(GetUserMiddleware)
       .forRoutes({

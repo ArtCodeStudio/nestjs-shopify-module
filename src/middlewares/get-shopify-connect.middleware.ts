@@ -2,6 +2,7 @@ import { Injectable, NestMiddleware, MiddlewareFunction } from '@nestjs/common';
 import { ShopifyAuthService } from '../auth/auth.service';
 import { DebugService } from '../debug.service';
 import { IShopifyConnect } from '../auth/interfaces/connect';
+import { IUserRequest } from '../interfaces/user-request';
 
 @Injectable()
 export class GetShopifyConnectMiddleware implements NestMiddleware {
@@ -12,7 +13,7 @@ export class GetShopifyConnectMiddleware implements NestMiddleware {
 
   }
   async resolve(...args: any[]): Promise<MiddlewareFunction> {
-    return async (req, res, next) => {
+    return async (req: IUserRequest, res, next) => {
       if (req.session && req.session.user) {
         req.user = req.session.user;
       }

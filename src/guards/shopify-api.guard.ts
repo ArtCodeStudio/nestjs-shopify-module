@@ -24,7 +24,7 @@ class ShopifyApiGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    this.logger.debug('context', context);
+    // this.logger.debug('context', context);
     const request = context.switchToHttp().getRequest() as IUserRequest;
     // this.logger.debug('request', request);
     // Check if request is really a http request

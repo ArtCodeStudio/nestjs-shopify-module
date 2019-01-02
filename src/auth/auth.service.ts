@@ -164,6 +164,40 @@ export class ShopifyAuthService {
     return host;
   }
 
+  async getRequestType(request: IUserRequest) {
+    const result = {
+      isAppBackendRequest: false,
+      isThemeClientRequest: false,
+      isUnknownClientRequest: false,
+      isLoggedInToAppBackend: false,
+      myshopifyDomain: <string | null> null,
+    }
+    const host = this.getClientHost(request);
+    if (host === this.shopifyModuleOptions.appHost) {
+      result.isAppBackendRequest = true;
+      if (this.isLoggedIn(request.session)) {
+        result.isLoggedInToAppBackend = true;
+        return this.getMyShopifyDomainUnsecure(request)
+        .then((myshopifyDomain) => {
+          result.myshopifyDomain = myshopifyDomain;
+          return result;
+        });
+      }
+      return result;
+    } else {
+      return this.getMyShopifyDomainSecureForThemeClients(request)
+      .then((myshopifyDomain) => {
+        if (myshopifyDomain && myshopifyDomain.endsWith('.myshopify.com')) {
+          result.isThemeClientRequest = true;
+          result.myshopifyDomain = myshopifyDomain;
+        } else {
+          result.isUnknownClientRequest = true;
+        }
+        return result;
+      });
+    }
+  }
+
   /**
    * Get the shop the request comes from.
    * If a shop string is returned, the request is either from a shop theme or the backend app with logged in user,

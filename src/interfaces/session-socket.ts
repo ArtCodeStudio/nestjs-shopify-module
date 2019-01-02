@@ -7,4 +7,5 @@ export interface SessionHandshake extends Handshake {
 
 export interface SessionSocket extends Socket {
   handshake: SessionHandshake;
+  id: string;
 }

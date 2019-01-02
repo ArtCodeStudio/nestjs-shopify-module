@@ -1,6 +1,7 @@
 import { Injectable, NestMiddleware, MiddlewareFunction } from '@nestjs/common';
 import { ShopifyAuthService } from '../auth/auth.service';
 import { DebugService } from '../debug.service';
+import { IUserRequest } from '../interfaces/user-request';
 
 @Injectable()
 export class GetUserMiddleware implements NestMiddleware {
@@ -11,7 +12,7 @@ export class GetUserMiddleware implements NestMiddleware {
 
   }
   async resolve(...args: any[]): Promise<MiddlewareFunction> {
-    return async (req, res, next) => {
+    return async (req: IUserRequest, res, next) => {
       let shop = await this.shopifyAuthService.getMyShopifyDomainUnsecure(req)
       .catch((error) => {
         // DO nothing
@@ -41,6 +42,7 @@ export class GetUserMiddleware implements NestMiddleware {
       }
       if (!shop) {
         this.logger.warn('Shop not found');
+        return next();
       }
       req.session.shop = shop;
       // WORAROUND for AuthService.oAuthConnect wich stores the user in the session
