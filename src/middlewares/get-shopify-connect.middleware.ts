@@ -18,7 +18,7 @@ export class GetShopifyConnectMiddleware implements NestMiddleware {
     return async (req: IUserRequest, res, next) => {
       return this.shopifyConnectService.findByDomain(req.session.shop)
       .then((shopifyConnect) => {
-        this.logger.debug('shopifyConnect', shopifyConnect);
+        // this.logger.debug('shopifyConnect', shopifyConnect);
         if (!shopifyConnect) {
           return next();
         }

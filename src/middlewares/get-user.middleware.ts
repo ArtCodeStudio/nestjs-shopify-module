@@ -31,7 +31,7 @@ export class GetUserMiddleware implements NestMiddleware {
         req.session.shop = requestType.myshopifyDomain;
       }
 
-      this.logger.debug('session', req.session);
+      // this.logger.debug('session', req.session);
 
       /**
        * If shop is not set you need to add the shop to your header on your shopify app client code like this:

@@ -36,6 +36,18 @@ export class ProductsService {
 
   public async countFromShopify(user: IShopifyConnect, options?: Options.ProductCountOptions): Promise<number> {
     const products = new Products(user.myshopify_domain, user.accessToken);
+
+    // Delete undefined options
+    if (options) {
+      for (const key in options) {
+        if (options.hasOwnProperty(key)) {
+          if (typeof(options[key]) === 'undefined') {
+            delete options[key];
+          }
+        }
+      }
+    }
+
     return await products.count(options);
   }
   public async countFromDb(user: IShopifyConnect, options?: Options.ProductCountOptions): Promise<number> {
@@ -48,6 +60,18 @@ export class ProductsService {
     if (sync) {
       delete options.sync;
     }
+
+    // Delete undefined options
+    if (options) {
+      for (const key in options) {
+        if (options.hasOwnProperty(key)) {
+          if (typeof(options[key]) === 'undefined') {
+            delete options[key];
+          }
+        }
+      }
+    }
+
     const res = await products.list(options);
     if (sync) {
       await this.saveMany(user, res);
@@ -66,7 +90,6 @@ export class ProductsService {
   }
 
   public async listFromDb(user: IShopifyConnect): Promise<Product[]> {
-    
     return await this.productModel(user.shop.myshopify_domain).find({}).select('-_id -__v').lean();
   }
 
@@ -84,6 +107,18 @@ export class ProductsService {
    */
   public async listAllFromShopify(user: IShopifyConnect, options?: ProductListOptions): Promise<Product[]> {
     const products = new Products(user.myshopify_domain, user.accessToken);
+
+    // Delete undefined options
+    if (options) {
+      for (const key in options) {
+        if (options.hasOwnProperty(key)) {
+          if (typeof(options[key]) === 'undefined') {
+            delete options[key];
+          }
+        }
+      }
+    }
+
     const count = await products.count(options);
     const itemsPerPage = 250;
     const pages = Math.ceil(count/itemsPerPage);
@@ -104,6 +139,18 @@ export class ProductsService {
   public listAllFromShopifyStream(user: IShopifyConnect, options?: ProductListOptions): Readable {
     const products = new Products(user.myshopify_domain, user.accessToken);
     const stream = new Readable({objectMode: true, read: s=>s});
+
+    // Delete undefined options
+    if (options) {
+      for (const key in options) {
+        if (options.hasOwnProperty(key)) {
+          if (typeof(options[key]) === 'undefined') {
+            delete options[key];
+          }
+        }
+      }
+    }
+
     products.count(options).then(count => {
       const itemsPerPage = 250;
       const pages = Math.ceil(count/itemsPerPage);

@@ -51,7 +51,10 @@ export class WebhooksService {
             this.logger.debug(result);
           })
           .catch((error: Error) => {
-            this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`);
+            // Ignore 422 error
+            if (error.message !== '[Shopify Prime] 422 Unprocessable Entity. ') {
+              this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`);
+            }
           });
         }
       }

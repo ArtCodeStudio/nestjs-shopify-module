@@ -31,29 +31,29 @@ export class ProductsController {
   async list(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Query('collection_id') collection_id: string,
-    @Query('created_at_max') created_at_max: string,
-    @Query('created_at_min') created_at_min: string,
-    @Query('ids') ids: string,
-    @Query('page') page: number,
-    @Query('fields') fields: string,
-    @Query('limit') limit: number,
-    @Query('product_type') product_type: string,
-    @Query('published_at_max') published_at_max: string,
-    @Query('published_at_min') published_at_min: string,
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any',
-    @Query('since_id') since_id: number,
-    @Query('sync') sync: boolean,
-    @Query('title') title: string,
-    @Query('updated_at_max') updated_at_max: string,
-    @Query('updated_at_min') updated_at_min: string,
-    @Query('vendor') vendor: string,
+    @Query('collection_id') collection_id: string | undefined,
+    @Query('created_at_max') created_at_max: string | undefined,
+    @Query('created_at_min') created_at_min: string | undefined,
+    @Query('ids') ids: string | undefined,
+    @Query('page') page: number | undefined,
+    @Query('fields') fields: string | undefined,
+    @Query('limit') limit: number | undefined,
+    @Query('product_type') product_type: string | undefined,
+    @Query('published_at_max') published_at_max: string | undefined,
+    @Query('published_at_min') published_at_min: string | undefined,
+    @Query('published_status') published_status: 'published' | 'unpublished' | 'any' | undefined,
+    @Query('since_id') since_id: number | undefined,
+    @Query('sync') sync: boolean | undefined,
+    @Query('title') title: string | undefined,
+    @Query('updated_at_max') updated_at_max: string | undefined,
+    @Query('updated_at_min') updated_at_min: string | undefined,
+    @Query('vendor') vendor: string | undefined,
   ) {
     try {
       if (!req.user) {
         published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
       }
-      return res.jsonp(await this.productsService.listFromShopify(req.shopifyConnect, {
+      const options: ProductListOptions = {
         collection_id,
         created_at_max,
         created_at_min,
@@ -71,7 +71,10 @@ export class ProductsController {
         updated_at_max,
         updated_at_min,
         vendor,
-      }));
+      }
+      
+      this.logger.debug('ProductListOptions', options);
+      return res.jsonp(await this.productsService.listFromShopify(req.shopifyConnect, options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
