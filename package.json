@@ -20,6 +20,7 @@
     "deepmerge": "^2.2.1",
     "mongoose": "^5.4.1",
     "p-map": "^2.0.0",
+    "p-queue": "^3.0.0",
     "passport": "^0.4.0",
     "passport-shopify": "^0.1.2",
     "shopify-prime": "github:JumpLink/Shopify-Prime#master",

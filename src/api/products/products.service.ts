@@ -6,6 +6,8 @@ import { ProductDocument } from '../interfaces/product.schema';
 import { Model, Types } from 'mongoose';
 import { getDiff } from '../../helpers/diff';
 import { Readable } from 'stream';
+import { PQueue } from 'p-queue';
+import { DebugService } from '../../debug.service';
 
 export interface ProductListOptions extends Options.ProductListOptions {
   sync?: boolean;
@@ -20,6 +22,8 @@ export class ProductsService {
     @Inject('ProductModelToken')
     private readonly productModel: (shopName: string) => Model<ProductDocument>,
   ) {}
+
+  logger = new DebugService(`shopify:${this.constructor.name}`);
 
   public async getFromShopify(user: IShopifyConnect, id: number, sync?: boolean) {
     const products = new Products(user.myshopify_domain, user.accessToken);
@@ -155,15 +159,18 @@ export class ProductsService {
       const itemsPerPage = 250;
       const pages = Math.ceil(count/itemsPerPage);
       let countDown = pages;
+      let q = new PQueue({ concurrency: 1});
       stream.push('[\n');
       Promise.all(Array(pages).fill(0).map(
-        (x, i) => this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
+        (x, i) => q.add(() => this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
           .then(objects => {
             countDown--;
+            this.logger.debug(`listAll ${i}|${countDown} / ${pages}`);
             objects.forEach((obj, i) => {
               stream.push(JSON.stringify([obj], null, 2).slice(2,-2) + (countDown > 0 || (i!==objects.length-1) ? ',': '\n]'));
             });
           })
+        )
       ))
       .then(_ => stream.push(null));
     });
