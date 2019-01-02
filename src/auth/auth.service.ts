@@ -322,6 +322,15 @@ export class ShopifyAuthService {
         return shop;
       }
     }
+
+    // Fallback
+    if (request.session.shop) {
+      shop = request.session.shop;
+      if (shop.endsWith('.myshopify.com')) {
+        return shop;
+      }
+    }
+
     if (!shop) {
       throw new Error('Shop not found!');
     }
