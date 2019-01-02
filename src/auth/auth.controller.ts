@@ -12,9 +12,10 @@ import {
 } from '@nestjs/common';
 
 import { 
-  Request,
   Response,
 } from 'express';
+import { IUserRequest } from '../interfaces/user-request'
+import { Session as IUserSession } from '../interfaces/session'
 
 import { PassportStatic } from 'passport';
 import { ShopifyAuthStrategy } from './auth.strategy';
@@ -48,10 +49,10 @@ export class ShopifyAuthController {
   @Get()
   oAuthConnect(
     @Query('shop') shop,
-    @Req() req: Request,
+    @Req() req: IUserRequest,
     @Res() res: Response,
     @Next() next,
-    @Session() session
+    @Session() session: IUserSession
   ) {
     if (typeof shop !== 'string') {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
@@ -81,10 +82,10 @@ export class ShopifyAuthController {
   @Get('/iframe')
   oAuthConnectIframe(
     @Query('shop') shop,
-    @Req() req: Request,
+    @Req() req: IUserRequest,
     @Res() res: Response,
     @Next() next,
-    @Session() session
+    @Session() session: IUserSession,
   ) {
     if (typeof shop !== 'string') {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
@@ -116,10 +117,10 @@ export class ShopifyAuthController {
     @Query('hmac') hmac,
     @Query('state') state,
     @Query('timestamp') timestamp,
-    @Req() req: Request,
+    @Req() req: IUserRequest,
     @Res() res: Response,
     @Next() next,
-    @Session() session
+    @Session() session: IUserSession,
   ) {
     if (typeof shop !== 'string') {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
@@ -143,12 +144,14 @@ export class ShopifyAuthController {
    * @param req
    */
   @Get('/callback')
-  callback(@Query('shop') shop, @Req() req, @Res() res, @Next() next) {
+  callback(@Query('shop') shop, @Req() req, @Res() res, @Next() next, @Session() session: IUserSession) {
     if (typeof shop !== 'string') {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         message: 'shop query param not found',
       });
     }
+
+    session.shop = shop;
 
     this.logger.debug('callback called', `AuthController:${shop}`);
 
@@ -166,9 +169,8 @@ export class ShopifyAuthController {
    * @param req
    */
   @Get('/success/:shop')
-  success(@Param('shop') shop, @Res() res: Response, @Req() req: Request, @Session() session) {
+  success(@Param('shop') shop, @Res() res: Response, @Req() req: IUserRequest, @Session() session: IUserSession) {
     // For fallback if no shop is set in request.headers
-    session.shop = shop;
     this.passport.unuse(`shopify-${shop}`);
     // Redirect to view TODO get this from config
     return res.redirect('/view/settings');
@@ -180,7 +182,7 @@ export class ShopifyAuthController {
    * @param req
    */
   @Get('/failure/:shop')
-  failure(@Param('shop') shop, @Res() res: Response, @Req() req: Request) {
+  failure(@Param('shop') shop, @Res() res: Response, @Req() req: IUserRequest, @Session() session: IUserSession) {
     this.passport.unuse(`shopify-${shop}`);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR)
     .json({ message: `Failure on oauth autentification`, shop });
@@ -193,7 +195,7 @@ export class ShopifyAuthController {
    */
   @Get('/connected')
   @Roles('admin')
-  async connects(@Res() res: Response, @Req() req: Request) {
+  async connects(@Res() res: Response, @Req() req: IUserRequest) {
     return this.shopifyConnectService.findAll()
     .then((connects) => {
       return res.json(connects);
@@ -212,7 +214,7 @@ export class ShopifyAuthController {
    */
   @Get('/connected/current')
   @Roles('shopify-staff-member')
-  async connectCurrent(@Req() req: Request, @Res() res: Response) {
+  async connectCurrent(@Req() req: IUserRequest, @Res() res: Response) {
     return this.shopifyConnectService.findByDomain(req.user.shop.domain)
     .then((connect) => {
       return res.json(connect);
@@ -235,7 +237,7 @@ export class ShopifyAuthController {
    */
   @Get('/connected/:id')
   @Roles('admin')
-  async connect(@Param('id') id, @Res() res: Response, @Req() req: Request) {
+  async connect(@Param('id') id, @Res() res: Response, @Req() req: IUserRequest) {
     return this.shopifyConnectService.findByShopifyId(Number(id))
     .then((connect) => {
       return res.json(connect);
@@ -254,7 +256,7 @@ export class ShopifyAuthController {
 
   @Get('/logout')
   @Roles('shopify-staff-member')
-  logout(@Res() res: Response, @Req() req: Request) {
+  logout(@Res() res: Response, @Req() req: IUserRequest) {
     req.logout();
     return res.redirect('/view/settings'); // TODO change url and store them in config
   }
@@ -265,7 +267,7 @@ export class ShopifyAuthController {
    * @param req
    */
   @Get('/loggedIn')
-  loggedIn(@Res() res: Response, @Req() req: Request) {
+  loggedIn(@Res() res: Response, @Req() req: IUserRequest) {
     if (req.user) {
       return res.json(true);
     }

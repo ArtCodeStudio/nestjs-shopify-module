@@ -11,4 +11,6 @@ export interface Session {
   isUnknownClientRequest?: boolean;
   isLoggedInToAppBackend?: boolean;
   shop?: string;
+  // See auth.controller.ts
+  nonce?: string;
 }
