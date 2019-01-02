@@ -1,5 +1,6 @@
 import { Injectable, NestMiddleware, MiddlewareFunction } from '@nestjs/common';
 import { ShopifyAuthService } from '../auth/auth.service';
+import { ShopifyConnectService } from '../auth/connect.service';
 import { DebugService } from '../debug.service';
 import { IUserRequest } from '../interfaces/user-request';
 
@@ -8,16 +9,28 @@ export class GetUserMiddleware implements NestMiddleware {
   logger = new DebugService(`shopify:${this.constructor.name}`);
   constructor(
     private readonly shopifyAuthService: ShopifyAuthService,
+    private readonly shopifyConnectService: ShopifyConnectService,
   ) {
 
   }
   async resolve(...args: any[]): Promise<MiddlewareFunction> {
     return async (req: IUserRequest, res, next) => {
-      let shop = await this.shopifyAuthService.getMyShopifyDomainUnsecure(req)
+
+      let requestType = await this.shopifyAuthService.getRequestType(req)
       .catch((error) => {
         // DO nothing
-        // this.logger.debug(error);
+        this.logger.error(error);
       });
+
+      if (requestType) {
+        req.session.isAppBackendRequest = requestType.isAppBackendRequest;
+        req.session.isThemeClientRequest = requestType.isThemeClientRequest;
+        req.session.isUnknownClientRequest = requestType.isUnknownClientRequest;
+        req.session.isLoggedInToAppBackend = false;
+        req.session.shop = requestType.myshopifyDomain;
+      }
+
+      this.logger.debug('session', req.session);
 
       /**
        * If shop is not set you need to add the shop to your header on your shopify app client code like this:
@@ -36,33 +49,49 @@ export class GetUserMiddleware implements NestMiddleware {
        *   Utils.setRequestHeaderEachRequest('shop', shop);
        * ```
        */
-      if (!shop && req.session.shop) {
-        // Fallback, Shopify App clientsite code does not seem to support multiple logged in apps users
-        shop = req.session.shop;
-      }
-      if (!shop) {
+      if (!req.session.shop) {
         this.logger.warn('Shop not found');
         return next();
       }
-      req.session.shop = shop;
       // WORAROUND for AuthService.oAuthConnect wich stores the user in the session
       if (req.session) {
-        if(req.session[`user-${shop}`]) {
+        if(req.session[`user-${req.session.shop}`]) {
           // set to session (for websockets)
-          req.session.user = req.session[`user-${shop}`];
+          req.session.user = req.session[`user-${req.session.shop}`];
           // set to request (for passport and co)
           req.user = req.session.user;
+
+          req.session.isLoggedInToAppBackend = true;
           return next();
         }
       }
 
-      if(req[`user-${shop}`]) {
+      if (req[`user-${req.session.shop}`]) {
         // set to request (for passport and co)
-        req.user = req[`user-${shop}`];
+        req.user = req[`user-${req.session.shop}`];
         // set to session (for websockets)
         req.session.user = req.user;
+
+        req.session.isLoggedInToAppBackend = true;
         
         return next();
+      }
+
+      // Fallback get user from passport session
+      if (req.session.passport && req.session.passport.user) {
+        return this.shopifyConnectService.findByShopifyId(req.session.passport.user)
+        .then((user) => {
+          if (user) {
+            // set to request (for passport and co)
+            req.user = user;
+            // set to session (for websockets)
+            req.session.user = req.user;
+            return next();
+          }
+        })
+        .catch((error) => {
+          this.logger.error(error);
+        })
       }
 
       return next();

@@ -13,4 +13,8 @@ export interface Session {
   shop?: string;
   // See auth.controller.ts
   nonce?: string;
+  // passport
+  passport: {
+    user: number;
+  }
 }

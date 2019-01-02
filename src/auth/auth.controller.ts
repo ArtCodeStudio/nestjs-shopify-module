@@ -58,6 +58,8 @@ export class ShopifyAuthController {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
     }
 
+    session.shop = shop;
+
     this.logger.debug('auth called', `AuthController:${shop}`);
 
     const shopifyAuthStrategy = new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions, this.passport)
@@ -156,8 +158,8 @@ export class ShopifyAuthController {
     this.logger.debug('callback called', `AuthController:${shop}`);
 
     return this.passport.authenticate(`shopify-${shop}`, {
-      failureRedirect: `failure/${shop}`,
-      successRedirect: `/success/${shop}`,
+      failureRedirect: `/shopify/auth/failure/${shop}`,
+      successRedirect: `/shopify/auth/success/${shop}`,
       session: true,
       userProperty: `user-${shop}`,
     })(req, res, next);

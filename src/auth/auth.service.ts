@@ -169,21 +169,22 @@ export class ShopifyAuthService {
       isAppBackendRequest: false,
       isThemeClientRequest: false,
       isUnknownClientRequest: false,
-      isLoggedInToAppBackend: false,
       myshopifyDomain: <string | null> null,
     }
     const host = this.getClientHost(request);
+    this.logger.debug('host', host, 'appHost', this.shopifyModuleOptions.appHost);
     if (host === this.shopifyModuleOptions.appHost) {
       result.isAppBackendRequest = true;
-      if (this.isLoggedIn(request.session)) {
-        result.isLoggedInToAppBackend = true;
-        return this.getMyShopifyDomainUnsecure(request)
-        .then((myshopifyDomain) => {
+      // if (this.isLoggedIn(request.session)) {
+      //   result.isLoggedInToAppBackend = true;
+      // }
+      return this.getMyShopifyDomainUnsecure(request)
+      .then((myshopifyDomain) => {
+        if (myshopifyDomain) {
           result.myshopifyDomain = myshopifyDomain;
-          return result;
-        });
-      }
-      return result;
+        }
+        return result;
+      });
     } else {
       return this.getMyShopifyDomainSecureForThemeClients(request)
       .then((myshopifyDomain) => {
