@@ -60,12 +60,12 @@ export class RolesGuard implements CanActivate {
     }
 
     // Only logged in users can have any role
-    if (!this.shopifyAuthService.isLoggedIn(request.session)) {
+    if (!request.session.isLoggedInToAppBackend) {
       return false;
     }
 
     // DO NOT USE request.shopifyConnect because this can always be set on theme requests 
-    if (!this.hasRole(request.user, roles)) {
+    if (!this.hasRole(request.session.user, roles)) {
       return false;
     }
 
@@ -79,7 +79,7 @@ export class RolesGuard implements CanActivate {
     }
 
     // Only logged in users can have any role
-    if (!this.shopifyAuthService.isLoggedIn(client.handshake.session)) {
+    if (!client.handshake.session.isLoggedInToAppBackend) {
       return false;
     }
 

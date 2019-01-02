@@ -22,11 +22,12 @@ export class GetUserMiddleware implements NestMiddleware {
         this.logger.error(error);
       });
 
+      req.session.isLoggedInToAppBackend = false;
+
       if (requestType) {
         req.session.isAppBackendRequest = requestType.isAppBackendRequest;
         req.session.isThemeClientRequest = requestType.isThemeClientRequest;
         req.session.isUnknownClientRequest = requestType.isUnknownClientRequest;
-        req.session.isLoggedInToAppBackend = false;
         req.session.shop = requestType.myshopifyDomain;
       }
 
@@ -53,7 +54,8 @@ export class GetUserMiddleware implements NestMiddleware {
         this.logger.warn('Shop not found');
         return next();
       }
-      // WORAROUND for AuthService.oAuthConnect wich stores the user in the session
+
+      // get user from session
       if (req.session) {
         if(req.session[`user-${req.session.shop}`]) {
           // set to session (for websockets)
@@ -66,6 +68,7 @@ export class GetUserMiddleware implements NestMiddleware {
         }
       }
 
+      // Get user from req
       if (req[`user-${req.session.shop}`]) {
         // set to request (for passport and co)
         req.user = req[`user-${req.session.shop}`];
@@ -77,7 +80,7 @@ export class GetUserMiddleware implements NestMiddleware {
         return next();
       }
 
-      // Fallback get user from passport session
+      // Get user from passport session
       if (req.session.passport && req.session.passport.user) {
         return this.shopifyConnectService.findByShopifyId(req.session.passport.user)
         .then((user) => {
@@ -86,6 +89,9 @@ export class GetUserMiddleware implements NestMiddleware {
             req.user = user;
             // set to session (for websockets)
             req.session.user = req.user;
+
+            req.session.isLoggedInToAppBackend = true;
+
             return next();
           }
         })

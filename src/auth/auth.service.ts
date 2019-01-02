@@ -21,18 +21,6 @@ export class ShopifyAuthService {
   protected logger = new DebugService('shopify:AuthService');
 
   /**
-   * Check if user is logged in on request
-   * @param request
-   */
-  isLoggedIn(session: Session) {
-    this.logger.debug('isLoggedIn');
-    if (session.user !== null && typeof session.user === 'object') {
-      return true;
-    }
-    return false;
-  }
-
-  /**
    * Alternative for AuthStrategy.oAuthConnect.
    * Used for auth with a clientsite redirect (needed in the shopify iframe).
    * @param request Express request object
@@ -135,35 +123,10 @@ export class ShopifyAuthService {
     });
   }
 
-  async getShopifyConnectByRequestSecureForThemeClients(request: IUserRequest): Promise<IShopifyConnect | null> {
-    const shopDomain = this.getShopSecureForThemeClients(request);
-    this.logger.debug('shopDomain', shopDomain);
-    if (!shopDomain) {
-      return null;
-    }
-    return this.shopifyConnectService.findByDomain(shopDomain)
-    .then((shopifyConnect) => {
-      this.logger.debug('shopifyConnect', );
-      return shopifyConnect
-    });
-  }
-
   /**
-   * Get the client host on request
-   * @param request
+   * Check if the request comes from app backend or shopify theme client and get the myshopify domain
+   * @param request Express request object
    */
-  getClientHost(request: IUserRequest) {
-    let host: string;
-    if (request.headers.origin) {
-      // request comes from shopify theme
-      host = (request.headers.origin as string).split('://')[1];
-    } else {
-      // request from app backend
-      host = request.headers.host;
-    }
-    return host;
-  }
-
   async getRequestType(request: IUserRequest) {
     const result = {
       isAppBackendRequest: false,
@@ -175,9 +138,6 @@ export class ShopifyAuthService {
     this.logger.debug('host', host, 'appHost', this.shopifyModuleOptions.appHost);
     if (host === this.shopifyModuleOptions.appHost) {
       result.isAppBackendRequest = true;
-      // if (this.isLoggedIn(request.session)) {
-      //   result.isLoggedInToAppBackend = true;
-      // }
       return this.getMyShopifyDomainUnsecure(request)
       .then((myshopifyDomain) => {
         if (myshopifyDomain) {
@@ -200,6 +160,55 @@ export class ShopifyAuthService {
   }
 
   /**
+   * Like SecureForThemeClients but always returns the myshopify_domain if found
+   * 
+   * @param request 
+   */
+  async getMyShopifyDomainSecureForThemeClients(request: IUserRequest) {
+    const anyDomain = this.getShopSecureForThemeClients(request);
+    if (!anyDomain) {
+      throw new Error('Shop not found!');
+    }
+    if (anyDomain.endsWith('.myshopify.com')) {
+      return anyDomain;
+    }
+    return this.shopifyConnectService.findByDomain(anyDomain)
+    .then((shopifyConnect) => {
+      this.logger.debug('getMyShopifyDomain', shopifyConnect.myshopify_domain);
+      return shopifyConnect.myshopify_domain;
+    });
+  }
+
+  /**
+   * Check if user is logged in on request
+   * @param request
+   */
+  protected isLoggedIn(session: Session) {
+    this.logger.debug('isLoggedIn');
+    if (session.user !== null && typeof session.user === 'object') {
+      return true;
+    }
+    return false;
+  }
+
+
+  /**
+   * Get the client host on request
+   * @param request
+   */
+  protected getClientHost(request: IUserRequest) {
+    let host: string;
+    if (request.headers.origin) {
+      // request comes from shopify theme
+      host = (request.headers.origin as string).split('://')[1];
+    } else {
+      // request from app backend
+      host = request.headers.host;
+    }
+    return host;
+  }
+
+  /**
    * Get the shop the request comes from.
    * If a shop string is returned, the request is either from a shop theme or the backend app with logged in user,
    * otherwise null is returend
@@ -208,7 +217,7 @@ export class ShopifyAuthService {
    *  
    * @param request
    */
-  getShopSecureForThemeClients(request: IUserRequest): string | null {
+  protected getShopSecureForThemeClients(request: IUserRequest): string | null {
     let shop = null;
     const host = this.getClientHost(request);
 
@@ -250,26 +259,6 @@ export class ShopifyAuthService {
   }
 
   /**
-   * Like SecureForThemeClients but always returns the myshopify_domain if found
-   * 
-   * @param request 
-   */
-  async getMyShopifyDomainSecureForThemeClients(request: IUserRequest) {
-    const anyDomain = this.getShopSecureForThemeClients(request);
-    if (!anyDomain) {
-      throw new Error('Shop not found!');
-    }
-    if (anyDomain.endsWith('.myshopify.com')) {
-      return anyDomain;
-    }
-    return this.shopifyConnectService.findByDomain(anyDomain)
-    .then((shopifyConnect) => {
-      this.logger.debug('getMyShopifyDomain', shopifyConnect.myshopify_domain);
-      return shopifyConnect.myshopify_domain;
-    });
-  }
-
-  /**
    * Unsecure version of getMyShopifyDomainSecureForThemeClients.
    * 
    * This also returns the shopify domain if just the shop is set has query param or header param.
@@ -279,7 +268,7 @@ export class ShopifyAuthService {
    * 
    * @param request
    */
-  async getMyShopifyDomainUnsecure(request: IUserRequest) {
+  protected async getMyShopifyDomainUnsecure(request: IUserRequest) {
     let shop: string;
 
     // Get shop from header
