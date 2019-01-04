@@ -223,23 +223,27 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       server.to(`${myshopifyDomain}-app-backend`).emit('order_transactions/create', data);
     });
 
-    this.eventService.on(`webhook:products/create`, (myshopifyDomain: string, data: any) => {
+    this.eventService.on(`webhook:products/create`, (myshopifyDomain: string, product: Models.Product) => {
       // For app backend users
-      server.to(`${myshopifyDomain}-app-backend`).emit('products/create', data);
+      server.to(`${myshopifyDomain}-app-backend`).emit('products/create', product);
 
-      // For theme clients
-      server.to(`${myshopifyDomain}-client-theme`).emit('products/create', data);
+      // For theme clients (only if product is published for safety reasons)
+      if (product.published_at !== null) {
+        server.to(`${myshopifyDomain}-client-theme`).emit('products/create', product);
+      }
     });
 
-    this.eventService.on(`webhook:products/update`, (myshopifyDomain: string, data: any) => {
+    this.eventService.on(`webhook:products/update`, (myshopifyDomain: string, product: Models.Product) => {
       // For app backend users
-      server.to(`${myshopifyDomain}-app-backend`).emit('products/update', data);
+      server.to(`${myshopifyDomain}-app-backend`).emit('products/update', product);
 
-      // For theme clients
-      server.to(`${myshopifyDomain}-client-theme`).emit('products/update', data);
+      // For theme clients (only if product is published for safety reasons)
+      if (product.published_at !== null) {
+        server.to(`${myshopifyDomain}-client-theme`).emit('products/update', product);
+      }
     });
 
-    this.eventService.on(`webhook:products/delete`, (myshopifyDomain: string, data: any) => {
+    this.eventService.on(`webhook:products/delete`, (myshopifyDomain: string, data: {id: number}) => {
       // For app backend users
       server.to(`${myshopifyDomain}-app-backend`).emit('products/delete', data);
 
