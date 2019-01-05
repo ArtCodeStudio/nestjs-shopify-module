@@ -35,6 +35,7 @@ import { EventService } from './event.service';
 import { WebhooksController } from './webhooks/webhooks.controller';
 import { WebhooksService } from './webhooks/webhooks.service';
 import { WebhooksGateway } from './api/webhooks/webhooks.gateway';
+import { syncProviders } from './sync/sync-providers';
 
 /**
  * Middlewares
@@ -120,6 +121,7 @@ export class ShopifyModule implements NestModule {
         GetUserMiddleware,
         ...shopifyConnectProviders(database),
         ...shopifyApiProviders(database),
+        ...syncProviders(database),
       ],
       exports: [
         mongooseDatabase,
@@ -129,6 +131,7 @@ export class ShopifyModule implements NestModule {
         GetUserMiddleware,
         ...shopifyConnectProviders(database),
         ...shopifyApiProviders(database),
+        ...syncProviders(database),
       ]
     }
   }

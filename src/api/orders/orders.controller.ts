@@ -113,6 +113,48 @@ export class OrdersController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
+  @Get('sync-progress/all')
+  async listSyncProgress(@Req() req: IUserRequest, @Res() res: Response) {
+    try {
+      return res.jsonp(await this.ordersService.listSyncProgress(req.shopifyConnect));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('sync-progress')
+  async getLastSyncProgress(@Req() req: IUserRequest, @Res() res: Response) {
+    try {
+      return res.jsonp(await this.ordersService.getLastSyncProgress(req.shopifyConnect));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('sync')
+  async startSync(@Req() req: IUserRequest, @Res() res: Response, @Query('resync') resync: boolean, @Query('include_transactions') includeTransactions: boolean) {
+    try {
+      return res.jsonp(await this.ordersService.startSync(req.shopifyConnect, {resync, includeTransactions}));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
   @Get(':id')
   async getFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
     try {

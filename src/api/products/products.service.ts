@@ -8,6 +8,8 @@ import { getDiff } from '../../helpers/diff';
 import { Readable } from 'stream';
 import { PQueue } from 'p-queue';
 import { DebugService } from '../../debug.service';
+import { EventService } from '../../event.service';
+import { IProductSyncProgress, ProductSyncProgressDocument } from '../../sync/sync-progress.schema';
 
 export interface ProductListOptions extends Options.ProductListOptions {
   sync?: boolean;
@@ -16,11 +18,20 @@ export interface ProductListOptions extends Options.ProductListOptions {
 export interface ProductCountOptions extends Options.ProductCountOptions {
 }
 
+export interface ProductSyncOptions {
+  resync: boolean,
+}
+
 @Injectable()
 export class ProductsService {
   constructor(
     @Inject('ProductModelToken')
     private readonly productModel: (shopName: string) => Model<ProductDocument>,
+    @Inject('ProductSyncProgressModelToken')
+    private readonly productSyncProgressModel: (shopName: string) => Model<ProductSyncProgressDocument>,
+    private readonly eventService: EventService,
+
+
   ) {}
 
   logger = new DebugService(`shopify:${this.constructor.name}`);
@@ -255,5 +266,101 @@ export class ProductsService {
   protected async updateOrCreateInDb(user: IShopifyConnect, product: Product) {
     const model = this.productModel(user.shop.myshopify_domain);
     return model.findOneAndUpdate({id: product.id}, product, {upsert: true});
+  }
+
+  async listSyncProgress(user: IShopifyConnect): Promise<IProductSyncProgress[]> {
+    // Mongoose order sync progress model
+    const productSyncProgressModel = this.productSyncProgressModel(user.shop.myshopify_domain);
+    return productSyncProgressModel.find().lean();
+  }
+
+  async getLastSyncProgress(user: IShopifyConnect): Promise<IProductSyncProgress | null> {
+    // Mongoose order sync progress model
+    const productSyncProgressModel = this.productSyncProgressModel(user.shop.myshopify_domain);
+    return await productSyncProgressModel.findOne(
+      {},
+      {},
+      { sort: { 'createdAt': -1} }
+    )
+    .lean();
+  }
+
+  async startSync(user: IShopifyConnect, options?: ProductSyncOptions) {
+    // Continue the previous sync by default (don't resync completely)
+    options = options || { resync: false };
+    this.logger.debug(`ProductsService.startSync(myShopifyDomain=${user.shop.myshopify_domain}, resync=${options.resync})`);
+    // Shopify products model
+    const products = new Products(user.myshopify_domain, user.accessToken);
+    // Mongoose product sync progress model
+    const productSyncProgressModel = this.productSyncProgressModel(user.shop.myshopify_domain);
+
+    const now = new Date();
+
+    // Get the last sync progress (if it exists)
+    const lastProgress: ProductSyncProgressDocument = await productSyncProgressModel.findOne(
+      {},
+      {},
+      { sort: { 'createdAt': -1} }
+    );
+
+    if (lastProgress && lastProgress.state === 'running') {
+      const millisecondsSinceLastUpdate = now.valueOf() - lastProgress.updatedAt.valueOf();
+      const fiveMinutes = 5 * 60 * 1000;
+      // If last progress was not updated in the last 5 minutes, consider it as failed
+      if (millisecondsSinceLastUpdate > fiveMinutes) {
+        lastProgress.state = 'failure';
+        lastProgress.error = 'sync timed out';
+        lastProgress.updatedAt = now;
+        lastProgress.save();
+        this.eventService.emit(`sync:product`, lastProgress);
+      } else {
+        this.eventService.emit(`sync:product`, lastProgress);
+        return lastProgress;
+      }
+    }
+    const progress: ProductSyncProgressDocument = await productSyncProgressModel.create({
+      createdAt: now,
+      updatedAt: now,
+      sinceId: !options.resync && lastProgress && lastProgress.lastId || 0,
+      lastId: !options.resync && lastProgress && lastProgress.lastId || null,
+      syncedCount: !options.resync && lastProgress && lastProgress.syncedCount || 0,
+      shopifyCount: await products.count(),
+      state: 'running',
+      error: null,
+    });
+    this.eventService.emit(`sync:product`, progress);
+
+    const remainingCount = progress.shopifyCount - progress.syncedCount;
+    const itemsPerPage = 250;
+    const pages = Math.ceil(remainingCount/itemsPerPage);
+    let countDown = pages;
+    let q = new PQueue({ concurrency: 1});
+    Promise.all(Array(pages).fill(0).map(
+      (x, i) => q.add(() => this.listFromShopify(
+          user,
+          {
+            sync: true,
+            since_id: progress.sinceId,
+            page: i+1,
+            limit: itemsPerPage
+          }
+        )
+        .then(objects => {
+          countDown--;
+          this.logger.debug(` ${i}|${countDown} / ${pages}`);
+          progress.syncedCount += objects.length;
+          progress.lastId = objects[objects.length-1].id;
+          progress.updatedAt = new Date();
+          progress.save();
+          this.eventService.emit(`sync:product`, progress);
+        })
+      )
+    ))
+    .then( _ => {
+      progress.state = 'success';
+      progress.updatedAt = new Date();
+      this.eventService.emit(`sync:product`, progress);
+    });
+    return progress;
   }
 }

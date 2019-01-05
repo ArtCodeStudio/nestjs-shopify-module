@@ -403,6 +403,48 @@ export class ProductsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
+  @Get('sync-progress/all')
+  async listSyncProgress(@Req() req: IUserRequest, @Res() res: Response) {
+    try {
+      return res.jsonp(await this.productsService.listSyncProgress(req.shopifyConnect));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('sync-progress')
+  async getLastSyncProgress(@Req() req: IUserRequest, @Res() res: Response) {
+    try {
+      return res.jsonp(await this.productsService.getLastSyncProgress(req.shopifyConnect));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('sync')
+  async startSync(@Req() req: IUserRequest, @Res() res: Response, @Query('resync') resync: boolean) {
+    try {
+      return res.jsonp(await this.productsService.startSync(req.shopifyConnect, { resync }));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
   @Delete(':product_id')
   async deleteInShopify(
     @Req() req: IUserRequest,
