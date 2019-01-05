@@ -20,9 +20,6 @@ import { AssetsService } from './api/themes/assets/assets.service';
 import { LocalesService } from './api/themes/locales/locales.service';
 import { AssetsController } from './api/themes/assets/assets.controller';
 import { LocalesController } from './api/themes/locales/locales.controller';
-import { GetUserMiddleware } from './middlewares/get-user.middleware';
-import { GetShopifyConnectMiddleware } from './middlewares/get-shopify-connect.middleware';
-import { VerifyWebhookMiddleware } from './middlewares/verify-webhook.middleware';
 import { SyncService } from './sync/sync.service';
 import { OrdersService } from './api/orders/orders.service';
 import { ProductsService } from './api/products/products.service';
@@ -38,6 +35,17 @@ import { EventService } from './event.service';
 import { WebhooksController } from './webhooks/webhooks.controller';
 import { WebhooksService } from './webhooks/webhooks.service';
 import { WebhooksGateway } from './api/webhooks/webhooks.gateway';
+
+/**
+ * Middlewares
+ */
+import {
+  BodyParserJsonMiddleware,
+  BodyParserUrlencodedMiddleware,
+  GetShopifyConnectMiddleware,
+  GetUserMiddleware,
+  VerifyWebhookMiddleware
+} from './middlewares';
 
 @Module({
   providers: [
@@ -106,6 +114,8 @@ export class ShopifyModule implements NestModule {
         passportProvider,
         shopifyModuleOptions,
         mongooseDatabase,
+        BodyParserJsonMiddleware,
+        BodyParserUrlencodedMiddleware,
         GetShopifyConnectMiddleware,
         GetUserMiddleware,
         ...shopifyConnectProviders(database),
@@ -113,6 +123,8 @@ export class ShopifyModule implements NestModule {
       ],
       exports: [
         mongooseDatabase,
+        BodyParserJsonMiddleware,
+        BodyParserUrlencodedMiddleware,
         GetShopifyConnectMiddleware,
         GetUserMiddleware,
         ...shopifyConnectProviders(database),
@@ -122,6 +134,12 @@ export class ShopifyModule implements NestModule {
   }
   configure(consumer: MiddlewareConsumer) {
     consumer
+
+      .apply(BodyParserJsonMiddleware)
+      .forRoutes(ProductsController)
+
+      .apply(BodyParserUrlencodedMiddleware)
+      .forRoutes(ProductsController)
 
       .apply(GetUserMiddleware)
       .forRoutes({

@@ -3,6 +3,7 @@ import { ShopifyAuthService } from '../auth/auth.service';
 import { ShopifyConnectService } from '../auth/connect.service';
 import { DebugService } from '../debug.service';
 import { IUserRequest } from '../interfaces/user-request';
+import { Response, NextFunction } from 'express';
 
 @Injectable()
 export class GetUserMiddleware implements NestMiddleware {
@@ -14,7 +15,7 @@ export class GetUserMiddleware implements NestMiddleware {
 
   }
   async resolve(...args: any[]): Promise<MiddlewareFunction> {
-    return async (req: IUserRequest, res, next) => {
+    return async (req: IUserRequest, res: Response, next: NextFunction) => {
 
       let requestType = await this.shopifyAuthService.getRequestType(req)
       .catch((error) => {

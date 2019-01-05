@@ -22,7 +22,7 @@ import { Roles } from '../../guards/roles.decorator';
 import { Readable } from 'stream';
 import { IUserRequest } from '../../interfaces/user-request';
 import { Response } from 'express';
-import { Product } from 'shopify-prime/models';
+import { Product, ProductUpdateCreate } from 'shopify-prime/models';
 
 @Controller('shopify/api/products')
 export class ProductsController {
@@ -356,7 +356,7 @@ export class ProductsController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Param('product_id') id: number,
-    @Body() product: Partial<Product>,
+    @Body() product: ProductUpdateCreate,
   ) {
     try {
       return res.jsonp(await this.productsService.updateInShopify(req.shopifyConnect, id, product));
@@ -377,15 +377,21 @@ export class ProductsController {
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Post(':product_id')
+  @Post()
   async createInShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Param('product_id') id: number,
-    @Body() product: Partial<Product>,
+    @Body() product: ProductUpdateCreate,
   ) {
+    this.logger.debug('body', product);
     try {
-      return res.jsonp(await this.productsService.createInShopify(req.shopifyConnect, product));
+      this.productsService.createInShopify(req.shopifyConnect, product)
+      .then((result) => {
+        this.logger.debug('result', result);
+      })
+      .then((result) => {
+        return res.json(result);
+      })
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Products, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
 import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Product } from 'shopify-prime/models';
+import { Product, ProductUpdateCreate } from 'shopify-prime/models';
 import { ProductDocument } from '../interfaces/product.schema';
 import { Model, Types } from 'mongoose';
 import { getDiff } from '../../helpers/diff';
@@ -210,7 +210,7 @@ export class ProductsService {
    * @param user 
    * @param product 
    */
-  public async createInShopify(user: IShopifyConnect, product: Partial<Product>) {
+  public async createInShopify(user: IShopifyConnect, product: ProductUpdateCreate) {
     const products = new Products(user.myshopify_domain, user.accessToken);
     return await products.create(product);
   }
@@ -221,7 +221,7 @@ export class ProductsService {
    * @param id 
    * @param product 
    */
-  public async updateInShopify(user: IShopifyConnect, id: number, product: Partial<Product>) {
+  public async updateInShopify(user: IShopifyConnect, id: number, product: ProductUpdateCreate) {
     const products = new Products(user.myshopify_domain, user.accessToken);
     return await products.update(id, product);
   }
