@@ -1,4 +1,18 @@
-import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus, Header } from '@nestjs/common';
+import {
+  Controller,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+  Res,
+  Get,
+  Put,
+  Post,
+  Delete,
+  HttpStatus,
+  Header,
+  Body
+} from '@nestjs/common';
 
 import { ProductsService, ProductListOptions, ProductCountOptions } from './products.service';
 import { DebugService } from '../../debug.service';
@@ -8,7 +22,7 @@ import { Roles } from '../../guards/roles.decorator';
 import { Readable } from 'stream';
 import { IUserRequest } from '../../interfaces/user-request';
 import { Response } from 'express';
-import { IShopifyConnect } from '../../auth/interfaces/connect';
+import { Product } from 'shopify-prime/models';
 
 @Controller('shopify/api/products')
 export class ProductsController {
@@ -290,7 +304,11 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
   @Get(':id')
-  async getFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
+  async getFromShopify(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Param('id') id: number
+  ) {
     try {
       return res.jsonp(await this.productsService.getFromShopify(req.shopifyConnect, id));
     } catch(error) {
@@ -310,9 +328,82 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('synced/diff')
-  async diffSynced(@Req() req: IUserRequest, @Res() res: Response) {
+  async diffSynced(
+    @Req() req: IUserRequest,
+    @Res() res: Response
+  ) {
     try {
       return res.jsonp(await this.productsService.diffSynced(req.shopifyConnect));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
+
+  /**
+   * Updates a product and its variants and images.
+   * @param req 
+   * @param res 
+   * @param id 
+   * @param product 
+   */
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Put(':product_id')
+  async updateInShopify(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Param('product_id') id: number,
+    @Body() product: Partial<Product>,
+  ) {
+    try {
+      return res.jsonp(await this.productsService.updateInShopify(req.shopifyConnect, id, product));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
+
+  /**
+   * Creates a new product.
+   * @param req 
+   * @param res 
+   * @param id 
+   * @param product 
+   */
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Post(':product_id')
+  async createInShopify(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Param('product_id') id: number,
+    @Body() product: Partial<Product>,
+  ) {
+    try {
+      return res.jsonp(await this.productsService.createInShopify(req.shopifyConnect, product));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Delete(':product_id')
+  async deleteInShopify(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Param('product_id') id: number,
+  ) {
+    try {
+      return res.jsonp(await this.productsService.deleteInShopify(req.shopifyConnect, id));
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({

@@ -11,6 +11,7 @@ import { ShopService } from './shop/shop.service';
 import { IShopifyShop } from './shop/interfaces/shop';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './guards/roles.decorator';
+export { RequestGuard } from './guards/request.guard';
 import { ShopifyApiGuard } from './guards/shopify-api.guard';
 import { ThemesService } from './api/themes/themes.service';
 import { ThemesController } from './api/themes/themes.controller';

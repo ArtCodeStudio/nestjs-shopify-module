@@ -25,19 +25,38 @@ export class ProductsService {
 
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
+  /**
+   * Retrieves a single product directly from the shopify API
+   * @param user 
+   * @param id 
+   * @param sync 
+   * @see https://help.shopify.com/en/api/reference/products/product#show
+   */
   public async getFromShopify(user: IShopifyConnect, id: number, sync?: boolean) {
     const products = new Products(user.myshopify_domain, user.accessToken);
     const res = await products.get(id);
     if (sync) {
-      await this.saveOne(user, res);
+      await this.updateOrCreateInDb(user, res);
     }
     return res;
   }
 
+  /**
+   * Retrieves a single product from the app's own database
+   * @param user 
+   * @param id 
+   * @param sync 
+   */
   public async getFromDb(user: IShopifyConnect, id: number) {
     return await this.productModel(user.shop.myshopify_domain).find({id});
   }
 
+  /**
+   * Retrieves a count of products directly from the shopify API
+   * @param user 
+   * @param options 
+   * @see https://help.shopify.com/en/api/reference/products/product#count
+   */
   public async countFromShopify(user: IShopifyConnect, options?: Options.ProductCountOptions): Promise<number> {
     const products = new Products(user.myshopify_domain, user.accessToken);
 
@@ -54,10 +73,21 @@ export class ProductsService {
 
     return await products.count(options);
   }
+
+  /**
+   * Retrieves a count of products from the app's own database
+   * @param user 
+   * @param options 
+   */
   public async countFromDb(user: IShopifyConnect, options?: Options.ProductCountOptions): Promise<number> {
     return await this.productModel(user.shop.myshopify_domain).count({});
   }
 
+  /**
+   * Retrieves a list of products directly from the shopify API
+   * @param user 
+   * @param options 
+   */
   public async listFromShopify(user: IShopifyConnect, options?: ProductListOptions): Promise<Product[]> {
     const products = new Products(user.myshopify_domain, user.accessToken);
     let sync = options && options.sync;
@@ -78,25 +108,23 @@ export class ProductsService {
 
     const res = await products.list(options);
     if (sync) {
-      await this.saveMany(user, res);
+      await this.updateOrCreateManyInDb(user, res);
     }
     return res;
   }
 
-  public async saveMany(user: IShopifyConnect, products: Product[]) {
-    const model = this.productModel(user.shop.myshopify_domain);
-    return products.map(async (product: Product) => await model.findOneAndUpdate({id: product.id}, product, {upsert: true}));
-  }
-
-  public async saveOne(user: IShopifyConnect, product: Product) {
-    const model = this.productModel(user.shop.myshopify_domain);
-    return await model.findOneAndUpdate({id: product.id}, product);
-  }
-
+  /**
+   * Retrieves a list of products from the app's own database
+   * @param user 
+   */
   public async listFromDb(user: IShopifyConnect): Promise<Product[]> {
     return await this.productModel(user.shop.myshopify_domain).find({}).select('-_id -__v').lean();
   }
 
+  /**
+   * Internal method used for tests to compare the shopify products with the products in the app's own database
+   * @param user 
+   */
   public async diffSynced(user: IShopifyConnect): Promise<any> {
     const fromDb = await this.listFromDb(user);
     const fromShopify = await this.listAllFromShopify(user);
@@ -106,7 +134,7 @@ export class ProductsService {
   }
 
   /**
-   * Gets a list of all of the shop's products.
+   * Gets a list of all of the shop's products directly from the shopify API
    * @param options Options for filtering the results.
    */
   public async listAllFromShopify(user: IShopifyConnect, options?: ProductListOptions): Promise<Product[]> {
@@ -137,7 +165,7 @@ export class ProductsService {
   }
 
   /**
-   * Gets a list of all of the shop's orders.
+   * Gets a list of all of the shop's products directly from the shopify API as a stream
    * @param options Options for filtering the results.
    */
   public listAllFromShopifyStream(user: IShopifyConnect, options?: ProductListOptions): Readable {
@@ -175,5 +203,57 @@ export class ProductsService {
       .then(_ => stream.push(null));
     });
     return stream;
+  }
+
+  /**
+   * Creates a new product in shopify
+   * @param user 
+   * @param product 
+   */
+  public async createInShopify(user: IShopifyConnect, product: Partial<Product>) {
+    const products = new Products(user.myshopify_domain, user.accessToken);
+    return await products.create(product);
+  }
+
+  /**
+   * Updates a product and its variants and images.
+   * @param user 
+   * @param id 
+   * @param product 
+   */
+  public async updateInShopify(user: IShopifyConnect, id: number, product: Partial<Product>) {
+    const products = new Products(user.myshopify_domain, user.accessToken);
+    return await products.update(id, product);
+  }
+
+  /**
+   * Updates a product and its variants and images.
+   * @param user 
+   * @param id 
+   * @param product 
+   */
+  public async deleteInShopify(user: IShopifyConnect, id: number) {
+    const products = new Products(user.myshopify_domain, user.accessToken);
+    return await products.delete(id);
+  }
+
+  /**
+   * Internal method to update several products in the database
+   * @param user 
+   * @param products 
+   */
+  protected async updateOrCreateManyInDb(user: IShopifyConnect, products: Product[]) {
+    const model = this.productModel(user.shop.myshopify_domain);
+    return products.map(async (product: Product) => await this.updateOrCreateInDb(user, product));
+  }
+
+  /**
+   * Internal method to update or create a single product in the database
+   * @param user 
+   * @param product 
+   */
+  protected async updateOrCreateInDb(user: IShopifyConnect, product: Product) {
+    const model = this.productModel(user.shop.myshopify_domain);
+    return await model.findOneAndUpdate({id: product.id}, product, {upsert: true});
   }
 }

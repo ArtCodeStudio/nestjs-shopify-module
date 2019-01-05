@@ -8,7 +8,7 @@
   "private": true,
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.json",
-    "link": "npm link && npm install && npm link shopify-prime"
+    "link": "npm link && npm install && npm link shopify-prime && cd node_modules/shopify-prime && npm install"
   },
   "dependencies": {
     "@nestjs/passport": "^5.1.0",

@@ -10,7 +10,7 @@ import { SessionSocket } from '../interfaces/session-socket';
 
 
 /**
- *
+ * Guard to check the backend user roles
  */
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -26,19 +26,21 @@ export class RolesGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     // this.logger.debug('context', context);
-    const roles = this.reflector.get<string[]>('roles', context.getHandler()) as TRoles;
+    const roles = this.reflector.get<TRoles>('roles', context.getHandler());
     const request = context.switchToHttp().getRequest() as IUserRequest;
     // this.logger.debug('request', request);
+
     // Check if request is really a http request
     if (request.app) {
-      return this.validateRequest(request);
+      return this.validateRequest(request, roles);
     }
 
     const client = context.switchToWs().getClient();
     // this.logger.debug('client', client);
+
     // Check if client is really a socket client
     if (client.handshake) {
-      return this.validateClient(client);
+      return this.validateClient(client, roles);
     }
   }
 
@@ -54,7 +56,7 @@ export class RolesGuard implements CanActivate {
 
   validateRequest(request: IUserRequest, roles?: TRoles) {
 
-    // if no roles are passt using @Roles('admin') this route do not need any role so activate this with true
+    // if no roles are passtthis route do not need any role so activate this with true
     if (!roles || roles.length === 0) {
       return true;
     }
@@ -64,7 +66,7 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    // DO NOT USE request.shopifyConnect because this can always be set on theme requests 
+    // DO NOT USE request.shopifyConnect because this can always be set on theme-client requests 
     if (!this.hasRole(request.session.user, roles)) {
       return false;
     }
@@ -73,7 +75,7 @@ export class RolesGuard implements CanActivate {
   }
 
   validateClient(client: SessionSocket, roles?: TRoles) {
-    // if no roles are passt using @Roles('admin') this route do not need any role so activate this with true
+    // if no roles are passt this route do not need any role so activate this with true
     if (!roles || roles.length === 0) {
       return true;
     }
