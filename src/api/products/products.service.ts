@@ -42,17 +42,17 @@ export class ProductsService {
   }
 
   /**
-   * Retrieves a single product from the app's own database
+   * Retrieves a single product from the app's own database.
    * @param user 
    * @param id 
    * @param sync 
    */
   public async getFromDb(user: IShopifyConnect, id: number) {
-    return await this.productModel(user.shop.myshopify_domain).find({id});
+    return this.productModel(user.shop.myshopify_domain).find({id});
   }
 
   /**
-   * Retrieves a count of products directly from the shopify API
+   * Retrieves a count of products directly from shopify.
    * @param user 
    * @param options 
    * @see https://help.shopify.com/en/api/reference/products/product#count
@@ -71,20 +71,20 @@ export class ProductsService {
       }
     }
 
-    return await products.count(options);
+    return products.count(options);
   }
 
   /**
-   * Retrieves a count of products from the app's own database
+   * Retrieves a count of products from the app's own database.
    * @param user 
    * @param options 
    */
   public async countFromDb(user: IShopifyConnect, options?: Options.ProductCountOptions): Promise<number> {
-    return await this.productModel(user.shop.myshopify_domain).count({});
+    return this.productModel(user.shop.myshopify_domain).count({});
   }
 
   /**
-   * Retrieves a list of products directly from the shopify API
+   * Retrieves a list of products directly from shopify.
    * @param user 
    * @param options 
    */
@@ -114,11 +114,11 @@ export class ProductsService {
   }
 
   /**
-   * Retrieves a list of products from the app's own database
+   * Retrieves a list of products from the app's own database.
    * @param user 
    */
   public async listFromDb(user: IShopifyConnect): Promise<Product[]> {
-    return await this.productModel(user.shop.myshopify_domain).find({}).select('-_id -__v').lean();
+    return this.productModel(user.shop.myshopify_domain).find({}).select('-_id -__v').lean();
   }
 
   /**
@@ -206,39 +206,39 @@ export class ProductsService {
   }
 
   /**
-   * Creates a new product in shopify
+   * Creates a new product directly in shopify
    * @param user 
    * @param product 
    */
-  public async createInShopify(user: IShopifyConnect, product: ProductUpdateCreate) {
+  public async createInShopify(user: IShopifyConnect, product: ProductUpdateCreate): Promise<Product> {
     const products = new Products(user.myshopify_domain, user.accessToken);
-    return await products.create(product);
+    return products.create(product);
   }
 
   /**
-   * Updates a product and its variants and images.
+   * Updates a product and its variants and images directly in shopify.
    * @param user 
    * @param id 
    * @param product 
    */
-  public async updateInShopify(user: IShopifyConnect, id: number, product: ProductUpdateCreate) {
+  public async updateInShopify(user: IShopifyConnect, id: number, product: ProductUpdateCreate): Promise<Product> {
     const products = new Products(user.myshopify_domain, user.accessToken);
-    return await products.update(id, product);
+    return products.update(id, product);
   }
 
   /**
-   * Updates a product and its variants and images.
+   * Deletes a product directly in shopify.
    * @param user 
    * @param id 
    * @param product 
    */
   public async deleteInShopify(user: IShopifyConnect, id: number) {
     const products = new Products(user.myshopify_domain, user.accessToken);
-    return await products.delete(id);
+    return products.delete(id);
   }
 
   /**
-   * Internal method to update several products in the database
+   * Internal method to update several products in the app database.
    * @param user 
    * @param products 
    */
@@ -248,12 +248,12 @@ export class ProductsService {
   }
 
   /**
-   * Internal method to update or create a single product in the database
+   * Internal method to update or create a single product in the app database.
    * @param user 
    * @param product 
    */
   protected async updateOrCreateInDb(user: IShopifyConnect, product: Product) {
     const model = this.productModel(user.shop.myshopify_domain);
-    return await model.findOneAndUpdate({id: product.id}, product, {upsert: true});
+    return model.findOneAndUpdate({id: product.id}, product, {upsert: true});
   }
 }

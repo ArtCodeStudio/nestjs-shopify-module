@@ -388,9 +388,10 @@ export class ProductsController {
       this.productsService.createInShopify(req.shopifyConnect, product)
       .then((result) => {
         this.logger.debug('result', result);
+        return result;
       })
       .then((result) => {
-        return res.json(result);
+        return res.jsonp(result);
       })
     } catch(error) {
       this.logger.error(error);
