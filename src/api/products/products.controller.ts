@@ -22,7 +22,7 @@ import { Roles } from '../../guards/roles.decorator';
 import { Readable } from 'stream';
 import { IUserRequest } from '../../interfaces/user-request';
 import { Response } from 'express';
-import { Product, ProductUpdateCreate } from 'shopify-prime/models';
+import { ProductUpdateCreate } from 'shopify-prime/models';
 
 @Controller('shopify/api/products')
 export class ProductsController {
@@ -42,7 +42,7 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
   @Get()
-  async list(
+  async listFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Query('collection_id') collection_id: string | undefined,
@@ -64,8 +64,9 @@ export class ProductsController {
     @Query('vendor') vendor: string | undefined,
   ) {
     try {
-      if (!req.user) {
+      if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
+        sync = false;
       }
       const options: ProductListOptions = {
         collection_id,
@@ -200,7 +201,7 @@ export class ProductsController {
     @Query('vendor') vendor: string | undefined,
   ) {
     try {
-      if (!req.user) {
+      if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
       }
       return res.jsonp(await this.productsService.countFromDb(req.shopifyConnect, {
@@ -247,7 +248,7 @@ export class ProductsController {
     @Query('vendor') vendor: string,
   ) {
     try {
-      if (!req.user) {
+      if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
       }
       return res.jsonp(await this.productsService.countFromShopify(req.shopifyConnect, {
@@ -343,7 +344,7 @@ export class ProductsController {
   }
 
   /**
-   * Updates a product and its variants and images.
+   * Updates a product and its variants and images directly from shopify.
    * @param req 
    * @param res 
    * @param id 
@@ -358,6 +359,7 @@ export class ProductsController {
     @Param('product_id') id: number,
     @Body() product: ProductUpdateCreate,
   ) {
+    this.logger.debug('update product', id, product);
     try {
       return res.jsonp(await this.productsService.updateInShopify(req.shopifyConnect, id, product));
     } catch(error) {
@@ -369,7 +371,7 @@ export class ProductsController {
   }
 
   /**
-   * Creates a new product.
+   * Creates a new product directly from shopify.
    * @param req 
    * @param res 
    * @param id 
@@ -383,11 +385,11 @@ export class ProductsController {
     @Res() res: Response,
     @Body() product: ProductUpdateCreate,
   ) {
-    this.logger.debug('body', product);
+    this.logger.debug('create product', product);
     try {
-      this.productsService.createInShopify(req.shopifyConnect, product)
+      return this.productsService.createInShopify(req.shopifyConnect, product)
       .then((result) => {
-        this.logger.debug('result', result);
+        // this.logger.debug('result', result);
         return result;
       })
       .then((result) => {
@@ -401,6 +403,11 @@ export class ProductsController {
     }
   }
 
+  /**
+   * Get sync progress
+   * @param req 
+   * @param res 
+   */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('sync-progress/all')
@@ -415,6 +422,11 @@ export class ProductsController {
     }
   }
 
+  /**
+   * Get sync progress
+   * @param req 
+   * @param res 
+   */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('sync-progress')
@@ -443,6 +455,12 @@ export class ProductsController {
     }
   }
 
+  /**
+   * Deletes a product with the given id directly in shopify.
+   * @param req 
+   * @param res 
+   * @param id Id of the product being deleted.
+   */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Delete(':product_id')

@@ -1,3 +1,14 @@
+/**
+ * Middlewares
+ */
+import {
+  BodyParserJsonMiddleware,
+  BodyParserUrlencodedMiddleware,
+  GetShopifyConnectMiddleware,
+  GetUserMiddleware,
+  VerifyWebhookMiddleware
+} from './middlewares';
+
 import { Module, DynamicModule, CacheModule, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ShopifyAuthController } from './auth/auth.controller';
@@ -11,7 +22,6 @@ import { ShopService } from './shop/shop.service';
 import { IShopifyShop } from './shop/interfaces/shop';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './guards/roles.decorator';
-export { RequestGuard } from './guards/request.guard';
 import { ShopifyApiGuard } from './guards/shopify-api.guard';
 import { ThemesService } from './api/themes/themes.service';
 import { ThemesController } from './api/themes/themes.controller';
@@ -36,17 +46,10 @@ import { WebhooksController } from './webhooks/webhooks.controller';
 import { WebhooksService } from './webhooks/webhooks.service';
 import { WebhooksGateway } from './api/webhooks/webhooks.gateway';
 import { syncProviders } from './sync/sync-providers';
-
-/**
- * Middlewares
- */
-import {
-  BodyParserJsonMiddleware,
-  BodyParserUrlencodedMiddleware,
-  GetShopifyConnectMiddleware,
-  GetUserMiddleware,
-  VerifyWebhookMiddleware
-} from './middlewares';
+import { PagesController } from './api/pages/pages.controller';
+import { PagesService } from './api/pages/pages.service';
+import { ApiService } from './api/api.service';
+export { RequestGuard } from './guards/request.guard';
 
 @Module({
   providers: [
@@ -64,6 +67,7 @@ import {
     ShopifyAuthService,
     SyncService,
     OrdersService,
+    PagesService,
     ProductsService,
     ThemesService,
     AssetsService,
@@ -72,6 +76,7 @@ import {
     EventService,
     WebhooksService,
     WebhooksGateway,
+    ApiService,
   ],
   controllers: [
     ShopifyAuthController,
@@ -81,6 +86,7 @@ import {
     AssetsController,
     LocalesController,
     OrdersController,
+    PagesController,
     ProductsController,
     TransactionsController,
     WebhooksController,
@@ -139,6 +145,12 @@ export class ShopifyModule implements NestModule {
     consumer
 
       .apply(BodyParserJsonMiddleware)
+      .forRoutes(PagesController)
+
+      .apply(BodyParserUrlencodedMiddleware)
+      .forRoutes(PagesController)
+
+      .apply(BodyParserJsonMiddleware)
       .forRoutes(ProductsController)
 
       .apply(BodyParserUrlencodedMiddleware)
@@ -155,15 +167,15 @@ export class ShopifyModule implements NestModule {
 
       .apply(GetShopifyConnectMiddleware)
       .with('ShopifyModule')
-      .forRoutes(ThemesController)
-
-      .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
-      .forRoutes(AssetsController)
-
-      .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
       .forRoutes(LocalesController)
+
+      .apply(GetShopifyConnectMiddleware)
+      .with('ShopifyModule')
+      .forRoutes(OrdersController)
+
+      .apply(GetShopifyConnectMiddleware)
+      .with('ShopifyModule')
+      .forRoutes(PagesController)
 
       .apply(GetShopifyConnectMiddleware)
       .with('ShopifyModule')
@@ -171,7 +183,11 @@ export class ShopifyModule implements NestModule {
 
       .apply(GetShopifyConnectMiddleware)
       .with('ShopifyModule')
-      .forRoutes(OrdersController)
+      .forRoutes(ThemesController)
+
+      .apply(GetShopifyConnectMiddleware)
+      .with('ShopifyModule')
+      .forRoutes(AssetsController)
 
       .apply(GetShopifyConnectMiddleware)
       .with('ShopifyModule')

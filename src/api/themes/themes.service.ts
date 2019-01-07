@@ -31,7 +31,7 @@ export class ThemesService {
    */
   public async list(user: IShopifyConnect, options?: Options.FieldOptions, filter?: IThemeListFilter): Promise<Theme[]> {
     const themes = new Themes(user.myshopify_domain, user.accessToken);
-    return await themes.list(options)
+    return themes.list(options)
     .then((themes) => {
       if(!filter) {
         return themes;
@@ -55,7 +55,7 @@ export class ThemesService {
    */
   public async get(user: IShopifyConnect, id: number): Promise<Theme> {
     const themes = new Themes(user.myshopify_domain, user.accessToken);
-    return await themes.get(id);
+    return themes.get(id);
   }
 
   /**
@@ -65,7 +65,7 @@ export class ThemesService {
    * @see https://help.shopify.com/en/api/reference/online-store/theme#show
    */
   public async getActive(user: IShopifyConnect): Promise<Theme | null> {
-    return await this.list(user, {}, { role: 'main' })
+    return this.list(user, {}, { role: 'main' })
     .then((themes) => {
       if (themes.length) {
         return themes[0];

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Products, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
-import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Product, ProductUpdateCreate } from 'shopify-prime/models';
+import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { ProductDocument } from '../interfaces/product.schema';
 import { Model, Types } from 'mongoose';
 import { getDiff } from '../../helpers/diff';
@@ -10,13 +10,13 @@ import { PQueue } from 'p-queue';
 import { DebugService } from '../../debug.service';
 import { EventService } from '../../event.service';
 import { IProductSyncProgress, ProductSyncProgressDocument } from '../../sync/sync-progress.schema';
+import { ApiService } from '../api.service';
 
 export interface ProductListOptions extends Options.ProductListOptions {
   sync?: boolean;
 }
 
-export interface ProductCountOptions extends Options.ProductCountOptions {
-}
+export interface ProductCountOptions extends Options.ProductCountOptions {}
 
 export interface ProductSyncOptions {
   resync: boolean,
@@ -25,13 +25,9 @@ export interface ProductSyncOptions {
 @Injectable()
 export class ProductsService {
   constructor(
-    @Inject('ProductModelToken')
-    private readonly productModel: (shopName: string) => Model<ProductDocument>,
-    @Inject('ProductSyncProgressModelToken')
-    private readonly productSyncProgressModel: (shopName: string) => Model<ProductSyncProgressDocument>,
+    @Inject('ProductModelToken') private readonly productModel: (shopName: string) => Model<ProductDocument>,
+    @Inject('ProductSyncProgressModelToken') private readonly productSyncProgressModel: (shopName: string) => Model<ProductSyncProgressDocument>,
     private readonly eventService: EventService,
-
-
   ) {}
 
   logger = new DebugService(`shopify:${this.constructor.name}`);
@@ -72,15 +68,7 @@ export class ProductsService {
     const products = new Products(user.myshopify_domain, user.accessToken);
 
     // Delete undefined options
-    if (options) {
-      for (const key in options) {
-        if (options.hasOwnProperty(key)) {
-          if (typeof(options[key]) === 'undefined') {
-            delete options[key];
-          }
-        }
-      }
-    }
+    options = ApiService.deleteUndefinedProperties(options);
 
     return products.count(options);
   }
@@ -107,15 +95,7 @@ export class ProductsService {
     }
 
     // Delete undefined options
-    if (options) {
-      for (const key in options) {
-        if (options.hasOwnProperty(key)) {
-          if (typeof(options[key]) === 'undefined') {
-            delete options[key];
-          }
-        }
-      }
-    }
+    options = ApiService.deleteUndefinedProperties(options);
 
     const res = await products.list(options);
     if (sync) {
@@ -152,15 +132,7 @@ export class ProductsService {
     const products = new Products(user.myshopify_domain, user.accessToken);
 
     // Delete undefined options
-    if (options) {
-      for (const key in options) {
-        if (options.hasOwnProperty(key)) {
-          if (typeof(options[key]) === 'undefined') {
-            delete options[key];
-          }
-        }
-      }
-    }
+    options = ApiService.deleteUndefinedProperties(options);
 
     const count = await products.count(options);
     const itemsPerPage = 250;
@@ -184,15 +156,7 @@ export class ProductsService {
     const stream = new Readable({objectMode: true, read: s=>s});
 
     // Delete undefined options
-    if (options) {
-      for (const key in options) {
-        if (options.hasOwnProperty(key)) {
-          if (typeof(options[key]) === 'undefined') {
-            delete options[key];
-          }
-        }
-      }
-    }
+    options = ApiService.deleteUndefinedProperties(options);
 
     products.count(options).then(count => {
       const itemsPerPage = 250;
