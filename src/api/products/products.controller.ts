@@ -172,7 +172,11 @@ export class ProductsController {
       updated_at_max,
       updated_at_min,
       vendor,
-    }).pipe(res);
+    })
+    .pipe(res)
+    .on('error', (error) => {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+    });
   }
 
   /**

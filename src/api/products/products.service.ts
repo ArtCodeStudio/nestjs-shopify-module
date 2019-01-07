@@ -6,11 +6,13 @@ import { ProductDocument } from '../interfaces/product.schema';
 import { Model, Types } from 'mongoose';
 import { getDiff } from '../../helpers/diff';
 import { Readable } from 'stream';
-import { PQueue } from 'p-queue';
+import * as PQueue from 'p-queue';
 import { DebugService } from '../../debug.service';
 import { EventService } from '../../event.service';
 import { IProductSyncProgress, ProductSyncProgressDocument } from '../../sync/sync-progress.schema';
 import { ApiService } from '../api.service';
+import { Observable, Observer } from 'rxjs';
+import { WsResponse } from '@nestjs/websockets';
 
 export interface ProductListOptions extends Options.ProductListOptions {
   sync?: boolean;
@@ -134,14 +136,21 @@ export class ProductsService {
     // Delete undefined options
     options = ApiService.deleteUndefinedProperties(options);
 
-    const count = await products.count(options);
-    const itemsPerPage = 250;
-    const pages = Math.ceil(count/itemsPerPage);
-    return await Promise.all(
-      Array(pages).fill(0).map(
-        (x, i) => this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
-      )
-    )
+    return products.count(options)
+    .then(async (count) => {
+      const itemsPerPage = 250;
+      const pages = Math.ceil(count/itemsPerPage);
+      let q = new PQueue({ concurrency: 1});
+      const productListPromises = Array(pages).fill(0).map((x, i) => {
+        return q.add(async () => {
+          return this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
+        })
+        .then((products: Product[]) => {
+          return products;
+        });
+      });
+      return Promise.all(productListPromises);
+    })
     .then(results => {
       return [].concat.apply([], results);
     })
@@ -158,26 +167,78 @@ export class ProductsService {
     // Delete undefined options
     options = ApiService.deleteUndefinedProperties(options);
 
-    products.count(options).then(count => {
+    products.count(options)
+    .then(async (count) => {
       const itemsPerPage = 250;
       const pages = Math.ceil(count/itemsPerPage);
       let countDown = pages;
       let q = new PQueue({ concurrency: 1});
-      stream.push('[\n');
-      Promise.all(Array(pages).fill(0).map(
-        (x, i) => q.add(() => this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
-          .then(objects => {
+      const productListPromises = Array(pages).fill(0).map((x, i) => {
+        return q.add(async () => {
+          return this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
+          .then((products) => {
             countDown--;
             this.logger.debug(`listAll ${i}|${countDown} / ${pages}`);
-            objects.forEach((obj, i) => {
-              stream.push(JSON.stringify([obj], null, 2).slice(2,-2) + (countDown > 0 || (i!==objects.length-1) ? ',': '\n]'));
+            products.forEach((product, i) => {
+              stream.push(JSON.stringify([product], null, 2).slice(2,-2) + (countDown > 0 || (i!==products.length-1) ? ',': '\n]'));
             });
-          })
-        )
-      ))
-      .then(_ => stream.push(null));
+          });
+        });
+      });
+
+      return Promise.all(productListPromises)
+      .then((_) => {
+        return stream.push(null)
+      })
+      .catch((error) => {
+
+      })
     });
+
     return stream;
+  }
+
+  /**
+   * Gets a list of all of the shop's products directly from the shopify API as a Observable
+   * @param options Options for filtering the results.
+   */
+  public listAllFromShopifyObservable(user: IShopifyConnect, eventName: string, options?: ProductListOptions): Observable<WsResponse<Product>> {
+    const products = new Products(user.myshopify_domain, user.accessToken);
+
+    // Delete undefined options
+    options = ApiService.deleteUndefinedProperties(options);
+    return Observable.create((observer: Observer<WsResponse<Product>>) => {
+
+      products.count(options)
+      .then(async (count) => {
+        const itemsPerPage = 250;
+        const pages = Math.ceil(count/itemsPerPage);
+        let countDown = pages;
+        let q = new PQueue({ concurrency: 1});
+        const productListPromises = Array(pages).fill(0).map(async (x, i) => {
+          return q.add(async () => {
+            return this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
+          })
+          .then((products: Product[]) => {
+            countDown--;
+            this.logger.debug(`listAll ${i}|${countDown} / ${pages}`);
+            products.forEach((product, i) => {
+              observer.next({
+                event: eventName,
+                data: product,
+              });
+            });
+            return null;
+          });
+        });
+
+        return Promise.all(productListPromises)
+        .then((_) => {
+          observer.complete();
+        });
+
+      });
+    });
   }
 
   /**

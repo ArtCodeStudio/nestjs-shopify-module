@@ -5,7 +5,7 @@ import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Model, Types } from 'mongoose';
 import { getDiff } from '../../helpers/diff';
 import { Readable } from 'stream';
-import { PQueue } from 'p-queue';
+import * as PQueue from 'p-queue';
 import { DebugService } from '../../debug.service';
 import { EventService } from '../../event.service';
 import { ApiService } from '../api.service';
