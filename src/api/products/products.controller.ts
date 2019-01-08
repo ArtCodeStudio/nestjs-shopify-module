@@ -277,55 +277,6 @@ export class ProductsController {
   }
 
   /**
-   * Retrieves a single product from the app database.
-   * @param req 
-   * @param res 
-   * @param id Product id
-   * 
-   * @see https://help.shopify.com/en/api/reference/products/product#show
-   */
-  @UseGuards(ShopifyApiGuard)
-  @Roles() // Allowed from shop frontend
-  @Get(':id/synced')
-  async getFromDb(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
-    try {
-      return res.jsonp(await this.productsService.getFromDb(req.shopifyConnect, id));
-    } catch (error) {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
-    }
-  }
-
-  /**
-   * Retrieves a single product directly from shopify.
-   * @param req 
-   * @param res 
-   * @param id Product id
-   * 
-   * @see https://help.shopify.com/en/api/reference/products/product#show
-   */
-  @UseGuards(ShopifyApiGuard)
-  @Roles() // Allowed from shop frontend
-  @Get(':id')
-  async getFromShopify(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Param('id') id: number
-  ) {
-    try {
-      return res.jsonp(await this.productsService.getFromShopify(req.shopifyConnect, id));
-    } catch(error) {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        apiRateLimitReached: error.apiRateLimitReached,
-        message: error.generic ? error.generic : error.message,
-      });
-    }
-  }
-
-  /**
    * Helper route to check the sync
    * @param req 
    * @param res 
@@ -448,9 +399,15 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('sync')
-  async startSync(@Req() req: IUserRequest, @Res() res: Response, @Query('resync') resync: boolean) {
+  async startSync(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Query('resync') resync?: boolean,
+    @Query('attach_to_existing') attachToExisting?: boolean,
+    @Query('cancel_existing') cancelExisting?: boolean,
+  ) {
     try {
-      return res.jsonp(await this.productsService.startSync(req.shopifyConnect, { resync }));
+      return res.jsonp(await this.productsService.startSync(req.shopifyConnect, { resync, attachToExisting, cancelExisting }));
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -479,6 +436,55 @@ export class ProductsController {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
+      });
+    }
+  }
+
+  /**
+   * Retrieves a single product from the app database.
+   * @param req
+   * @param res
+   * @param id Product id
+   *
+   * @see https://help.shopify.com/en/api/reference/products/product#show
+   */
+  @UseGuards(ShopifyApiGuard)
+  @Roles() // Allowed from shop frontend
+  @Get(':id/synced')
+  async getFromDb(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
+    try {
+      return res.jsonp(await this.productsService.getFromDb(req.shopifyConnect, id));
+    } catch (error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    }
+  }
+
+  /**
+   * Retrieves a single product directly from shopify.
+   * @param req
+   * @param res
+   * @param id Product id
+   *
+   * @see https://help.shopify.com/en/api/reference/products/product#show
+   */
+  @UseGuards(ShopifyApiGuard)
+  @Roles() // Allowed from shop frontend
+  @Get(':id')
+  async getFromShopify(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Param('id') id: number
+  ) {
+    try {
+      return res.jsonp(await this.productsService.getFromShopify(req.shopifyConnect, id));
+    } catch(error) {
+      this.logger.error(error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        apiRateLimitReached: error.apiRateLimitReached,
+        message: error.generic ? error.generic : error.message,
       });
     }
   }

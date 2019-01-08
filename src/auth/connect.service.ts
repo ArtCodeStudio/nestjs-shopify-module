@@ -65,6 +65,9 @@ export class ShopifyConnectService {
    * @param domain
    */
   async findByDomain(domain: string): Promise<IShopifyConnect | null> {
+    if (!domain) {
+      return null;
+    }
     if (domain.endsWith('.myshopify.com')) {
       const query = {'shop.myshopify_domain': domain};
       return this.shopifyConnectModel.findOne(query).exec();

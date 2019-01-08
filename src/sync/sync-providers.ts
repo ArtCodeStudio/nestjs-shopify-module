@@ -1,34 +1,32 @@
-import { Schema, Document, Model, Mongoose } from 'mongoose';
+import { Model, Mongoose } from 'mongoose';
 import { 
   SyncProgressSchema, SyncProgressDocument,
-  OrderSyncProgressSchema, OrderSyncProgressDocument,
-  ProductSyncProgressSchema, ProductSyncProgressDocument,
- } from './sync-progress.schema';
+  OrderSyncProgressSchema,
+  ProductSyncProgressSchema,
+} from './sync-progress.schema';
 
-
-function getDbModel<DocumentType extends Document>(connection: Mongoose, myShopifyDomain: string, resourceName: string, schema: Schema) {
-  const shopName = myShopifyDomain.replace('.myshopify.com', '');
-  const modelName = `shopify-${shopName}:${resourceName}`;
-  try {
-    return <Model<DocumentType>>connection.model(modelName);
-  } catch (e) {
-    return <Model<DocumentType>>connection.model(modelName, schema);
-  }
-};
+ import { EventService } from '../event.service';
 
 const syncProviders = (connection: Mongoose) => {
   return [
     {
+      inject: [EventService],
       provide: 'SyncProgressModelToken',
-      useValue: (myshopifyDomain) => getDbModel<SyncProgressDocument>(connection, myshopifyDomain, 'sync_progress', SyncProgressSchema),
-    },
-    {
-      provide: 'OrderSyncProgressModelToken',
-      useValue: (myshopifyDomain) => getDbModel<OrderSyncProgressDocument>(connection, myshopifyDomain, 'order_sync_progress', OrderSyncProgressSchema),
-    },
-    {
-      provide: 'ProductSyncProgressModelToken',
-      useValue: (myshopifyDomain) => getDbModel<ProductSyncProgressDocument>(connection, myshopifyDomain, 'product_sync_progress', ProductSyncProgressSchema),
+      useFactory: (eventService: EventService) => {
+        SyncProgressSchema.post('save', function(doc, next) {
+          eventService.emit(`sync`, doc);
+          next();
+        });
+        ProductSyncProgressSchema.post('save', function(doc, next) {
+          eventService.emit(`sync:product`, doc);
+          next();
+        });
+        OrderSyncProgressSchema.post('save', function(doc, next) {
+          eventService.emit(`sync:order`, doc);
+          next();
+        });
+        return <Model<SyncProgressDocument>>connection.model(`shopify_sync-progress`, SyncProgressSchema)
+      },
     },
   ];
 }

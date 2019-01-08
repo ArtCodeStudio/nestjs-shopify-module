@@ -142,9 +142,16 @@ export class OrdersController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('sync')
-  async startSync(@Req() req: IUserRequest, @Res() res: Response, @Query('resync') resync: boolean, @Query('include_transactions') includeTransactions: boolean) {
+  async startSync(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Query('resync') resync?: boolean,
+    @Query('include_transactions') includeTransactions?: boolean,
+    @Query('attach_to_existing') attachToExisting?: boolean,
+    @Query('cancel_existing') cancelExisting?: boolean,
+  ) {
     try {
-      return res.jsonp(await this.ordersService.startSync(req.shopifyConnect, {resync, includeTransactions}));
+      return res.jsonp(await this.ordersService.startSync(req.shopifyConnect, {resync, includeTransactions, attachToExisting, cancelExisting}));
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({

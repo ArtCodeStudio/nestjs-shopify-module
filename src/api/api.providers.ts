@@ -8,7 +8,7 @@ import { AssetSchema, AssetDocument} from './interfaces/asset.schema';
 
 function getDbModel<DocumentType extends Document>(connection: Mongoose, myShopifyDomain: string, resourceName: string, schema: Schema) {
   const shopName = myShopifyDomain.replace('.myshopify.com', '');
-  const modelName = `shopify-${shopName}:${resourceName}`;
+  const modelName = `shopify_${shopName}:${resourceName}`;
   try {
     return <Model<DocumentType>>connection.model(modelName);
   } catch (e) {

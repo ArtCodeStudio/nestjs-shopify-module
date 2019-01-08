@@ -9,8 +9,9 @@ import { Readable } from 'stream';
 import * as PQueue from 'p-queue';
 import { DebugService } from '../../debug.service';
 import { EventService } from '../../event.service';
-import { IOrderSyncProgress, OrderSyncProgressDocument } from '../../sync/sync-progress.schema';
+import { IOrderSyncProgress, OrderSyncProgressDocument, ISyncProgress, SyncProgressDocument } from '../../sync/sync-progress.schema';
 import { TransactionsService } from './transactions/transactions.service';
+import * as pRetry from 'p-retry';
 
 
 export interface OrderListOptions extends Options.OrderListOptions {
@@ -21,8 +22,10 @@ export interface OrderCountOptions extends Options.OrderCountOptions {
 }
 
 export interface OrderSyncOptions {
-  resync: boolean,
-  includeTransactions: boolean,
+  resync?: boolean,
+  includeTransactions?: boolean,
+  attachToExisting?: boolean,
+  cancelExisting?: boolean,
 }
 
 @Injectable()
@@ -30,8 +33,8 @@ export class OrdersService {
   constructor(
     @Inject('OrderModelToken')
     private readonly orderModel: (shopName: string) => Model<OrderDocument>,
-    @Inject('OrderSyncProgressModelToken')
-    private readonly orderSyncProgressModel: (shopName: string) => Model<OrderSyncProgressDocument>,
+    @Inject('SyncProgressModelToken')
+    private readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
     private readonly transactionsService: TransactionsService,
   ) {}
@@ -40,7 +43,7 @@ export class OrdersService {
 
   public async getFromShopify(user: IShopifyConnect, id: number, sync?: boolean): Promise<Order> {
     const orders = new Orders(user.myshopify_domain, user.accessToken);
-    const res = await orders.get(id);
+    const res = await pRetry(() => orders.get(id));
     if (sync) {
       await this.saveOne(user, res);
     }
@@ -53,7 +56,7 @@ export class OrdersService {
 
   public async countFromShopify(user: IShopifyConnect, options?: Options.OrderCountOptions): Promise<number> {
     const orders = new Orders(user.myshopify_domain, user.accessToken);
-    return await orders.count(options);
+    return await pRetry(() => orders.count(options));
   }
   public async countFromDb(user: IShopifyConnect, options?: Options.OrderCountOptions): Promise<number> {
     return await this.orderModel(user.shop.myshopify_domain).count({});
@@ -65,7 +68,7 @@ export class OrdersService {
     if (sync) {
       delete options.sync;
     }
-    const res = await orders.list(options);
+    const res = await pRetry(() => orders.list(options));
     if (sync) {
       try {
         await this.saveMany(user, res);
@@ -106,7 +109,7 @@ export class OrdersService {
    */
   public async listAllFromShopify(user: IShopifyConnect, options?: OrderListOptions): Promise<Order[]> {
     const orders = new Orders(user.myshopify_domain, user.accessToken);
-    const count = await orders.count(options);
+    const count = await pRetry(() => orders.count(options));
     const itemsPerPage = 250;
     const pages = Math.ceil(count/itemsPerPage);
     return await Promise.all(
@@ -126,7 +129,7 @@ export class OrdersService {
   public listAllFromShopifyStream(user: IShopifyConnect, options?: OrderListOptions): Readable {
     const orders = new Orders(user.myshopify_domain, user.accessToken);
     const stream = new Readable({objectMode: true, read: s=>s});
-    orders.count(options).then(count => {
+    pRetry(() => orders.count(options)).then(count => {
       const itemsPerPage = 250;
       const pages = Math.ceil(count/itemsPerPage);
       let countDown = pages;
@@ -148,128 +151,287 @@ export class OrdersService {
     return stream;
   }
 
-  async listSyncProgress(user: IShopifyConnect): Promise<IOrderSyncProgress[]> {
+  async listSyncProgress(user: IShopifyConnect): Promise<ISyncProgress[]> {
     // Mongoose order sync progress model
-    const orderSyncProgressModel = this.orderSyncProgressModel(user.shop.myshopify_domain);
-    return orderSyncProgressModel.find().lean();
+    return this.syncProgressModel.find({
+      shop: user.shop.myshopify_domain,
+      'options.includeOrders': true,
+    }).lean();
   }
 
-  async getLastSyncProgress(user: IShopifyConnect): Promise<IOrderSyncProgress | null> {
+  async getLastSyncProgress(user: IShopifyConnect): Promise<ISyncProgress | null> {
     // Mongoose order sync progress model
-    const orderSyncProgressModel = this.orderSyncProgressModel(user.shop.myshopify_domain);
-    return await orderSyncProgressModel.findOne(
-      {},
+    return await this.syncProgressModel.findOne(
+      {
+        shop: user.shop.myshopify_domain,
+        'options.includeOrders': true,
+      },
       {},
       { sort: { 'createdAt': -1} }
     )
     .lean();
   }
 
-  async startSync(user: IShopifyConnect, options: OrderSyncOptions) {
-    // Continue the previous sync by default (don't resync completely)
-    options = options || { resync: false, includeTransactions: false };
-    this.logger.debug(`startSync(myShopifyDomain=${user.shop.myshopify_domain}, resync=${options.resync})`);
-    // Shopify orders model
-    const orders = new Orders(user.myshopify_domain, user.accessToken);
-    // Mongoose order sync progress model
-    const orderSyncProgressModel = this.orderSyncProgressModel(user.shop.myshopify_domain);
+  async startSync(user: IShopifyConnect, options?: OrderSyncOptions, progress?: SyncProgressDocument): Promise<SyncProgressDocument> {
+    this.logger.debug(
+      `OrdersService.startSync(
+        myShopifyDomain=${user.shop.myshopify_domain},
+        resync=${options.resync},
+        includeTransactions=${options.includeTransactions},
+        attachToExisting=${options.attachToExisting},
+        cancelExisting=${options.cancelExisting},
+      )`);
 
-    const now = new Date();
+    // Shopify products model
+    const orders = new Orders(user.myshopify_domain, user.accessToken);
 
     // Get the last sync progress (if it exists)
-    let lastProgress: OrderSyncProgressDocument = await orderSyncProgressModel.findOne(
-      {},
+    const lastProgress: SyncProgressDocument = await this.syncProgressModel.findOne(
+      {
+        shop: user.shop.myshopify_domain,
+      },
       {},
       { sort: { 'createdAt': -1} }
     );
 
-    if (lastProgress && lastProgress.state === 'running') {
-      this.logger.debug(`lastProgress exists`);
-      const millisecondsSinceLastUpdate = now.valueOf() - lastProgress.updatedAt.valueOf();
-      const fiveMinutes = 5 * 60 * 1000;
-      // If last progress was not updated in the last 5 minutes, consider it as failed
-      if (millisecondsSinceLastUpdate > fiveMinutes) {
-        lastProgress.state = 'failure';
-        lastProgress.error = 'sync timed out';
-        lastProgress.updatedAt = now;
-        lastProgress.save();
-        this.eventService.emit(`sync:order`, lastProgress);
-      } else {
-        this.eventService.emit(`sync:order`, lastProgress);
-        return lastProgress;
+    this.logger.debug('lastProgress:', lastProgress);
+
+    let isCancelled: boolean = false;
+
+    if (!progress) {
+      this.logger.debug(`no progress passed as parameter`);
+      options = options || {
+        // Continue the previous sync by default (don't resync completely).
+        resync: false,
+        // Don't include transactions by default.
+        includeTransactions: false,
+        // Don't attach this orders sync progress to a running, existing sync progress by default.
+        attachToExisting: false,
+      };
+
+      if (lastProgress && lastProgress.state === 'running' ) {
+        this.logger.debug('check if last progress is still running');
+        const lastProgressRunning = await new Promise(resolve => {
+          this.eventService.once(`sync-pong:${lastProgress._id}`, () => resolve(true));
+          this.eventService.emit(`sync-ping:${lastProgress._id}`);
+          setTimeout(() => resolve(false), 5000);
+        });
+        if (!lastProgressRunning) {
+          this.logger.debug('last progress has failed');
+          lastProgress.state = 'failure';
+          lastProgress.lastError = 'sync timed out';
+          await lastProgress.save();
+        } else {
+          // If the last progress is still running and includes orders and all options we need, we just return it, without starting a new one.
+          // If the running progress does not include orders and the option `attachToExisting` is set, we include the order sync in the running progress.
+          // If the options of the running progress and the sync we want to start are incompatible, we throw a `sync in progress` error.
+          if (lastProgress.options.includeOrders) {
+            if (options.resync && !lastProgress.options.resync) {
+              if (options.cancelExisting) {
+                this.eventService.emit(`sync-cancel:${lastProgress._id}`);
+              } else {
+                throw new Error('sync in progress');
+              }
+            }
+            if (options.includeTransactions && !lastProgress.options.includeTransactions) {
+              if (options.cancelExisting) {
+                this.eventService.emit(`sync-cancel:${lastProgress._id}`);
+              } else {
+                throw new Error('sync in progress');
+              }
+            } else {
+              // Options are compatible with already running sync. We just re-emit the events and return the running progress.
+              this.eventService.emit(`sync`, lastProgress);
+              this.eventService.emit(`sync:orders`, lastProgress.orders);
+              this.logger.debug('return last running progress', lastProgress);
+              return lastProgress;
+            }
+          } else if (options.attachToExisting) {
+            this.logger.debug('attach order sync to lastProgress:', lastProgress);
+            progress = lastProgress;
+            this.eventService.emit(`sync-attach:${progress._id}`, 'orders');
+            progress.options.includeOrders = true;
+            await progress.save();
+          } else {
+            if (options.cancelExisting) {
+              this.eventService.emit(`sync-cancel:${lastProgress._id}`);
+            } else {
+              throw new Error('sync in progress');
+            }
+          }
+        }
+      }
+
+      if (!progress) {
+        // Create a new sync progress
+        this.logger.debug(`create new SyncProgress`);
+        progress = await this.syncProgressModel.create({
+          shop: user.shop.myshopify_domain,
+          options: {
+            includeProducts: false,
+            includeOrders: true,
+            includeTransactions: !!options.includeTransactions,
+            resync: !!options.resync,
+          },
+          state: 'running',
+          lastError: null,
+        });
+        this.logger.debug('newly created SyncProgress:', progress);
       }
     }
 
-    // If we continue a previous sync progress, make sure that we take the one which had transactions included
-    if (options.includeTransactions && lastProgress && !lastProgress.includeTransactions) {
-      lastProgress = await orderSyncProgressModel.findOne(
-        { includeTransactions: true },
-        {},
-        { sort: { 'createdAt': -1} }
-      );
+    this.logger.debug('SyncProgress:', progress);
+
+    // Register an event handler for as long as this sync progress is running, used for checking if the sync is still running
+    const pingCallback = () => this.eventService.emit(`sync-pong:${progress._id}`);
+    this.eventService.on(`sync-ping:${progress._id}`, pingCallback);
+
+    const attachCallback = (resource: string) => {
+      if (resource === 'products') {
+        progress.options.includeProducts = true;
+      }
+    }
+    this.eventService.on(`sync-attach:${progress._id}`, attachCallback);
+
+    const cancelCallback = () => {
+      isCancelled = true;
+    };
+    this.eventService.once(`sync-cancel:${progress._id}`, cancelCallback);
+
+    if (isCancelled) {
+      this.eventService.off(`sync-ping:${progress._id}`, pingCallback);
+      this.eventService.off(`sync-attach:${progress._id}`, attachCallback);
+      this.eventService.off(`sync-cancel:${progress._id}`, cancelCallback);
+      progress.state = 'canceled';
+      progress.save();
+      return progress;
     }
 
-    const progress: OrderSyncProgressDocument = await orderSyncProgressModel.create({
-      createdAt: now,
-      updatedAt: now,
-      sinceId: !options.resync && lastProgress && lastProgress.lastId || 0,
-      lastId: !options.resync && lastProgress && lastProgress.lastId || null,
+    let seedOrdersProgress : any = {
+      shop: user.shop.myshopify_domain,
+      sinceId: 0,
+      lastId: null,
+      syncedCount: 0,
+      syncedTransactionsCount: 0,
       includeTransactions: options.includeTransactions,
-      syncedCount: !options.resync && lastProgress && lastProgress.syncedCount || 0,
-      shopifyCount: await orders.count({status: 'any'}),
+      shopifyCount: await pRetry(() => orders.count({ status: 'any' })),
       state: 'running',
       error: null,
-    });
-    this.logger.debug(`emit new sync event`);
-    this.eventService.emit(`sync:order`, progress);
+    }
+    if (!options.resync && lastProgress) {
+      let lastOrdersProgress: OrderSyncProgressDocument | null;
+      let lastProgressWithOrders: SyncProgressDocument | null;
 
-    const remainingCount = progress.shopifyCount - progress.syncedCount;
+      if (lastProgress.orders) {
+        lastProgressWithOrders = lastProgress;
+        lastOrdersProgress = lastProgress.orders;
+      } else {
+        const lastProgressWithOrdersQuery = {
+          shop: user.shop.myshopify_domain,
+          'options.includeOrders': true,
+        };
+        // If we continue a previous sync progress, check if we need transactions included
+        if (options.includeTransactions) {
+          lastProgressWithOrdersQuery['options.includeTransactions'] = true;
+        }
+        if (isCancelled) {
+          this.eventService.off(`sync-ping:${progress._id}`, pingCallback);
+          this.eventService.off(`sync-attach:${progress._id}`, attachCallback);
+          this.eventService.off(`sync-cancel:${progress._id}`, cancelCallback);
+          progress.state = 'canceled';
+          progress.save();
+          return progress;
+        }
+        lastProgressWithOrders = await this.syncProgressModel.findOne(
+          lastProgressWithOrdersQuery,
+          {},
+          { sort: { 'createdAt': -1} }
+        );
+        lastOrdersProgress = lastProgressWithOrders && lastProgressWithOrders.orders;
+      }
+
+      if (lastOrdersProgress) {
+        seedOrdersProgress.sinceId = lastOrdersProgress.lastId;
+        seedOrdersProgress.lastId = lastOrdersProgress.lastId;
+        seedOrdersProgress.syncedCount = lastOrdersProgress.syncedCount;
+        seedOrdersProgress.syncedTransactionsCount = lastOrdersProgress.syncedTransactionsCount;
+        seedOrdersProgress.continuedFromPrevious = lastProgressWithOrders._id;
+      }
+    }
+
+    this.logger.debug('Seed orders progress:', seedOrdersProgress);
+
+    progress.orders = seedOrdersProgress;
+
+    this.logger.debug('Seeded orders progress:', progress.orders);
+
+    // The actual sync action:
+
+    const remainingCount = progress.orders.shopifyCount - progress.orders.syncedCount;
+    this.logger.debug('remaining count:', remainingCount);
     const itemsPerPage = 250;
     const pages = Math.ceil(remainingCount/itemsPerPage);
+    this.logger.debug('pages:', pages);
     let countDown = pages;
-    let q = new PQueue({ concurrency: 1});
-    Promise.all(Array(pages).fill(0).map(
-      (x, i) => q.add(() => this.listFromShopify(
-          user,
-          {
-            sync: true,
-            since_id: progress.sinceId,
-            page: i+1,
-            limit: itemsPerPage,
-            status: 'any',
+
+    // We want to do this all in a separate detached promise but return the progress immediately:
+    Promise.resolve().then(async _ => {
+      try {
+        for (let i=0; i<pages; i++) {
+          if (isCancelled) {
+            throw new Error('cancelled');
           }
-        )
-        .then(objects => {
+          const objects = await this.listFromShopify(
+            user,
+            {
+              sync: true,
+              since_id: progress.orders.sinceId,
+              page: i+1,
+              limit: itemsPerPage,
+              status: 'any',
+            }
+          );
+          countDown--;
+          this.logger.debug(` ${i}|${countDown} / ${pages}`);
           if (!options.includeTransactions) {
-            countDown--;
-            this.logger.debug(` ${i}|${countDown} / ${pages}`);
-            progress.syncedCount += objects.length;
-            progress.lastId = objects[objects.length-1].id;
-            progress.updatedAt = new Date();
-            progress.save();
-            this.eventService.emit(`sync:order`, progress);
+            progress.orders.syncedCount += objects.length;
+            progress.orders.lastId = objects[objects.length-1].id;
+            await progress.save();
           } else {
-            return Promise.all(objects.map(obj =>
-              this.transactionsService.listFromShopify(user, obj.id, {sync: true})
-            ))
-            .then(_ => {
-              countDown--;
-              this.logger.debug(` ${i}|${countDown} / ${pages}`);
-              progress.syncedCount += objects.length;
-              progress.lastId = objects[objects.length-1].id;
-              progress.updatedAt = new Date();
-              progress.save();
-              this.eventService.emit(`sync:order`, progress);
-            });
+            for (let j=0; j<objects.length; j++) {
+              if (isCancelled) {
+                throw new Error('cancelled');
+              }
+              const transactions = await this.transactionsService.listFromShopify(user, objects[j].id, {sync: true});
+              progress.orders.syncedTransactionsCount += transactions.length;
+              progress.orders.syncedCount ++;
+              progress.orders.lastId = objects[j].id;
+              await progress.save();
+            }
           }
-        })
-      )
-    ))
-    .then( _ => {
-      progress.state = 'success';
-      progress.updatedAt = new Date();
-      this.eventService.emit(`sync:order`, progress);
+        }
+        progress.orders.state = 'success';
+      } catch (error) {
+        progress.orders.state = 'failed';
+        progress.orders.error = error.message;
+        progress.lastError = `orders:${error.message}`;
+        this.logger.debug('order sync error:', error);
+      }
+      if (!progress.options.includeProducts) {
+        progress.state = progress.orders.state;
+      } else if (progress.products && progress.products.state !== 'running') {
+        if (progress.products.state === 'success' && progress.orders.state === 'success') {
+          progress.state = 'success';
+        } else {
+          progress.state = 'failed';
+        }
+      }
+      this.eventService.off(`sync-ping:${progress._id}`, pingCallback);
+      this.eventService.off(`sync-attach:${progress._id}`, attachCallback);
+      this.eventService.off(`sync-cancel:${progress._id}`, cancelCallback);
+      await progress.save();
     });
+
     return progress;
   }
 }
