@@ -321,6 +321,8 @@ export class ProductsService {
     // Shopify products model
     const products = new Products(user.myshopify_domain, user.accessToken);
 
+    const shop: string = user.shop.myshopify_domain;
+
     // Get the last sync progress (if it exists)
     const lastProgress: SyncProgressDocument = await this.syncProgressModel.findOne(
       {
@@ -346,8 +348,12 @@ export class ProductsService {
       if (lastProgress && lastProgress.state === 'running' ) {
         this.logger.debug('check if last progress is still running');
         const lastProgressRunning = await new Promise(resolve => {
-          this.eventService.once(`sync-pong:${lastProgress._id}`, () => resolve(true));
-          this.eventService.emit(`sync-ping:${lastProgress._id}`);
+          this.eventService.once(
+            `sync-pong:${shop}:${lastProgress._id}`,
+            () => {
+              resolve(true);
+            });
+          this.eventService.emit(`sync-ping:${shop}:${lastProgress._id}`);
           setTimeout(() => resolve(false), 5000);
         });
         if (!lastProgressRunning) {
@@ -362,7 +368,7 @@ export class ProductsService {
           if (lastProgress.options.includeProducts) {
             if (options.resync && !lastProgress.options.resync) {
               if (options.cancelExisting) {
-                this.eventService.emit(`sync-cancel:${lastProgress._id}`);
+                this.eventService.emit(`sync-cancel:${shop}:${lastProgress._id}`);
               } else {
                 throw new Error('sync in progress');
               }
@@ -376,12 +382,12 @@ export class ProductsService {
           } else if (options.attachToExisting) {
             this.logger.debug('set progress to lastProgress and add products to sync options:', lastProgress);
             progress = lastProgress;
-            this.eventService.emit(`sync-attach:${progress._id}`, 'products');
+            this.eventService.emit(`sync-attach:${shop}:${progress._id}`, 'products');
             progress.options.includeProducts = true;
             await progress.save();
           } else {
             if (options.cancelExisting) {
-              this.eventService.emit(`sync-cancel:${lastProgress._id}`);
+              this.eventService.emit(`sync-cancel:${shop}:${lastProgress._id}`);
             } else {
               throw new Error('sync in progress');
             }
@@ -410,25 +416,28 @@ export class ProductsService {
     this.logger.debug('SyncProgress:', progress);
 
     // Register an event handler for as long as this sync progress is running, used for checking if the sync is still running
-    const pingCallback = () => this.eventService.emit(`sync-pong:${progress._id}`);
-    this.eventService.on(`sync-ping:${progress._id}`, pingCallback);
+    const pingCallback = () => {
+      return this.eventService.emit(`sync-pong:${shop}:${progress._id}`);
+    }
+    this.eventService.on(`sync-ping:${shop}:${progress._id}`, pingCallback);
 
     const attachCallback = (resource: string) => {
       if (resource === 'products') {
         progress.options.includeProducts = true;
       }
     }
-    this.eventService.on(`sync-attach:${progress._id}`, attachCallback);
+    this.eventService.on(`sync-attach:${shop}:${progress._id}`, attachCallback);
 
     const cancelCallback = () => {
       isCancelled = true;
+      this.eventService.emit(`sync-cancelled:${shop}:${progress._id}`);
     };
-    this.eventService.once(`sync-cancel:${progress._id}`, cancelCallback);
+    this.eventService.once(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
 
     if (isCancelled) {
-      this.eventService.off(`sync-ping:${progress._id}`, pingCallback);
-      this.eventService.off(`sync-attach:${progress._id}`, attachCallback);
-      this.eventService.off(`sync-cancel:${progress._id}`, cancelCallback);
+      this.eventService.off(`sync-ping:${shop}:${progress._id}`, pingCallback);
+      this.eventService.off(`sync-attach:${shop}:${progress._id}`, attachCallback);
+      this.eventService.off(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
       progress.state = 'canceled';
       progress.save();
       return progress;
@@ -457,9 +466,9 @@ export class ProductsService {
           'options.includeProducts': true,
         };
         if (isCancelled) {
-          this.eventService.off(`sync-ping:${progress._id}`, pingCallback);
-          this.eventService.off(`sync-attach:${progress._id}`, attachCallback);
-          this.eventService.off(`sync-cancel:${progress._id}`, cancelCallback);
+          this.eventService.off(`sync-ping:${shop}:${progress._id}`, pingCallback);
+          this.eventService.off(`sync-attach:${shop}:${progress._id}`, attachCallback);
+          this.eventService.off(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
           progress.state = 'canceled';
           progress.save();
           return progress;
@@ -518,8 +527,6 @@ export class ProductsService {
           await progress.save();
         }
         progress.products.state = 'success';
-        await progress.save();
-        return progress;
       } catch (error) {
         progress.products.state = 'failed';
         progress.products.error = error.message;
@@ -535,9 +542,9 @@ export class ProductsService {
           progress.state = 'failed';
         }
       }
-      this.eventService.off(`sync-ping:${progress._id}`, pingCallback);
-      this.eventService.off(`sync-attach:${progress._id}`, attachCallback);
-      this.eventService.off(`sync-cancel:${progress._id}`, cancelCallback);
+      this.eventService.off(`sync-ping:${shop}:${progress._id}`, pingCallback);
+      this.eventService.off(`sync-attach:${shop}:${progress._id}`, attachCallback);
+      this.eventService.off(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
       await progress.save();
     });
 

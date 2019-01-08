@@ -50,6 +50,7 @@ import { syncProviders } from './sync/sync-providers';
 import { PagesController } from './api/pages/pages.controller';
 import { PagesService } from './api/pages/pages.service';
 import { ApiService } from './api/api.service';
+import { SyncController } from './sync/sync.controller';
 export { RequestGuard } from './guards/request.guard';
 
 @Module({
@@ -92,6 +93,7 @@ export { RequestGuard } from './guards/request.guard';
     ProductsController,
     TransactionsController,
     WebhooksController,
+    SyncController,
   ],
   exports: [
     ShopifyConnectService,
@@ -201,7 +203,11 @@ export class ShopifyModule implements NestModule {
 
       .apply(VerifyWebhookMiddleware)
       .with('ShopifyModule')
-      .forRoutes('webhooks/:resource/:event');
+      .forRoutes('webhooks/:resource/:event')
+
+      .apply(GetShopifyConnectMiddleware)
+      .with('ShopifyModule')
+      .forRoutes(SyncController);
   }
 }
 

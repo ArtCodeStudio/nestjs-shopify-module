@@ -115,14 +115,51 @@ export class SyncService {
       this.productsService.startSync(shopifyConnect, productSyncOptions, progress);
     }
 
-    if (options.includeProducts) {
+    if (options.includeOrders) {
       this.ordersService.startSync(shopifyConnect, orderSyncOptions, progress);
     }
 
     return progress;
   }
 
-  cancelSync(id?: string) {
-    this.eventService.emit(`sync-cancel:${id}`);
+  async find(query: Partial<SyncProgressDocument>, options?: {}): Promise<SyncProgressDocument[]|null> {
+    return await this.syncProgressModel.find(query, {}, options).lean();
   }
+
+  async findOne(query: Partial<SyncProgressDocument>, options?: {}): Promise<SyncProgressDocument|null> {
+    return await this.syncProgressModel.findOne(query, {}, options).lean();
+  }
+
+  async cancelShopSync(shopifyConnect: IShopifyConnect, id?: string) {
+    const shop: string = shopifyConnect.shop.myshopify_domain;
+    if (!id) {
+      const lastProgress = await this.syncProgressModel.findOne(
+        { shop },
+        { _id: true },
+        { sort: { 'createdAt': -1} }
+      ).lean();
+      if (lastProgress) {
+        id = lastProgress._id;
+      }
+    }
+    if (!id) {
+      return null;
+    }
+    // Give five seconds time for the progress to be cancelled. If no response, we throw a `sync progress hanging` error.
+    // If responding to cancellation, we wait for the `sync-ended` event.
+    return new Promise((resolve, reject) => {
+      let cancelled = false;
+      this.eventService.once(`sync-cancelled:${shop}:${id}`, () => {
+        cancelled = true;
+      });
+      this.eventService.once(`sync-ended:${shop}:${id}`, progress => resolve(progress));
+      this.eventService.emit(`sync-cancel:${shop}:${id}`);
+      setTimeout(() => {
+        if (!cancelled) {
+          reject(new Error('sync progress hanging'));
+        }
+      }, 5000);
+    });
+  }
+
 }
