@@ -218,18 +218,18 @@ export class ProductsService {
         const productListPromises = Array(pages).fill(0).map(async (x, i) => {
           return q.add(async () => {
             return this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
-          })
-          .then((products: Product[]) => {
-            countDown--;
-            this.logger.debug(`listAll ${i}|${countDown} / ${pages}`);
-            products.forEach((product, i) => {
-              observer.next({
-                event: eventName,
-                data: product,
+            .then((products: Product[]) => {
+              countDown--;
+              this.logger.debug(`listAll ${i}|${countDown} / ${pages}`);
+              products.forEach((product, i) => {
+                observer.next({
+                  event: eventName,
+                  data: product,
+                });
               });
+              return null;
             });
-            return null;
-          });
+          })
         });
 
         return Promise.all(productListPromises)

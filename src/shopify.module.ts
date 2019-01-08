@@ -45,6 +45,7 @@ import { EventService } from './event.service';
 import { WebhooksController } from './webhooks/webhooks.controller';
 import { WebhooksService } from './webhooks/webhooks.service';
 import { WebhooksGateway } from './api/webhooks/webhooks.gateway';
+import { ProductsGateway } from './api/products/products.gateway';
 import { syncProviders } from './sync/sync-providers';
 import { PagesController } from './api/pages/pages.controller';
 import { PagesService } from './api/pages/pages.service';
@@ -75,7 +76,8 @@ export { RequestGuard } from './guards/request.guard';
     TransactionsService,
     EventService,
     WebhooksService,
-    WebhooksGateway,
+    // WebhooksGateway, // FIXME only one gateway the time is working?
+    ProductsGateway,
     ApiService,
   ],
   controllers: [
