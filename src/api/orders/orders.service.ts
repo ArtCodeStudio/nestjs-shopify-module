@@ -51,15 +51,17 @@ export class OrdersService {
   }
 
   public async getFromDb(user: IShopifyConnect, id: number) {
-    return await this.orderModel(user.shop.myshopify_domain).findOne({id}).select('-_id -__v').lean();
+    return this.orderModel(user.shop.myshopify_domain).findOne({id}).select('-_id -__v').lean();
   }
 
   public async countFromShopify(user: IShopifyConnect, options?: Options.OrderCountOptions): Promise<number> {
     const orders = new Orders(user.myshopify_domain, user.accessToken);
-    return await pRetry(() => orders.count(options));
+    return pRetry(() => {
+      return orders.count(options)
+    });
   }
   public async countFromDb(user: IShopifyConnect, options?: Options.OrderCountOptions): Promise<number> {
-    return await this.orderModel(user.shop.myshopify_domain).count({});
+    return this.orderModel(user.shop.myshopify_domain).count({});
   }
 
   public async listFromShopify(user: IShopifyConnect, options?: OrderListOptions): Promise<Order[]> {

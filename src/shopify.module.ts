@@ -77,7 +77,7 @@ export { RequestGuard } from './guards/request.guard';
     TransactionsService,
     EventService,
     WebhooksService,
-    // WebhooksGateway, // FIXME only one gateway the time is working?
+    WebhooksGateway, // FIXME only one gateway the time is working?
     ProductsGateway,
     ApiService,
   ],

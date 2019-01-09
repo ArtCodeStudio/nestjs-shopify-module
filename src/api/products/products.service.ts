@@ -27,6 +27,14 @@ export interface ProductSyncOptions {
   cancelExisting?: boolean,
 }
 
+export interface IListAllCallbackData<T> {
+  pages: number;
+  page: number;
+  data: T;
+}
+
+export type listAllCallback<T> = (error: Error, data: IListAllCallbackData<T>) => void;
+
 @Injectable()
 export class ProductsService {
   constructor(
@@ -77,7 +85,9 @@ export class ProductsService {
     // Delete undefined options
     options = ApiService.deleteUndefinedProperties(options);
 
-    return pRetry(() => products.count(options));
+    return pRetry(() => {
+      return products.count(options);
+    });
   }
 
   /**
@@ -104,11 +114,18 @@ export class ProductsService {
     // Delete undefined options
     options = ApiService.deleteUndefinedProperties(options);
 
-    const res = await pRetry(() => products.list(options));
-    if (sync) {
-      await this.updateOrCreateManyInDb(user, res);
-    }
-    return res;
+    return pRetry(() => {
+      return products.list(options);
+    })
+    .then((products: Product[]) => {
+      if (sync) {
+        return this.updateOrCreateManyInDb(user, products)
+        .then((res) => {
+          return products;
+        })
+      }
+      return products;
+    })
   }
 
   /**
@@ -135,22 +152,33 @@ export class ProductsService {
    * Gets a list of all of the shop's products directly from the shopify API
    * @param options Options for filtering the results.
    */
-  public async listAllFromShopify(user: IShopifyConnect, options?: ProductListOptions): Promise<Product[]> {
-    const products = new Products(user.myshopify_domain, user.accessToken);
-
+  public async listAllFromShopify(user: IShopifyConnect, options?: ProductListOptions, listAllPageCallback?: listAllCallback<Product[]>): Promise<Product[]> {
     // Delete undefined options
     options = ApiService.deleteUndefinedProperties(options);
 
-    return products.count(options)
+    return this.countFromShopify(user, options)
     .then(async (count) => {
       const itemsPerPage = 250;
       const pages = Math.ceil(count/itemsPerPage);
       let q = new PQueue({ concurrency: 1});
-      const productListPromises = Array(pages).fill(0).map((x, i) => {
-        return q.add(async () => {
-          return this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
-        });
-      });
+      const productListPromises = new Array<Promise<void | Product[]>>();
+      for (let page = 1; page <= pages; page++) {
+        const productListPromise = q.add(async () => {
+          return this.listFromShopify(user, {...options, page: page, limit: itemsPerPage})
+        })
+        .then((products) => {
+          if (typeof(listAllPageCallback) === 'function') {
+            listAllPageCallback(null, {
+              pages,
+              page,
+              data: products,
+            });
+            return; // void; we do not need the result if we have a callback
+          }
+          return products;
+        })
+        productListPromises.push(productListPromise);
+      }
       return Promise.all(productListPromises);
     })
     .then(results => {
@@ -163,34 +191,25 @@ export class ProductsService {
    * @param options Options for filtering the results.
    */
   public listAllFromShopifyStream(user: IShopifyConnect, options?: ProductListOptions): Readable {
-    const products = new Products(user.myshopify_domain, user.accessToken);
     const stream = new Readable({objectMode: true, read: s=>s});
-
-    // Delete undefined options
-    options = ApiService.deleteUndefinedProperties(options);
-
-    products.count(options)
-    .then(async count => {
-      const itemsPerPage = 250;
-      const pages = Math.ceil(count/itemsPerPage);
-      stream.push('[\n');
-      for (let i = 0; i < pages; i++) {
-        const products = await this.listFromShopify(user,  {...options, page: i+1, limit: itemsPerPage});
-        for (let j = 0; j < products.length-1; j++) {
-          stream.push(JSON.stringify([products[j]], null, 2).slice(2,-2) + ',');
-        }
-        stream.push(JSON.stringify([products[products.length-1]], null, 2).slice(2,-2));
-        if (i === pages - 1) {
-          stream.push('\n]');
-        } else {
-          stream.push(',');
-        }
+    this.listAllFromShopify(user, options, (error, data) => {
+      const products = data.data;
+      for (let j = 0; j < products.length-1; j++) {
+        stream.push(JSON.stringify([products[j]], null, 2).slice(2,-2) + ',');
       }
+      stream.push(JSON.stringify([products[products.length-1]], null, 2).slice(2,-2));
+      if (data.page === data.pages - 1) {
+        stream.push('\n]');
+      } else {
+        stream.push(',');
+      }
+    })
+    .then(() => {
       stream.push(null);
-    }).catch(error => {
+    })
+    .catch((error) => {
       stream.emit('error', error);
     });
-
     return stream;
   }
 
@@ -199,40 +218,23 @@ export class ProductsService {
    * @param options Options for filtering the results.
    */
   public listAllFromShopifyObservable(user: IShopifyConnect, eventName: string, options?: ProductListOptions): Observable<WsResponse<Product>> {
-    const products = new Products(user.myshopify_domain, user.accessToken);
-
     // Delete undefined options
     options = ApiService.deleteUndefinedProperties(options);
     return Observable.create((observer: Observer<WsResponse<Product>>) => {
-
-      products.count(options)
-      .then(async (count) => {
-        const itemsPerPage = 250;
-        const pages = Math.ceil(count/itemsPerPage);
-        let countDown = pages;
-        let q = new PQueue({ concurrency: 1});
-        const productListPromises = Array(pages).fill(0).map(async (x, i) => {
-          return q.add(async () => {
-            return this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
-            .then((products: Product[]) => {
-              countDown--;
-              this.logger.debug(`listAll ${i}|${countDown} / ${pages}`);
-              products.forEach((product, i) => {
-                observer.next({
-                  event: eventName,
-                  data: product,
-                });
-              });
-              return null;
-            });
-          })
+      this.listAllFromShopify(user, options, (error, data) => {
+        const products = data.data;
+        products.forEach((product, i) => {
+          observer.next({
+            event: eventName,
+            data: product,
+          });
         });
-
-        return Promise.all(productListPromises)
-        .then((_) => {
-          observer.complete();
-        });
-
+      })
+      .then(() => {
+        observer.complete();
+      })
+      .catch((error) => {
+        observer.error(error);
       });
     });
   }
