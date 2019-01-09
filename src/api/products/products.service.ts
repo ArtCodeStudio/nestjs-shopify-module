@@ -152,38 +152,41 @@ export class ProductsService {
    * Gets a list of all of the shop's products directly from the shopify API
    * @param options Options for filtering the results.
    */
-  public async listAllFromShopify(user: IShopifyConnect, options?: ProductListOptions, listAllPageCallback?: listAllCallback<Product[]>): Promise<Product[]> {
+  public async listAllFromShopify(user: IShopifyConnect, options?: ProductListOptions): Promise<Product[]>
+  public async listAllFromShopify(user: IShopifyConnect, options: ProductListOptions, listAllPageCallback: listAllCallback<Product[]>): Promise<void>
+  public async listAllFromShopify(user: IShopifyConnect, options?: ProductListOptions, listAllPageCallback?: listAllCallback<Product[]>): Promise<Product[]|void> {
     // Delete undefined options
     options = ApiService.deleteUndefinedProperties(options);
 
-    return this.countFromShopify(user, options)
-    .then(async (count) => {
-      const itemsPerPage = 250;
-      const pages = Math.ceil(count/itemsPerPage);
-      let q = new PQueue({ concurrency: 1});
-      const productListPromises = new Array<Promise<void | Product[]>>();
-      for (let page = 1; page <= pages; page++) {
-        const productListPromise = q.add(async () => {
-          return this.listFromShopify(user, {...options, page: page, limit: itemsPerPage})
-        })
-        .then((products) => {
-          if (typeof(listAllPageCallback) === 'function') {
-            listAllPageCallback(null, {
-              pages,
-              page,
-              data: products,
-            });
-            return; // void; we do not need the result if we have a callback
-          }
-          return products;
-        })
-        productListPromises.push(productListPromise);
-      }
-      return Promise.all(productListPromises);
-    })
-    .then(results => {
-      return [].concat.apply([], results);
-    })
+    const results: Product[] = [];
+    const count = await this.countFromShopify(user, options);
+    const itemsPerPage = 250;
+    const pages = Math.ceil(count/itemsPerPage);
+
+    for (let page = 1; page <= pages; page++) {
+      await this.listFromShopify(user, {...options, page: page, limit: itemsPerPage})
+      .then((products) => {
+        if (typeof (listAllPageCallback) === 'function') {
+          listAllPageCallback(null, {
+            pages, page, data: products
+          });
+        } else {
+          Array.prototype.push.apply(results, products);
+        }
+      })
+      .catch((error) => {
+        if (typeof listAllPageCallback === 'function') {
+          listAllPageCallback(error, null);
+        } else {
+          throw error;
+        }
+      });
+    }
+    if (typeof (listAllPageCallback) === 'function') {
+      return; // void; we do not need the result if we have a callback
+    } else {
+      return results;
+    }
   }
 
   /**
@@ -192,16 +195,21 @@ export class ProductsService {
    */
   public listAllFromShopifyStream(user: IShopifyConnect, options?: ProductListOptions): Readable {
     const stream = new Readable({objectMode: true, read: s=>s});
+    stream.push('[\n');
     this.listAllFromShopify(user, options, (error, data) => {
-      const products = data.data;
-      for (let j = 0; j < products.length-1; j++) {
-        stream.push(JSON.stringify([products[j]], null, 2).slice(2,-2) + ',');
-      }
-      stream.push(JSON.stringify([products[products.length-1]], null, 2).slice(2,-2));
-      if (data.page === data.pages - 1) {
-        stream.push('\n]');
+      if (error) {
+        stream.emit('error', error);
       } else {
-        stream.push(',');
+        const products = data.data;
+        for (let j = 0; j < products.length-1; j++) {
+          stream.push(JSON.stringify([products[j]], null, 2).slice(2,-2) + ',');
+        }
+        stream.push(JSON.stringify([products[products.length-1]], null, 2).slice(2,-2));
+        if (data.page === data.pages) {
+          stream.push('\n]');
+        } else {
+          stream.push(',');
+        }
       }
     })
     .then(() => {
