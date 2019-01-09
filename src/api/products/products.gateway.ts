@@ -23,23 +23,11 @@ export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   }
 
   afterInit(nsp: SocketIO.Namespace) {
-    
     this.logger.debug('afterInit', nsp.name);
-    // WORKAROUND
-    // nsp.on('connection', this.handleConnection.bind(this));
-    // nsp.on('disconnect', this.handleDisconnect.bind(this));
   }
 
   handleConnection(client: SessionSocket) {
-    this.logger.debug('connect', client, client.id, client.handshake.session);
-    // Join the room (the room name is the myshopify domain)
-    // if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
-    //   client.join(`${client.handshake.session.shop}-app-backend`);
-    // }
-
-    // if (client.handshake.session && client.handshake.session.isThemeClientRequest) {
-    //   client.join(`${client.handshake.session.shop}-client-theme`);
-    // }
+    this.logger.debug('connect', client.id, client.handshake.session);
   }
 
   handleDisconnect(client: SessionSocket) {

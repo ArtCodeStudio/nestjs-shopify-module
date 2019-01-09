@@ -33,35 +33,16 @@ import { WebhooksService } from '../../webhooks/webhooks.service';
  */
 @WebSocketGateway({namespace: '/socket.io/shopify/api/webhooks'})
 export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-
-  // @WebSocketServer() server: Server;
-
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
     protected readonly eventService: EventService,
     protected readonly shopifyConnectService: ShopifyConnectService,
     protected readonly webhooksService: WebhooksService,
-  ) {
-    // this.eventService.on('app/installed', (shopifyConnect: IShopifyConnect) => {
-    // });
-  }
+  ) {}
 
   afterInit(nsp: SocketIO.Namespace) {
-    // for (const topic of this.webhooksService.getTopics()) {
-    //   this.eventService.on(`webhook:${topic.name}`, (myshopifyDomain: string, data: any) => {
-    //     // forward all possible webhook events to room `${myshopifyDomain}-app-backend`
-    //     nsp.to(`${myshopifyDomain}-app-backend`).emit(topic.name, data);
-    //   });
-    // }
-
     this.logger.debug('afterInit', nsp.name);
-
-    // const nsp = server.of('/socket.io/shopify/api/webhooks');
-
-    // WORKAROUND
-    // nsp.on('connection', this.handleConnection.bind(this));
-    // nsp.on('disconnect', this.handleDisconnect.bind(this));
 
     this.eventService.on(`webhook:carts/create`, (myshopifyDomain: string, data: any) => {
       nsp.to(`${myshopifyDomain}-app-backend`).emit('webhook:carts/create', data);
@@ -304,7 +285,7 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   }
 
   handleConnection(client: SessionSocket) {
-    this.logger.debug('connect', client, client.id, client.handshake.session);
+    this.logger.debug('connect', client.id, client.handshake.session);
     // Join the room (the room name is the myshopify domain)
     if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
       client.join(`${client.handshake.session.shop}-app-backend`);
@@ -318,7 +299,6 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   handleDisconnect(client: SessionSocket) {
     this.logger.debug('disconnect', client.id);
   }
-
 
 }
 

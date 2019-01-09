@@ -150,15 +150,19 @@ export class ShopifyModule implements NestModule {
 
       .apply(BodyParserJsonMiddleware)
       .forRoutes(PagesController)
-
       .apply(BodyParserUrlencodedMiddleware)
       .forRoutes(PagesController)
 
       .apply(BodyParserJsonMiddleware)
       .forRoutes(ProductsController)
-
       .apply(BodyParserUrlencodedMiddleware)
       .forRoutes(ProductsController)
+
+      .apply(BodyParserJsonMiddleware)
+      .forRoutes(SyncController)
+      .apply(BodyParserUrlencodedMiddleware)
+      .forRoutes(SyncController)
+
 
       .apply(GetUserMiddleware)
       .forRoutes({

@@ -41,7 +41,7 @@ export interface IOrderSyncProgress {
   createdAt: Date,
   updatedAt: Date,
   error: string | null,
-  state: string,
+  state: 'running' | 'failed' | 'canceled' | 'success';
   continuedFromPrevious?: Schema.Types.ObjectId,
 }
 
@@ -77,7 +77,7 @@ export interface IProductSyncProgress {
   createdAt: Date,
   updatedAt: Date,
   error: string | null,
-  state: string,
+  state: 'running' | 'failed' | 'canceled' | 'success';
   continuedFromPrevious?: Schema.Types.ObjectId,
 }
 
@@ -107,7 +107,7 @@ export interface ISyncProgress {
   products?: IProductSyncProgress,
   createdAt: Date,
   updatedAt: Date,
-  state: string,
+  state: 'running' | 'failed' | 'canceled' | 'success';
   lastError: string | null,
 }
 

@@ -368,7 +368,7 @@ export class ProductsService {
         });
         if (!lastProgressRunning) {
           this.logger.debug('last progress has failed');
-          lastProgress.state = 'failure';
+          lastProgress.state = 'failed';
           lastProgress.lastError = 'sync timed out';
           await lastProgress.save();
         } else {
