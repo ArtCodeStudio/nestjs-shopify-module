@@ -20,7 +20,7 @@ export class GetUserMiddleware implements NestMiddleware {
       let requestType = await this.shopifyAuthService.getRequestType(req)
       .catch((error) => {
         // DO nothing
-        this.logger.error(error);
+        this.logger.error('error', error);
       });
 
       req.session.isLoggedInToAppBackend = false;
@@ -30,9 +30,10 @@ export class GetUserMiddleware implements NestMiddleware {
         req.session.isThemeClientRequest = requestType.isThemeClientRequest;
         req.session.isUnknownClientRequest = requestType.isUnknownClientRequest;
         req.session.shop = requestType.myshopifyDomain;
+        // this.logger.debug('requestType', requestType);
       }
 
-      // this.logger.debug('session', req.session);
+      // this.logger.debug('req.session', req.session);
 
       /**
        * If shop is not set you need to add the shop to your header on your shopify app client code like this:
@@ -52,7 +53,7 @@ export class GetUserMiddleware implements NestMiddleware {
        * ```
        */
       if (!req.session.shop) {
-        this.logger.warn('Shop not found');
+        this.logger.warn('Shop not found)');
         return next();
       }
 
