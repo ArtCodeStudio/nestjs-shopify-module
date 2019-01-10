@@ -46,8 +46,8 @@ ThemeDocument // DatabaseDocumentType
    * 
    * @see https://help.shopify.com/en/api/reference/online-store/theme#index
    */
-  public async list(shopifyConnect: IShopifyConnect, options?: ThemeListOptions, filter?: IThemeListFilter): Promise<Theme[]> {
-    return super.listFromDb(shopifyConnect, options)
+  public async listFromShopify(shopifyConnect: IShopifyConnect, options?: ThemeListOptions, filter?: IThemeListFilter): Promise<Theme[]> {
+    return super.listFromShopify(shopifyConnect, options)
     .then((themes) => {
       if(!filter) {
         return themes;
@@ -70,7 +70,7 @@ ThemeDocument // DatabaseDocumentType
    * @see https://help.shopify.com/en/api/reference/online-store/theme#show
    */
   public async getActive(user: IShopifyConnect): Promise<Theme | null> {
-    return this.list(user, {}, { role: 'main' })
+    return this.listFromShopify(user, {}, { role: 'main' })
     .then((themes) => {
       if (themes.length) {
         return themes[0];

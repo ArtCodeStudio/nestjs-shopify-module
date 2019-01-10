@@ -23,7 +23,7 @@ export class ThemesController {
     @Req() req: IUserRequest,
     @Res() res: Response,
   ) {
-    this.themesService.list(req.user)
+    this.themesService.listFromShopify(req.user)
     .then((themes) => {
       // this.logger.debug(`themes`, themes);
       return res.jsonp(themes);
@@ -64,7 +64,7 @@ export class ThemesController {
     @Req() req,
     @Res() res: Response,
   ) {
-    this.themesService.get(req.user, themeId)
+    this.themesService.getFromShopify(req.user, themeId)
     .then((theme) => {
       // this.logger.debug(`theme`, theme);
       return res.jsonp(theme);
