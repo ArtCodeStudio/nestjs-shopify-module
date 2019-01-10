@@ -139,8 +139,7 @@ export class OrdersService extends ShopifyApiRootCountService<
               }
             } else {
               // Options are compatible with already running sync. We just re-emit the events and return the running progress.
-              this.eventService.emit(`sync`, lastProgress);
-              this.eventService.emit(`sync:orders`, lastProgress.orders);
+              this.eventService.emit(`sync`, shop, lastProgress); // Why global? Because it's only of interest to the global caller.
               this.logger.debug('return last running progress', lastProgress);
               return lastProgress;
             }
@@ -199,7 +198,9 @@ export class OrdersService extends ShopifyApiRootCountService<
       this.eventService.off(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
       progress.state = 'cancelled';
       progress.orders.state = 'cancelled';
-      pRetry(() => progress.save());
+      pRetry(() => {
+        return progress.save()
+      });
       return progress;
     }
 

@@ -164,8 +164,7 @@ ProductDocument // DatabaseDocumentType
               }
             } else {
               // Options are compatible with already running sync. We just re-emit the events and return the running progress.
-              this.eventService.emit(`sync`, lastProgress); // Why global?
-              this.eventService.emit(`sync:products`, lastProgress.products);
+              this.eventService.emit(`sync`, shop, lastProgress); // Why global? Because it's only of interest to the global caller.
               this.logger.debug('return last running progress', lastProgress);
               return lastProgress;
             }

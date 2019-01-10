@@ -115,7 +115,7 @@ export class SyncService {
           this.logger.debug(`The running progress is compatible with our options ${options}`);
           this.logger.debug(`We just re-emit the sync-event and call it a day.`)
           // The existing running progress is compatible with all the options we want, so we just return it without starting a new one.
-          this.eventService.emit(`sync`, lastProgress);
+          this.eventService.emit(`sync`, shop, lastProgress);
           return lastProgress;
         }
       }
@@ -178,7 +178,9 @@ export class SyncService {
       this.eventService.once(`sync-cancelled:${shop}:${id}`, () => {
         cancelled = true;
       });
-      this.eventService.once(`sync-ended:${shop}:${id}`, progress => resolve(progress));
+      this.eventService.once(`sync-ended:${shop}:${id}`, (progress) => {
+        resolve(progress);
+      });
       this.eventService.emit(`sync-cancel:${shop}:${id}`);
       setTimeout(() => {
         if (!cancelled) {
