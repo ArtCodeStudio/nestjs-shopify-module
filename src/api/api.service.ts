@@ -66,7 +66,11 @@ export abstract class ShopifyApiBaseService<
    * @param user 
    * @param products 
    */
-  async updateOrCreateManyInDb(user: IShopifyConnect, selectBy: string, objects: ShopifyObjectType[]): Promise<BulkWriteOpResultObject> {
+  async updateOrCreateManyInDb(user: IShopifyConnect, selectBy: string, objects: ShopifyObjectType[]): Promise<BulkWriteOpResultObject | {}> {
+    // An empty bulkwrite is not allowed. Just return an empty object if the passed array is empty.
+    if (objects.length === 0) {
+      return {};
+    }
     const model = this.dbModel(user.shop.myshopify_domain);
     return model.collection.bulkWrite(
       objects.map((object: ShopifyObjectType) => {
@@ -166,11 +170,12 @@ export abstract class ShopifyApiRootService<
     const res = await pRetry(() => shopifyModel.list(options));
     if (sync) {
       const syncRes = this.updateOrCreateManyInDb(shopifyConnect, 'id', res)
-      .catch((e: Error) => {
-        this.logger.error(e);
-      });
       if (failOnSyncError) {
         return syncRes.then(() => res);
+      } else {
+        syncRes.catch((e: Error) => {
+          this.logger.error(e);
+        });
       }
     }
     return res;
@@ -401,11 +406,12 @@ export abstract class ShopifyApiChildService<
     const res = await pRetry(() => shopifyModel.list(parentId, options));
     if (sync) {
       const syncRes = this.updateOrCreateManyInDb(shopifyConnect, 'id', res)
-      .catch((e: Error) => {
-        this.logger.error(e);
-      });
       if (failOnSyncError) {
         return syncRes.then(() => res);
+      } else {
+        syncRes.catch((e: Error) => {
+          this.logger.error(e);
+        });
       }
     }
     return res;
