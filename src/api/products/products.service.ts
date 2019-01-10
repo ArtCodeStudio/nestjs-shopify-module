@@ -95,7 +95,19 @@ ProductDocument // DatabaseDocumentType
     .lean();
   }
 
-
+  /**
+   * 
+   * @param user 
+   * @param options 
+   * @param progress 
+   * 
+   * @event sync-pong:[shop]:[progressId] ()
+   * @event sync-cancel:[shop]:[lastProgressId] ()
+   * @event sync (lastProgress)
+   * @event sync:products (lastProgressProducts)
+   * @event sync-attach:[shop]:[progressId] (type = 'products')
+   * @event sync-cancelled:[shop]:[progressId] ()
+   */
   async startSync(user: IShopifyConnect, options?: ProductSyncOptions, progress?: SyncProgressDocument, lastProgress?: SyncProgressDocument): Promise<SyncProgressDocument> {
     this.logger.debug(
       `ProductsService.startSync(
@@ -103,10 +115,8 @@ ProductDocument // DatabaseDocumentType
         resync=${options.resync},
         attachToExisting=${options.attachToExisting},
         cancelExisting=${options.cancelExisting},
-      )`);
-
-    // Shopify products model
-    const products = new Products(user.myshopify_domain, user.accessToken);
+      )`
+    );
 
     const shop: string = user.shop.myshopify_domain;
 
@@ -154,7 +164,7 @@ ProductDocument // DatabaseDocumentType
               }
             } else {
               // Options are compatible with already running sync. We just re-emit the events and return the running progress.
-              this.eventService.emit(`sync`, lastProgress);
+              this.eventService.emit(`sync`, lastProgress); // Why global?
               this.eventService.emit(`sync:products`, lastProgress.products);
               this.logger.debug('return last running progress', lastProgress);
               return lastProgress;
@@ -226,7 +236,7 @@ ProductDocument // DatabaseDocumentType
       sinceId: 0,
       lastId: null,
       syncedCount: 0,
-      shopifyCount: await pRetry(() => products.count()),
+      shopifyCount: await this.countFromShopify(user),
       state: 'running',
       error: null,
     }

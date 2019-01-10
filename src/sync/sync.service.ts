@@ -7,6 +7,11 @@ import { IShopifyConnect } from '../auth/interfaces/connect';
 import { DebugService } from '../debug.service';
 import { ISyncOptions, SyncProgressSchema, SyncProgressDocument } from '../interfaces';
 
+/**
+ * @event sync-cancel:[lastProgressId] ()
+ * @event sync-ping:[lastProgressId] ()
+ * @event sync (lastProgress)
+ */
 @Injectable()
 export class SyncService {
   constructor(
