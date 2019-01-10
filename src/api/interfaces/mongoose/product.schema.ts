@@ -42,7 +42,7 @@ export const ProductVariantSchema = new Schema({
 });
 
 export const ProductImageSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: {type: Number, index: {unique: true, sparse: true}},
   admin_graphql_api_id: String,
   alt: String,
   created_at: String,
