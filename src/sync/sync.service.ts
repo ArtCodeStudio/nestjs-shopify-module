@@ -19,9 +19,9 @@ export class SyncService {
   logger = new DebugService(`shopify:${this.constructor.name}`);
   
   /**
-   * @event sync-cancel:[lastProgressId] ()
-   * @event sync-ping:[lastProgressId] ()
-   * @event sync (lastProgress)
+   * @event sync-cancel:[shop]:[lastProgressId] ()
+   * @event sync-ended:[shop]:[id]
+   * @event sync (shop, lastProgress)
    */
   async startSync(shopifyConnect: IShopifyConnect, options?: ISyncOptions): Promise<SyncProgressDocument> {
 

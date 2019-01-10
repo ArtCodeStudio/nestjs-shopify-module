@@ -101,10 +101,8 @@ ProductDocument // DatabaseDocumentType
    * @param options 
    * @param progress 
    * 
-   * @event sync-pong:[shop]:[progressId] ()
    * @event sync-cancel:[shop]:[lastProgressId] ()
-   * @event sync (lastProgress)
-   * @event sync:products (lastProgressProducts)
+   * @event sync (shop, lastProgress)
    * @event sync-attach:[shop]:[progressId] (type = 'products')
    * @event sync-cancelled:[shop]:[progressId] ()
    */
