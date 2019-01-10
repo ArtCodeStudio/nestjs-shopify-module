@@ -9,6 +9,6 @@ export interface ISyncProgress {
   products?: IProductSyncProgress,
   createdAt: Date,
   updatedAt: Date,
-  state: 'running' | 'failed' | 'canceled' | 'success';
+  state: 'running' | 'failed' | 'cancelled' | 'success';
   lastError: string | null,
 }

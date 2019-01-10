@@ -154,10 +154,13 @@ export class SyncController {
     @Query('include_orders') includeOrders?: boolean,
     @Query('include_transactions') includeTransactions?: boolean,
     @Query('include_products') includeProducts?: boolean,
+    @Param('include_pages') includePages?: boolean,
+    @Param('include_smart_collection') includeSmartCollection?: boolean,
+    @Param('include_custom_collection') includeCustomCollection?: boolean,
     @Query('resync') resync?: boolean,
     @Query('cancelExisting') cancelExisting?: boolean,
   ) {
-    return this.start(req, res, includeOrders, includeTransactions, includeProducts, resync, cancelExisting);
+    return this.start(req, res, includeOrders, includeTransactions, includeProducts, includePages, includeSmartCollection, includeCustomCollection, resync, cancelExisting);
   }
 
   /**

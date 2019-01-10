@@ -96,7 +96,7 @@ ProductDocument // DatabaseDocumentType
   }
 
 
-  async startSync(user: IShopifyConnect, options?: ProductSyncOptions, progress?: SyncProgressDocument): Promise<SyncProgressDocument> {
+  async startSync(user: IShopifyConnect, options?: ProductSyncOptions, progress?: SyncProgressDocument, lastProgress?: SyncProgressDocument): Promise<SyncProgressDocument> {
     this.logger.debug(
       `ProductsService.startSync(
         myShopifyDomain=${user.shop.myshopify_domain},
@@ -110,18 +110,7 @@ ProductDocument // DatabaseDocumentType
 
     const shop: string = user.shop.myshopify_domain;
 
-    // Get the last sync progress (if it exists)
-    const lastProgress: SyncProgressDocument = await this.syncProgressModel.findOne(
-      {
-        shop: user.shop.myshopify_domain,
-      },
-      {},
-      { sort: { 'createdAt': -1} }
-    );
-
     let isCancelled: boolean = false;
-
-    this.logger.debug('lastProgress:', lastProgress);
 
     if (!progress) {
       this.logger.debug(`no progress passed as parameter`);
@@ -133,21 +122,25 @@ ProductDocument // DatabaseDocumentType
       };
 
       if (lastProgress && lastProgress.state === 'running' ) {
-        this.logger.debug('check if last progress is still running');
+        let tooLate = false;
+        this.logger.debug(`check if last progress ${lastProgress.id} is still running`);
         const lastProgressRunning = await new Promise(resolve => {
-          this.eventService.once(
-            `sync-pong:${shop}:${lastProgress._id}`,
-            () => {
-              resolve(true);
-            });
-          this.eventService.emit(`sync-ping:${shop}:${lastProgress._id}`);
-          setTimeout(() => resolve(false), 5000);
+          let time: number;
+          this.eventService.once(`sync-${shop}:${lastProgress._id}`, () => {
+            this.logger.debug(`received pong sync-${shop}:${lastProgress._id}:`, tooLate?'too late':'just in time', Date.now()-time);
+            resolve(true);
+          });
+          time = Date.now();
+          setTimeout(() => resolve(false), 7777);
         });
+        tooLate=true;
         if (!lastProgressRunning) {
           this.logger.debug('last progress has failed');
           lastProgress.state = 'failed';
           lastProgress.lastError = 'sync timed out';
           await lastProgress.save();
+          // Just to make sure, we send a cancel event to the progress. Maybe he was just very busy.
+          this.eventService.emit(`sync-cancel:${shop}:${lastProgress._id}`);
         } else {
           // If the last progress is still running and includes products and all options we need, we just return it, without starting a new one.
           // If the running progress does not include products and the option `attachToExisting` is set, we include the product sync in the running progress.
@@ -198,15 +191,12 @@ ProductDocument // DatabaseDocumentType
         });
         this.logger.debug('newly created SyncProgress:', progress);
       }
+    } else {
+      this.logger.debug('progress passed as parameter:', progress);
+      this.logger.debug('lastProgress:', lastProgress);
     }
 
     this.logger.debug('SyncProgress:', progress);
-
-    // Register an event handler for as long as this sync progress is running, used for checking if the sync is still running
-    const pingCallback = () => {
-      return this.eventService.emit(`sync-pong:${shop}:${progress._id}`);
-    }
-    this.eventService.on(`sync-ping:${shop}:${progress._id}`, pingCallback);
 
     const attachCallback = (resource: string) => {
       if (resource === 'products') {
@@ -222,11 +212,12 @@ ProductDocument // DatabaseDocumentType
     this.eventService.once(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
 
     if (isCancelled) {
-      this.eventService.off(`sync-ping:${shop}:${progress._id}`, pingCallback);
       this.eventService.off(`sync-attach:${shop}:${progress._id}`, attachCallback);
       this.eventService.off(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
-      progress.state = 'canceled';
-      progress.save();
+      this.logger.debug(`product sync ${progress._id}:${progress.products._id} cancelled`);
+      progress.state = 'cancelled';
+      progress.products.state = 'cancelled';
+      pRetry(() => progress.save());
       return progress;
     }
 
@@ -253,11 +244,12 @@ ProductDocument // DatabaseDocumentType
           'options.includeProducts': true,
         };
         if (isCancelled) {
-          this.eventService.off(`sync-ping:${shop}:${progress._id}`, pingCallback);
           this.eventService.off(`sync-attach:${shop}:${progress._id}`, attachCallback);
           this.eventService.off(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
-          progress.state = 'canceled';
-          progress.save();
+          this.logger.debug(`product sync ${progress._id}:${progress.products._id} cancelled`);
+          progress.state = 'cancelled';
+          progress.products.state = 'cancelled';
+          pRetry(() => progress.save());
           return progress;
         }
         lastProgressWithProducts = await this.syncProgressModel.findOne(
@@ -313,28 +305,39 @@ ProductDocument // DatabaseDocumentType
           this.logger.debug(` ${i}|${countDown} / ${pages}`);
           progress.products.syncedCount += objects.length;
           progress.products.lastId = objects[objects.length-1].id;
-          await progress.save();
+          /*await progress.update({products: {
+            syncedCount: progress.orders.syncedCount,
+            lastId: progress.orders.lastId,
+          }});*/
+          await pRetry(() => progress.save());
         }
         progress.products.state = 'success';
       } catch (error) {
-        progress.products.state = 'failed';
-        progress.products.error = error.message;
-        progress.lastError = `products:${error.message}`;
-        this.logger.error('product sync error:', error);
+        if (error.message === 'cancelled') {
+          this.logger.debug(`product sync ${progress._id}:${progress.products._id} cancelled`);
+          progress.state = 'cancelled';
+          progress.products.state = 'cancelled';
+        } else {
+          progress.products.state = 'failed';
+          progress.products.error = error.message;
+          progress.lastError = `products:${error.message}`;
+          this.logger.error(`product sync ${progress._id}:${progress.products._id} error:`, error.message);
+        }
       }
       if (!progress.options.includeOrders) {
         progress.state = progress.products.state;
       } else if (progress.orders && progress.orders.state !== 'running') {
         if (progress.products.state === 'success' && progress.orders.state === 'success') {
           progress.state = 'success';
+        } else if (progress.products.state === 'cancelled' || progress.orders.state === 'cancelled') {
+          progress.state = 'cancelled';
         } else {
           progress.state = 'failed';
         }
       }
-      this.eventService.off(`sync-ping:${shop}:${progress._id}`, pingCallback);
       this.eventService.off(`sync-attach:${shop}:${progress._id}`, attachCallback);
       this.eventService.off(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
-      await progress.save();
+      await pRetry(() => progress.save());
     });
 
     return progress;

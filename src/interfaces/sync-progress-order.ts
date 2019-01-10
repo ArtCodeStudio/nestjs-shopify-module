@@ -11,6 +11,6 @@ export interface IOrderSyncProgress {
   createdAt: Date,
   updatedAt: Date,
   error: string | null,
-  state: 'running' | 'failed' | 'canceled' | 'success';
+  state: 'running' | 'failed' | 'cancelled' | 'success';
   continuedFromPrevious?: Schema.Types.ObjectId,
 }

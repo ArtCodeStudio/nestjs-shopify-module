@@ -71,7 +71,7 @@ export class OrdersService extends ShopifyApiRootCountService<
     .lean();
   }
 
-  async startSync(user: IShopifyConnect, options?: OrderSyncOptions, progress?: SyncProgressDocument): Promise<SyncProgressDocument> {
+  async startSync(user: IShopifyConnect, options?: OrderSyncOptions, progress?: SyncProgressDocument, lastProgress?: SyncProgressDocument): Promise<SyncProgressDocument> {
     this.logger.debug(
       `OrdersService.startSync(
         myShopifyDomain=${user.shop.myshopify_domain},
@@ -85,17 +85,6 @@ export class OrdersService extends ShopifyApiRootCountService<
     const orders = new Orders(user.myshopify_domain, user.accessToken);
 
     const shop: string = user.shop.myshopify_domain;
-
-    // Get the last sync progress (if it exists)
-    const lastProgress: SyncProgressDocument = await this.syncProgressModel.findOne(
-      {
-        shop,
-      },
-      {},
-      { sort: { 'createdAt': -1} }
-    );
-
-    this.logger.debug('lastProgress:', lastProgress);
 
     let isCancelled: boolean = false;
 
@@ -111,17 +100,25 @@ export class OrdersService extends ShopifyApiRootCountService<
       };
 
       if (lastProgress && lastProgress.state === 'running' ) {
-        this.logger.debug('check if last progress is still running');
+        let tooLate = false;
+        this.logger.debug(`check if last progress ${lastProgress.id} is still running`);
         const lastProgressRunning = await new Promise(resolve => {
-          this.eventService.once(`sync-pong:${shop}:${lastProgress._id}`, () => resolve(true));
-          this.eventService.emit(`sync-ping:${shop}:${lastProgress._id}`);
-          setTimeout(() => resolve(false), 5000);
+          let time: number;
+          this.eventService.once(`sync-${shop}:${lastProgress._id}`, () => {
+            this.logger.debug(`received pong sync-${shop}:${lastProgress._id}:`, tooLate?'too late':'just in time', Date.now()-time);
+            resolve(true);
+          });
+          time = Date.now();
+          setTimeout(() => resolve(false), 7777);
         });
+        tooLate=true;
         if (!lastProgressRunning) {
           this.logger.debug('last progress has failed');
           lastProgress.state = 'failed';
           lastProgress.lastError = 'sync timed out';
           await lastProgress.save();
+          // Just to make sure, we send a cancel event to the progress. Maybe he was just very busy.
+          this.eventService.emit(`sync-cancel:${shop}:${lastProgress._id}`);
         } else {
           // If the last progress is still running and includes orders and all options we need, we just return it, without starting a new one.
           // If the running progress does not include orders and the option `attachToExisting` is set, we include the order sync in the running progress.
@@ -179,13 +176,10 @@ export class OrdersService extends ShopifyApiRootCountService<
         });
         this.logger.debug('newly created SyncProgress:', progress);
       }
+    } else {
+      this.logger.debug('progress passed as parameter:', progress);
+      this.logger.debug('lastProgress:', lastProgress);
     }
-
-    this.logger.debug('SyncProgress:', progress);
-
-    // Register an event handler for as long as this sync progress is running, used for checking if the sync is still running
-    const pingCallback = () => this.eventService.emit(`sync-pong:${progress._id}`);
-    this.eventService.on(`sync-ping:${shop}:${progress._id}`, pingCallback);
 
     const attachCallback = (resource: string) => {
       if (resource === 'products') {
@@ -201,11 +195,11 @@ export class OrdersService extends ShopifyApiRootCountService<
     this.eventService.once(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
 
     if (isCancelled) {
-      this.eventService.off(`sync-ping:${shop}:${progress._id}`, pingCallback);
       this.eventService.off(`sync-attach:${shop}:${progress._id}`, attachCallback);
       this.eventService.off(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
-      progress.state = 'canceled';
-      progress.save();
+      progress.state = 'cancelled';
+      progress.orders.state = 'cancelled';
+      pRetry(() => progress.save());
       return progress;
     }
 
@@ -237,11 +231,12 @@ export class OrdersService extends ShopifyApiRootCountService<
           lastProgressWithOrdersQuery['options.includeTransactions'] = true;
         }
         if (isCancelled) {
-          this.eventService.off(`sync-ping:${shop}:${progress._id}`, pingCallback);
           this.eventService.off(`sync-attach:${shop}:${progress._id}`, attachCallback);
           this.eventService.off(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
-          progress.state = 'canceled';
-          progress.save();
+          this.logger.debug(`order sync ${progress._id}:${progress.orders._id} cancelled`);
+          progress.state = 'cancelled';
+          progress.orders.state = 'cancelled';
+          pRetry(() => progress.save());
           return progress;
         }
         lastProgressWithOrders = await this.syncProgressModel.findOne(
@@ -300,7 +295,11 @@ export class OrdersService extends ShopifyApiRootCountService<
           if (!options.includeTransactions) {
             progress.orders.syncedCount += objects.length;
             progress.orders.lastId = objects[objects.length-1].id;
-            await progress.save();
+            /* await progress.update({orders: {
+              syncedCount: progress.orders.syncedCount,
+              lastId: progress.orders.lastId,
+            }}); */
+            await pRetry(() => progress.save());
           } else {
             for (let j=0; j<objects.length; j++) {
               if (isCancelled) {
@@ -310,30 +309,37 @@ export class OrdersService extends ShopifyApiRootCountService<
               progress.orders.syncedTransactionsCount += transactions.length;
               progress.orders.syncedCount ++;
               progress.orders.lastId = objects[j].id;
-              await progress.save();
+              await pRetry(() => progress.save());
             }
           }
         }
         progress.orders.state = 'success';
       } catch (error) {
-        progress.orders.state = 'failed';
-        progress.orders.error = error.message;
-        progress.lastError = `orders:${error.message}`;
-        this.logger.debug('order sync error:', error);
+        if (error.message === 'cancelled') {
+          this.logger.debug(`order sync ${progress._id}:${progress.orders._id} cancelled`);
+          progress.state = 'cancelled';
+          progress.orders.state = 'cancelled';
+        } else {
+          progress.orders.state = 'failed';
+          progress.orders.error = error.message;
+          progress.lastError = `orders:${error.message}`;
+          this.logger.error(`order sync ${progress._id}:${progress.orders._id} error:`, error.message);
+        }
       }
       if (!progress.options.includeProducts) {
         progress.state = progress.orders.state;
       } else if (progress.products && progress.products.state !== 'running') {
         if (progress.products.state === 'success' && progress.orders.state === 'success') {
           progress.state = 'success';
+        } else if (progress.products.state === 'cancelled' || progress.orders.state === 'cancelled') {
+          progress.state = 'cancelled';
         } else {
           progress.state = 'failed';
         }
       }
-      this.eventService.off(`sync-ping:${shop}:${progress._id}`, pingCallback);
       this.eventService.off(`sync-attach:${shop}:${progress._id}`, attachCallback);
       this.eventService.off(`sync-cancel:${shop}:${progress._id}`, cancelCallback);
-      await progress.save();
+      await pRetry(() => progress.save());
     });
 
     return progress;
