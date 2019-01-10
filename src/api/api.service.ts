@@ -86,6 +86,7 @@ export abstract class ShopifyApiBaseService<
 
 export interface SyncOptions {
   sync?: boolean,
+  failOnSyncError?: boolean,
 }
 
 export interface RootCount<CountOptions extends object = {}> {
@@ -157,15 +158,20 @@ export abstract class ShopifyApiRootService<
   public async listFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions): Promise<ShopifyObjectType[]> {
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     let sync = options && options.sync;
+    let failOnSyncError = options && options.failOnSyncError;
     if (sync) {
       delete options.sync;
+      delete options.failOnSyncError;
     }
-    const res = await pRetry(() => shopifyModel.list(options).catch(err => this.logger.debug(`ERROR`, err)));
+    const res = await pRetry(() => shopifyModel.list(options));
     if (sync) {
-      this.updateOrCreateManyInDb(shopifyConnect, 'id', res)
+      const syncRes = this.updateOrCreateManyInDb(shopifyConnect, 'id', res)
       .catch((e: Error) => {
         this.logger.error(e);
       });
+      if (failOnSyncError) {
+        return syncRes.then(() => res);
+      }
     }
     return res;
   }
@@ -387,15 +393,20 @@ export abstract class ShopifyApiChildService<
   public async listFromShopify(shopifyConnect: IShopifyConnect, parentId: number, options?: ListOptions): Promise<ShopifyObjectType[]> {
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     let sync = options && options.sync;
+    let failOnSyncError = options && options.failOnSyncError;
     if (sync) {
       delete options.sync;
+      delete options.failOnSyncError;
     }
     const res = await pRetry(() => shopifyModel.list(parentId, options));
     if (sync) {
-      this.updateOrCreateManyInDb(shopifyConnect, 'id', res)
+      const syncRes = this.updateOrCreateManyInDb(shopifyConnect, 'id', res)
       .catch((e: Error) => {
         this.logger.error(e);
       });
+      if (failOnSyncError) {
+        return syncRes.then(() => res);
+      }
     }
     return res;
   }
@@ -410,7 +421,7 @@ export abstract class ShopifyApiChildService<
     // Delete undefined options
     deleteUndefinedProperties(options);
 
-    return this.listFromShopify(shopifyConnect, parentId,options)
+    return this.listFromShopify(shopifyConnect, parentId, options)
     .then((objects) => {
       if (typeof (listAllPageCallback) === 'function') {
         listAllPageCallback(null, {

@@ -13,6 +13,7 @@ import { ShopifyApiRootCountService } from '../api.service';
 
 export interface OrderListOptions extends Options.OrderListOptions {
   sync?: boolean;
+  failOnSyncError?: boolean;
 }
 
 export interface OrderGetOptions extends Options.FieldOptions {
@@ -286,6 +287,7 @@ export class OrdersService extends ShopifyApiRootCountService<
             user,
             {
               sync: true,
+              failOnSyncError: true,
               since_id: progress.orders.sinceId,
               page: i+1,
               limit: itemsPerPage,
@@ -303,7 +305,7 @@ export class OrdersService extends ShopifyApiRootCountService<
               if (isCancelled) {
                 throw new Error('cancelled');
               }
-              const transactions = await this.transactionsService.listFromShopify(user, objects[j].id, {sync: true});
+              const transactions = await this.transactionsService.listFromShopify(user, objects[j].id, {sync: true, failOnSyncError: true});
               progress.orders.syncedTransactionsCount += transactions.length;
               progress.orders.syncedCount ++;
               progress.orders.lastId = objects[j].id;

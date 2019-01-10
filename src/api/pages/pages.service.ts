@@ -11,6 +11,7 @@ import { PageDocument } from '../interfaces/mongoose/page.schema';
 
 export interface PageListOptions extends Options.PageListOptions {
   sync?: boolean;
+  failOnSyncError?: boolean;
 }
 
 export interface PageGetOptions extends Options.FieldOptions {

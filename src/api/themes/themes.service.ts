@@ -21,6 +21,7 @@ export interface ThemeGetOptions extends Options.FieldOptions {
 
 export interface ThemeListOptions extends Options.FieldOptions {
   sync?: boolean;
+  failOnSyncError?: boolean;
 }
 
 @Injectable()

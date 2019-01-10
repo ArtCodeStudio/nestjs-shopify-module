@@ -14,6 +14,7 @@ export interface TransactionBaseOptions extends Options.TransactionBaseOptions {
 
 export interface TransactionListOptions extends Options.TransactionListOptions {
   sync?: boolean;
+  failOnSyncError?: boolean;
 }
 
 export interface TransactionCountOptions extends Options.TransactionBaseOptions {

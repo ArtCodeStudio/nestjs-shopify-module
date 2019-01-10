@@ -11,6 +11,7 @@ import * as pRetry from 'p-retry';
 
 export interface ProductListOptions extends Options.ProductListOptions {
   sync?: boolean;
+  failOnSyncError?: boolean;
 }
 
 export interface ProductGetOptions extends Options.FieldOptions {
