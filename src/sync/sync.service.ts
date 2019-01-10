@@ -171,7 +171,7 @@ export class SyncService {
     if (!id) {
       return null;
     }
-    // Give five seconds time for the progress to be cancelled. If no response, we throw a `sync progress hanging` error.
+    // Give 7.777 seconds time for the progress to be cancelled. If no response, we throw a `sync progress hanging` error.
     // If responding to cancellation, we wait for the `sync-ended` event.
     return new Promise((resolve, reject) => {
       let cancelled = false;
@@ -186,7 +186,7 @@ export class SyncService {
         if (!cancelled) {
           reject(new Error('sync progress hanging'));
         }
-      }, 5000);
+      }, 7777);
     });
   }
 
