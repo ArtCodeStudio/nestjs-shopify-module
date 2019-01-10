@@ -2,17 +2,18 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Pages, Options } from 'shopify-prime';
 import { Page } from 'shopify-prime/models';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Model, Types } from 'mongoose';
-import { getDiff } from '../../helpers/diff';
-import { Readable } from 'stream';
-import * as PQueue from 'p-queue';
-import { DebugService } from '../../debug.service';
+import { Model } from 'mongoose';
+import { deleteUndefinedProperties } from '../helpers';
 import { EventService } from '../../event.service';
-import { ApiService } from '../api.service';
-// import { PageDocument } from '../interfaces/product.schema';
+import { ShopifyApiRootCountService } from '../api.service';
+import { PageDocument } from '../interfaces/mongoose/page.schema';
 // import { IPageSyncProgress, PageSyncProgressDocument } from '../../sync/sync-progress.schema';
 
 export interface PageListOptions extends Options.PageListOptions {
+  sync?: boolean;
+}
+
+export interface PageGetOptions extends Options.FieldOptions {
   sync?: boolean;
 }
 
@@ -24,15 +25,22 @@ export interface PageSyncOptions {
 
 
 @Injectable()
-export class PagesService {
-
-  logger = new DebugService(`shopify:${this.constructor.name}`);
-
+export class PagesService extends ShopifyApiRootCountService<
+Page, // ShopifyObjectType
+Pages, // ShopifyModelClass
+PageCountOptions, // CountOptions
+PageGetOptions, // GetOptions
+PageListOptions, // ListOptions
+PageDocument // DatabaseDocumentType
+> {
   constructor(
-    // @Inject('PageModelToken') private readonly productModel: (shopName: string) => Model<PageDocument>,
+    @Inject('PageModelToken')
+    private readonly pageModel: (shopName: string) => Model<PageDocument>,
     // @Inject('PageSyncProgressModelToken') private readonly productSyncProgressModel: (shopName: string) => Model<PageSyncProgressDocument>,
     private readonly eventService: EventService,
-  ) {}
+  ) {
+    super(pageModel, Pages);
+  }
 
   /**
    * Creates a new page.
@@ -55,7 +63,7 @@ export class PagesService {
    */
   public async get(user: IShopifyConnect, id: number, options?: Options.FieldOptions): Promise<Page> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
-    options = ApiService.deleteUndefinedProperties(options);
+    options = deleteUndefinedProperties(options);
     return pages.get(id, options)
     .then((page) => {
       return page;
@@ -83,7 +91,7 @@ export class PagesService {
    */
   public async list(user: IShopifyConnect, options?: Options.FieldOptions): Promise<Page[]> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
-    options = ApiService.deleteUndefinedProperties(options);
+    options = deleteUndefinedProperties(options);
     return pages.list(options)
     .then((pages) => {
       return pages;
@@ -97,7 +105,7 @@ export class PagesService {
    */
   public async count(user: IShopifyConnect, options?: Options.PageCountOptions): Promise<number> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
-    options = ApiService.deleteUndefinedProperties(options);
+    options = deleteUndefinedProperties(options);
     this.logger.debug('count options', options);
     return pages.count(options)
     .then((count) => {

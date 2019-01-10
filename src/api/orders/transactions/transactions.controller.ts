@@ -18,7 +18,7 @@ export class TransactionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get()
+  @Get(':order_id/transactions')
   listFromShopify(@Req() req: IUserRequest, @Res() res, @Param('order_id') orderId, @Query() options: TransactionListOptions) {
     return this.transactionsService.listFromShopify(req.shopifyConnect, orderId, {...options, sync: true})
     .then((transactions) => {
@@ -34,7 +34,7 @@ export class TransactionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get('synced')
+  @Get(':order_id/transactions/synced')
   async listFromDb(@Req() req: IUserRequest, @Param('order_id') orderId, @Res() res) {
     try {
       return res.jsonp(await this.transactionsService.listFromDb(req.shopifyConnect, orderId));
@@ -48,7 +48,7 @@ export class TransactionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get('count')
+  @Get(':order_id/transactions/count')
   countFromShopify(@Req() req: IUserRequest, @Res() res, @Param('order_id') orderId) {
     return this.transactionsService.countFromShopify(req.shopifyConnect, orderId)
     .then((count) => {
@@ -64,7 +64,7 @@ export class TransactionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get('synced/count')
+  @Get(':order_id/transactions/synced/count')
   countFromDb(@Req() req: IUserRequest, @Res() res, @Param('order_id') orderId) {
     return this.transactionsService.countFromDb(req.shopifyConnect, orderId)
     .then((count) => {
@@ -81,7 +81,7 @@ export class TransactionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get(':id/synced')
+  @Get(':order_id/transactions/:id/synced')
   async getFromDb(@Req() req: IUserRequest, @Res() res, @Param('id') id: number) {
     try {
       return res.jsonp(await this.transactionsService.getFromDb(req.shopifyConnect, id));
@@ -96,7 +96,7 @@ export class TransactionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get(':id')
+  @Get(':order_id/transactions/:id')
   getFromShopify(@Req() req: IUserRequest, @Res() res, @Param('order_id') orderId, @Param('id') id: number, @Query() options: TransactionBaseOptions) {
     return this.transactionsService.getFromShopify(req.shopifyConnect, orderId, id, options)
     .then((transaction) => {

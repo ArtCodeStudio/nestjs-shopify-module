@@ -1,10 +1,11 @@
 import { Connection, Document, Model, Mongoose, Schema } from 'mongoose';
-import { OrderSchema, OrderDocument} from './interfaces/order.schema';
-import { ProductSchema, ProductDocument} from './interfaces/product.schema';
-import { CustomerSchema, CustomerDocument } from './interfaces/customer.schema';
-import { TransactionSchema, TransactionDocument} from './interfaces/transaction.schema';
-import { ThemeSchema, ThemeDocument} from './interfaces/theme.schema';
-import { AssetSchema, AssetDocument} from './interfaces/asset.schema';
+import { OrderSchema, OrderDocument} from './interfaces/mongoose/order.schema';
+import { ProductSchema, ProductDocument} from './interfaces/mongoose/product.schema';
+import { CustomerSchema, CustomerDocument } from './interfaces/mongoose/customer.schema';
+import { TransactionSchema, TransactionDocument} from './interfaces/mongoose/transaction.schema';
+import { ThemeSchema, ThemeDocument} from './interfaces/mongoose/theme.schema';
+import { AssetSchema, AssetDocument} from './interfaces/mongoose/asset.schema';
+import { PageSchema, PageDocument} from './interfaces/mongoose/page.schema';
 
 function getDbModel<DocumentType extends Document>(connection: Mongoose, myShopifyDomain: string, resourceName: string, schema: Schema) {
   const shopName = myShopifyDomain.replace('.myshopify.com', '');
@@ -42,6 +43,10 @@ export const shopifyApiProviders = (connection: Mongoose) => {
       provide: 'AssetModelToken',
       useValue: (myshopifyDomain) => getDbModel<AssetDocument>(connection, myshopifyDomain, 'asset', AssetSchema),
     },
+    {
+      provide: 'PageModelToken',
+      useValue: (myshopifyDomain) => getDbModel<PageDocument>(connection, myshopifyDomain, 'page', PageSchema),
+    }
   ];
 }
 

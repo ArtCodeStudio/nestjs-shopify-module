@@ -2,9 +2,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Transactions, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
 import { Transaction } from 'shopify-prime/models';
-import { TransactionDocument } from '../../interfaces/transaction.schema';
-import { Model, Types } from 'mongoose';
-import { getDiff } from '../../../helpers/diff';
+import { TransactionDocument } from '../../interfaces/mongoose/transaction.schema';
+import { Model } from 'mongoose';
+import { getDiff } from '../../helpers/diff';
+import { ShopifyApiChildCountService } from '../../api.service';
 
 
 export interface TransactionBaseOptions extends Options.TransactionBaseOptions {
@@ -15,65 +16,42 @@ export interface TransactionListOptions extends Options.TransactionListOptions {
   sync?: boolean;
 }
 
+export interface TransactionCountOptions extends Options.TransactionBaseOptions {
+  sync?: boolean;
+}
+
+export interface TransactionGetOptions extends Options.TransactionBaseOptions {
+  sync?: boolean;
+}
+
 @Injectable()
-export class TransactionsService {
+export class TransactionsService extends ShopifyApiChildCountService<
+Transaction,
+Transactions,
+TransactionCountOptions,
+TransactionGetOptions,
+TransactionListOptions
+>
+{
   constructor(
     @Inject('TransactionModelToken')
     private readonly transactionModel: (shopName: string) => Model<TransactionDocument>,
-  ) {}
+  ) {
+    super(transactionModel, Transactions);
+  }
 
-  public async getFromShopify(user: IShopifyConnect, order_id: number, id: number, options?: TransactionBaseOptions): Promise<Transaction> {
+  public async getFromShopify(user: IShopifyConnect, order_id: number, id: number, options?: TransactionBaseOptions): Promise<Transaction|null> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
     const res = await transactions.get(order_id, id);
     if (options && options.sync) {
-      await this.saveOne(user, res);
+      await this.updateOrCreateInDb(user, 'id', res);
     }
     return res;
-  }
-
-  public async getFromDb(user: IShopifyConnect, id: number, order_id?: number) {
-    return await this.transactionModel(user.shop.myshopify_domain).findOne(order_id?{order_id, id}:{id}).select('-_id -__v').lean();
   }
 
   public async countFromShopify(user: IShopifyConnect, orderId: number): Promise<number> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
     return await transactions.count(orderId);
-  }
-
-  public async countFromDb(user: IShopifyConnect, orderId: number): Promise<number> {
-    return await this.transactionModel(user.shop.myshopify_domain).count({});
-
-  }
-
-  public async saveMany(user: IShopifyConnect, transactions: Transaction[]) {
-    const model = this.transactionModel(user.shop.myshopify_domain);
-    return transactions.map(async (transaction: Transaction) => await model.findOneAndUpdate({id: transaction.id}, transaction, {upsert: true}));
-  }
-
-  public async saveOne(user: IShopifyConnect, transaction: Transaction) {
-    const model = this.transactionModel(user.shop.myshopify_domain);
-    return await model.findOneAndUpdate({id: transaction.id}, transaction);
-  }
-
-  public async listFromDb(user: IShopifyConnect, order_id?: number): Promise<Transaction[]> {
-    return await this.transactionModel(user.shop.myshopify_domain).find(order_id?{order_id}:{}).select('-_id -__v').lean();
-  }
-
-  public async listFromShopify(user: IShopifyConnect, order_id: number, options?: TransactionListOptions): Promise<Transaction[]> {
-    const transactions = new Transactions(user.myshopify_domain, user.accessToken);
-    let sync = options && options.sync;
-    if (sync) {
-      delete options.sync;
-    }
-    const res = await transactions.list(order_id, options);
-    if (sync) {
-      try {
-        await this.saveMany(user, res);
-      } catch (e) {
-        console.log(e);
-      }
-    }
-    return res;
   }
 
   public async diffSynced(user: IShopifyConnect, order_id: number): Promise<any> {

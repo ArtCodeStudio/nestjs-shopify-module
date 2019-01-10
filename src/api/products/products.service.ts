@@ -2,20 +2,18 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Products, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
 import { Product, ProductUpdateCreate } from 'shopify-prime/models';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { ProductDocument } from '../interfaces/product.schema';
-import { Model, Types } from 'mongoose';
-import { getDiff } from '../../helpers/diff';
-import { Readable } from 'stream';
-import * as PQueue from 'p-queue';
-import { DebugService } from '../../debug.service';
+import { ProductDocument } from '../interfaces/mongoose/product.schema';
+import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
 import { IProductSyncProgress, ProductSyncProgressDocument, ISyncProgress, SyncProgressDocument } from '../../sync/sync-progress.schema';
-import { ApiService } from '../api.service';
-import { Observable, Observer } from 'rxjs';
-import { WsResponse } from '@nestjs/websockets';
+import { ShopifyApiRootCountService } from '../api.service';
 import * as pRetry from 'p-retry';
 
 export interface ProductListOptions extends Options.ProductListOptions {
+  sync?: boolean;
+}
+
+export interface ProductGetOptions extends Options.FieldOptions {
   sync?: boolean;
 }
 
@@ -27,226 +25,24 @@ export interface ProductSyncOptions {
   cancelExisting?: boolean,
 }
 
-export interface IListAllCallbackData<T> {
-  pages: number;
-  page: number;
-  data: T;
-}
-
-export type listAllCallback<T> = (error: Error, data: IListAllCallbackData<T>) => void;
-
 @Injectable()
-export class ProductsService {
+export class ProductsService extends ShopifyApiRootCountService<
+Product, // ShopifyObjectType
+Products, // ShopifyModelClass
+ProductCountOptions, // CountOptions
+ProductGetOptions, // GetOptions
+ProductListOptions, // ListOptions
+ProductDocument // DatabaseDocumentType
+> {
   constructor(
     @Inject('ProductModelToken')
     private readonly productModel: (shopName: string) => Model<ProductDocument>,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     private readonly eventService: EventService,
-  ) {}
-
-  logger = new DebugService(`shopify:${this.constructor.name}`);
-
-  /**
-   * Retrieves a single product directly from the shopify API
-   * @param user 
-   * @param id 
-   * @param sync 
-   * @see https://help.shopify.com/en/api/reference/products/product#show
-   */
-  public async getFromShopify(user: IShopifyConnect, id: number, sync?: boolean) {
-    const products = new Products(user.myshopify_domain, user.accessToken);
-    const res = await products.get(id);
-    if (sync) {
-      await this.updateOrCreateInDb(user, res);
-    }
-    return res;
+  ) {
+    super(productModel, Products);
   }
-
-  /**
-   * Retrieves a single product from the app's own database.
-   * @param user 
-   * @param id 
-   * @param sync 
-   */
-  public async getFromDb(user: IShopifyConnect, id: number) {
-    return this.productModel(user.shop.myshopify_domain).find({id});
-  }
-
-  /**
-   * Retrieves a count of products directly from shopify.
-   * @param user 
-   * @param options 
-   * @see https://help.shopify.com/en/api/reference/products/product#count
-   */
-  public async countFromShopify(user: IShopifyConnect, options?: Options.ProductCountOptions): Promise<number> {
-    const products = new Products(user.myshopify_domain, user.accessToken);
-
-    // Delete undefined options
-    options = ApiService.deleteUndefinedProperties(options);
-
-    return pRetry(() => {
-      return products.count(options);
-    });
-  }
-
-  /**
-   * Retrieves a count of products from the app's own database.
-   * @param user 
-   * @param options 
-   */
-  public async countFromDb(user: IShopifyConnect, options?: Options.ProductCountOptions): Promise<number> {
-    return this.productModel(user.shop.myshopify_domain).count({});
-  }
-
-  /**
-   * Retrieves a list of products directly from shopify.
-   * @param user 
-   * @param options 
-   */
-  public async listFromShopify(user: IShopifyConnect, options?: ProductListOptions): Promise<Product[]> {
-    const products = new Products(user.myshopify_domain, user.accessToken);
-    let sync = options && options.sync;
-    if (sync) {
-      delete options.sync;
-    }
-
-    // Delete undefined options
-    options = ApiService.deleteUndefinedProperties(options);
-
-    return pRetry(() => {
-      return products.list(options);
-    })
-    .then((products: Product[]) => {
-      if (sync) {
-        return this.updateOrCreateManyInDb(user, products)
-        .then((res) => {
-          return products;
-        })
-      }
-      return products;
-    })
-  }
-
-  /**
-   * Retrieves a list of products from the app's own database.
-   * @param user 
-   */
-  public async listFromDb(user: IShopifyConnect): Promise<Product[]> {
-    return this.productModel(user.shop.myshopify_domain).find({}).select('-_id -__v').lean();
-  }
-
-  /**
-   * Internal method used for tests to compare the shopify products with the products in the app's own database
-   * @param user 
-   */
-  public async diffSynced(user: IShopifyConnect): Promise<any> {
-    const fromDb = await this.listFromDb(user);
-    const fromShopify = await this.listAllFromShopify(user);
-    let dbObj;
-    return fromShopify.map(obj => (dbObj = fromDb.find(x => x.id === obj.id)) && {[obj.id]: getDiff(obj, dbObj).filter(x=>x.operation!=='update' && !x.path.endsWith('._id'))})
-    .reduce((a,c)=>({...a, ...c}), {})
-  }
-
-  /**
-   * Gets a list of all of the shop's products directly from the shopify API
-   * @param options Options for filtering the results.
-   */
-  public async listAllFromShopify(user: IShopifyConnect, options?: ProductListOptions): Promise<Product[]>
-  public async listAllFromShopify(user: IShopifyConnect, options: ProductListOptions, listAllPageCallback: listAllCallback<Product[]>): Promise<void>
-  public async listAllFromShopify(user: IShopifyConnect, options?: ProductListOptions, listAllPageCallback?: listAllCallback<Product[]>): Promise<Product[]|void> {
-    // Delete undefined options
-    options = ApiService.deleteUndefinedProperties(options);
-
-    const results: Product[] = [];
-    const count = await this.countFromShopify(user, options);
-    const itemsPerPage = 250;
-    const pages = Math.ceil(count/itemsPerPage);
-
-    for (let page = 1; page <= pages; page++) {
-      await this.listFromShopify(user, {...options, page: page, limit: itemsPerPage})
-      .then((products) => {
-        if (typeof (listAllPageCallback) === 'function') {
-          listAllPageCallback(null, {
-            pages, page, data: products
-          });
-        } else {
-          Array.prototype.push.apply(results, products);
-        }
-      })
-      .catch((error) => {
-        if (typeof listAllPageCallback === 'function') {
-          listAllPageCallback(error, null);
-        } else {
-          throw error;
-        }
-      });
-    }
-    if (typeof (listAllPageCallback) === 'function') {
-      return; // void; we do not need the result if we have a callback
-    } else {
-      return results;
-    }
-  }
-
-  /**
-   * Gets a list of all of the shop's products directly from the shopify API as a stream
-   * @param options Options for filtering the results.
-   */
-  public listAllFromShopifyStream(user: IShopifyConnect, options?: ProductListOptions): Readable {
-    const stream = new Readable({objectMode: true, read: s=>s});
-    stream.push('[\n');
-    this.listAllFromShopify(user, options, (error, data) => {
-      if (error) {
-        stream.emit('error', error);
-      } else {
-        const products = data.data;
-        for (let j = 0; j < products.length-1; j++) {
-          stream.push(JSON.stringify([products[j]], null, 2).slice(2,-2) + ',');
-        }
-        stream.push(JSON.stringify([products[products.length-1]], null, 2).slice(2,-2));
-        if (data.page === data.pages) {
-          stream.push('\n]');
-        } else {
-          stream.push(',');
-        }
-      }
-    })
-    .then(() => {
-      stream.push(null);
-    })
-    .catch((error) => {
-      stream.emit('error', error);
-    });
-    return stream;
-  }
-
-  /**
-   * Gets a list of all of the shop's products directly from the shopify API as a Observable
-   * @param options Options for filtering the results.
-   */
-  public listAllFromShopifyObservable(user: IShopifyConnect, eventName: string, options?: ProductListOptions): Observable<WsResponse<Product>> {
-    // Delete undefined options
-    options = ApiService.deleteUndefinedProperties(options);
-    return Observable.create((observer: Observer<WsResponse<Product>>) => {
-      this.listAllFromShopify(user, options, (error, data) => {
-        const products = data.data;
-        products.forEach((product, i) => {
-          observer.next({
-            event: eventName,
-            data: product,
-          });
-        });
-      })
-      .then(() => {
-        observer.complete();
-      })
-      .catch((error) => {
-        observer.error(error);
-      });
-    });
-  }
-
   /**
    * Creates a new product directly in shopify
    * @param user 
@@ -277,26 +73,6 @@ export class ProductsService {
   public async deleteInShopify(user: IShopifyConnect, id: number) {
     const products = new Products(user.myshopify_domain, user.accessToken);
     return pRetry(() => products.delete(id));
-  }
-
-  /**
-   * Internal method to update several products in the app database.
-   * @param user 
-   * @param products 
-   */
-  protected async updateOrCreateManyInDb(user: IShopifyConnect, products: Product[]) {
-    const model = this.productModel(user.shop.myshopify_domain);
-    return products.map(async (product: Product) => await this.updateOrCreateInDb(user, product));
-  }
-
-  /**
-   * Internal method to update or create a single product in the app database.
-   * @param user 
-   * @param product 
-   */
-  protected async updateOrCreateInDb(user: IShopifyConnect, product: Product) {
-    const model = this.productModel(user.shop.myshopify_domain);
-    return model.findOneAndUpdate({id: product.id}, product, {upsert: true});
   }
 
   async listSyncProgress(user: IShopifyConnect): Promise<ISyncProgress[]> {

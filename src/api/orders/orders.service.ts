@@ -2,19 +2,20 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Orders, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Order } from 'shopify-prime/models';
-import { OrderDocument } from '../interfaces/order.schema';
-import { Model, Types } from 'mongoose';
-import { getDiff } from '../../helpers/diff';
-import { Readable } from 'stream';
-import * as PQueue from 'p-queue';
-import { DebugService } from '../../debug.service';
+import { OrderDocument } from '../interfaces/mongoose/order.schema';
+import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
-import { IOrderSyncProgress, OrderSyncProgressDocument, ISyncProgress, SyncProgressDocument } from '../../sync/sync-progress.schema';
+import { OrderSyncProgressDocument, ISyncProgress, SyncProgressDocument } from '../../sync/sync-progress.schema';
 import { TransactionsService } from './transactions/transactions.service';
 import * as pRetry from 'p-retry';
+import { ShopifyApiRootCountService } from '../api.service';
 
 
 export interface OrderListOptions extends Options.OrderListOptions {
+  sync?: boolean;
+}
+
+export interface OrderGetOptions extends Options.FieldOptions {
   sync?: boolean;
 }
 
@@ -29,7 +30,14 @@ export interface OrderSyncOptions {
 }
 
 @Injectable()
-export class OrdersService {
+export class OrdersService extends ShopifyApiRootCountService<
+  Order, // ShopifyObjectType
+  Orders, // ShopifyModelClass
+  OrderCountOptions, // CountOptions
+  OrderGetOptions, // GetOptions
+  OrderListOptions, // ListOptions
+  OrderDocument // DatabaseDocumentType
+  > {
   constructor(
     @Inject('OrderModelToken')
     private readonly orderModel: (shopName: string) => Model<OrderDocument>,
@@ -37,120 +45,8 @@ export class OrdersService {
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
     private readonly transactionsService: TransactionsService,
-  ) {}
-
-  logger = new DebugService(`shopify:${this.constructor.name}`);
-
-  public async getFromShopify(user: IShopifyConnect, id: number, sync?: boolean): Promise<Order> {
-    const orders = new Orders(user.myshopify_domain, user.accessToken);
-    const res = await pRetry(() => orders.get(id));
-    if (sync) {
-      await this.saveOne(user, res);
-    }
-    return res;
-  }
-
-  public async getFromDb(user: IShopifyConnect, id: number) {
-    return this.orderModel(user.shop.myshopify_domain).findOne({id}).select('-_id -__v').lean();
-  }
-
-  public async countFromShopify(user: IShopifyConnect, options?: Options.OrderCountOptions): Promise<number> {
-    const orders = new Orders(user.myshopify_domain, user.accessToken);
-    return pRetry(() => {
-      return orders.count(options)
-    });
-  }
-  public async countFromDb(user: IShopifyConnect, options?: Options.OrderCountOptions): Promise<number> {
-    return this.orderModel(user.shop.myshopify_domain).count({});
-  }
-
-  public async listFromShopify(user: IShopifyConnect, options?: OrderListOptions): Promise<Order[]> {
-    const orders = new Orders(user.myshopify_domain, user.accessToken);
-    let sync = options && options.sync;
-    if (sync) {
-      delete options.sync;
-    }
-    const res = await pRetry(() => orders.list(options));
-    if (sync) {
-      try {
-        await this.saveMany(user, res);
-      } catch (e) {
-        console.log(e);
-      }
-    }
-    return res;
-  }
-
-  public async saveMany(user: IShopifyConnect, orders: Order[]) {
-    const model = this.orderModel(user.shop.myshopify_domain);
-    return orders.map(async (order: Order) => await model.findOneAndUpdate({id: order.id}, order, {upsert: true}));
-  }
-
-  public async saveOne(user: IShopifyConnect, order: Order) {
-    const model = this.orderModel(user.shop.myshopify_domain);
-    return await model.findOneAndUpdate({id: order.id}, order);
-  }
-
-  public async listFromDb(user: IShopifyConnect): Promise<Order[]> {
-    return await this.orderModel(user.shop.myshopify_domain).find({}).select('-_id -__v').lean();
-  }
-
-  public async diffSynced(user: IShopifyConnect): Promise<any> {
-    const fromDb = await this.listFromDb(user);
-    const fromShopify = await this.listAllFromShopify(user, {status: 'any'});
-    console.log('from DB', fromDb.length);
-    console.log('from Shopify', fromShopify.length);
-    let dbObj;
-    return fromShopify.map(obj => (dbObj = fromDb.find(x => x.id === obj.id)) && {[obj.id]: getDiff(obj, dbObj).filter(x=>x.operation!=='update' && !x.path.endsWith('._id'))})
-    .reduce((a,c)=>({...a, ...c}), {})
-  }
-
-  /**
-   * Gets a list of all of the shop's orders.
-   * @param options Options for filtering the results.
-   */
-  public async listAllFromShopify(user: IShopifyConnect, options?: OrderListOptions): Promise<Order[]> {
-    const orders = new Orders(user.myshopify_domain, user.accessToken);
-    const count = await pRetry(() => orders.count(options));
-    const itemsPerPage = 250;
-    const pages = Math.ceil(count/itemsPerPage);
-    return await Promise.all(
-      Array(pages).fill(0).map(
-        (x, i) => this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
-      )
-    )
-    .then(results => {
-      return [].concat.apply([], results);
-    })
-  }
-
-  /**
-   * Gets a list of all of the shop's orders.
-   * @param options Options for filtering the results.
-   */
-  public listAllFromShopifyStream(user: IShopifyConnect, options?: OrderListOptions): Readable {
-    const orders = new Orders(user.myshopify_domain, user.accessToken);
-    const stream = new Readable({objectMode: true, read: s=>s});
-    pRetry(() => orders.count(options)).then(count => {
-      const itemsPerPage = 250;
-      const pages = Math.ceil(count/itemsPerPage);
-      let countDown = pages;
-      let q = new PQueue({ concurrency: 1});
-      stream.push('[\n')
-      Promise.all(Array(pages).fill(0).map(
-        (x, i) => q.add(() => this.listFromShopify(user, {...options, page: i+1, limit: itemsPerPage})
-          .then(objects => {
-            countDown--;
-            this.logger.debug(`listAll ${i}|${countDown} / ${pages}`);
-            objects.forEach((obj, i) => {
-              stream.push(JSON.stringify([obj], null, 2).slice(2, -2) + (countDown > 0 || (i!==objects.length-1) ? ',': '\n]'));
-            });
-          })
-        )
-      ))
-      .then(_ => stream.push(null));
-    });
-    return stream;
+  ) {
+    super(orderModel, Orders);
   }
 
   async listSyncProgress(user: IShopifyConnect): Promise<ISyncProgress[]> {
@@ -222,7 +118,7 @@ export class OrdersService {
         });
         if (!lastProgressRunning) {
           this.logger.debug('last progress has failed');
-          lastProgress.state = 'failure';
+          lastProgress.state = 'failed';
           lastProgress.lastError = 'sync timed out';
           await lastProgress.save();
         } else {

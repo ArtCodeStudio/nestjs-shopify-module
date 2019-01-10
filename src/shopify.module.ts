@@ -49,7 +49,6 @@ import { ProductsGateway } from './api/products/products.gateway';
 import { syncProviders } from './sync/sync-providers';
 import { PagesController } from './api/pages/pages.controller';
 import { PagesService } from './api/pages/pages.service';
-import { ApiService } from './api/api.service';
 import { SyncController } from './sync/sync.controller';
 export { RequestGuard } from './guards/request.guard';
 
@@ -79,7 +78,6 @@ export { RequestGuard } from './guards/request.guard';
     WebhooksService,
     ProductsGateway,
     WebhooksGateway, // FIXME only one gateway the time is working?
-    ApiService,
   ],
   controllers: [
     ShopifyAuthController,
