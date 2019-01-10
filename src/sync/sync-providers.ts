@@ -12,27 +12,22 @@ const syncProviders = (connection: Mongoose) => {
       provide: 'SyncProgressModelToken',
       useFactory: (eventService: EventService) => {
         SyncProgressSchema.post('save', function(doc: SyncProgressDocument, next) {
-          if (this.isNew) {
-            // If this is a newly created progress, we register a one-time event callbacks delegating to the more globally scoped events.
-            eventService.once(`sync-cancel:${doc.shop}:${doc.id}`, () => {
-              eventService.emit(`sync-cancel`, doc.shop, doc);
-            });
-            eventService.once(`sync-cancelled:${doc.shop}:${doc.id}`, () => {
-              eventService.emit(`sync-cancelled`, doc.shop, doc);
-            });
-            eventService.once(`sync-ended:${doc.shop}:${doc.id}`, () => {
-              eventService.emit(`sync-ended`, doc.shop, doc);
-            });
-            eventService.once(`sync-ended:${doc.shop}:${doc.id}`, () => {
-              eventService.emit(`sync-ended`, doc.shop, doc);
-            });
-            eventService.once(`sync:${doc.shop}:${doc.id}`, () => {
-              eventService.emit(`sync`, doc.shop, doc);
-            });
-          }
           eventService.emit(`sync:${doc.shop}:${doc.id}`, doc);
+          eventService.emit(`sync`, doc.shop, doc);
           if (doc.state !== 'running') {
             eventService.emit(`sync-ended:${doc.shop}:${doc._id}`, doc);
+            eventService.emit(`sync-ended`, doc.shop, doc);
+            switch (doc.state) {
+              case 'success':
+                eventService.emit(`sync-success`, doc.shop, doc);
+                break;
+              case 'failed':
+                eventService.emit(`sync-failed`, doc.shop, doc);
+                break;
+              case 'cancelled':
+                eventService.emit(`sync-cancelled`, doc.shop, doc);
+                break;
+            }
           }
           next();
         });
