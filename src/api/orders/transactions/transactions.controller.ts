@@ -9,7 +9,7 @@ import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
 import { Roles } from '../../../guards/roles.decorator';
 
 
-@Controller('shopify/api/orders/:order_id/transactions')
+@Controller('shopify/api/orders')
 export class TransactionsController {
   constructor(
     protected readonly transactionsService: TransactionsService
