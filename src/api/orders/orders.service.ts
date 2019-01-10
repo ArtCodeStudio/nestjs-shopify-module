@@ -267,6 +267,7 @@ export class OrdersService extends ShopifyApiRootCountService<
 
     this.logger.debug('Seeded orders progress:', progress.orders);
 
+    await progress.save();
     // The actual sync action:
 
     const remainingCount = progress.orders.shopifyCount - progress.orders.syncedCount;

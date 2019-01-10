@@ -282,6 +282,8 @@ ProductDocument // DatabaseDocumentType
 
     this.logger.debug('Seeded products progress:', progress.products);
 
+    await progress.save();
+
     // The actual sync action:
 
     const remainingCount = progress.products.shopifyCount - progress.products.syncedCount;

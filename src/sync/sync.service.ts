@@ -34,6 +34,12 @@ export class SyncService {
       cancelExisting: false,
     };
 
+    // If neither includeOrders nor includeProducts was passed, we assume by default that both should be included
+    if (!options.includeOrders && !options.includeProducts) {
+      options.includeOrders = true;
+      options.includeProducts = true;
+    }
+
     this.logger.debug(`startSync(${JSON.stringify(options, null, 2)}`);
     this.logger.debug(
       `startSync(
@@ -116,11 +122,11 @@ export class SyncService {
     });
 
     if (options.includeProducts) {
-      this.productsService.startSync(shopifyConnect, productSyncOptions, progress);
+      await this.productsService.startSync(shopifyConnect, productSyncOptions, progress);
     }
 
     if (options.includeOrders) {
-      this.ordersService.startSync(shopifyConnect, orderSyncOptions, progress);
+      await this.ordersService.startSync(shopifyConnect, orderSyncOptions, progress);
     }
 
     return progress;

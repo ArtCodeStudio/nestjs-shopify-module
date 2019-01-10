@@ -123,15 +123,12 @@ export class SyncController {
     @Query('resync') resync?: boolean,
     @Query('cancelExisting') cancelExisting?: boolean,
   ) {
-    let options: ISyncOptions = undefined;
-    if (includeOrders || includeProducts) {
-      options = {
-        includeOrders: !!includeOrders,
-        includeTransactions: !!includeTransactions,
-        includeProducts: !!includeProducts,
-        resync: !!resync,
-        cancelExisting: !!cancelExisting,
-      }
+    let options: ISyncOptions = {
+      includeOrders: !!includeOrders,
+      includeTransactions: !!includeTransactions,
+      includeProducts: !!includeProducts,
+      resync: !!resync,
+      cancelExisting: !!cancelExisting,
     }
     this.logger.debug(`startSync(${JSON.stringify(options, null, 2)}`);
     try {
