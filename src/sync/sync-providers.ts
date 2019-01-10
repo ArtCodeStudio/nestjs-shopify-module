@@ -14,12 +14,10 @@ const syncProviders = (connection: Mongoose) => {
       provide: 'SyncProgressModelToken',
       useFactory: (eventService: EventService) => {
         SyncProgressSchema.post('save', function(doc: SyncProgressDocument, next) {
-          eventService.emit(`sync`, doc);
-          eventService.emit(`sync:${doc.shop}`, doc);
+          eventService.emit(`sync`, doc.shop, doc);
           eventService.emit(`sync:${doc.shop}:${doc.id}`, doc);
           if (doc.state !== 'running') {
-            eventService.emit(`sync-ended`, doc);
-            eventService.emit(`sync-ended:${doc.shop}`, doc);
+            eventService.emit(`sync-ended`, doc.shop, doc);
             eventService.emit(`sync-ended:${doc.shop}:${doc._id}`, doc);
           }
           next();
