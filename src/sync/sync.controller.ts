@@ -18,7 +18,7 @@ import { IUserRequest } from '../interfaces/user-request';
 
 import { SyncService } from './sync.service';
 
-import { ISyncOptions } from './sync-progress.schema';
+import { ISyncOptions } from '../interfaces';
 
 import { ShopifyApiGuard } from '../guards/shopify-api.guard';
 import { Roles } from '../guards/roles.decorator';
@@ -44,19 +44,19 @@ export class SyncController {
     @Req() req: IUserRequest,
     @Res() res: Response,
   ) {
-    try {
-      return res.jsonp(
-        await this.syncService.findOne(
-          { shop: req.shopifyConnect.shop.myshopify_domain },
-          { sort: { 'createdAt': -1} },
-        )
-      );
-    } catch (error) {
+    return this.syncService.findOne(
+      { shop: req.shopifyConnect.shop.myshopify_domain },
+      { sort: { 'createdAt': -1} },
+    )
+    .then((progress) => {
+      res.jsonp(progress);
+    })
+    .catch((error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
       });
-    }
+    });
   }
 
   /**
@@ -71,19 +71,19 @@ export class SyncController {
     @Req() req: IUserRequest,
     @Res() res: Response,
   ) {
-    try {
-      return res.jsonp(
-        await this.syncService.find(
-          { shop: req.shopifyConnect.shop.myshopify_domain },
-          { sort: { 'createdAt': -1} },
-        )
-      );
-    } catch (error) {
+    return this.syncService.find(
+      { shop: req.shopifyConnect.shop.myshopify_domain },
+      { sort: { 'createdAt': -1} },
+    )
+    .then((progress) => {
+      res.jsonp(progress);
+    })
+    .catch((error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
       });
-    }
+    });
   }
 
   /**
@@ -93,6 +93,7 @@ export class SyncController {
    * @param includeOrders 
    * @param includeTransactions 
    * @param includeProducts 
+   * @param includePages 
    * @param resync 
    * @param cancelExisting 
    */
@@ -105,12 +106,45 @@ export class SyncController {
     @Param('includeOrders') includeOrders?: boolean,
     @Param('includeTransactions') includeTransactions?: boolean,
     @Param('includeProducts') includeProducts?: boolean,
+    @Param('includePages') includePages?: boolean,
+    @Param('includeSmartCollection') includeSmartCollection?: boolean,
+    @Param('includeCustomCollection') includeCustomCollection?: boolean,
     @Param('resync') resync?: boolean,
     @Param('cancelExisting') cancelExisting?: boolean,
   ) {
-    return this.startSync(req, res, includeOrders, includeTransactions, includeProducts, resync, cancelExisting)
+    let options: ISyncOptions = {
+      includeOrders: !!includeOrders,
+      includeTransactions: !!includeTransactions,
+      includeProducts: !!includeProducts,
+      includePages: !!includePages,
+      includeSmartCollection: !!includeSmartCollection,
+      includeCustomCollection: !!includeCustomCollection,
+      resync: !!resync,
+      cancelExisting: !!cancelExisting,
+    }
+    this.logger.debug(`startSync(${JSON.stringify(options, null, 2)}`);
+    return this.syncService.startSync(req.shopifyConnect, options)
+    .then((progress) => {
+      res.jsonp(progress);
+    })
+    .catch((error) => {
+      this.logger.error(error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    });
   }
 
+  /**
+   * @deprecated Use @Post() instead
+   * @param req 
+   * @param res 
+   * @param includeOrders 
+   * @param includeTransactions 
+   * @param includeProducts 
+   * @param resync 
+   * @param cancelExisting 
+   */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('start')
@@ -123,22 +157,7 @@ export class SyncController {
     @Query('resync') resync?: boolean,
     @Query('cancelExisting') cancelExisting?: boolean,
   ) {
-    let options: ISyncOptions = {
-      includeOrders: !!includeOrders,
-      includeTransactions: !!includeTransactions,
-      includeProducts: !!includeProducts,
-      resync: !!resync,
-      cancelExisting: !!cancelExisting,
-    }
-    this.logger.debug(`startSync(${JSON.stringify(options, null, 2)}`);
-    try {
-      return res.jsonp(await this.syncService.startSync(req.shopifyConnect, options));
-    } catch (error) {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
-    }
+    return this.start(req, res, includeOrders, includeTransactions, includeProducts, resync, cancelExisting);
   }
 
   /**
@@ -155,9 +174,24 @@ export class SyncController {
     @Res() res: Response,
     @Query('id') id: string,
   ) {
-    return this.cancelSync(req, res, id);
+    return this.syncService.cancelShopSync(req.shopifyConnect, id)
+    .then((result) => {
+      res.jsonp(result);
+    })
+    .catch((error) => {
+      this.logger.error(error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    });
   }
 
+  /**
+   * @deprecated Use @Delete() instead
+   * @param req 
+   * @param res 
+   * @param id 
+   */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('cancel')
@@ -166,14 +200,7 @@ export class SyncController {
     @Res() res: Response,
     @Query('id') id: string,
   ) {
-    try {
-      return res.jsonp(await this.syncService.cancelShopSync(req.shopifyConnect, id));
-    } catch (error) {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
-    }
+    return this.cancel(req, res, id);
   }
 
   @UseGuards(ShopifyApiGuard)
@@ -184,14 +211,16 @@ export class SyncController {
     @Res() res: Response,
     @Query() query,
   ) {
-    try {
-      return res.jsonp(await this.syncService.findOne(query));
-    } catch (error) {
+    return this.syncService.findOne(query)
+    .then((progress) => {
+      res.jsonp(progress);
+    })
+    .catch((error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
       });
-    }
+    });
   }
 
   @UseGuards(ShopifyApiGuard)
@@ -202,14 +231,16 @@ export class SyncController {
     @Res() res: Response,
     @Query() query,
   ) {
-    try {
-      return res.jsonp(await this.syncService.find(query));
-    } catch (error) {
+    return this.syncService.find(query)
+    .then((progress) => {
+      res.jsonp(progress);
+    })
+    .catch((error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
       });
-    }
+    });
   }
 
 }

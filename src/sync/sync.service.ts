@@ -1,14 +1,11 @@
 import { Connection, Document, Model, Mongoose } from 'mongoose';
-import { SyncProgressSchema, SyncProgressDocument } from './sync-progress.schema';
 import { Injectable, Inject } from '@nestjs/common';
 import { EventService } from '../event.service';
 import { OrdersService } from '../api/orders/orders.service';
 import { ProductsService } from '../api/products/products.service';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { DebugService } from '../debug.service';
-
-import { ISyncOptions } from './sync-progress.schema';
-import { userInfo } from 'os';
+import { ISyncOptions, SyncProgressSchema, SyncProgressDocument } from '../interfaces';
 
 @Injectable()
 export class SyncService {
@@ -31,6 +28,9 @@ export class SyncService {
       includeOrders: true,
       includeProducts: true,
       includeTransactions: false,
+      includePages: false,
+      includeCustomCollection: false,
+      includeSmartCollection: false,
       cancelExisting: false,
     };
 

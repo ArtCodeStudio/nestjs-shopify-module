@@ -5,7 +5,7 @@ import { Order } from 'shopify-prime/models';
 import { OrderDocument } from '../interfaces/mongoose/order.schema';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
-import { OrderSyncProgressDocument, ISyncProgress, SyncProgressDocument } from '../../sync/sync-progress.schema';
+import { OrderSyncProgressDocument, ISyncProgress, SyncProgressDocument } from '../../interfaces';
 import { TransactionsService } from './transactions/transactions.service';
 import * as pRetry from 'p-retry';
 import { ShopifyApiRootCountService } from '../api.service';

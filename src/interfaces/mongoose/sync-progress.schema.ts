@@ -1,26 +1,8 @@
 import * as mongoose from 'mongoose';
 import { Schema, Document } from 'mongoose';
-
-export interface IOrderSyncOptions {
-  resync?: boolean,
-  includeTransactions?: boolean,
-  attachToExisting?: boolean,
-  cancelExisting?: boolean,
-}
-
-export interface IProductSyncOptions {
-  resync?: boolean,
-  attachToExisting?: boolean,
-  cancelExisting?: boolean,
-}
-
-export interface ISyncOptions {
-  includeOrders: boolean,
-  includeTransactions: boolean,
-  includeProducts: boolean,
-  resync: boolean,
-  cancelExisting: boolean,
-}
+import { ISyncProgress } from '../sync-progress';
+import { IProductSyncProgress } from '../sync-progress-product';
+import { IOrderSyncProgress } from '../sync-progress-order';
 
 export const SyncOptionsSchema = new mongoose.Schema({
   includeOrders: Boolean,
@@ -29,21 +11,6 @@ export const SyncOptionsSchema = new mongoose.Schema({
   resync: Boolean,
   cancelExisting: Boolean,
 });
-
-export interface IOrderSyncProgress {
-  shop: string,
-  includeTransactions: boolean,
-  shopifyCount: number,
-  syncedCount: number,
-  syncedTransactionsCount: number,
-  sinceId: number,
-  lastId: number,
-  createdAt: Date,
-  updatedAt: Date,
-  error: string | null,
-  state: 'running' | 'failed' | 'canceled' | 'success';
-  continuedFromPrevious?: Schema.Types.ObjectId,
-}
 
 export const OrderSyncProgressSchema = new mongoose.Schema({
   shop: String,
@@ -67,20 +34,6 @@ export const OrderSyncProgressSchema = new mongoose.Schema({
 
 export type OrderSyncProgressDocument = IOrderSyncProgress & Document;
 
-
-export interface IProductSyncProgress {
-  shop: string,
-  shopifyCount: number,
-  syncedCount: number,
-  sinceId: number,
-  lastId: number,
-  createdAt: Date,
-  updatedAt: Date,
-  error: string | null,
-  state: 'running' | 'failed' | 'canceled' | 'success';
-  continuedFromPrevious?: Schema.Types.ObjectId,
-}
-
 export const ProductSyncProgressSchema = new mongoose.Schema({
   shop: String,
   shopifyCount: Number,
@@ -100,16 +53,6 @@ export const ProductSyncProgressSchema = new mongoose.Schema({
 
 export type ProductSyncProgressDocument = IProductSyncProgress & Document;
 
-export interface ISyncProgress {
-  shop: String,
-  options: ISyncOptions,
-  orders?: IOrderSyncProgress,
-  products?: IProductSyncProgress,
-  createdAt: Date,
-  updatedAt: Date,
-  state: 'running' | 'failed' | 'canceled' | 'success';
-  lastError: string | null,
-}
 
 export const SyncProgressSchema = new mongoose.Schema({
   shop: String,

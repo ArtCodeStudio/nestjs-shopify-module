@@ -5,7 +5,7 @@ import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { ProductDocument } from '../interfaces/mongoose/product.schema';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
-import { IProductSyncProgress, ProductSyncProgressDocument, ISyncProgress, SyncProgressDocument } from '../../sync/sync-progress.schema';
+import { ProductSyncProgressDocument, ISyncProgress, SyncProgressDocument } from '../../interfaces';
 import { ShopifyApiRootCountService } from '../api.service';
 import * as pRetry from 'p-retry';
 

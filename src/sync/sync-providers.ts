@@ -3,7 +3,7 @@ import {
   SyncProgressSchema, SyncProgressDocument,
   OrderSyncProgressSchema, OrderSyncProgressDocument,
   ProductSyncProgressSchema, ProductSyncProgressDocument,
-} from './sync-progress.schema';
+} from '../interfaces';
 
  import { EventService } from '../event.service';
 
