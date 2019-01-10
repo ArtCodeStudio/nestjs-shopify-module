@@ -9,6 +9,7 @@ import {
   Delete,
   Post,
   HttpStatus,
+  Options,
 } from '@nestjs/common';
 
 import { Response } from 'express';
@@ -122,13 +123,17 @@ export class SyncController {
     @Query('resync') resync?: boolean,
     @Query('cancelExisting') cancelExisting?: boolean,
   ) {
-    const options: ISyncOptions = {
-      includeOrders: !!includeOrders,
-      includeTransactions: !!includeTransactions,
-      includeProducts: !!includeProducts,
-      resync: !!resync,
-      cancelExisting: !!cancelExisting,
+    let options: ISyncOptions = undefined;
+    if (includeOrders || includeProducts) {
+      options = {
+        includeOrders: !!includeOrders,
+        includeTransactions: !!includeTransactions,
+        includeProducts: !!includeProducts,
+        resync: !!resync,
+        cancelExisting: !!cancelExisting,
+      }
     }
+    this.logger.debug(`startSync(${JSON.stringify(options, null, 2)}`);
     try {
       return res.jsonp(await this.syncService.startSync(req.shopifyConnect, options));
     } catch (error) {
