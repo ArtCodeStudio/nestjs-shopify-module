@@ -2,6 +2,7 @@ import {
   Controller,
   Param,
   Query,
+  Body,
   UseGuards,
   Req,
   Res,
@@ -103,26 +104,28 @@ export class SyncController {
   async start(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Param('includeOrders') includeOrders?: boolean,
-    @Param('includeTransactions') includeTransactions?: boolean,
-    @Param('includeProducts') includeProducts?: boolean,
-    @Param('includePages') includePages?: boolean,
-    @Param('includeSmartCollection') includeSmartCollection?: boolean,
-    @Param('includeCustomCollection') includeCustomCollection?: boolean,
-    @Param('resync') resync?: boolean,
-    @Param('cancelExisting') cancelExisting?: boolean,
+    @Body() body: any,
+    @Body('includeOrders') includeOrders?: boolean | string,
+    @Body('includeTransactions') includeTransactions?: boolean | string,
+    @Body('includeProducts') includeProducts?: boolean | string,
+    @Body('includePages') includePages?: boolean | string,
+    @Body('includeSmartCollection') includeSmartCollection?: boolean | string,
+    @Body('includeCustomCollection') includeCustomCollection?: boolean | string,
+    @Body('resync') resync?: boolean | string,
+    @Body('cancelExisting') cancelExisting?: boolean | string,
   ) {
     let options: ISyncOptions = {
-      includeOrders: !!includeOrders,
-      includeTransactions: !!includeTransactions,
-      includeProducts: !!includeProducts,
-      includePages: !!includePages,
-      includeSmartCollection: !!includeSmartCollection,
-      includeCustomCollection: !!includeCustomCollection,
-      resync: !!resync,
-      cancelExisting: !!cancelExisting,
+      includeOrders: includeOrders === 'true' || includeOrders === true,
+      includeTransactions: includeTransactions === 'true' || includeTransactions === true,
+      includeProducts: includeProducts === 'true' || includeProducts === true,
+      includePages: includePages === 'true' || includePages === true,
+      includeSmartCollection: includeSmartCollection === 'true' || includeSmartCollection === true,
+      includeCustomCollection: includeCustomCollection === 'true' || includeCustomCollection === true,
+      resync: resync === 'true' || resync === true,
+      cancelExisting: cancelExisting === 'true' || cancelExisting === true,
     }
-    this.logger.debug(`startSync(${JSON.stringify(options, null, 2)}`);
+    this.logger.debug('startSync body', body)
+    this.logger.debug(`startSync(${JSON.stringify(options, null, 2)})`);
     return this.syncService.startSync(req.shopifyConnect, options)
     .then((progress) => {
       res.jsonp(progress);
@@ -154,9 +157,9 @@ export class SyncController {
     @Query('include_orders') includeOrders?: boolean,
     @Query('include_transactions') includeTransactions?: boolean,
     @Query('include_products') includeProducts?: boolean,
-    @Param('include_pages') includePages?: boolean,
-    @Param('include_smart_collection') includeSmartCollection?: boolean,
-    @Param('include_custom_collection') includeCustomCollection?: boolean,
+    @Query('include_pages') includePages?: boolean,
+    @Query('include_smart_collection') includeSmartCollection?: boolean,
+    @Query('include_custom_collection') includeCustomCollection?: boolean,
     @Query('resync') resync?: boolean,
     @Query('cancelExisting') cancelExisting?: boolean,
   ) {
