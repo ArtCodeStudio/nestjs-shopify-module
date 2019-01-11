@@ -46,7 +46,7 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
     this.eventService.on(`webhook:carts/create`, (myshopifyDomain: string, data: any) => {
       nsp.to(`${myshopifyDomain}-app-backend`).emit('webhook:carts/create', data);
-    });    
+    });
 
     this.eventService.on(`webhook:carts/update`, (myshopifyDomain: string, data: any) => {
       nsp.to(`${myshopifyDomain}-app-backend`).emit('carts/update', data);
@@ -286,11 +286,11 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
   handleConnection(client: SessionSocket) {
     this.logger.debug('connect', client.id, client.handshake.session);
-    // Join the room (the room name is the myshopify domain)
+    // Join the room for app backend users to receive broadcast events
     if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
       client.join(`${client.handshake.session.shop}-app-backend`);
     }
-
+    // Join the room for theme client visitors to receive broadcast events
     if (client.handshake.session && client.handshake.session.isThemeClientRequest) {
       client.join(`${client.handshake.session.shop}-client-theme`);
     }

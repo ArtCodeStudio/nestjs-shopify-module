@@ -5,6 +5,10 @@ import { SyncService } from './sync.service';
 import { Product, ProductUpdateCreate } from 'shopify-prime/models';
 import { DebugService } from '../debug.service';
 import { Server } from 'socket.io'
+import { EventService } from '../event.service';
+import { 
+  SyncProgressSchema, SyncProgressDocument,
+} from '../interfaces';
 
 @WebSocketGateway({namespace: '/socket.io/shopify/sync'})
 export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -14,6 +18,7 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
+    protected readonly eventService: EventService,
     protected readonly syncService: SyncService
   ){}
 
@@ -24,10 +29,39 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   afterInit(nsp: SocketIO.Namespace) {
     this.logger.debug('afterInit', nsp.name);
+
+    this.eventService.on(`sync`, (myshopifyDomain: string, progress: SyncProgressDocument) => {
+      nsp.to(`${myshopifyDomain}-app-backend`).emit('sync', progress);
+    });
+
+    this.eventService.on(`sync-ended`, (myshopifyDomain: string, progress: SyncProgressDocument) => {
+      nsp.to(`${myshopifyDomain}-app-backend`).emit('sync-ended', progress);
+    });
+
+    this.eventService.on(`sync-success`, (myshopifyDomain: string, progress: SyncProgressDocument) => {
+      nsp.to(`${myshopifyDomain}-app-backend`).emit('sync-success', progress);
+    });
+
+    this.eventService.on(`sync-failed`, (myshopifyDomain: string, progress: SyncProgressDocument) => {
+      nsp.to(`${myshopifyDomain}-app-backend`).emit('sync-failed', progress);
+    });
+  
+    this.eventService.on(`sync-cancelled`, (myshopifyDomain: string, progress: SyncProgressDocument) => {
+      nsp.to(`${myshopifyDomain}-app-backend`).emit('sync-cancelled', progress);
+    });
+    
   }
 
   handleConnection(client: SessionSocket) {
     this.logger.debug('connect', client.id, client.handshake.session);
+    // Join the room for app backend users to receive broadcast events
+    if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
+      client.join(`${client.handshake.session.shop}-app-backend`);
+    }
+    // Join the room for theme client visitors to receive broadcast events
+    if (client.handshake.session && client.handshake.session.isThemeClientRequest) {
+      client.join(`${client.handshake.session.shop}-client-theme`);
+    }
   }
 
   handleDisconnect(client: SessionSocket) {
