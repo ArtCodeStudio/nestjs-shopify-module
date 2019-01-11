@@ -30,6 +30,10 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   afterInit(nsp: SocketIO.Namespace) {
     this.logger.debug('afterInit', nsp.name);
 
+    this.eventService.on(`sync-exception`, (myshopifyDomain: string, error: any) => {
+      nsp.to(`${myshopifyDomain}-app-backend`).emit('sync-exception', error);
+    });
+
     this.eventService.on(`sync`, (myshopifyDomain: string, progress: SyncProgressDocument) => {
       nsp.to(`${myshopifyDomain}-app-backend`).emit('sync', progress);
     });
