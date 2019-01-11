@@ -5,7 +5,7 @@ import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { ProductDocument } from '../interfaces/mongoose/product.schema';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
-import { ProductSyncProgressDocument, ISyncProgress, SyncProgressDocument } from '../../interfaces';
+import { ProductSyncProgressDocument, ISyncProgress, SyncProgressDocument, IProductSyncProgress } from '../../interfaces';
 import { ShopifyApiRootCountService } from '../api.service';
 import * as pRetry from 'p-retry';
 
@@ -228,10 +228,11 @@ ProductDocument // DatabaseDocumentType
       return progress;
     }
 
-    let seedProductsProgress : any = {
+    let seedProductsProgress: any = {
       shop: user.shop.myshopify_domain,
       sinceId: 0,
       lastId: null,
+      info: null,
       syncedCount: 0,
       shopifyCount: await this.countFromShopify(user),
       state: 'running',
@@ -270,6 +271,7 @@ ProductDocument // DatabaseDocumentType
       if (lastProductsProgress) {
         seedProductsProgress.sinceId = lastProductsProgress.lastId;
         seedProductsProgress.lastId = lastProductsProgress.lastId;
+        seedProductsProgress.info = lastProductsProgress.info;
         seedProductsProgress.syncedCount = lastProductsProgress.syncedCount;
         seedProductsProgress.continuedFromPrevious = lastProgressWithProducts._id;
       }

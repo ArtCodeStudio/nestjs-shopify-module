@@ -2,7 +2,7 @@ import { Schema } from 'mongoose';
 
 export interface IProductSyncProgress {
   /**
-   * A info text to show on sync progress in fronted 
+   * A info text to show on sync progress in frontend 
    */
   info: string;
   shop: string;

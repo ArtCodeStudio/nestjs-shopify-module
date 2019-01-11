@@ -204,10 +204,9 @@ export class OrdersService extends ShopifyApiRootCountService<
       return progress;
     }
 
-    let seedOrdersProgress : any = {
+    let seedOrdersProgress: any = {
       shop: user.shop.myshopify_domain,
       sinceId: 0,
-      lastId: null,
       syncedCount: 0,
       syncedTransactionsCount: 0,
       includeTransactions: options.includeTransactions,
@@ -251,6 +250,7 @@ export class OrdersService extends ShopifyApiRootCountService<
       if (lastOrdersProgress) {
         seedOrdersProgress.sinceId = lastOrdersProgress.lastId;
         seedOrdersProgress.lastId = lastOrdersProgress.lastId;
+        seedOrdersProgress.info = lastOrdersProgress.info;
         seedOrdersProgress.syncedCount = lastOrdersProgress.syncedCount;
         seedOrdersProgress.syncedTransactionsCount = lastOrdersProgress.syncedTransactionsCount;
         seedOrdersProgress.continuedFromPrevious = lastProgressWithOrders._id;
@@ -311,6 +311,7 @@ export class OrdersService extends ShopifyApiRootCountService<
               progress.orders.syncedTransactionsCount += transactions.length;
               progress.orders.syncedCount ++;
               progress.orders.lastId = orders[j].id;
+              progress.orders.info = orders[j].name;
               await pRetry(() => progress.save());
             }
           }

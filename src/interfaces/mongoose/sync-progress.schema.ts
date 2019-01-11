@@ -13,6 +13,7 @@ export const SyncOptionsSchema = new mongoose.Schema({
 });
 
 export const OrderSyncProgressSchema = new mongoose.Schema({
+  info: String,
   shop: String,
   shopifyCount: Number,
   syncedCount: Number,
@@ -35,12 +36,12 @@ export const OrderSyncProgressSchema = new mongoose.Schema({
 export type OrderSyncProgressDocument = IOrderSyncProgress & Document;
 
 export const ProductSyncProgressSchema = new mongoose.Schema({
+  info: String,
   shop: String,
   shopifyCount: Number,
   syncedCount: Number,
   sinceId: Number,
   lastId: Number,
-
   createdAt: Date,
   updatedAt: Date,
   state: String,
