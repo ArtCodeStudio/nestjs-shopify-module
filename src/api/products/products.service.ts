@@ -299,7 +299,7 @@ ProductDocument // DatabaseDocumentType
           if (isCancelled) {
             throw new Error('cancelled');
           }
-          const objects = await this.listFromShopify(
+          const products = await this.listFromShopify(
             user,
             {
               sync: true,
@@ -310,13 +310,16 @@ ProductDocument // DatabaseDocumentType
           );
           countDown--;
           this.logger.debug(` ${i}|${countDown} / ${pages}`);
-          progress.products.syncedCount += objects.length;
-          progress.products.lastId = objects[objects.length-1].id;
+          progress.products.syncedCount += products.length;
+          progress.products.lastId = products[products.length-1].id;
+          progress.products.info = products[products.length-1].title;
           /*await progress.update({products: {
             syncedCount: progress.orders.syncedCount,
             lastId: progress.orders.lastId,
           }});*/
-          await pRetry(() => progress.save());
+          await pRetry(() => {
+            return progress.save()
+          });
         }
         progress.products.state = 'success';
       } catch (error) {

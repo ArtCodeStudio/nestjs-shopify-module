@@ -280,7 +280,7 @@ export class OrdersService extends ShopifyApiRootCountService<
           if (isCancelled) {
             throw new Error('cancelled');
           }
-          const objects = await this.listFromShopify(
+          const orders = await this.listFromShopify(
             user,
             {
               sync: true,
@@ -294,22 +294,23 @@ export class OrdersService extends ShopifyApiRootCountService<
           countDown--;
           this.logger.debug(` ${i}|${countDown} / ${pages}`);
           if (!options.includeTransactions) {
-            progress.orders.syncedCount += objects.length;
-            progress.orders.lastId = objects[objects.length-1].id;
+            progress.orders.syncedCount += orders.length;
+            progress.orders.lastId = orders[orders.length-1].id;
+            progress.orders.info = orders[orders.length-1].name;
             /* await progress.update({orders: {
               syncedCount: progress.orders.syncedCount,
               lastId: progress.orders.lastId,
             }}); */
             await pRetry(() => progress.save());
           } else {
-            for (let j=0; j<objects.length; j++) {
+            for (let j=0; j<orders.length; j++) {
               if (isCancelled) {
                 throw new Error('cancelled');
               }
-              const transactions = await this.transactionsService.listFromShopify(user, objects[j].id, {sync: true, failOnSyncError: true});
+              const transactions = await this.transactionsService.listFromShopify(user, orders[j].id, {sync: true, failOnSyncError: true});
               progress.orders.syncedTransactionsCount += transactions.length;
               progress.orders.syncedCount ++;
-              progress.orders.lastId = objects[j].id;
+              progress.orders.lastId = orders[j].id;
               await pRetry(() => progress.save());
             }
           }

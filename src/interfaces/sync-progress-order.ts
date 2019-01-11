@@ -1,6 +1,10 @@
 import { Schema } from 'mongoose';
 
 export interface IOrderSyncProgress {
+  /**
+   * A info text to show on sync progress in fronted 
+   */
+  info: string;
   shop: string,
   includeTransactions: boolean,
   shopifyCount: number,
