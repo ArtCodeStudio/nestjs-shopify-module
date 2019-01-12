@@ -395,14 +395,14 @@ export abstract class ShopifyApiRootCountableService<
   }
 
 
-  async listSyncProgress(shopifyConnect: IShopifyConnect): Promise<ISyncProgress[]> {
+  protected async listSyncProgress(shopifyConnect: IShopifyConnect): Promise<ISyncProgress[]> {
     return this.syncprogressModel.find({
       shop: shopifyConnect.myshopify_domain,
       [`options.include${this.upperCaseResourceName}`]: true,
     }).lean();
   }
 
-  async getLastSyncProgress(shopifyConnect: IShopifyConnect): Promise<ISyncProgress | null> {
+  protected async getLastSyncProgress(shopifyConnect: IShopifyConnect): Promise<ISyncProgress | null> {
     return await this.syncprogressModel.findOne(
       {
         shop: shopifyConnect.myshopify_domain,
@@ -414,7 +414,24 @@ export abstract class ShopifyApiRootCountableService<
     .lean();
   }
 
-  async seedSyncProgress(shopifyConnect: IShopifyConnect, options: ISyncOptions, lastProgress: SyncProgressDocument) {
+  protected async syncedDataCallback(shopifyConnect: IShopifyConnect, subProgress: Partial<SubSyncProgressDocument>, options: ISyncOptions, data: IListAllCallbackData<ShopifyObjectType>) {
+    const objects = data.data;
+    subProgress.syncedCount += objects.length;
+    subProgress.lastId = objects[objects.length-1].id;
+  }
+
+  protected getSyncListOptions(options: ISyncOptions): Partial<ListOptions> {
+    return {};
+  }
+
+  protected getlastSyncProgressForOptions(shopifyConnect, options: ISyncOptions) {
+    return {
+      shop: shopifyConnect.myshopify_domain,
+      [`options.include${this.upperCaseResourceName}`]: true,
+    };
+  }
+
+  protected async seedSyncProgress(shopifyConnect: IShopifyConnect, options: ISyncOptions, lastProgress: SyncProgressDocument): Promise<Partial<SubSyncProgressDocument>> {
     const shop = shopifyConnect.myshopify_domain;
     let seedSubProgress: Partial<SubSyncProgressDocument> = {
       shop: shop,
@@ -431,22 +448,18 @@ export abstract class ShopifyApiRootCountableService<
 
     if (!options.resync && lastProgress) {
       let lastSubProgress: SubSyncProgressDocument | null;
-      let lastProgressWithThis: SyncProgressDocument | null;
+      let lastProgressWithTheseOptions: SyncProgressDocument | null;
 
       if (lastProgress[this.resourceName]) {
         lastSubProgress = lastProgress[this.resourceName];
-        lastProgressWithThis = lastProgress;
+        lastProgressWithTheseOptions = lastProgress;
       } else {
-        const lastProgressWithThisQuery = {
-          shop: shop,
-          [`options.include${this.upperCaseResourceName}`]: true,
-        };
-        lastProgressWithThis = await this.syncprogressModel.findOne(
-          lastProgressWithThisQuery,
+        lastProgressWithTheseOptions = await this.syncprogressModel.findOne(
+          this.getlastSyncProgressForOptions(shopifyConnect, options),
           {},
           { sort: { 'createdAt': -1} }
         );
-        lastSubProgress = lastProgressWithThis && lastProgressWithThis[this.resourceName];
+        lastSubProgress = lastProgressWithTheseOptions && lastProgressWithTheseOptions[this.resourceName];
       }
 
       if (lastSubProgress) {
@@ -454,22 +467,12 @@ export abstract class ShopifyApiRootCountableService<
         seedSubProgress.lastId = lastSubProgress.lastId;
         seedSubProgress.info = lastSubProgress.info;
         seedSubProgress.syncedCount = lastSubProgress.syncedCount;
-        seedSubProgress.continuedFromPrevious = lastProgressWithThis._id;
+        seedSubProgress.continuedFromPrevious = lastProgressWithTheseOptions._id;
       }
     }
 
     this.logger.debug(`seed sub-progress`, seedSubProgress);
     return seedSubProgress;
-  }
-
-  protected async syncedDataCallback(shopifyConnect: IShopifyConnect, subProgress: Partial<SubSyncProgressDocument>, options: ISyncOptions, data: IListAllCallbackData<ShopifyObjectType>) {
-    const objects = data.data;
-    subProgress.syncedCount += objects.length;
-    subProgress.lastId = objects[objects.length-1].id;
-  }
-
-  protected getSyncListOptions(options: ISyncOptions): Partial<ListOptions> {
-    return {};
   }
 
   /**
