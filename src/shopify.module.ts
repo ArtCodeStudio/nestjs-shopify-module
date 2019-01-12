@@ -51,7 +51,13 @@ import { syncProviders } from './sync/sync-providers';
 import { PagesController } from './api/pages/pages.controller';
 import { PagesService } from './api/pages/pages.service';
 import { SyncController } from './sync/sync.controller';
+import { SmartCollectionsService } from './api/smart-collections/smart-collections.service';
+import { CustomCollectionsService } from './api/custom-collections/custom-collections.service';
+import { SmartCollectionsController } from './api/smart-collections/smart-collections.controller';
+import { CustomCollectionsController } from './api/custom-collections/custom-collections.controller';
+
 export { RequestGuard } from './guards/request.guard';
+
 
 @Module({
   providers: [
@@ -80,6 +86,8 @@ export { RequestGuard } from './guards/request.guard';
     ProductsGateway,
     SyncGateway,
     WebhooksGateway, // FIXME only one gateway the time is working?
+    SmartCollectionsService,
+    CustomCollectionsService,
   ],
   controllers: [
     ShopifyAuthController,
@@ -94,6 +102,8 @@ export { RequestGuard } from './guards/request.guard';
     TransactionsController,
     WebhooksController,
     SyncController,
+    SmartCollectionsController,
+    CustomCollectionsController,
   ],
   exports: [
     ShopifyConnectService,
@@ -184,6 +194,14 @@ export class ShopifyModule implements NestModule {
       .apply(GetShopifyConnectMiddleware)
       .with('ShopifyModule')
       .forRoutes(PagesController)
+
+      .apply(GetShopifyConnectMiddleware)
+      .with('ShopifyModule')
+      .forRoutes(SmartCollectionsController)
+
+      .apply(GetShopifyConnectMiddleware)
+      .with('ShopifyModule')
+      .forRoutes(CustomCollectionsController)
 
       .apply(GetShopifyConnectMiddleware)
       .with('ShopifyModule')
