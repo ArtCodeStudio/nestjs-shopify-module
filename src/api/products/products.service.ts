@@ -2,10 +2,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Products, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
 import { Product, ProductUpdateCreate } from 'shopify-prime/models';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { ProductDocument } from '../interfaces/mongoose/product.schema';
+import { ProductDocument, IListAllCallbackData } from '../interfaces';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
-import { SubSyncProgressDocument, ISyncProgress, SyncProgressDocument, ISubSyncProgress } from '../../interfaces';
+import { SyncProgressDocument, SubSyncProgressDocument, ISyncOptions } from '../../interfaces';
 import { ShopifyApiRootCountableService } from '../api.service';
 import * as pRetry from 'p-retry';
 
@@ -20,11 +20,6 @@ export interface ProductGetOptions extends Options.FieldOptions {
 
 export interface ProductCountOptions extends Options.ProductCountOptions {}
 
-export interface ProductSyncOptions {
-  resync?: boolean,
-  attachToExisting?: boolean,
-  cancelExisting?: boolean,
-}
 
 @Injectable()
 export class ProductsService extends ShopifyApiRootCountableService<
@@ -88,7 +83,12 @@ ProductDocument // DatabaseDocumentType
    * @param options 
    * @param data 
    */
-  async syncedDataCallback(shopifyConnect, subProgress, options, data) {
+  async syncedDataCallback(
+    shopifyConnect: IShopifyConnect,
+    subProgress: SubSyncProgressDocument,
+    options: ISyncOptions,
+    data: IListAllCallbackData<Product>
+  ): Promise<void> {
     const products = data.data;
     subProgress.syncedCount += products.length;
     const lastProduct = products[products.length-1];

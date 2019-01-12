@@ -18,3 +18,6 @@ export * from './shipping-line.schema';
 export * from './tax-line.schema';
 export * from './theme.schema';
 export * from './transaction.schema';
+export * from './page.schema';
+export * from './smart-collection.schema';
+export * from './custom-collection.schema';

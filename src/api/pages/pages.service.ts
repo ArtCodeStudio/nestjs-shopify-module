@@ -6,9 +6,8 @@ import { Model } from 'mongoose';
 import { deleteUndefinedProperties } from '../helpers';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../api.service';
-import { PageDocument } from '../interfaces/mongoose/page.schema';
-import { SyncProgressDocument } from '../../interfaces';
-// import { IPageSyncProgress, PageSyncProgressDocument } from '../../sync/sync-progress.schema';
+import { PageDocument, IListAllCallbackData } from '../interfaces';
+import { SyncProgressDocument, ISubSyncProgress, ISyncOptions } from '../../interfaces';
 
 export interface PageListOptions extends Options.PageListOptions {
   sync?: boolean;
@@ -132,6 +131,26 @@ PageDocument // DatabaseDocumentType
     .then((result) => {
       return result;
     });
+  }
+
+  /**
+   * 
+   * @param shopifyConnect 
+   * @param subProgress 
+   * @param options 
+   * @param data 
+   */
+  async syncedDataCallback(
+    shopifyConnect: IShopifyConnect,
+    subProgress: ISubSyncProgress,
+    options: ISyncOptions,
+    data: IListAllCallbackData<Page>
+  ): Promise<void> {
+    const pages = data.data;
+    subProgress.syncedCount += pages.length;
+    const lastPage = pages[pages.length-1];
+    subProgress.lastId = lastPage.id;
+    subProgress.info = lastPage.title;
   }
 
 }

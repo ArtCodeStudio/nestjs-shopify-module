@@ -505,28 +505,29 @@ export abstract class ShopifyApiRootCountableService<
     progress[this.resourceName].state = 'running';
 
     let listAllError: Error | null = null;
-    this.listAllFromShopify(
-      shopifyConnect,
-      {
-        sync: true,
-        failOnSyncError: true,
-        cancelSignal,
-        since_id: progress[this.resourceName].sinceId,
-        ...this.getSyncListOptions(options)
-      } as ListOptions,
-      (error: Error, data: IListAllCallbackData<ShopifyObjectType>) => {
-        if (error) {
-          listAllError = error;
-        } else {
-          return this.syncedDataCallback(shopifyConnect, progress[this.resourceName], options, data)
-          .then(() => {
-            pRetry(() => {
-              return progress.save();
-            });
+
+    const listAllCallback = (error: Error, data: IListAllCallbackData<ShopifyObjectType>) => {
+      if (error) {
+        listAllError = error;
+      } else {
+        return this.syncedDataCallback(shopifyConnect, progress[this.resourceName], options, data)
+        .then(() => {
+          pRetry(() => {
+            return progress.save();
           });
-        }
+        });
       }
-    )
+    };
+
+    const listAllOptions = {
+      sync: true,
+      failOnSyncError: true,
+      cancelSignal,
+      since_id: progress[this.resourceName].sinceId,
+      ...this.getSyncListOptions(options)
+    } as ListOptions
+
+    return this.listAllFromShopify(shopifyConnect, listAllOptions, listAllCallback)
     .then(() => {
       if (listAllError) {
         throw listAllError;

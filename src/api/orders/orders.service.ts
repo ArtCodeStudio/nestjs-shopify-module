@@ -8,7 +8,6 @@ import { EventService } from '../../event.service';
 import { IListAllCallbackData } from '../../api/interfaces';
 import { SyncProgressDocument, ISyncOptions, OrderSyncProgressDocument } from '../../interfaces';
 import { TransactionsService } from './transactions/transactions.service';
-import * as pRetry from 'p-retry';
 import { ShopifyApiRootCountableService } from '../api.service';
 
 
@@ -22,13 +21,6 @@ export interface OrderGetOptions extends Options.FieldOptions {
 }
 
 export interface OrderCountOptions extends Options.OrderCountOptions {
-}
-
-export interface OrderSyncOptions {
-  resync?: boolean,
-  includeTransactions?: boolean,
-  attachToExisting?: boolean,
-  cancelExisting?: boolean,
 }
 
 @Injectable()
@@ -69,7 +61,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
     subProgress: OrderSyncProgressDocument,
     options: ISyncOptions,
     data: IListAllCallbackData<Order>
-  ) {
+  ): Promise<void> {
     const orders = data.data;
     const lastOrder =orders[orders.length-1];
     if (options.includeTransactions) {
