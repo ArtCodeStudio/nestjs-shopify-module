@@ -484,7 +484,7 @@ export abstract class ShopifyApiRootCountableService<
    * @event sync (shop, lastProgress)
    * @event sync-cancelled:[shop]:[progressId] ()
    */
-  public async startSync(shopifyConnect: IShopifyConnect, options: ISyncOptions, progress: SyncProgressDocument, lastProgress?: SyncProgressDocument): Promise<void> {
+  public async startSync(shopifyConnect: IShopifyConnect, options: ISyncOptions, progress: SyncProgressDocument, lastProgress?: SyncProgressDocument): Promise<SyncProgressDocument> {
     this.logger.debug(
       `startSync(
         ${JSON.stringify(options, null, 2)}
@@ -500,15 +500,13 @@ export abstract class ShopifyApiRootCountableService<
     const syncSignal = `${progress._id}:${progress[this.resourceName]._id}`
     const cancelSignal = `sync-cancel:${shop}:${progress._id}`;
 
-    await progress.save();
-
     // The actual sync action:
 
     progress[this.resourceName].state = 'running';
 
     let listAllError: Error | null = null;
 
-    const listAllCallback = (error: Error, data: IListAllCallbackData<ShopifyObjectType>) => {
+    const listAllCallback = async (error: Error, data: IListAllCallbackData<ShopifyObjectType>) => {
       if (error) {
         listAllError = error;
       } else {
@@ -527,27 +525,37 @@ export abstract class ShopifyApiRootCountableService<
       cancelSignal,
       since_id: progress[this.resourceName].sinceId,
       ...this.getSyncListOptions(options)
-    } as ListOptions
+    } as ListOptions;
 
-    return this.listAllFromShopify(shopifyConnect, listAllOptions, listAllCallback)
-    .then(() => {
-      if (listAllError) {
-        throw listAllError;
-      } else {
+    return pRetry(() => {
+      return progress.save()
+    })
+    .then(async (progress) => {
+      return this.listAllFromShopify(shopifyConnect, listAllOptions, listAllCallback)
+      .then(() => {
+        if (listAllError) {
+          throw listAllError;
+        }
         this.logger.debug(`${this.resourceName} sync ${syncSignal} success`);
         progress[this.resourceName].state = 'success';
-      }
-    })
-    .catch((error) => {
-      if (error.message === 'cancelled') {
-        this.logger.debug(`${this.resourceName} sync ${syncSignal} cancelled`);
-        progress[this.resourceName].state = 'cancelled';
-      } else {
-        this.logger.debug(`${this.resourceName} sync ${syncSignal} error`, error);
-        progress[this.resourceName].state = 'failed';
-        progress[this.resourceName].error = error.message;
-        progress.lastError = `${this.resourceName}:${error.message}`;
-      }
+        return pRetry(() => {
+          return progress.save()
+        })
+      })
+      .catch((error) => {
+        if (error.message === 'cancelled') {
+          this.logger.debug(`${this.resourceName} sync ${syncSignal} cancelled`);
+          progress[this.resourceName].state = 'cancelled';
+        } else {
+          this.logger.debug(`${this.resourceName} sync ${syncSignal} error`, error);
+          progress[this.resourceName].state = 'failed';
+          progress[this.resourceName].error = error.message;
+          progress.lastError = `${this.resourceName}:${error.message}`;
+        }
+        return pRetry(() => {
+          return progress.save();
+        })
+      });
     });
   }
 
@@ -593,7 +601,9 @@ export abstract class ShopifyApiChildService<
     if (sync) {
       delete options.sync;
     }
-    const res = await pRetry(() => shopifyModel.get(parentId, id, options));
+    const res = await pRetry(() => {
+      return shopifyModel.get(parentId, id, options)
+    });
     if (sync) {
       await this.updateOrCreateInDb(user, {id}, res);
     }
@@ -615,7 +625,9 @@ export abstract class ShopifyApiChildService<
       delete options.failOnSyncError;
       delete options.cancelSignal;
     }
-    const res = await pRetry(() => shopifyModel.list(parentId, options));
+    const res = await pRetry(() => {
+      return shopifyModel.list(parentId, options);
+    });
     if (sync) {
       const syncRes = this.updateOrCreateManyInDb(shopifyConnect, 'id', res)
       if (failOnSyncError) {

@@ -245,7 +245,7 @@ export class SyncService {
         lastError: null,
       });
 
-      let subSyncPromises: Promise<any>[]
+      let subSyncPromises = new Array<Promise<SyncProgressDocument>>();
       if (options.includeProducts) {
         subSyncPromises.push(this.productsService.startSync(shopifyConnect, options, progress, lastProgress));
       }
@@ -267,19 +267,26 @@ export class SyncService {
       }
 
       progress.state = 'running';
-      await pRetry(() => progress.save());
-
-      Promise.all(subSyncPromises).then((subProgresses) => {
-        let cancelled = false;
-        let failed = !subProgresses.some((subProgress, i) => {
-          if (subProgress.state === 'failed' || subProgress.state === 'cancelled') {
+      this.eventService.emit(`sync-${progress.state}`, shop, progress);
+      return pRetry(() => {
+        return progress.save()
+      })
+      .then(async (progress) => {
+        if (!progress) {
+          throw new Error('subProgresses is undefined')
+        }
+        return Promise.all(subSyncPromises)
+        .then((subProgresses) => {
+          let cancelled = false;
+          let failed = subProgresses.some((subProgress, i) => {
             if (subProgress.state === 'failed') {
               return true;
             }
             if (subProgress.state === 'cancelled') {
               cancelled = true;
             }
-          }
+            return false;
+          });
           if (failed) {
             progress.state = 'failed';
           } else if (cancelled) {
@@ -287,11 +294,21 @@ export class SyncService {
           } else {
             progress.state = 'success';
           }
+          this.eventService.emit(`sync-${progress.state}`, shop, progress);
+          return pRetry(() => { 
+            return progress.save();
+          })
         });
-        pRetry(() => progress.save());
+      })
+      .catch((error) => {
+        this.logger.error('FIXME', error);
+        progress.state = 'failed';
+        progress.lastError = error.message ? error.message : error;
+        this.eventService.emit(`sync-${progress.state}`, shop, progress);
+        return pRetry(() => {
+          return progress.save();
+        })
       });
-  
-      return progress;
     } catch (error) {
       this.logger.debug(error);
       this.eventService.emit(`sync-exception`, shop, error);
