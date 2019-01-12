@@ -3,8 +3,10 @@ import { Themes, Options } from 'shopify-prime'; // https://github.com/nozzlegea
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Theme } from 'shopify-prime/models';
 import { ThemeDocument } from '../interfaces/mongoose/theme.schema';
+import { SyncProgressDocument } from '../../interfaces';
 import { Model } from 'mongoose';
 import { ShopifyApiRootService } from '../api.service';
+import { EventService } from '../../event.service'
 
 export interface IThemeListFilter {
   name?: string;
@@ -32,11 +34,18 @@ ThemeGetOptions, // GetOptions
 ThemeListOptions, // ListOptions
 ThemeDocument // DatabaseDocumentType
 > {
+
+  resourceName = 'themes';
+  subResourceNames = ['assets'];
+
   constructor(
     @Inject('ThemeModelToken')
     private readonly themeModel: (shopName) => Model<ThemeDocument>,
+    private readonly eventService: EventService,
+    @Inject('SyncProgressModelToken')
+    private readonly syncProgressModel: Model<SyncProgressDocument>,
   ) {
-    super(themeModel, Themes);
+    super(themeModel, Themes, eventService, syncProgressModel);
   }
 
   /**

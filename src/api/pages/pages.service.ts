@@ -5,8 +5,9 @@ import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Model } from 'mongoose';
 import { deleteUndefinedProperties } from '../helpers';
 import { EventService } from '../../event.service';
-import { ShopifyApiRootCountService } from '../api.service';
+import { ShopifyApiRootCountableService } from '../api.service';
 import { PageDocument } from '../interfaces/mongoose/page.schema';
+import { SyncProgressDocument } from '../../interfaces';
 // import { IPageSyncProgress, PageSyncProgressDocument } from '../../sync/sync-progress.schema';
 
 export interface PageListOptions extends Options.PageListOptions {
@@ -26,7 +27,7 @@ export interface PageSyncOptions {
 
 
 @Injectable()
-export class PagesService extends ShopifyApiRootCountService<
+export class PagesService extends ShopifyApiRootCountableService<
 Page, // ShopifyObjectType
 Pages, // ShopifyModelClass
 PageCountOptions, // CountOptions
@@ -34,13 +35,19 @@ PageGetOptions, // GetOptions
 PageListOptions, // ListOptions
 PageDocument // DatabaseDocumentType
 > {
+
+  resourceName = 'pages';
+  subResourceNames = [];
+
   constructor(
     @Inject('PageModelToken')
     private readonly pageModel: (shopName: string) => Model<PageDocument>,
     // @Inject('PageSyncProgressModelToken') private readonly productSyncProgressModel: (shopName: string) => Model<PageSyncProgressDocument>,
     private readonly eventService: EventService,
+    @Inject('SyncProgressModelToken')
+    private readonly syncProgressModel: Model<SyncProgressDocument>,
   ) {
-    super(pageModel, Pages);
+    super(pageModel, Pages, eventService, syncProgressModel);
   }
 
   /**

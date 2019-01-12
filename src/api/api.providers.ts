@@ -6,6 +6,8 @@ import { TransactionSchema, TransactionDocument} from './interfaces/mongoose/tra
 import { ThemeSchema, ThemeDocument} from './interfaces/mongoose/theme.schema';
 import { AssetSchema, AssetDocument} from './interfaces/mongoose/asset.schema';
 import { PageSchema, PageDocument} from './interfaces/mongoose/page.schema';
+import { CustomCollectionSchema, CustomCollectionDocument} from './interfaces/mongoose/custom-collection.schema';
+import { SmartCollectionSchema, SmartCollectionDocument} from './interfaces/mongoose/smart-collection.schema';
 
 function getDbModel<DocumentType extends Document>(connection: Mongoose, myShopifyDomain: string, resourceName: string, schema: Schema) {
   const shopName = myShopifyDomain.replace('.myshopify.com', '');
@@ -46,6 +48,14 @@ export const shopifyApiProviders = (connection: Mongoose) => {
     {
       provide: 'PageModelToken',
       useValue: (myshopifyDomain) => getDbModel<PageDocument>(connection, myshopifyDomain, 'page', PageSchema),
+    },
+    {
+      provide: 'CustomCollectionModelToken',
+      useValue: (myshopifyDomain) => getDbModel<CustomCollectionDocument>(connection, myshopifyDomain, 'custom_collection', CustomCollectionSchema),
+    },
+    {
+      provide: 'SmartCollectionModelToken',
+      useValue: (myshopifyDomain) => getDbModel<SmartCollectionDocument>(connection, myshopifyDomain, 'smart_collection', SmartCollectionSchema),
     }
   ];
 }

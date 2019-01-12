@@ -109,18 +109,28 @@ export class SyncController {
     @Body('includeTransactions') includeTransactions?: boolean | string,
     @Body('includeProducts') includeProducts?: boolean | string,
     @Body('includePages') includePages?: boolean | string,
-    @Body('includeSmartCollection') includeSmartCollection?: boolean | string,
-    @Body('includeCustomCollection') includeCustomCollection?: boolean | string,
+    @Body('includeSmartCollections') includeSmartCollections?: boolean | string,
+    @Body('includeCustomCollections') includeCustomCollections?: boolean | string,
     @Body('resync') resync?: boolean | string,
     @Body('cancelExisting') cancelExisting?: boolean | string,
   ) {
+    this.logger.debug({
+      includeOrders,
+      includeTransactions,
+      includeProducts,
+      includePages,
+      includeSmartCollections,
+      includeCustomCollections,
+      resync,
+      cancelExisting,
+    })
     let options: ISyncOptions = {
       includeOrders: includeOrders === 'true' || includeOrders === true,
       includeTransactions: includeTransactions === 'true' || includeTransactions === true,
       includeProducts: includeProducts === 'true' || includeProducts === true,
       includePages: includePages === 'true' || includePages === true,
-      includeSmartCollection: includeSmartCollection === 'true' || includeSmartCollection === true,
-      includeCustomCollection: includeCustomCollection === 'true' || includeCustomCollection === true,
+      includeSmartCollections: includeSmartCollections === 'true' || includeSmartCollections === true,
+      includeCustomCollections: includeCustomCollections === 'true' || includeCustomCollections === true,
       resync: resync === 'true' || resync === true,
       cancelExisting: cancelExisting === 'true' || cancelExisting === true,
     }
@@ -158,12 +168,30 @@ export class SyncController {
     @Query('include_transactions') includeTransactions?: boolean,
     @Query('include_products') includeProducts?: boolean,
     @Query('include_pages') includePages?: boolean,
-    @Query('include_smart_collection') includeSmartCollection?: boolean,
-    @Query('include_custom_collection') includeCustomCollection?: boolean,
+    @Query('include_smart_collections') includeSmartCollections?: boolean,
+    @Query('include_custom_collections') includeCustomCollections?: boolean,
     @Query('resync') resync?: boolean,
     @Query('cancelExisting') cancelExisting?: boolean,
   ) {
-    return this.start(req, res, includeOrders, includeTransactions, includeProducts, includePages, includeSmartCollection, includeCustomCollection, resync, cancelExisting);
+    return this.syncService.startSync(req.shopifyConnect, {
+      includeOrders,
+      includeTransactions,
+      includeProducts,
+      includePages,
+      includeSmartCollections,
+      includeCustomCollections,
+      resync,
+      cancelExisting,
+    })
+    .then((progress) => {
+      res.jsonp(progress);
+    })
+    .catch((error) => {
+      this.logger.error(error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    });
   }
 
   /**

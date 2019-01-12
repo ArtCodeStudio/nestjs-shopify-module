@@ -3,8 +3,8 @@ export interface ISyncOptions {
   includeTransactions: boolean,
   includeProducts: boolean,
   includePages: boolean,
-  includeCustomCollection: boolean,
-  includeSmartCollection: boolean,
+  includeCustomCollections: boolean,
+  includeSmartCollections: boolean,
   resync: boolean,
   cancelExisting: boolean,
 }

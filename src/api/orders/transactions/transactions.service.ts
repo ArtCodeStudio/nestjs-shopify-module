@@ -5,8 +5,8 @@ import { Transaction } from 'shopify-prime/models';
 import { TransactionDocument } from '../../interfaces/mongoose/transaction.schema';
 import { Model } from 'mongoose';
 import { getDiff } from '../../helpers/diff';
-import { ShopifyApiChildCountService } from '../../api.service';
-
+import { ShopifyApiChildCountableService } from '../../api.service';
+import { EventService } from '../../../event.service';
 
 export interface TransactionBaseOptions extends Options.TransactionBaseOptions {
   sync?: boolean;
@@ -26,7 +26,7 @@ export interface TransactionGetOptions extends Options.TransactionBaseOptions {
 }
 
 @Injectable()
-export class TransactionsService extends ShopifyApiChildCountService<
+export class TransactionsService extends ShopifyApiChildCountableService<
 Transaction,
 Transactions,
 TransactionCountOptions,
@@ -34,11 +34,16 @@ TransactionGetOptions,
 TransactionListOptions
 >
 {
+
+  resourceName = 'transactions';
+  subResourceNames = [];
+
   constructor(
     @Inject('TransactionModelToken')
     private readonly transactionModel: (shopName: string) => Model<TransactionDocument>,
+    private readonly eventService: EventService
   ) {
-    super(transactionModel, Transactions);
+    super(transactionModel, Transactions, eventService);
   }
 
   public async getFromShopify(user: IShopifyConnect, order_id: number, id: number, options?: TransactionBaseOptions): Promise<Transaction|null> {
