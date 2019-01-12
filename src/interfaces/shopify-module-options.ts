@@ -1,5 +1,6 @@
 import { IPlan } from '../charge/interfaces/plan';
 import { Topic } from '../interfaces/webhook';
+import { ConfigOptions } from 'elasticsearch';
 
 export interface ShopifyModuleOptions {
   clientID: string;
@@ -19,4 +20,5 @@ export interface ShopifyModuleOptions {
   webhooks: {
     autoSubscribe: Topic[];
   }
+  elasticsearch: ConfigOptions;
 }

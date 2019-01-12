@@ -1,16 +1,6 @@
-/**
- * Middlewares
- */
-import {
-  BodyParserJsonMiddleware,
-  BodyParserUrlencodedMiddleware,
-  GetShopifyConnectMiddleware,
-  GetUserMiddleware,
-  VerifyWebhookMiddleware
-} from './middlewares';
-
 import { Module, DynamicModule, CacheModule, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { BodyParserJsonMiddleware, BodyParserUrlencodedMiddleware, GetShopifyConnectMiddleware, GetUserMiddleware, VerifyWebhookMiddleware } from './middlewares';
 import { ShopifyAuthController } from './auth/auth.controller';
 import { shopifyConnectProviders } from './auth/connect.providers';
 import { shopifyApiProviders } from './api/api.providers';
@@ -55,6 +45,9 @@ import { SmartCollectionsService } from './api/smart-collections/smart-collectio
 import { CustomCollectionsService } from './api/custom-collections/custom-collections.service';
 import { SmartCollectionsController } from './api/smart-collections/smart-collections.controller';
 import { CustomCollectionsController } from './api/custom-collections/custom-collections.controller';
+import { SearchController } from './api/search/search.controller';
+import { SearchService } from './api/search/search.service';
+
 
 export { RequestGuard } from './guards/request.guard';
 
@@ -85,9 +78,10 @@ export { RequestGuard } from './guards/request.guard';
     WebhooksService,
     ProductsGateway,
     SyncGateway,
-    WebhooksGateway, // FIXME only one gateway the time is working?
+    WebhooksGateway,
     SmartCollectionsService,
     CustomCollectionsService,
+    SearchService,
   ],
   controllers: [
     ShopifyAuthController,
@@ -104,6 +98,7 @@ export { RequestGuard } from './guards/request.guard';
     SyncController,
     SmartCollectionsController,
     CustomCollectionsController,
+    SearchController,
   ],
   exports: [
     ShopifyConnectService,

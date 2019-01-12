@@ -13,6 +13,7 @@
   "dependencies": {
     "@nestjs/passport": "^5.1.0",
     "@nestjs/websockets": "^5.5.0",
+    "@types/elasticsearch": "^5.0.30",
     "@types/mongoose": "^5.3.5",
     "@types/p-queue": "^3.0.0",
     "@types/p-retry": "^2.0.0",
@@ -20,6 +21,7 @@
     "cache-manager": "^2.9.0",
     "cache-manager-redis": "^0.6.0",
     "deepmerge": "^2.2.1",
+    "elasticsearch": "^15.3.0",
     "mongoose": "^5.4.1",
     "p-map": "^2.0.0",
     "p-queue": "^3.0.0",
