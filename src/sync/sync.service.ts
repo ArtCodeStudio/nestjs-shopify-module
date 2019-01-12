@@ -244,6 +244,7 @@ export class SyncService {
         state: 'starting',
         lastError: null,
       });
+      this.eventService.emit(`sync-${progress.state}`, shop, progress);
 
       let subSyncPromises = new Array<Promise<SyncProgressDocument>>();
       if (options.includeProducts) {
@@ -268,37 +269,30 @@ export class SyncService {
 
       progress.state = 'running';
       this.eventService.emit(`sync-${progress.state}`, shop, progress);
-      return pRetry(() => {
-        return progress.save()
-      })
-      .then(async (progress) => {
-        if (!progress) {
-          throw new Error('subProgresses is undefined')
-        }
-        return Promise.all(subSyncPromises)
-        .then((subProgresses) => {
-          let cancelled = false;
-          let failed = subProgresses.some((subProgress, i) => {
-            if (subProgress.state === 'failed') {
-              return true;
-            }
-            if (subProgress.state === 'cancelled') {
-              cancelled = true;
-            }
-            return false;
-          });
-          if (failed) {
-            progress.state = 'failed';
-          } else if (cancelled) {
-            progress.state = 'cancelled';
-          } else {
-            progress.state = 'success';
+
+      return Promise.all(subSyncPromises)
+      .then((subProgresses) => {
+        let cancelled = false;
+        let failed = subProgresses.some((subProgress, i) => {
+          if (subProgress.state === 'failed') {
+            return true;
           }
-          this.eventService.emit(`sync-${progress.state}`, shop, progress);
-          return pRetry(() => { 
-            return progress.save();
-          })
+          if (subProgress.state === 'cancelled') {
+            cancelled = true;
+          }
+          return false;
         });
+        if (failed) {
+          progress.state = 'failed';
+        } else if (cancelled) {
+          progress.state = 'cancelled';
+        } else {
+          progress.state = 'success';
+        }
+        this.eventService.emit(`sync-${progress.state}`, shop, progress);
+        return pRetry(() => { 
+          return progress.save();
+        })
       })
       .catch((error) => {
         this.logger.error('FIXME', error);
