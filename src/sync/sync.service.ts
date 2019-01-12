@@ -11,7 +11,7 @@ import { CustomCollectionsService } from '../api/custom-collections/custom-colle
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { DebugService } from '../debug.service';
-import { ISyncOptions, SyncProgressDocument } from '../interfaces';
+import { ISyncOptions, SyncProgressDocument, SubSyncProgressDocument } from '../interfaces';
 import * as pRetry from 'p-retry';
 import { access } from 'fs';
 
@@ -246,7 +246,7 @@ export class SyncService {
       });
       this.eventService.emit(`sync-${progress.state}`, shop, progress);
 
-      let subSyncPromises = new Array<Promise<SyncProgressDocument>>();
+      let subSyncPromises = new Array<Promise<SubSyncProgressDocument>>();
       if (options.includeProducts) {
         subSyncPromises.push(this.productsService.startSync(shopifyConnect, options, progress, lastProgress));
       }
