@@ -18,7 +18,7 @@ export class CustomCollectionsController {
   ) {};
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles() // Empty == Allowed from shop frontend and backend
   @Get()
   async list(@Req() req: IUserRequest, @Res() res: Response, @Query() options: CustomCollectionListOptions) {
     try {
@@ -82,7 +82,7 @@ export class CustomCollectionsController {
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles() // Empty == Allowed from shop frontend and backend
   @Get('count')
   async countFromShopify(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: CustomCollectionCountOptions) {
     try {
@@ -110,7 +110,7 @@ export class CustomCollectionsController {
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles() // Empty == Allowed from shop frontend and backend
   @Get(':id')
   async getFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
     try {

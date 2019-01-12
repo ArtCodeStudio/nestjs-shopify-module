@@ -394,15 +394,14 @@ export abstract class ShopifyApiRootCountableService<
     }
   }
 
-
-  protected async listSyncProgress(shopifyConnect: IShopifyConnect): Promise<ISyncProgress[]> {
+  public async listSyncProgress(shopifyConnect: IShopifyConnect): Promise<ISyncProgress[]> {
     return this.syncprogressModel.find({
       shop: shopifyConnect.myshopify_domain,
       [`options.include${this.upperCaseResourceName}`]: true,
     }).lean();
   }
 
-  protected async getLastSyncProgress(shopifyConnect: IShopifyConnect): Promise<ISyncProgress | null> {
+  public async getLastSyncProgress(shopifyConnect: IShopifyConnect): Promise<ISyncProgress | null> {
     return await this.syncprogressModel.findOne(
       {
         shop: shopifyConnect.myshopify_domain,
@@ -485,7 +484,7 @@ export abstract class ShopifyApiRootCountableService<
    * @event sync (shop, lastProgress)
    * @event sync-cancelled:[shop]:[progressId] ()
    */
-  async startSync(shopifyConnect: IShopifyConnect, options: ISyncOptions, progress: SyncProgressDocument, lastProgress?: SyncProgressDocument): Promise<void> {
+  public async startSync(shopifyConnect: IShopifyConnect, options: ISyncOptions, progress: SyncProgressDocument, lastProgress?: SyncProgressDocument): Promise<void> {
     this.logger.debug(
       `startSync(
         ${JSON.stringify(options, null, 2)}

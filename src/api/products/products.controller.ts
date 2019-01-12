@@ -188,7 +188,7 @@ export class ProductsController {
    * @see https://help.shopify.com/en/api/reference/products/product#count
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles() // Allowed from shop frontend
+  @Roles() // Empty == Allowed from shop frontend and backend
   @Get('synced/count')
   async countFromDb(
     @Req() req: IUserRequest,
@@ -396,25 +396,25 @@ export class ProductsController {
     }
   }
 
-  @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('sync')
-  async startSync(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Query('resync') resync?: boolean,
-    @Query('attach_to_existing') attachToExisting?: boolean,
-    @Query('cancel_existing') cancelExisting?: boolean,
-  ) {
-    try {
-      return res.jsonp(await this.productsService.startSync(req.shopifyConnect, { resync, attachToExisting, cancelExisting }));
-    } catch(error) {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
-    }
-  }
+  // @UseGuards(ShopifyApiGuard)
+  // @Roles('shopify-staff-member')
+  // @Get('sync')
+  // async startSync(
+  //   @Req() req: IUserRequest,
+  //   @Res() res: Response,
+  //   @Query('resync') resync?: boolean,
+  //   @Query('attach_to_existing') attachToExisting?: boolean,
+  //   @Query('cancel_existing') cancelExisting?: boolean,
+  // ) {
+  //   try {
+  //     return res.jsonp(await this.productsService.startSync(req.shopifyConnect, { resync, attachToExisting, cancelExisting }));
+  //   } catch(error) {
+  //     this.logger.error(error);
+  //     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+  //       message: error.message,
+  //     });
+  //   }
+  // }
 
   /**
    * Deletes a product with the given id directly in shopify.

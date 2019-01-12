@@ -237,6 +237,67 @@ export class SyncController {
     return this.cancel(req, res, id);
   }
 
+  /**
+   * Recives the latest sync progress
+   * @param req 
+   * @param res 
+   * @param query 
+   */
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('latest')
+  async latestFromShop(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+  ) {
+
+    const query = {
+      shop: req.shopifyConnect.shop.myshopify_domain,
+      sort: { 'createdAt': -1}
+    };
+
+    return this.syncService.findOne(query)
+    .then((progress) => {
+      res.jsonp(progress);
+    })
+    .catch((error) => {
+      this.logger.error(error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    });
+  }
+
+  /**
+   * List sync progresses
+   * @param req 
+   * @param res 
+   */
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get()
+  async listFromShop(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+  ) {
+
+    const query = {
+      shop: req.shopifyConnect.shop.myshopify_domain,
+      sort: { 'createdAt': -1}
+    };
+
+    return this.syncService.find(query)
+    .then((progress) => {
+      res.jsonp(progress);
+    })
+    .catch((error) => {
+      this.logger.error(error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+        message: error.message,
+      });
+    });
+  }
+
   @UseGuards(ShopifyApiGuard)
   @Roles('admin')
   @Get('findOne')
