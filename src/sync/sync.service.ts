@@ -11,9 +11,9 @@ import { CustomCollectionsService } from '../api/custom-collections/custom-colle
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { DebugService } from '../debug.service';
-import { ISyncOptions, SyncProgressDocument, SubSyncProgressDocument } from '../interfaces';
+import { ISyncOptions, SyncProgressDocument, SubSyncProgressDocument, ISubSyncProgress } from '../interfaces';
 import * as pRetry from 'p-retry';
-import { access } from 'fs';
+
 
 @Injectable()
 export class SyncService {

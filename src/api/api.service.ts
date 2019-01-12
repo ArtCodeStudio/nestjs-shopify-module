@@ -484,7 +484,7 @@ export abstract class ShopifyApiRootCountableService<
    * @event sync (shop, lastProgress)
    * @event sync-cancelled:[shop]:[progressId] ()
    */
-  public async startSync(shopifyConnect: IShopifyConnect, options: ISyncOptions, progress: SyncProgressDocument, lastProgress?: SyncProgressDocument): Promise<SyncProgressDocument> {
+  public async startSync(shopifyConnect: IShopifyConnect, options: ISyncOptions, progress: SyncProgressDocument, lastProgress?: SyncProgressDocument): Promise<SubSyncProgressDocument> {
     this.logger.debug(
       `startSync(
         ${JSON.stringify(options, null, 2)}
@@ -541,19 +541,25 @@ export abstract class ShopifyApiRootCountableService<
         return pRetry(() => {
           return progress.save()
         })
+        .then((progress) => {
+          return progress[this.resourceName];
+        })
       })
       .catch((error) => {
         if (error.message === 'cancelled') {
           this.logger.debug(`${this.resourceName} sync ${syncSignal} cancelled`);
           progress[this.resourceName].state = 'cancelled';
         } else {
-          this.logger.debug(`${this.resourceName} sync ${syncSignal} error`, error);
+          this.logger.error(`${this.resourceName} sync ${syncSignal} error`, error);
           progress[this.resourceName].state = 'failed';
           progress[this.resourceName].error = error.message;
-          progress.lastError = `${this.resourceName}:${error.message}`;
+          // TODO ? progress.lastError = `${this.resourceName}:${error.message}`;
         }
         return pRetry(() => {
-          return progress.save();
+          return progress.save()
+        })
+        .then((progress) => {
+          return progress[this.resourceName];
         })
       });
     });
