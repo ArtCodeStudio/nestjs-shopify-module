@@ -78,11 +78,11 @@ export class SyncService {
   }
 
   async find(query: Partial<SyncProgressDocument>, options?: {}): Promise<SyncProgressDocument[]|null> {
-    return await this.syncProgressModel.find(query, {}, options).lean();
+    return this.syncProgressModel.find(query, {}, options).lean();
   }
 
   async findOne(query: Partial<SyncProgressDocument>, options?: {}): Promise<SyncProgressDocument|null> {
-    return await this.syncProgressModel.findOne(query, {}, options).lean();
+    return this.syncProgressModel.findOne(query, {}, options).lean();
   }
 
   /**

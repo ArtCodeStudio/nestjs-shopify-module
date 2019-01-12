@@ -32,61 +32,6 @@ export class SyncController {
   ) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
-
-  /**
-   * Get last sync progress
-   * @param req 
-   * @param res 
-   */
-  @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get()
-  async lastFromShop(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-  ) {
-    return this.syncService.findOne(
-      { shop: req.shopifyConnect.shop.myshopify_domain },
-      { sort: { 'createdAt': -1} },
-    )
-    .then((progress) => {
-      res.jsonp(progress);
-    })
-    .catch((error) => {
-      this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
-    });
-  }
-
-  /**
-   * List sync progresses
-   * @param req 
-   * @param res 
-   */
-  @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('list')
-  async allFromShop(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-  ) {
-    return this.syncService.find(
-      { shop: req.shopifyConnect.shop.myshopify_domain },
-      { sort: { 'createdAt': -1} },
-    )
-    .then((progress) => {
-      res.jsonp(progress);
-    })
-    .catch((error) => {
-      this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
-    });
-  }
-
   /**
    * Start sync progress
    * @param req 
@@ -253,10 +198,9 @@ export class SyncController {
 
     const query = {
       shop: req.shopifyConnect.shop.myshopify_domain,
-      sort: { 'createdAt': -1}
     };
 
-    return this.syncService.findOne(query)
+    return this.syncService.findOne(query, { sort: { 'createdAt': -1} })
     .then((progress) => {
       res.jsonp(progress);
     })
@@ -283,10 +227,9 @@ export class SyncController {
 
     const query = {
       shop: req.shopifyConnect.shop.myshopify_domain,
-      sort: { 'createdAt': -1}
     };
 
-    return this.syncService.find(query)
+    return this.syncService.find(query, { sort: { 'createdAt': -1} })
     .then((progress) => {
       res.jsonp(progress);
     })
