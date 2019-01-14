@@ -19,7 +19,6 @@ import { DebugService } from '../../debug.service';
 
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
-import { Readable } from 'stream';
 import { IUserRequest } from '../../interfaces/user-request';
 import { Response } from 'express';
 import { ProductUpdateCreate } from 'shopify-prime/models';
@@ -63,44 +62,46 @@ export class ProductsController {
     @Query('updated_at_min') updated_at_min: string | undefined,
     @Query('vendor') vendor: string | undefined,
   ) {
-    try {
-      if (req.session.isThemeClientRequest) {
-        published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
-        sync = false;
-      }
-      const options: ProductListOptions = {
-        collection_id,
-        created_at_max,
-        created_at_min,
-        ids,
-        page,
-        fields,
-        limit,
-        product_type,
-        published_at_max,
-        published_at_min,
-        published_status,
-        since_id,
-        sync,
-        title,
-        updated_at_max,
-        updated_at_min,
-        vendor,
-      }
-      
-      this.logger.debug('ProductListOptions', options);
-      return res.jsonp(await this.productsService.listFromShopify(req.shopifyConnect, options));
-    } catch (error) {
+    if (req.session.isThemeClientRequest) {
+      published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
+      sync = false;
+    }
+    const options: ProductListOptions = {
+      collection_id,
+      created_at_max,
+      created_at_min,
+      ids,
+      page,
+      fields,
+      limit,
+      product_type,
+      published_at_max,
+      published_at_min,
+      published_status,
+      since_id,
+      sync,
+      title,
+      updated_at_max,
+      updated_at_min,
+      vendor,
+    }
+    this.logger.debug('[listFromShopify] ProductListOptions', options);
+    return this.productsService.listFromShopify(req.shopifyConnect, options)
+    .then((products) => {
+      this.logger.debug('[listFromShopify] products.length', products.length);
+      return res.jsonp(products);
+    })
+    .catch((error) => {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         apiRateLimitReached: error.apiRateLimitReached,
         message: error.generic ? error.generic : error.message,
       });
-    }
+    });
   }
 
   /**
-   * Retrieves a list of products from the app database.
+   * Retrieves a list of products from mongodb.
    * @param req 
    * @param res 
    * @param options 
@@ -119,6 +120,27 @@ export class ProductsController {
         message: error.generic ? error.generic : error.message,
       });
     }
+  }
+
+  /**
+   * Retrieves a list of products from elasticsearch.
+   * @param req 
+   * @param res 
+   * @param options 
+   * 
+   * @see https://help.shopify.com/en/api/reference/products/product#index
+   */
+  @UseGuards(ShopifyApiGuard)
+  @Roles('shopify-staff-member')
+  @Get('search')
+  async listFromEs(@Req() req: IUserRequest, @Res() res: Response) {
+    return this.productsService.listFromEs(req.shopifyConnect)
+    .then((products) => {
+      return res.jsonp(products);
+    })
+    .catch((error) => {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+    })
   }
 
   /**
@@ -180,7 +202,7 @@ export class ProductsController {
   }
 
   /**
-   * Retrieves a count of products from the app database.
+   * Retrieves a count of products from mongodb.
    * @param req 
    * @param res 
    * @param options 
@@ -441,7 +463,7 @@ export class ProductsController {
   }
 
   /**
-   * Retrieves a single product from the app database.
+   * Retrieves a single product from mongodb.
    * @param req
    * @param res
    * @param id Product id

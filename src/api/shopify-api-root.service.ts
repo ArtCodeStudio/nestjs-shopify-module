@@ -9,7 +9,7 @@ import { Observable, Observer } from 'rxjs';
 import { Model, Document } from 'mongoose';
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
-import { SyncProgressDocument, ShopifyModuleOptions } from '../interfaces';
+import { SyncProgressDocument } from '../interfaces';
 import { listAllCallback, SyncOptions, ShopifyBaseObjectType, RootGet, RootList } from './interfaces';
 import { deleteUndefinedProperties } from './helpers';
 import { EventService } from '../event.service';
@@ -64,6 +64,9 @@ export abstract class ShopifyApiRootService<
    * @param options
    */
   public async listFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions): Promise<ShopifyObjectType[]> {
+    this.logger.debug('[listFromShopify]');
+    // Delete undefined options
+    deleteUndefinedProperties(options);
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     let sync = options && options.sync;
     options = Object.assign({}, options);
@@ -73,18 +76,32 @@ export abstract class ShopifyApiRootService<
       delete options.failOnSyncError;
       delete options.cancelSignal;
     }
-    const res = await pRetry(() => shopifyModel.list(options));
-    if (sync) {
-      const syncRes = this.updateOrCreateManyInDb(shopifyConnect, 'id', res)
-      if (failOnSyncError) {
-        return syncRes.then(() => res);
-      } else {
-        syncRes.catch((e: Error) => {
-          this.logger.error(e);
+    return pRetry(async (count) => {
+      this.logger.debug('[listFromShopify] retry count: ' + count);
+      return shopifyModel.list(options)
+      .catch((error) => {
+        this.logger.error(error);
+        throw error;
+      })
+    })
+    .then((shopifyObjects: ShopifyObjectType[]) => {
+      this.logger.debug('[listFromShopify] result length', shopifyObjects.length);
+      if (sync) {
+        this.logger.debug('[listFromShopify] updateOrCreateManyInDb');
+        return this.updateOrCreateManyInDb(shopifyConnect, 'id', shopifyObjects)
+        .then((syncResult) => {
+          return shopifyObjects;
+        })
+        .catch((error) => {
+          this.logger.error(error);
+          if (failOnSyncError) {
+            throw error;
+          }
+          return shopifyObjects;
         });
       }
-    }
-    return res;
+      return shopifyObjects;
+    });
   }
 
   /**

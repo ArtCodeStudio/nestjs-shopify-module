@@ -117,12 +117,12 @@ export abstract class ShopifyApiBaseService<
   }
 
   /**
-   * Retrieves a list of `ShopifyObjectType` from the app's mongodb database.
+   * Retrieves a list of `ShopifyObjectType` from elasticsearch.
    * @param user 
    * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
    */
   async listFromEs(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {"match_all": {}}}): Promise<ShopifyObjectType[]> {
-    const shopName = user.shop.myshopify_domain.replace('.myshopify.com', '');
+    this.logger.debug('listFromEs', this.esService.getIndex(user.shop.myshopify_domain, this.resourceName));
     return this.esService.search({
       index: this.esService.getIndex(user.shop.myshopify_domain, this.resourceName),
       body: body,

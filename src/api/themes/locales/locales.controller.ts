@@ -1,22 +1,22 @@
+// nest
 import { Inject, Controller, Param, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
+
+// Third party
 import { Response } from 'express';
-import { Roles } from '../../../guards/roles.decorator';
+import { Infrastructure } from 'shopify-prime';
+import * as url from 'url';
+
 import { DebugService } from '../../../debug.service';
 import { LocalesService } from './locales.service';
 import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
-import { ShopifyConnectService } from '../../../auth/connect.service';
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
 import { IUserRequest } from '../../../interfaces/user-request';
-import { Infrastructure } from 'shopify-prime';
-
 import { SHOPIFY_MODULE_OPTIONS } from '../../../shopify.constants';
 import { ShopifyModuleOptions } from '../../../interfaces/shopify-module-options';
 
-import * as url from 'url';
-
 // WORKAROUND for https://github.com/nestjs/nest/issues/1016
 import * as cacheManager from 'cache-manager';
-import { Cache } from '../../api-cache';
+import { Cache } from '../../interfaces/api-cache';
 
 @Controller('shopify/api/themes')
 // WAIT FOR FIX https://github.com/nestjs/nest/issues/1016

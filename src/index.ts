@@ -12,7 +12,5 @@ export * from './middlewares';
 
 export * from './guards';
 
-export { Cache } from './api/api-cache';
-
 export { ShopifyShopSchema } from './shop/shop.schema';
 
