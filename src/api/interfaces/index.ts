@@ -1,4 +1,5 @@
 export * from './mongoose';
+export * from './api-cache';
 export * from './child-count';
 export * from './child-get';
 export * from './child-list';

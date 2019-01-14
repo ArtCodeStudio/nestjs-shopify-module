@@ -9,7 +9,7 @@ import { IListAllCallbackData } from '../../api/interfaces';
 import { SyncProgressDocument, ISyncOptions, OrderSyncProgressDocument } from '../../interfaces';
 import { TransactionsService } from './transactions/transactions.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
-
+import { ElasticsearchService } from '../../elasticsearch.service';
 
 export interface OrderListOptions extends Options.OrderListOptions {
   sync?: boolean;
@@ -37,6 +37,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
   subResourceNames = [];
 
   constructor(
+    protected readonly esService: ElasticsearchService,
     @Inject('OrderModelToken')
     private readonly orderModel: (shopName: string) => Model<OrderDocument>,
     @Inject('SyncProgressModelToken')
@@ -44,7 +45,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
     protected readonly eventService: EventService,
     private readonly transactionsService: TransactionsService,
   ) {
-    super(orderModel, Orders, eventService, syncProgressModel);
+    super(esService, orderModel, Orders, eventService, syncProgressModel);
   }
 
   /**

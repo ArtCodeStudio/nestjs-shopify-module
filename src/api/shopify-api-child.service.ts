@@ -26,7 +26,7 @@ export abstract class ShopifyApiChildService<
   DatabaseDocumentType
 > {
   /**
-   * Retrieves a single order directly from the shopify API
+   * Retrieves a single `ShopifyObjectType[]` directly from the shopify API
    * @param user 
    * @param id 
    * @param sync 
@@ -48,7 +48,7 @@ export abstract class ShopifyApiChildService<
   }
 
   /**
-   * Retrieves a list of orders directly from shopify.
+   * Retrieves a list of `ShopifyObjectType[]` directly from shopify.
    * @param user
    * @param options
    */
@@ -79,7 +79,7 @@ export abstract class ShopifyApiChildService<
   }
 
   /**
-   * Gets a list of all of the shop's products directly from the shopify API
+   * Gets a list of all `ShopifyObjectType[]` directly from the shopify API
    * @param options Options for filtering the results.
    */
   public async listAllFromShopify(shopifyConnect: IShopifyConnect, parentId: number, options?: ListOptions): Promise<ShopifyObjectType[]>
@@ -109,7 +109,7 @@ export abstract class ShopifyApiChildService<
   }
 
   /**
-   * Gets a list of all of the shop's products directly from the shopify API as a stream
+   * Gets a list of all `ShopifyObjectType[]` directly from the shopify API as a stream
    * @param options Options for filtering the results.
    */
   public listAllFromShopifyStream(shopifyConnect: IShopifyConnect, parentId: number, options?: ListOptions): Readable {
@@ -141,7 +141,7 @@ export abstract class ShopifyApiChildService<
   }
 
   /**
-   * Gets a list of the shop's products directly from the shopify API as an Observable
+   * Gets a list of `ShopifyObjectType[]` directly from the shopify API as an Observable
    * @param options Options for filtering the results.
    */
   public listAllFromShopifyObservable(user: IShopifyConnect, parentId: number, eventName: string, options?: ListOptions): Observable<WsResponse<ShopifyObjectType>> {

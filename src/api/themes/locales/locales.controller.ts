@@ -16,7 +16,7 @@ import * as url from 'url';
 
 // WORKAROUND for https://github.com/nestjs/nest/issues/1016
 import * as cacheManager from 'cache-manager';
-import { Cache } from '../../api-cache.d';
+import { Cache } from '../../api-cache';
 
 @Controller('shopify/api/themes')
 // WAIT FOR FIX https://github.com/nestjs/nest/issues/1016
@@ -25,7 +25,7 @@ export class LocalesController {
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   // WORKAROUND for https://github.com/nestjs/nest/issues/1016
-  redisCache: Cache = cacheManager.caching(this.shopifyModuleOptions.cache) as any as Cache;
+  redisCache: Cache = cacheManager.caching(this.shopifyModuleOptions.redis) as any as Cache;
 
   constructor(
     protected readonly localesService: LocalesService,
@@ -72,7 +72,7 @@ export class LocalesController {
         id: themeId,
         stack: undefined,
       };
-      if (this.shopifyModuleOptions.debug && error.stack) {
+      if (this.shopifyModuleOptions.app.debug && error.stack) {
         errorRes.stack = error.stack;
       }
       return res.status(error.statusCode).jsonp(errorRes);
@@ -106,7 +106,7 @@ export class LocalesController {
         id: themeId,
         stack: undefined,
       };
-      if (this.shopifyModuleOptions.debug && error.stack) {
+      if (this.shopifyModuleOptions.app.debug && error.stack) {
         errorRes.stack = error.stack;
       }
       return res.status(statusCode).jsonp(errorRes);
@@ -149,7 +149,7 @@ export class LocalesController {
         id: themeId,
         stack: undefined,
       };
-      if (this.shopifyModuleOptions.debug && error.stack) {
+      if (this.shopifyModuleOptions.app.debug && error.stack) {
         errorRes.stack = error.stack;
       }
       return res.status(statusCode).jsonp(errorRes);
@@ -194,7 +194,7 @@ export class LocalesController {
         filename,
         stack: undefined,
       };
-      if (this.shopifyModuleOptions.debug && error.stack) {
+      if (this.shopifyModuleOptions.app.debug && error.stack) {
         errorRes.stack = error.stack;
       }
       return res.status(statusCode).jsonp(errorRes);
@@ -255,7 +255,7 @@ export class LocalesController {
         path,
         stack: undefined,
       };
-      if (this.shopifyModuleOptions.debug && error.stack) {
+      if (this.shopifyModuleOptions.app.debug && error.stack) {
         errorRes.stack = error.stack;
       }
       return res.status(statusCode).jsonp(errorRes);

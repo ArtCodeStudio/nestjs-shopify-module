@@ -9,11 +9,12 @@ import { Observable, Observer } from 'rxjs';
 import { Model, Document } from 'mongoose';
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
-import { SyncProgressDocument} from '../interfaces';
+import { SyncProgressDocument, ShopifyModuleOptions } from '../interfaces';
 import { listAllCallback, SyncOptions, ShopifyBaseObjectType, RootGet, RootList } from './interfaces';
 import { deleteUndefinedProperties } from './helpers';
 import { EventService } from '../event.service';
 import { ShopifyApiBaseService } from './shopify-api-base.service';
+import { ElasticsearchService } from '../elasticsearch.service';
 
 export abstract class ShopifyApiRootService<
   ShopifyObjectType extends ShopifyBaseObjectType,
@@ -28,12 +29,13 @@ export abstract class ShopifyApiRootService<
 > {
 
   constructor(
-    readonly dbModel: (shopName: string) => Model<DatabaseDocumentType>,
-    readonly ShopifyModel: new (shopDomain: string, accessToken: string) => ShopifyModelClass,
-    readonly events: EventService,
-    readonly syncprogressModel: Model<SyncProgressDocument>
+    protected readonly esService: ElasticsearchService,
+    protected readonly dbModel: (shopName: string) => Model<DatabaseDocumentType>,
+    protected readonly ShopifyModel: new (shopDomain: string, accessToken: string) => ShopifyModelClass,
+    protected readonly events: EventService,
+    protected readonly syncprogressModel: Model<SyncProgressDocument>
   ) {
-    super(dbModel, ShopifyModel, events);
+    super(esService, dbModel, ShopifyModel, events);
   }
 
   /**

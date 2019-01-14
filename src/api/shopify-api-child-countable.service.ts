@@ -8,8 +8,6 @@ import { SyncOptions, ShopifyBaseObjectType, ChildCount, ChildGet, ChildList } f
 import { deleteUndefinedProperties } from './helpers';
 import { ShopifyApiChildService } from './shopify-api-child.service';
 
-
-
 export abstract class ShopifyApiChildCountableService<
   ShopifyObjectType extends ShopifyBaseObjectType,
   ShopifyModelClass extends Infrastructure.BaseService & ChildCount<CountOptions> & ChildGet<ShopifyObjectType, GetOptions> & ChildList<ShopifyObjectType, ListOptions>,

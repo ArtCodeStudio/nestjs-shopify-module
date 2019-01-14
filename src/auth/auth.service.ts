@@ -40,10 +40,10 @@ export class ShopifyAuthService {
     }
 
     const shopifyToken = new ShopifyToken({
-      sharedSecret: this.shopifyModuleOptions.clientSecret,
-      apiKey: this.shopifyModuleOptions.clientID,
-      scopes: this.shopifyModuleOptions.scope,
-      redirectUri: this.shopifyModuleOptions.iframeCallbackURL,
+      sharedSecret: this.shopifyModuleOptions.shopify.clientSecret,
+      apiKey: this.shopifyModuleOptions.shopify.clientID,
+      scopes: this.shopifyModuleOptions.shopify.scope,
+      redirectUri: this.shopifyModuleOptions.shopify.iframeCallbackURL,
     });
 
     const nonce = shopifyToken.generateNonce();
@@ -67,10 +67,10 @@ export class ShopifyAuthService {
    */
   async oAuthCallback(hmac: string, signature: string, state: string, code: string, shop: string, timestamp: string, session) {
     const shopifyToken = new ShopifyToken({
-      sharedSecret: this.shopifyModuleOptions.clientSecret,
-      apiKey: this.shopifyModuleOptions.clientID,
-      scopes: this.shopifyModuleOptions.scope,
-      redirectUri: this.shopifyModuleOptions.iframeCallbackURL,
+      sharedSecret: this.shopifyModuleOptions.shopify.clientSecret,
+      apiKey: this.shopifyModuleOptions.shopify.clientID,
+      scopes: this.shopifyModuleOptions.shopify.scope,
+      redirectUri: this.shopifyModuleOptions.shopify.iframeCallbackURL,
     });
     const ok = shopifyToken.verifyHmac({
       hmac,
@@ -135,8 +135,8 @@ export class ShopifyAuthService {
       myshopifyDomain: <string | null> null,
     }
     const host = this.getClientHost(request);
-    this.logger.debug('host', host, 'appHost', this.shopifyModuleOptions.appHost);
-    if (host === this.shopifyModuleOptions.appHost) {
+    this.logger.debug('host', host, 'app.host', this.shopifyModuleOptions.app.host);
+    if (host === this.shopifyModuleOptions.app.host) {
       result.isAppBackendRequest = true;
       return this.getMyShopifyDomainUnsecure(request)
       .then((myshopifyDomain) => {
@@ -243,7 +243,7 @@ export class ShopifyAuthService {
     }
 
     // if the host is the host of the app backend the user needs to be logged in
-    if (host === this.shopifyModuleOptions.appHost) {
+    if (host === this.shopifyModuleOptions.app.host) {
       if (!this.isLoggedIn(request.session)) {
         return null;
       }

@@ -218,10 +218,13 @@ export abstract class ShopifyApiRootCountableService<
       } else {
         return this.syncedDataCallback(shopifyConnect, progress[this.resourceName], options, data)
         .then(() => {
-          pRetry(() => {
+          return pRetry(() => {
             return progress.save();
           });
-        });
+        })
+        .then((progress) => {
+          return progress[this.resourceName];
+        })
       }
     };
 
@@ -238,7 +241,7 @@ export abstract class ShopifyApiRootCountableService<
     })
     .then(async (progress) => {
       return this.listAllFromShopify(shopifyConnect, listAllOptions, listAllCallback)
-      .then(() => {
+      .then(async () => {
         if (listAllError) {
           throw listAllError;
         }
@@ -247,11 +250,11 @@ export abstract class ShopifyApiRootCountableService<
         return pRetry(() => {
           return progress.save()
         })
-        .then((progress) => {
-          return progress[this.resourceName];
-        })
       })
-      .catch((error) => {
+      .then((progress) => {
+        return progress[this.resourceName];
+      })
+      .catch(async (error) => {
         if (error.message === 'cancelled') {
           this.logger.debug(`${this.resourceName} sync ${syncSignal} cancelled`);
           progress[this.resourceName].state = 'cancelled';
@@ -280,7 +283,7 @@ export abstract class ShopifyApiRootCountableService<
     const fromShopify = await this.listAllFromShopify(user);
     console.log('from DB', fromDb.length);
     console.log('from Shopify', fromShopify.length);
-    let dbObj;
+    let dbObj: ShopifyObjectType;
     return fromShopify.map(obj => (dbObj = fromDb.find(x => x.id === obj.id)) && {[obj.id]: getDiff(obj, dbObj).filter(x=>x.operation!=='update' && !x.path.endsWith('._id'))})
     .reduce((a,c)=>({...a, ...c}), {})
   }

@@ -7,7 +7,8 @@ import { deleteUndefinedProperties } from '../helpers';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 import { PageDocument, IListAllCallbackData } from '../interfaces';
-import { SyncProgressDocument, ISubSyncProgress, ISyncOptions } from '../../interfaces';
+import { SyncProgressDocument, ISubSyncProgress, ISyncOptions, ShopifyModuleOptions } from '../../interfaces';
+import { ElasticsearchService } from '../../elasticsearch.service';
 
 export interface PageListOptions extends Options.PageListOptions {
   sync?: boolean;
@@ -39,6 +40,7 @@ PageDocument // DatabaseDocumentType
   subResourceNames = [];
 
   constructor(
+    protected readonly esService: ElasticsearchService,
     @Inject('PageModelToken')
     private readonly pageModel: (shopName: string) => Model<PageDocument>,
     // @Inject('PageSyncProgressModelToken') private readonly productSyncProgressModel: (shopName: string) => Model<PageSyncProgressDocument>,
@@ -46,7 +48,7 @@ PageDocument // DatabaseDocumentType
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
   ) {
-    super(pageModel, Pages, eventService, syncProgressModel);
+    super(esService, pageModel, Pages, eventService, syncProgressModel);
   }
 
   /**

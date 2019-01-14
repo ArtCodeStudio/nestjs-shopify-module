@@ -3,10 +3,11 @@ import { SmartCollections, Options } from 'shopify-prime'; // https://github.com
 import { SmartCollection } from 'shopify-prime/models';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { SmartCollectionDocument, IListAllCallbackData } from '../interfaces';
-import { SyncProgressDocument, SubSyncProgressDocument, ISyncOptions } from '../../interfaces';
+import { SyncProgressDocument, SubSyncProgressDocument, ISyncOptions, ShopifyModuleOptions } from '../../interfaces';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
+import { ElasticsearchService } from '../../elasticsearch.service';
 
 export interface SmartCollectionListOptions extends Options.CollectionListOptions {
   sync?: boolean;
@@ -36,13 +37,14 @@ SmartCollectionDocument // DatabaseDocumentType
   subResourceNames = [];
 
   constructor(
+    protected readonly esService: ElasticsearchService,
     @Inject('SmartCollectionModelToken')
     private readonly smartCollectionModel: (shopName: string) => Model<SmartCollectionDocument>,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     private readonly eventService: EventService,
   ) {
-    super(smartCollectionModel, SmartCollections, eventService, syncProgressModel);
+    super(esService, smartCollectionModel, SmartCollections, eventService, syncProgressModel);
   }
 
   /**

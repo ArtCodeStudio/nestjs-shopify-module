@@ -1,8 +1,6 @@
 import { Inject, CACHE_MANAGER, Injectable, CacheInterceptor, ExecutionContext } from '@nestjs/common';
 import { DebugService } from 'debug.service';
-import { Request } from 'express';
 import { ShopifyAuthService } from '../auth/auth.service'
-//import { ConfigService } from 'config.service';
 
 @Injectable()
 export class ApiCacheInterceptor extends CacheInterceptor {

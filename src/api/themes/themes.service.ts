@@ -3,10 +3,11 @@ import { Themes, Options } from 'shopify-prime'; // https://github.com/nozzlegea
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Theme } from 'shopify-prime/models';
 import { ThemeDocument } from '../interfaces/mongoose/theme.schema';
-import { SyncProgressDocument } from '../../interfaces';
+import { SyncProgressDocument, ShopifyModuleOptions } from '../../interfaces';
 import { Model } from 'mongoose';
 import { ShopifyApiRootService } from '../shopify-api-root.service';
-import { EventService } from '../../event.service'
+import { EventService } from '../../event.service';
+import { ElasticsearchService } from '../../elasticsearch.service';
 
 export interface IThemeListFilter {
   name?: string;
@@ -39,13 +40,14 @@ ThemeDocument // DatabaseDocumentType
   subResourceNames = ['assets'];
 
   constructor(
+    protected readonly esService: ElasticsearchService,
     @Inject('ThemeModelToken')
     private readonly themeModel: (shopName) => Model<ThemeDocument>,
     private readonly eventService: EventService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
   ) {
-    super(themeModel, Themes, eventService, syncProgressModel);
+    super(esService, themeModel, Themes, eventService, syncProgressModel);
   }
 
   /**

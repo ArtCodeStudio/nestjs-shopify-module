@@ -1,12 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Transactions, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
-import { IShopifyConnect } from '../../../auth/interfaces/connect';
+import { Transactions, Options } from 'shopify-prime';
+import { IShopifyConnect } from '../../../auth/interfaces';
 import { Transaction } from 'shopify-prime/models';
-import { TransactionDocument } from '../../interfaces/mongoose/transaction.schema';
+import { TransactionDocument } from '../../interfaces';
+import { ShopifyModuleOptions } from '../../../interfaces';
 import { Model } from 'mongoose';
 import { getDiff } from '../../helpers/diff';
-import { ShopifyApiChildCountableService } from '../../api.service';
+import { ShopifyApiChildCountableService } from '../../shopify-api-child-countable.service';
 import { EventService } from '../../../event.service';
+import { ElasticsearchService } from '../../../elasticsearch.service';
 
 export interface TransactionBaseOptions extends Options.TransactionBaseOptions {
   sync?: boolean;
@@ -39,11 +41,12 @@ TransactionListOptions
   subResourceNames = [];
 
   constructor(
+    protected readonly esService: ElasticsearchService,
     @Inject('TransactionModelToken')
     private readonly transactionModel: (shopName: string) => Model<TransactionDocument>,
     private readonly eventService: EventService
   ) {
-    super(transactionModel, Transactions, eventService);
+    super(esService, transactionModel, Transactions, eventService);
   }
 
   public async getFromShopify(user: IShopifyConnect, order_id: number, id: number, options?: TransactionBaseOptions): Promise<Transaction|null> {

@@ -1,13 +1,18 @@
+// nest
 import { Inject, Injectable } from '@nestjs/common';
-import { Products, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
+
+// Third party
+import * as pRetry from 'p-retry';
+import { Products, Options } from 'shopify-prime'; 
 import { Product, ProductUpdateCreate } from 'shopify-prime/models';
-import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { ProductDocument, IListAllCallbackData } from '../interfaces';
 import { Model } from 'mongoose';
+
+import { IShopifyConnect } from '../../auth/interfaces';
+import { ProductDocument, IListAllCallbackData } from '../interfaces';
 import { EventService } from '../../event.service';
 import { SyncProgressDocument, SubSyncProgressDocument, ISyncOptions } from '../../interfaces';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
-import * as pRetry from 'p-retry';
+import { ElasticsearchService } from '../../elasticsearch.service';
 
 export interface ProductListOptions extends Options.ProductListOptions {
   sync?: boolean;
@@ -35,13 +40,14 @@ ProductDocument // DatabaseDocumentType
   subResourceNames = [];
 
   constructor(
+    protected readonly esService: ElasticsearchService,
     @Inject('ProductModelToken')
-    private readonly productModel: (shopName: string) => Model<ProductDocument>,
+    protected readonly productModel: (shopName: string) => Model<ProductDocument>,
     @Inject('SyncProgressModelToken')
-    private readonly syncProgressModel: Model<SyncProgressDocument>,
-    private readonly eventService: EventService,
+    protected readonly syncProgressModel: Model<SyncProgressDocument>,
+    protected readonly eventService: EventService,
   ) {
-    super(productModel, Products, eventService, syncProgressModel);
+    super(esService, productModel, Products, eventService, syncProgressModel);
   }
 
   /**

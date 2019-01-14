@@ -28,7 +28,7 @@ export class WebhooksService {
 
     // Auto subscripe webhooks from config on app install
     eventService.on('app/installed', (shopifyConnect: IShopifyConnect) => {
-      for (const topic of this.shopifyModuleOptions.webhooks.autoSubscribe) {
+      for (const topic of this.shopifyModuleOptions.shopify.webhooks.autoSubscribe) {
         this.logger.debug(`[${shopifyConnect.myshopify_domain}] Auto subscribe webhook ${topic}`);
         this.create(shopifyConnect, topic)
         .then((result) => {
@@ -44,7 +44,7 @@ export class WebhooksService {
     shopifyConnectService.findAll()
     .then((shopifyConnects: IShopifyConnect[]) => {
       for (const shopifyConnect of shopifyConnects) {
-        for (const topic of this.shopifyModuleOptions.webhooks.autoSubscribe) {
+        for (const topic of this.shopifyModuleOptions.shopify.webhooks.autoSubscribe) {
           this.logger.debug(`[${shopifyConnect.myshopify_domain}] Auto subscribe webhook ${topic}`);
           this.create(shopifyConnect, topic)
           .then((result) => {
@@ -64,7 +64,7 @@ export class WebhooksService {
   public create(shopifyConnect: IShopifyConnect, topic: Topic) {
     const webhooks = new Webhooks(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     return webhooks.create({
-      address: `https://${this.shopifyModuleOptions.appHost}/webhooks/${topic}`,
+      address: `https://${this.shopifyModuleOptions.app.host}/webhooks/${topic}`,
       topic
     });
   }
