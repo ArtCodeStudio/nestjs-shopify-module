@@ -1,3 +1,10 @@
 export * from './mongoose';
-
+export * from './child-count';
+export * from './child-get';
+export * from './child-list';
 export * from './list-all-callback';
+export * from './root-count';
+export * from './root-get';
+export * from './root-list';
+export * from './shopify-base-object-type';
+export * from './sync-options';

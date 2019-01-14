@@ -8,7 +8,7 @@ import { EventService } from '../../event.service';
 import { IListAllCallbackData } from '../../api/interfaces';
 import { SyncProgressDocument, ISyncOptions, OrderSyncProgressDocument } from '../../interfaces';
 import { TransactionsService } from './transactions/transactions.service';
-import { ShopifyApiRootCountableService } from '../api.service';
+import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 
 
 export interface OrderListOptions extends Options.OrderListOptions {

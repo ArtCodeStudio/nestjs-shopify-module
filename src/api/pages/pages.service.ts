@@ -5,7 +5,7 @@ import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Model } from 'mongoose';
 import { deleteUndefinedProperties } from '../helpers';
 import { EventService } from '../../event.service';
-import { ShopifyApiRootCountableService } from '../api.service';
+import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 import { PageDocument, IListAllCallbackData } from '../interfaces';
 import { SyncProgressDocument, ISubSyncProgress, ISyncOptions } from '../../interfaces';
 

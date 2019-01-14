@@ -5,7 +5,7 @@ import { Theme } from 'shopify-prime/models';
 import { ThemeDocument } from '../interfaces/mongoose/theme.schema';
 import { SyncProgressDocument } from '../../interfaces';
 import { Model } from 'mongoose';
-import { ShopifyApiRootService } from '../api.service';
+import { ShopifyApiRootService } from '../shopify-api-root.service';
 import { EventService } from '../../event.service'
 
 export interface IThemeListFilter {

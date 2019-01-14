@@ -6,7 +6,7 @@ import { SmartCollectionDocument, IListAllCallbackData } from '../interfaces';
 import { SyncProgressDocument, SubSyncProgressDocument, ISyncOptions } from '../../interfaces';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
-import { ShopifyApiRootCountableService } from '../api.service';
+import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 
 export interface SmartCollectionListOptions extends Options.CollectionListOptions {
   sync?: boolean;

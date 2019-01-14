@@ -6,7 +6,7 @@ import { ProductDocument, IListAllCallbackData } from '../interfaces';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
 import { SyncProgressDocument, SubSyncProgressDocument, ISyncOptions } from '../../interfaces';
-import { ShopifyApiRootCountableService } from '../api.service';
+import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 import * as pRetry from 'p-retry';
 
 export interface ProductListOptions extends Options.ProductListOptions {

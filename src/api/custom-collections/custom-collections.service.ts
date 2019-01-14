@@ -6,7 +6,7 @@ import { CustomCollectionDocument } from '../interfaces/mongoose/custom-collecti
 import { SyncProgressDocument } from '../../interfaces';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
-import { ShopifyApiRootCountableService } from '../api.service';
+import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 
 export interface CustomCollectionListOptions extends Options.CollectionListOptions {
   sync?: boolean;
