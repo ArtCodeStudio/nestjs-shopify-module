@@ -51,11 +51,18 @@ export abstract class ShopifyApiRootService<
     if (sync) {
       delete options.sync;
     }
-    const res = await pRetry(() => shopifyModel.get(id, options));
-    if (sync) {
-      await this.updateOrCreateInDb(user, {id}, res);
-    }
-    return res;
+    return pRetry(() => {
+      return shopifyModel.get(id, options)
+    })
+    .then((shopifyObj) => {
+      if (sync) {
+        return this.updateOrCreateInApp(user, 'id', shopifyObj)
+        .then((_) => {
+          return shopifyObj;
+        })
+      }
+      return shopifyObj;
+    });
   }
 
   /**
@@ -88,7 +95,7 @@ export abstract class ShopifyApiRootService<
       this.logger.debug('[listFromShopify] result length', shopifyObjects.length);
       if (sync) {
         this.logger.debug('[listFromShopify] updateOrCreateManyInDb');
-        return this.updateOrCreateManyInDb(shopifyConnect, 'id', shopifyObjects)
+        return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyObjects)
         .then((syncResult) => {
           return shopifyObjects;
         })

@@ -10,12 +10,14 @@ import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
  * @see https://www.digitalocean.com/community/tutorials/how-to-install-elasticsearch-logstash-and-kibana-elastic-stack-on-ubuntu-18-04
  */
 @Injectable()
-export class ElasticsearchService extends Client {
+export class ElasticsearchService {
+
+  public client: Client;
 
   constructor(
     @Inject(SHOPIFY_MODULE_OPTIONS) public readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(shopifyModuleOptions.elasticsearch)
+    this.client = new Client(shopifyModuleOptions.elasticsearch);
   }
 
   public getIndex(myshopifyDomain: string, resourceName: string) {

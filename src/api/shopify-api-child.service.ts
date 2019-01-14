@@ -42,7 +42,7 @@ export abstract class ShopifyApiChildService<
       return shopifyModel.get(parentId, id, options)
     });
     if (sync) {
-      await this.updateOrCreateInDb(user, {id}, res);
+      await this.updateOrCreateInApp(user, 'id', res);
     }
     return res;
   }
@@ -62,20 +62,26 @@ export abstract class ShopifyApiChildService<
       delete options.failOnSyncError;
       delete options.cancelSignal;
     }
-    const res = await pRetry(() => {
+    return pRetry(() => {
       return shopifyModel.list(parentId, options);
-    });
-    if (sync) {
-      const syncRes = this.updateOrCreateManyInDb(shopifyConnect, 'id', res)
-      if (failOnSyncError) {
-        return syncRes.then(() => res);
-      } else {
-        syncRes.catch((e: Error) => {
+    })
+    .then((shopifyListObjs) => {
+      if (sync) {
+        return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyListObjs)
+        .then(() => {
+          return shopifyListObjs;
+        })
+        .catch((e: Error) => {
           this.logger.error(e);
+          if (failOnSyncError) {
+            throw e;
+          }
+          return shopifyListObjs;
         });
       }
-    }
-    return res;
+      return shopifyListObjs;
+    })
+
   }
 
   /**

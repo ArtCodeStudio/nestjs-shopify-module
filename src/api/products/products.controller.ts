@@ -93,10 +93,8 @@ export class ProductsController {
     })
     .catch((error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        apiRateLimitReached: error.apiRateLimitReached,
-        message: error.generic ? error.generic : error.message,
-      });
+      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+      return res.status(statusCode).jsonp(error);
     });
   }
 
@@ -116,7 +114,9 @@ export class ProductsController {
       return res.jsonp(await this.productsService.listFromDb(req.shopifyConnect));
     } catch(error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
+      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+      res.status(statusCode).jsonp(error);
+      return res.status(statusCode).jsonp({
         message: error.generic ? error.generic : error.message,
       });
     }
@@ -134,13 +134,21 @@ export class ProductsController {
   @Roles('shopify-staff-member')
   @Get('search')
   async listFromEs(@Req() req: IUserRequest, @Res() res: Response) {
-    return this.productsService.listFromEs(req.shopifyConnect)
-    .then((products) => {
-      return res.jsonp(products);
-    })
-    .catch((error) => {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
-    })
+    try {
+      return this.productsService.listFromEs(req.shopifyConnect)
+      .then((products) => {
+        return res.jsonp(products);
+      })
+      .catch((error) => {
+        this.logger.error(error);
+        const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+        res.status(statusCode).jsonp(error);
+      });
+    } catch(error) {
+      this.logger.error(error);
+      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+      res.status(statusCode).jsonp(error);
+    }
   }
 
   /**
@@ -244,9 +252,8 @@ export class ProductsController {
       }));
     } catch(error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+      return res.status(statusCode).jsonp(error);
     }
   }
 
@@ -291,10 +298,8 @@ export class ProductsController {
       }));
     } catch(error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        apiRateLimitReached: error.apiRateLimitReached,
-        message: error.generic ? error.generic : error.message,
-      });
+      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+      return res.status(statusCode).jsonp(error);
     }
   }
 
@@ -314,9 +319,8 @@ export class ProductsController {
       return res.jsonp(await this.productsService.diffSynced(req.shopifyConnect));
     } catch(error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+      return res.status(statusCode).jsonp(error);
     }
   }
 
@@ -341,9 +345,8 @@ export class ProductsController {
       return res.jsonp(await this.productsService.updateInShopify(req.shopifyConnect, id, product));
     } catch(error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+      return res.status(statusCode).jsonp(error);
     }
   }
 
@@ -366,12 +369,12 @@ export class ProductsController {
     try {
       return this.productsService.createInShopify(req.shopifyConnect, product)
       .then((result) => {
-        // this.logger.debug('result', result);
-        return result;
-      })
-      .then((result) => {
         return res.jsonp(result);
       })
+      .catch((error) => {
+        const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+        return res.status(statusCode).jsonp(error);
+      });
     } catch(error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -412,9 +415,8 @@ export class ProductsController {
       return res.jsonp(await this.productsService.getLastSyncProgress(req.shopifyConnect));
     } catch(error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+      return res.status(statusCode).jsonp(error);
     }
   }
 
@@ -456,9 +458,8 @@ export class ProductsController {
       return res.jsonp(await this.productsService.deleteInShopify(req.shopifyConnect, id));
     } catch(error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+      return res.status(statusCode).jsonp(error);
     }
   }
 
@@ -478,9 +479,8 @@ export class ProductsController {
       return res.jsonp(await this.productsService.getFromDb(req.shopifyConnect, id));
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+      return res.status(statusCode).jsonp(error);
     }
   }
 
@@ -504,10 +504,8 @@ export class ProductsController {
       return res.jsonp(await this.productsService.getFromShopify(req.shopifyConnect, id));
     } catch(error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        apiRateLimitReached: error.apiRateLimitReached,
-        message: error.generic ? error.generic : error.message,
-      });
+      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
+      return res.status(statusCode).jsonp(error);
     }
   }
 }

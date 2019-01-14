@@ -71,6 +71,7 @@ export abstract class ShopifyApiRootCountableService<
         }
       })
       .catch(async (error) => {
+        this.logger.error(`${this.resourceName} sync error`, error);
         if (typeof listAllPageCallback === 'function') {
           await listAllPageCallback(error, null);
           if (options.failOnSyncError) {
