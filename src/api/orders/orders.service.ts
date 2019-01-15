@@ -12,12 +12,14 @@ import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.se
 import { ElasticsearchService } from '../../elasticsearch.service';
 
 export interface OrderListOptions extends Options.OrderListOptions {
-  sync?: boolean;
+  syncToDb?: boolean;
+  syncToSearch?: boolean;
   failOnSyncError?: boolean;
 }
 
 export interface OrderGetOptions extends Options.FieldOptions {
-  sync?: boolean;
+  syncToDb?: boolean;
+  syncToSearch?: boolean;
 }
 
 export interface OrderCountOptions extends Options.OrderCountOptions {

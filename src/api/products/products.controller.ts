@@ -56,7 +56,8 @@ export class ProductsController {
     @Query('published_at_min') published_at_min: string | undefined,
     @Query('published_status') published_status: 'published' | 'unpublished' | 'any' | undefined,
     @Query('since_id') since_id: number | undefined,
-    @Query('sync') sync: boolean | undefined,
+    @Query('sync_to_db') sync_to_db: boolean | undefined,
+    @Query('sync_to_search') sync_to_search: boolean | undefined,
     @Query('title') title: string | undefined,
     @Query('updated_at_max') updated_at_max: string | undefined,
     @Query('updated_at_min') updated_at_min: string | undefined,
@@ -64,7 +65,8 @@ export class ProductsController {
   ) {
     if (req.session.isThemeClientRequest) {
       published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
-      sync = false;
+      sync_to_db = false;
+      sync_to_search = false;
     }
     const options: ProductListOptions = {
       collection_id,
@@ -79,7 +81,8 @@ export class ProductsController {
       published_at_min,
       published_status,
       since_id,
-      sync,
+      syncToDb: sync_to_db,
+      syncToSearch: sync_to_search,
       title,
       updated_at_max,
       updated_at_min,
@@ -178,7 +181,8 @@ export class ProductsController {
     @Query('published_at_min') published_at_min: string | undefined,
     @Query('published_status') published_status: 'published' | 'unpublished' | 'any' | undefined,
     @Query('since_id') since_id: number | undefined,
-    @Query('sync') sync: boolean | undefined,
+    @Query('sync_to_db') sync_to_db: boolean | undefined,
+    @Query('sync_to_search') sync_to_search: boolean | undefined,
     @Query('title') title: string | undefined,
     @Query('updated_at_max') updated_at_max: string | undefined,
     @Query('updated_at_min') updated_at_min: string | undefined,
@@ -197,7 +201,8 @@ export class ProductsController {
       published_at_min,
       published_status,
       since_id,
-      sync,
+      syncToDb: sync_to_db,
+      syncToSearch: sync_to_search,
       title,
       updated_at_max,
       updated_at_min,

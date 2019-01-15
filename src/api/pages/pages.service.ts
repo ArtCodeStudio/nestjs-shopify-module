@@ -11,12 +11,14 @@ import { SyncProgressDocument, ISubSyncProgress, ISyncOptions, ShopifyModuleOpti
 import { ElasticsearchService } from '../../elasticsearch.service';
 
 export interface PageListOptions extends Options.PageListOptions {
-  sync?: boolean;
+  syncToDb?: boolean;
+  syncToSearch?: boolean;
   failOnSyncError?: boolean;
 }
 
 export interface PageGetOptions extends Options.FieldOptions {
-  sync?: boolean;
+  syncToDb?: boolean;
+  syncToSearch?: boolean;
 }
 
 export interface PageCountOptions extends Options.PageCountOptions {}

@@ -7,14 +7,17 @@ import { SyncProgressDocument } from '../../interfaces';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
+import { ElasticsearchService } from '../../elasticsearch.service';
 
 export interface CustomCollectionListOptions extends Options.CollectionListOptions {
-  sync?: boolean;
+  syncToDb?: boolean;
+  syncToSearch?: boolean;
   failOnSyncError?: boolean;
 }
 
 export interface CustomCollectionGetOptions extends Options.FieldOptions {
-  sync?: boolean;
+  syncToDb?: boolean;
+  syncToSearch?: boolean;
 }
 
 export interface CustomCollectionCountOptions extends Options.DateOptions, Options.PublishedOptions {
@@ -36,6 +39,7 @@ CustomCollectionDocument // DatabaseDocumentType
   subResourceNames = [];
 
   constructor(
+    protected readonly esService: ElasticsearchService,
     @Inject('CustomCollectionModelToken')
     private readonly customCollectionModel: (shopName: string) => Model<CustomCollectionDocument>,
     @Inject('SyncProgressModelToken')
@@ -43,6 +47,6 @@ CustomCollectionDocument // DatabaseDocumentType
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
   ) {
-    super(customCollectionModel, CustomCollections, eventService, syncProgressModel);
+    super(esService, customCollectionModel, CustomCollections, eventService, syncProgressModel);
   }
 }

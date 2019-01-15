@@ -34,17 +34,19 @@ export abstract class ShopifyApiChildService<
    */
   public async getFromShopify(user: IShopifyConnect, parentId: number, id: number, options?: GetOptions): Promise<ShopifyObjectType | null> {
     const shopifyModel = new this.ShopifyModel(user.myshopify_domain, user.accessToken);
-    const sync = options && options.sync;
-    if (sync) {
-      delete options.sync;
-    }
-    const res = await pRetry(() => {
+    const syncToDb = options && options.syncToDb;
+    const syncToSearch = options && options.syncToSearch;
+    delete options.syncToDb;
+    delete options.syncToSearch;
+    return pRetry(() => {
       return shopifyModel.get(parentId, id, options)
-    });
-    if (sync) {
-      await this.updateOrCreateInApp(user, 'id', res);
-    }
-    return res;
+    })
+    .then(async (shopifyObjectType) => {
+      return this.updateOrCreateInApp(user, 'id', shopifyObjectType, syncToDb, syncToSearch)
+      .then((_) => {
+        return shopifyObjectType;
+      });
+    })
   }
 
   /**
@@ -55,31 +57,28 @@ export abstract class ShopifyApiChildService<
   public async listFromShopify(shopifyConnect: IShopifyConnect, parentId: number, options?: ListOptions): Promise<ShopifyObjectType[]> {
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     options = Object.assign({}, options);
-    let sync = options && options.sync;
+    const syncToDb = options && options.syncToDb;
+    const syncToSearch = options && options.syncToSearch;
     let failOnSyncError = options && options.failOnSyncError;
-    if (sync) {
-      delete options.sync;
-      delete options.failOnSyncError;
-      delete options.cancelSignal;
-    }
+    delete options.syncToDb;
+    delete options.syncToSearch;
+    delete options.failOnSyncError;
+    delete options.cancelSignal; // TODO?
     return pRetry(() => {
       return shopifyModel.list(parentId, options);
     })
-    .then((shopifyListObjs) => {
-      if (sync) {
-        return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyListObjs)
-        .then(() => {
-          return shopifyListObjs;
-        })
-        .catch((e: Error) => {
-          this.logger.error(e);
-          if (failOnSyncError) {
-            throw e;
-          }
-          return shopifyListObjs;
-        });
-      }
-      return shopifyListObjs;
+    .then(async (shopifyListObjs) => {
+      return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyListObjs, syncToDb, syncToSearch)
+      .then(() => {
+        return shopifyListObjs;
+      })
+      .catch((e: Error) => {
+        this.logger.error(e);
+        if (failOnSyncError) {
+          throw e;
+        }
+        return shopifyListObjs;
+      });
     })
 
   }

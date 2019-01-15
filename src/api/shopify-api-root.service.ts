@@ -47,21 +47,18 @@ export abstract class ShopifyApiRootService<
    */
   public async getFromShopify(user: IShopifyConnect, id: number, options?: GetOptions): Promise<ShopifyObjectType | null> {
     const shopifyModel = new this.ShopifyModel(user.myshopify_domain, user.accessToken);
-    const sync = options && options.sync;
-    if (sync) {
-      delete options.sync;
-    }
+    const syncToDb = options && options.syncToDb;
+    const syncToSearch = options && options.syncToSearch;
+    delete options.syncToDb;
+    delete options.syncToSearch;
     return pRetry(() => {
       return shopifyModel.get(id, options)
     })
-    .then((shopifyObj) => {
-      if (sync) {
-        return this.updateOrCreateInApp(user, 'id', shopifyObj)
-        .then((_) => {
-          return shopifyObj;
-        })
-      }
-      return shopifyObj;
+    .then(async (shopifyObj) => {
+      return this.updateOrCreateInApp(user, 'id', shopifyObj, syncToDb, syncToSearch)
+      .then((_) => {
+        return shopifyObj;
+      })
     });
   }
 
@@ -75,14 +72,14 @@ export abstract class ShopifyApiRootService<
     // Delete undefined options
     deleteUndefinedProperties(options);
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
-    let sync = options && options.sync;
+    let syncToDb = options && options.syncToDb;
+    let syncToSearch = options && options.syncToSearch;
     options = Object.assign({}, options);
     let failOnSyncError = options && options.failOnSyncError;
-    if (sync) {
-      delete options.sync;
-      delete options.failOnSyncError;
-      delete options.cancelSignal;
-    }
+    delete options.syncToDb;
+    delete options.syncToSearch;
+    delete options.failOnSyncError;
+    delete options.cancelSignal; // TODO?
     return pRetry(async (count) => {
       this.logger.debug('[listFromShopify] retry count: ' + count);
       return shopifyModel.list(options)
@@ -93,21 +90,18 @@ export abstract class ShopifyApiRootService<
     })
     .then((shopifyObjects: ShopifyObjectType[]) => {
       this.logger.debug('[listFromShopify] result length', shopifyObjects.length);
-      if (sync) {
-        this.logger.debug('[listFromShopify] updateOrCreateManyInDb');
-        return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyObjects)
-        .then((syncResult) => {
-          return shopifyObjects;
-        })
-        .catch((error) => {
-          this.logger.error(error);
-          if (failOnSyncError) {
-            throw error;
-          }
-          return shopifyObjects;
-        });
-      }
-      return shopifyObjects;
+      this.logger.debug('[listFromShopify] updateOrCreateManyInApp');
+      return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyObjects, syncToDb, syncToSearch)
+      .then((syncResult) => {
+        return shopifyObjects;
+      })
+      .catch((error) => {
+        this.logger.error(error);
+        if (failOnSyncError) {
+          throw error;
+        }
+        return shopifyObjects;
+      });
     });
   }
 

@@ -10,12 +10,14 @@ import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.se
 import { ElasticsearchService } from '../../elasticsearch.service';
 
 export interface SmartCollectionListOptions extends Options.CollectionListOptions {
-  sync?: boolean;
+  syncToDb?: boolean;
+  syncToSearch?: boolean;
   failOnSyncError?: boolean;
 }
 
 export interface SmartCollectionGetOptions extends Options.FieldOptions {
-  sync?: boolean;
+  syncToDb?: boolean;
+  syncToSearch?: boolean;
 }
 
 export interface SmartCollectionCountOptions extends Options.DateOptions, Options.PublishedOptions {
