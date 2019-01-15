@@ -3,7 +3,7 @@ import { Pages, Options } from 'shopify-prime';
 import { Page } from 'shopify-prime/models';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Model } from 'mongoose';
-import { deleteUndefinedProperties } from '../helpers';
+import { deleteUndefinedProperties } from '../../helpers';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 import { PageDocument, IListAllCallbackData } from '../interfaces';

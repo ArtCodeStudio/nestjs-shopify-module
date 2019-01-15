@@ -17,6 +17,7 @@ import { ShopifyModuleOptions } from '../interfaces';
 import { DebugService } from '../debug.service';
 import { EventService } from '../event.service';
 import { ElasticsearchService } from '../elasticsearch.service';
+import { firstCharUppercase, underscoreCase } from '../helpers'
 
 export abstract class ShopifyApiBaseService<
     ShopifyObjectType,
@@ -26,14 +27,19 @@ export abstract class ShopifyApiBaseService<
 
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
   abstract resourceName: string; // resource name: 'orders', 'products', etc.
+
+  /**
+   * E.g. converts `products` to `Products`
+   */
   get upperCaseResourceName(): string {
-    return this.resourceName[0].toUpperCase + this.resourceName.substr(1);
+    return firstCharUppercase(this.resourceName);
   }
 
   abstract subResourceNames: string[]; // e.g. 'transactions' in case of orders
+
   get upperCaseResourceNames(): string[] {
     return this.subResourceNames.map((name) => {
-      return name[0].toUpperCase + name.substr(1);
+      return firstCharUppercase(name);
     });
   }
 
@@ -42,7 +48,7 @@ export abstract class ShopifyApiBaseService<
    * Needed for Elasticsearch index where big letters are not allowed
    */
   get underscoreCaseResourceName(): string {
-    return this.resourceName.split(/(?=[A-Z])/).join('_').toLowerCase();
+    return underscoreCase(this.resourceName);
   }
 
   constructor(

@@ -13,6 +13,7 @@
   "dependencies": {
     "@nestjs/passport": "^5.1.0",
     "@nestjs/websockets": "^5.5.0",
+    "@types/concat-stream": "^1.6.0",
     "@types/elasticsearch": "^5.0.30",
     "@types/mongoose": "^5.3.5",
     "@types/p-queue": "^3.0.0",

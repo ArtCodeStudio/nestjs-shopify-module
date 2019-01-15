@@ -1,12 +1,10 @@
 import { Inject, Injectable, NestMiddleware, MiddlewareFunction } from '@nestjs/common';
-import { ShopifyAuthService } from '../auth/auth.service';
-import { ShopifyConnectService } from '../auth/connect.service';
 import { DebugService } from '../debug.service';
 
 import { ShopifyModuleOptions} from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS} from '../shopify.constants';
 import { isAuthenticWebhook } from 'shopify-prime/auth';
-import * as concat from 'concat-stream';
+import concat from 'concat-stream';
 import { IUserRequest } from '../interfaces/user-request';
 import { Response, NextFunction } from 'express';
 
@@ -15,8 +13,6 @@ export class VerifyWebhookMiddleware implements NestMiddleware {
   logger = new DebugService(`shopify:${this.constructor.name}`);
   constructor(
     @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions,
-    private readonly shopifyAuthService: ShopifyAuthService,
-    private readonly shopifyConnectService: ShopifyConnectService,
   ) {
 
   }
@@ -43,16 +39,6 @@ export class VerifyWebhookMiddleware implements NestMiddleware {
         if (hmac) {
           if (isAuthenticWebhook(req.headers, rawBody, this.shopifyModuleOptions.shopify.clientSecret)) {
             return next();
-          /*
-          // TODO: Does this work? We want the RAW request body.
-          const body = await req.text();
-          const digest = crypto.createHmac('sha256', this.shopifyModuleOptions.clientSecret)
-            .update(body)
-            .digest('base64');
-          this.logger.debug(`webhook digest:`, digest);
-          if (digest === hmac) {
-            return next();
-          */
           } else {
             this.logger.error(`invalid webhook hmac: ${hmac}`);
             res.status(403).send({ error: 'INVALID HMAC' });

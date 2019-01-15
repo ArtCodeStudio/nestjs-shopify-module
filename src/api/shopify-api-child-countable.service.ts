@@ -5,7 +5,7 @@ import { Document } from 'mongoose';
 
 import { IShopifyConnect } from '../auth/interfaces';
 import { SyncOptions, ShopifyBaseObjectType, ChildCount, ChildGet, ChildList } from './interfaces';
-import { deleteUndefinedProperties } from './helpers';
+import { deleteUndefinedProperties } from '../helpers';
 import { ShopifyApiChildService } from './shopify-api-child.service';
 
 export abstract class ShopifyApiChildCountableService<

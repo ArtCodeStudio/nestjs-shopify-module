@@ -3,6 +3,7 @@ import { Client } from 'elasticsearch';
 
 import { SHOPIFY_MODULE_OPTIONS } from './shopify.constants';
 import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
+import { underscoreCase } from './helpers'
 
 /**
  * Elasticsearch Service
@@ -22,6 +23,6 @@ export class ElasticsearchService {
 
   public getIndex(myshopifyDomain: string, resourceName: string) {
     const shopName = myshopifyDomain.replace('.myshopify.com', '');
-    return `${this.shopifyModuleOptions.mongodb.database}.shopify_${shopName}:${resourceName}`;
+    return `${this.shopifyModuleOptions.mongodb.database}.shopify_${shopName}:${underscoreCase(resourceName)}`;
   }
 }

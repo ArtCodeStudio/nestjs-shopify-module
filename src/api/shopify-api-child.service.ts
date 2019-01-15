@@ -10,7 +10,7 @@ import { Observable, Observer } from 'rxjs';
 
 import { IShopifyConnect } from '../auth/interfaces';
 import { listAllCallback, SyncOptions, ShopifyBaseObjectType, ChildGet, ChildList } from './interfaces';
-import { deleteUndefinedProperties } from './helpers';
+import { deleteUndefinedProperties } from '../helpers';
 import { ShopifyApiBaseService } from './shopify-api-base.service';
 
 

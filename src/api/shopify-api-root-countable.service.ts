@@ -6,7 +6,7 @@ import * as pRetry from 'p-retry';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { SyncProgressDocument, SubSyncProgressDocument, ISyncProgress, ISyncOptions } from '../interfaces';
 import { listAllCallback, IListAllCallbackData, SyncOptions, ShopifyBaseObjectType, RootCount, RootGet, RootList } from './interfaces';
-import { deleteUndefinedProperties, getDiff } from './helpers';
+import { deleteUndefinedProperties, getDiff } from '../helpers';
 import { ShopifyApiRootService } from './shopify-api-root.service';
 
 export abstract class ShopifyApiRootCountableService<

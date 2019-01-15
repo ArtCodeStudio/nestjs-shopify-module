@@ -11,7 +11,7 @@ import { Model, Document } from 'mongoose';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { SyncProgressDocument } from '../interfaces';
 import { listAllCallback, SyncOptions, ShopifyBaseObjectType, RootGet, RootList } from './interfaces';
-import { deleteUndefinedProperties } from './helpers';
+import { deleteUndefinedProperties } from '../helpers';
 import { EventService } from '../event.service';
 import { ShopifyApiBaseService } from './shopify-api-base.service';
 import { ElasticsearchService } from '../elasticsearch.service';

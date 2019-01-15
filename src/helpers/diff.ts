@@ -8,7 +8,7 @@ export type Change = {
 /**
  * Get diff of two objects
  */
-export const getDiff = (a: any, b: any): Array<Change> => {
+export function getDiff(a: any, b: any): Array<Change> {
   let changes: Array<Change> = [];
   let bType: DiffType = typeof b;
   let aType: DiffType = typeof a;

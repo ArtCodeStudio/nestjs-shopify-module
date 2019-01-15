@@ -5,7 +5,7 @@ import { Transaction } from 'shopify-prime/models';
 import { TransactionDocument } from '../../interfaces';
 import { ShopifyModuleOptions } from '../../../interfaces';
 import { Model } from 'mongoose';
-import { getDiff } from '../../helpers/diff';
+import { getDiff } from '../../../helpers/diff';
 import { ShopifyApiChildCountableService } from '../../shopify-api-child-countable.service';
 import { EventService } from '../../../event.service';
 import { ElasticsearchService } from '../../../elasticsearch.service';
