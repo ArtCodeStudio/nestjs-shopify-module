@@ -11,20 +11,24 @@ import { EventService } from '../../../event.service';
 import { ElasticsearchService } from '../../../elasticsearch.service';
 
 export interface TransactionBaseOptions extends Options.TransactionBaseOptions {
-  sync?: boolean;
+  syncToDb?: boolean;
+  syncToSearch?: boolean;
 }
 
 export interface TransactionListOptions extends Options.TransactionListOptions {
-  sync?: boolean;
+  syncToDb?: boolean;
+  syncToSearch?: boolean;
   failOnSyncError?: boolean;
 }
 
 export interface TransactionCountOptions extends Options.TransactionBaseOptions {
-  sync?: boolean;
+  syncToDb?: boolean;
+  syncToSearch?: boolean;
 }
 
 export interface TransactionGetOptions extends Options.TransactionBaseOptions {
-  sync?: boolean;
+  syncToDb?: boolean;
+  syncToSearch?: boolean;
 }
 
 @Injectable()
@@ -51,11 +55,16 @@ TransactionListOptions
 
   public async getFromShopify(user: IShopifyConnect, order_id: number, id: number, options?: TransactionBaseOptions): Promise<Transaction|null> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
-    const res = await transactions.get(order_id, id);
-    if (options && options.sync) {
-      await this.updateOrCreateInDb(user, 'id', res);
-    }
-    return res;
+    const syncToDb = options && options.syncToDb;
+    const syncToSearch = options && options.syncToSearch;
+    return transactions.get(order_id, id)
+    .then(async (transactions) => {
+      return this.updateOrCreateInApp(user, 'id', transactions, syncToDb, syncToSearch)
+      .then((_) => {
+        return transactions;
+      });
+    });
+    
   }
 
   public async countFromShopify(user: IShopifyConnect, orderId: number): Promise<number> {

@@ -140,25 +140,23 @@ export class SyncService {
    * @event sync (shop, lastProgress)
    * @event sync-exception (shop: string, error)
    */
-  async startSync(shopifyConnect: IShopifyConnect, options?: ISyncOptions): Promise<SyncProgressDocument> {
+  async startSync(shopifyConnect: IShopifyConnect, options: ISyncOptions): Promise<SyncProgressDocument> {
     const shop = shopifyConnect.myshopify_domain;
     this.logger.debug(`startSync(
       ${shop}, 
       ${JSON.stringify(options, null, 2)}
     `);
     try {
-      options = options || {
-        // Continue the previous sync by default (don't resync completely)
-        resync: false,
-        // Include orders and products but not transactions by default
-        includeOrders: true,
-        includeProducts: true,
-        includeTransactions: false,
-        includePages: false,
-        includeCustomCollections: false,
-        includeSmartCollections: false,
-        cancelExisting: false,
-      };
+      options.syncToDb = !!options.syncToDb;
+      options.syncToSearch = !!options.syncToSearch;
+      options.resync = !!options.resync;
+      options.includeOrders = !!options.includeOrders;
+      options.includeProducts = !!options.includeProducts;
+      options.includeTransactions = !!options.includeTransactions;
+      options.includePages = !!options.includePages;
+      options.includeCustomCollections = !!options.includeCustomCollections;
+      options.includeSmartCollections = !!options.includeSmartCollections;
+      options.cancelExisting = !!options.cancelExisting;
 
       // If neither includeOrders nor includeProducts was passed, we assume by default that both should be included
       if (
@@ -168,8 +166,11 @@ export class SyncService {
         && !options.includeCustomCollections
         && !options.includeSmartCollections
       ) {
-        options.includeOrders = true;
-        options.includeProducts = true;
+        throw new Error('At least one shopify record must be synchronized!');
+      }
+
+      if (!options.syncToDb && !options.syncToSearch) {
+        throw new Error('At least one synchronization target must be defined!');
       }
 
       this.logger.debug(`startSync(${JSON.stringify(options, null, 2)}`);
@@ -199,6 +200,8 @@ export class SyncService {
           // or we cancel the previous progress and start a new one if `cancelExisting` option is set.
 
           const checkOptions = [
+            'syncToDb',
+            'syncToSearch',
             'includeProducts',
             'includeOrders',
             'includeTransactions',

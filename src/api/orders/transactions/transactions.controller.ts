@@ -20,7 +20,9 @@ export class TransactionsController {
   @Roles('shopify-staff-member')
   @Get(':order_id/transactions')
   listFromShopify(@Req() req: IUserRequest, @Res() res, @Param('order_id') orderId, @Query() options: TransactionListOptions) {
-    return this.transactionsService.listFromShopify(req.shopifyConnect, orderId, {...options, sync: true})
+    return this.transactionsService.listFromShopify(req.shopifyConnect, orderId, {
+      ...options,
+    })
     .then((transactions) => {
       return res.jsonp(transactions);
     })

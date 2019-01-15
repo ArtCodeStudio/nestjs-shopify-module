@@ -25,7 +25,7 @@ export abstract class ShopifyApiBaseService<
   > {
 
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
-  abstract resourceName: string; // resource name: 'orders', '`ShopifyObjectType`', etc.
+  abstract resourceName: string; // resource name: 'orders', 'products', etc.
   get upperCaseResourceName(): string {
     return this.resourceName[0].toUpperCase + this.resourceName.substr(1);
   }
@@ -35,6 +35,14 @@ export abstract class ShopifyApiBaseService<
     return this.subResourceNames.map((name) => {
       return name[0].toUpperCase + name.substr(1);
     });
+  }
+
+  /**
+   * E.g. converts `smartCollections` to `smart_collections`
+   * Needed for Elasticsearch index where big letters are not allowed
+   */
+  get underscoreCaseResourceName(): string {
+    return this.resourceName.split(/(?=[A-Z])/).join('_').toLowerCase();
   }
 
   constructor(

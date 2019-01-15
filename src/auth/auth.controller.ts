@@ -67,7 +67,7 @@ export class ShopifyAuthController {
     this.passport.use(`shopify-${shop}`, shopifyAuthStrategy);
 
     return this.passport.authenticate(`shopify-${shop}`, {
-      scope: this.shopifyModuleOptions.scope,
+      scope: this.shopifyModuleOptions.shopify.scope,
       shop: shop,
     } as any)(req, res, next);
   }

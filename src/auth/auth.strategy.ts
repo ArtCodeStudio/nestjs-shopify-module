@@ -23,9 +23,9 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
   ) {
     super (
       {
-        clientID: shopifyModuleOptions.clientID,
-        clientSecret: shopifyModuleOptions.clientSecret,
-        callbackURL: shopifyModuleOptions.callbackURL,
+        clientID: shopifyModuleOptions.shopify.clientID,
+        clientSecret: shopifyModuleOptions.shopify.clientSecret,
+        callbackURL: shopifyModuleOptions.shopify.callbackURL,
         shop,
       },
     );

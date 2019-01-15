@@ -50,6 +50,8 @@ export class SyncController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Body() body: any,
+    @Body('syncToDb') syncToDb?: boolean | string,
+    @Body('syncToSearch') syncToSearch?: boolean | string,
     @Body('includeOrders') includeOrders?: boolean | string,
     @Body('includeTransactions') includeTransactions?: boolean | string,
     @Body('includeProducts') includeProducts?: boolean | string,
@@ -60,6 +62,8 @@ export class SyncController {
     @Body('cancelExisting') cancelExisting?: boolean | string,
   ) {
     this.logger.debug({
+      syncToDb,
+      syncToSearch,
       includeOrders,
       includeTransactions,
       includeProducts,
@@ -70,6 +74,8 @@ export class SyncController {
       cancelExisting,
     })
     let options: ISyncOptions = {
+      syncToDb: syncToDb === 'true' || syncToDb === true,
+      syncToSearch: syncToSearch === 'true' || syncToSearch === true,
       includeOrders: includeOrders === 'true' || includeOrders === true,
       includeTransactions: includeTransactions === 'true' || includeTransactions === true,
       includeProducts: includeProducts === 'true' || includeProducts === true,
@@ -109,6 +115,8 @@ export class SyncController {
   async startSync(
     @Req() req: IUserRequest,
     @Res() res: Response,
+    @Query('sync_to_db') syncToDb?: boolean,
+    @Query('sync_to_search') syncToSearch?: boolean,
     @Query('include_orders') includeOrders?: boolean,
     @Query('include_transactions') includeTransactions?: boolean,
     @Query('include_products') includeProducts?: boolean,
@@ -119,6 +127,8 @@ export class SyncController {
     @Query('cancelExisting') cancelExisting?: boolean,
   ) {
     return this.syncService.startSync(req.shopifyConnect, {
+      syncToDb,
+      syncToSearch,
       includeOrders,
       includeTransactions,
       includeProducts,

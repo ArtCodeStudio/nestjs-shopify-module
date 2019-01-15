@@ -69,7 +69,10 @@ export class OrdersService extends ShopifyApiRootCountableService<
     const lastOrder =orders[orders.length-1];
     if (options.includeTransactions) {
       for (let i=0; i<orders.length; i++) {
-        await this.transactionsService.listFromShopify(shopifyConnect, lastOrder.id, {sync: true});
+        await this.transactionsService.listFromShopify(shopifyConnect, lastOrder.id, {
+          syncToDb: options.syncToDb,
+          syncToSearch: options.syncToSearch,
+        });
       }
     }
     subProgress.syncedCount += orders.length;

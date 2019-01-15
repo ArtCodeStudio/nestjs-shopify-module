@@ -41,7 +41,7 @@ export class VerifyWebhookMiddleware implements NestMiddleware {
           res.status(415).send({ error: 'INVALID JSON'})
         }
         if (hmac) {
-          if (isAuthenticWebhook(req.headers, rawBody, this.shopifyModuleOptions.clientSecret)) {
+          if (isAuthenticWebhook(req.headers, rawBody, this.shopifyModuleOptions.shopify.clientSecret)) {
             return next();
           /*
           // TODO: Does this work? We want the RAW request body.
