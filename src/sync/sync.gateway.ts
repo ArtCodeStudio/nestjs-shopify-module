@@ -28,7 +28,7 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   // }
 
   afterInit(nsp: SocketIO.Namespace) {
-    this.logger.debug('afterInit', nsp.name);
+    // this.logger.debug('afterInit', nsp.name);
 
     this.eventService.on(`sync-exception`, (myshopifyDomain: string, error: any) => {
       nsp.to(`${myshopifyDomain}-app-backend`).emit('sync-exception', error);
@@ -57,7 +57,7 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   handleConnection(client: SessionSocket) {
-    this.logger.debug('connect', client.id, client.handshake.session);
+    // this.logger.debug('connect', client.id, client.handshake.session);
     // Join the room for app backend users to receive broadcast events
     if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
       client.join(`${client.handshake.session.shop}-app-backend`);

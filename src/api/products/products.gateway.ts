@@ -23,11 +23,11 @@ export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   }
 
   afterInit(nsp: SocketIO.Namespace) {
-    this.logger.debug('afterInit', nsp.name);
+    // this.logger.debug('afterInit', nsp.name);
   }
 
   handleConnection(client: SessionSocket) {
-    this.logger.debug('connect', client.id, client.handshake.session);
+    // this.logger.debug('connect', client.id, client.handshake.session);
   }
 
   handleDisconnect(client: SessionSocket) {

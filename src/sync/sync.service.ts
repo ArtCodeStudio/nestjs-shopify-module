@@ -17,6 +17,9 @@ import * as pRetry from 'p-retry';
 
 @Injectable()
 export class SyncService {
+
+  protected logger = new DebugService(`shopify:${this.constructor.name}`);
+
   constructor(
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
@@ -26,8 +29,28 @@ export class SyncService {
     private readonly pagesService: PagesService,
     private readonly smartCollectionsService: SmartCollectionsService,
     private readonly customCollectionsService: CustomCollectionsService
-  ) {}
-  logger = new DebugService(`shopify:${this.constructor.name}`);
+  ) {
+    this.find({
+      state: 'running'
+    })
+    .then((progresses) => {
+      // Cancel running progresses
+      this.logger.debug('Cancel running progresses', progresses);
+      const promises = new Array<Promise<SyncProgressDocument>>()
+      progresses.forEach((progress: SyncProgressDocument) => {
+        promises.push(this.update({_id: progress._id}, {state: 'cancelled'}));
+      });
+      return Promise.all(promises);
+    })
+    .then((_) => {
+      this.logger.debug('Running progresses cancelled');
+    })
+    .catch((error) => {
+      this.logger.debug('Can\'t cancel running progresses');
+      this.logger.error(error);
+    })
+  }
+
 
   /**
    *
@@ -79,6 +102,10 @@ export class SyncService {
 
   async find(query: Partial<SyncProgressDocument>, options?: {}): Promise<SyncProgressDocument[]|null> {
     return this.syncProgressModel.find(query, {}, options).lean();
+  }
+
+  async update(conditions: Partial<SyncProgressDocument>, progress: Partial<SyncProgressDocument>, options?: {}): Promise<SyncProgressDocument> {
+    return this.syncProgressModel.findOneAndUpdate(conditions, progress, options);
   }
 
   async findOne(query: Partial<SyncProgressDocument>, options?: {}): Promise<SyncProgressDocument|null> {
