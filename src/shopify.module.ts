@@ -49,7 +49,7 @@ import { SearchController } from './api/search/search.controller';
 import { SearchService } from './api/search/search.service';
 import { ElasticsearchService } from './elasticsearch.service';
 
-
+export { OrdersService };
 export { RequestGuard } from './guards/request.guard';
 
 
@@ -108,6 +108,16 @@ export { RequestGuard } from './guards/request.guard';
     ShopifyAuthService,
     ChargeService,
     EventService,
+    OrdersService,
+    TransactionsService,
+    ProductsService,
+    TransactionsService,
+    PagesService,
+    ThemesService,
+    AssetsService,
+    LocalesService,
+    SmartCollectionsService,
+    CustomCollectionsService,
   ],
 })
 export class ShopifyModule implements NestModule {
@@ -141,6 +151,7 @@ export class ShopifyModule implements NestModule {
         ...syncProviders(database),
       ],
       exports: [
+        OrdersService,
         mongooseDatabase,
         BodyParserJsonMiddleware,
         BodyParserUrlencodedMiddleware,
