@@ -296,9 +296,12 @@ export class SyncService {
       }
 
       progress.state = 'running';
-      this.eventService.emit(`sync-${progress.state}`, shop, progress);
 
-      return Promise.all(subSyncPromises)
+      // save initialized progress for the first time
+      await pRetry(() => progress.save());
+
+      // We don't want to return the result of this promise, but the initialized progress as it is now immediately.
+      Promise.all(subSyncPromises)
       .then((subProgresses) => {
         this.logger.debug('[startSync] All syncs done')
         let cancelled = false;
@@ -334,6 +337,9 @@ export class SyncService {
           return progress.save();
         })
       });
+
+      // return the initialized progress
+      return progress;
     } catch (error) {
       this.logger.error(error);
       this.eventService.emit(`sync-exception`, shop, error);
