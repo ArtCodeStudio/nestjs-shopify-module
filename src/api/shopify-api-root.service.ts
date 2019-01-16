@@ -88,7 +88,7 @@ export abstract class ShopifyApiRootService<
         throw error;
       })
     })
-    .then((shopifyObjects: ShopifyObjectType[]) => {
+    .then(async (shopifyObjects: ShopifyObjectType[]) => {
       this.logger.debug('[listFromShopify] result length', shopifyObjects.length);
       this.logger.debug('[listFromShopify] updateOrCreateManyInApp');
       return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyObjects, syncToDb, syncToSearch)

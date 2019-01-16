@@ -4,7 +4,7 @@ import { DebugService } from '../debug.service';
 import { ShopifyModuleOptions} from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS} from '../shopify.constants';
 import { isAuthenticWebhook } from 'shopify-prime/auth';
-import concat from 'concat-stream';
+import * as concat from 'concat-stream';
 import { IUserRequest } from '../interfaces/user-request';
 import { Response, NextFunction } from 'express';
 

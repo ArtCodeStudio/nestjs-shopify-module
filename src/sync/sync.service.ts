@@ -44,6 +44,7 @@ export class SyncService {
     })
     .then((_) => {
       this.logger.debug('Running progresses cancelled');
+      return _;
     })
     .catch((error) => {
       this.logger.debug('Can\'t cancel running progresses');
@@ -169,10 +170,7 @@ export class SyncService {
    */
   async startSync(shopifyConnect: IShopifyConnect, options: ISyncOptions): Promise<SyncProgressDocument> {
     const shop = shopifyConnect.myshopify_domain;
-    this.logger.debug(`startSync(
-      ${shop}, 
-      ${JSON.stringify(options, null, 2)}
-    `);
+    // this.logger.debug(`[startSync] (${shop})`);
     try {
       options.syncToDb = !!options.syncToDb;
       options.syncToSearch = !!options.syncToSearch;
@@ -200,7 +198,7 @@ export class SyncService {
         throw new Error('At least one synchronization target must be defined!');
       }
 
-      this.logger.debug(`startSync(${JSON.stringify(options, null, 2)}`);
+      // this.logger.debug(`[startSync] (${JSON.stringify(options, null, 2)}`);
 
       // Get the last sync progress (if it exists)
       let lastProgress: SyncProgressDocument = await this.syncProgressModel.findOne(
@@ -210,18 +208,18 @@ export class SyncService {
       );
 
       if (lastProgress && lastProgress.state === 'running') {
-        this.logger.debug(`startSync: check if last progress ${lastProgress._id} is still running`);
+        this.logger.debug(`[startSync] Check if last progress ${lastProgress._id} is still running`);
         const lastProgressRunning = await this.isSyncRunning(shop, lastProgress._id);
 
         if (!lastProgressRunning) {
-          this.logger.debug(`startSync: last progress ${lastProgress.id} marked as 'running' did not respond. Set it to 'failed'.`);
+          this.logger.debug(`[startSync] Last progress ${lastProgress.id} marked as 'running' did not respond. Set it to 'failed'.`);
           lastProgress.state = 'failed';
           lastProgress.lastError = 'sync timed out';
           await lastProgress.save();
           // Just to make sure, we send a cancel event to the progress. Maybe he was just very busy.
           this.eventService.emit(`sync-cancel:${shop}:${lastProgress.id}`);
         } else {
-          this.logger.debug('startSync: last progress is still running');
+          this.logger.debug('[startSync] Last progress is still running');
           // If the last progress is still running and includes all the options we need, we just return it, without starting a new one.
           // If the options of the running progress and the sync we want to start are incompatible, we throw a `sync in progress` error,
           // or we cancel the previous progress and start a new one if `cancelExisting` option is set.
@@ -241,13 +239,13 @@ export class SyncService {
           // If `cancelExisting` option is set, we cancel the existing running progress unless it is compatible with our options.
           const cancelledExisting = checkOptions.some(key => {
             if (options[key] && !lastProgress.options[key]) {
-              this.logger.debug(`startSync: running progress with options
+              this.logger.debug(`[startSync] running progress with options
                   ${JSON.stringify(lastProgress.options, null, 2)}
                 is incompatible with new sync options:
                   ${JSON.stringify(options, null, 2)}.`);
               this.logger.debug(`${key} is missing from lastProgress`);
               if (options.cancelExisting) {
-                this.logger.debug(`startSync: cancel existing progress and start a new one.`)
+                this.logger.debug(`[startSync] cancel existing progress and start a new one.`)
                 this.eventService.emit(`sync-cancel:${shop}:${lastProgress._id}`);
                 return true;
               } else {
@@ -261,7 +259,7 @@ export class SyncService {
           if (!cancelledExisting) {
             // The existing running progress is compatible with all the options we want,
             // so we just re-emit its state and return it without starting a new one.
-            this.logger.debug(`startSync: The running progress is compatible with our options ${options}`);
+            this.logger.debug(`[startSync] The running progress is compatible with our options`);
             this.eventService.emit(`sync`, shop, lastProgress);
             return lastProgress;
           }
@@ -302,6 +300,7 @@ export class SyncService {
 
       return Promise.all(subSyncPromises)
       .then((subProgresses) => {
+        this.logger.debug('[startSync] All syncs done')
         let cancelled = false;
         let failed = subProgresses.some((subProgress, i) => {
           if (subProgress.state === 'failed') {
@@ -320,7 +319,8 @@ export class SyncService {
           progress.state = 'success';
         }
         this.eventService.emit(`sync-${progress.state}`, shop, progress);
-        return pRetry(() => { 
+        return pRetry(() => {
+          this.eventService.emit(`save progress`, progress);
           return progress.save();
         })
       })
@@ -330,11 +330,12 @@ export class SyncService {
         progress.lastError = error.message ? error.message : error;
         this.eventService.emit(`sync-${progress.state}`, shop, progress);
         return pRetry(() => {
+          this.eventService.emit(`save progress`, progress);
           return progress.save();
         })
       });
     } catch (error) {
-      this.logger.debug(error);
+      this.logger.error(error);
       this.eventService.emit(`sync-exception`, shop, error);
       throw error;
     }

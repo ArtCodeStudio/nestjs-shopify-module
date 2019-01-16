@@ -8,25 +8,11 @@ import { Product, ProductUpdateCreate } from 'shopify-prime/models';
 import { Model } from 'mongoose';
 
 import { IShopifyConnect } from '../../auth/interfaces';
-import { ProductDocument, IListAllCallbackData } from '../interfaces';
+import { ProductDocument, IListAllCallbackData, ProductCountOptions, ProductGetOptions, ProductListOptions } from '../interfaces';
 import { EventService } from '../../event.service';
 import { SyncProgressDocument, SubSyncProgressDocument, ISyncOptions } from '../../interfaces';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 import { ElasticsearchService } from '../../elasticsearch.service';
-
-export interface ProductListOptions extends Options.ProductListOptions {
-  syncToDb?: boolean;
-  syncToSearch?: boolean;
-  failOnSyncError?: boolean;
-}
-
-export interface ProductGetOptions extends Options.FieldOptions {
-  syncToDb?: boolean;
-  syncToSearch?: boolean;
-}
-
-export interface ProductCountOptions extends Options.ProductCountOptions {}
-
 
 @Injectable()
 export class ProductsService extends ShopifyApiRootCountableService<

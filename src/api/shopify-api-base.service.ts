@@ -192,6 +192,7 @@ export abstract class ShopifyApiBaseService<
    * @param object The objects to create / update
    */
   public async updateOrCreateInApp(user: IShopifyConnect, selectBy: string = 'id', update: Partial<ShopifyObjectType>, inMongoDb: boolean =  true, inEs: boolean = false) {
+    this.logger.debug(`[updateOrCreateInApp:${this.resourceName}] start`);
     const promises = new Array<Promise<any>>();
     if (inEs) {
       promises.push(this.updateOrCreateInEs(user, selectBy, update));
@@ -206,7 +207,11 @@ export abstract class ShopifyApiBaseService<
         })
       );
     }
-    return Promise.all(promises);
+    return Promise.all(promises)
+    .then((_) => {
+      this.logger.debug(`[updateOrCreateInApp:${this.resourceName}] done`);
+      return _;
+    })
   }
 
   /**
@@ -286,6 +291,7 @@ export abstract class ShopifyApiBaseService<
    * @param objects 
    */
   public async updateOrCreateManyInApp(user: IShopifyConnect, selectBy: string = 'id', objects: ShopifyObjectType[], inMongoDb: boolean =  true, inEs: boolean = false): Promise<BulkWriteOpResultObject | {}> {
+    this.logger.debug(`[updateOrCreateManyInApp:${this.resourceName}] start`);
     const promises = new Array<Promise<any>>();
 
     if (inEs) {
@@ -296,6 +302,10 @@ export abstract class ShopifyApiBaseService<
       promises.push(this.updateOrCreateManyInEs(user, selectBy, objects));
     }
     
-    return Promise.all(promises);
+    return Promise.all(promises)
+    .then((_) => {
+      this.logger.debug(`[updateOrCreateManyInApp:${this.resourceName}] done`);
+      return _;
+    })
   }
 }

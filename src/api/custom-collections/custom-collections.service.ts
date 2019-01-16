@@ -2,28 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CustomCollections, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
 import { CustomCollection } from 'shopify-prime/models';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { CustomCollectionDocument } from '../interfaces/mongoose/custom-collection.schema';
+import { CustomCollectionDocument, CustomCollectionCountOptions, CustomCollectionGetOptions, CustomCollectionListOptions } from '../interfaces';
 import { SyncProgressDocument } from '../../interfaces';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 import { ElasticsearchService } from '../../elasticsearch.service';
-
-export interface CustomCollectionListOptions extends Options.CollectionListOptions {
-  syncToDb?: boolean;
-  syncToSearch?: boolean;
-  failOnSyncError?: boolean;
-}
-
-export interface CustomCollectionGetOptions extends Options.FieldOptions {
-  syncToDb?: boolean;
-  syncToSearch?: boolean;
-}
-
-export interface CustomCollectionCountOptions extends Options.DateOptions, Options.PublishedOptions {
-  title?: string,
-  product_id?: number,
-} 
 
 @Injectable()
 export class CustomCollectionsService extends ShopifyApiRootCountableService<

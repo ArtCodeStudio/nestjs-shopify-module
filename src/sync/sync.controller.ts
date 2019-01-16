@@ -85,8 +85,8 @@ export class SyncController {
       resync: resync === 'true' || resync === true,
       cancelExisting: cancelExisting === 'true' || cancelExisting === true,
     }
-    this.logger.debug('startSync body', body)
-    this.logger.debug(`startSync(${JSON.stringify(options, null, 2)})`);
+    // this.logger.debug('startSync body', body)
+    this.logger.debug(`startSync`, options);
     return this.syncService.startSync(req.shopifyConnect, options)
     .then((progress) => {
       res.jsonp(progress);

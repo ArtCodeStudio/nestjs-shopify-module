@@ -14,12 +14,13 @@ import {
   Body
 } from '@nestjs/common';
 
-import { ProductsService, ProductListOptions, ProductCountOptions } from './products.service';
+import { ProductsService } from './products.service';
 import { DebugService } from '../../debug.service';
 
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
-import { IUserRequest } from '../../interfaces/user-request';
+import { IUserRequest } from '../../interfaces';
+import {  ProductCountOptions, ProductGetOptions, ProductListOptions } from '../interfaces';
 import { Response } from 'express';
 import { ProductUpdateCreate } from 'shopify-prime/models';
 
@@ -44,24 +45,24 @@ export class ProductsController {
   async listFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Query('collection_id') collection_id: string | undefined,
-    @Query('created_at_max') created_at_max: string | undefined,
-    @Query('created_at_min') created_at_min: string | undefined,
-    @Query('ids') ids: string | undefined,
-    @Query('page') page: number | undefined,
-    @Query('fields') fields: string | undefined,
-    @Query('limit') limit: number | undefined,
-    @Query('product_type') product_type: string | undefined,
-    @Query('published_at_max') published_at_max: string | undefined,
-    @Query('published_at_min') published_at_min: string | undefined,
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any' | undefined,
-    @Query('since_id') since_id: number | undefined,
-    @Query('sync_to_db') sync_to_db: boolean | undefined,
-    @Query('sync_to_search') sync_to_search: boolean | undefined,
-    @Query('title') title: string | undefined,
-    @Query('updated_at_max') updated_at_max: string | undefined,
-    @Query('updated_at_min') updated_at_min: string | undefined,
-    @Query('vendor') vendor: string | undefined,
+    @Query('collection_id') collection_id?: string,
+    @Query('created_at_max') created_at_max?: string,
+    @Query('created_at_min') created_at_min?: string,
+    @Query('ids') ids?: string,
+    @Query('page') page?: number,
+    @Query('fields') fields?: string,
+    @Query('limit') limit?: number,
+    @Query('product_type') product_type?: string,
+    @Query('published_at_max') published_at_max?: string,
+    @Query('published_at_min') published_at_min?: string | undefined,
+    @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
+    @Query('since_id') since_id?: number,
+    @Query('sync_to_db') sync_to_db?: boolean,
+    @Query('sync_to_search') sync_to_search?: boolean,
+    @Query('title') title?: string,
+    @Query('updated_at_max') updated_at_max?: string,
+    @Query('updated_at_min') updated_at_min?: string,
+    @Query('vendor') vendor?: string,
   ) {
     if (req.session.isThemeClientRequest) {
       published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
@@ -285,22 +286,23 @@ export class ProductsController {
     @Query('updated_at_min') updated_at_min: string,
     @Query('vendor') vendor: string,
   ) {
+    const options: ProductCountOptions = {
+      collection_id,
+      created_at_max,
+      created_at_min,
+      product_type,
+      published_at_max,
+      published_at_min,
+      published_status,
+      updated_at_max,
+      updated_at_min,
+      vendor,
+    }
     try {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
       }
-      return res.jsonp(await this.productsService.countFromShopify(req.shopifyConnect, {
-        collection_id,
-        created_at_max,
-        created_at_min,
-        product_type,
-        published_at_max,
-        published_at_min,
-        published_status,
-        updated_at_max,
-        updated_at_min,
-        vendor,
-      }));
+      return res.jsonp(await this.productsService.countFromShopify(req.shopifyConnect, options));
     } catch(error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -483,10 +485,14 @@ export class ProductsController {
   async getFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Param('id') id: number
+    @Param('id') id: number,
+    @Query('fields') fields?: string,
   ) {
+    const options: ProductGetOptions = {
+      fields
+    }
     try {
-      return res.jsonp(await this.productsService.getFromShopify(req.shopifyConnect, id));
+      return res.jsonp(await this.productsService.getFromShopify(req.shopifyConnect, id, options));
     } catch(error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;

@@ -1,7 +1,8 @@
 import { SubscribeMessage, WebSocketGateway, WsResponse, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from '@nestjs/websockets';
 import { Observable } from 'rxjs';
 import { SessionSocket } from '../../interfaces/session-socket';
-import { ProductsService, ProductListOptions, ProductCountOptions } from './products.service';
+import { ProductListOptions, ProductCountOptions } from '../interfaces'
+import { ProductsService } from './products.service';
 import { Product, ProductUpdateCreate } from 'shopify-prime/models';
 import { DebugService } from '../../debug.service';
 import { Server } from 'socket.io'
