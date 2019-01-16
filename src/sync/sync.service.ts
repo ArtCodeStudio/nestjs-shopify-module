@@ -198,10 +198,10 @@ export class SyncService {
         throw new Error('At least one synchronization target must be defined!');
       }
 
-      // this.logger.debug(`[startSync] (${JSON.stringify(options, null, 2)}`);
+      this.logger.debug(`[startSync] (${JSON.stringify(options, null, 2)}`);
 
       // Get the last sync progress (if it exists)
-      let lastProgress: SyncProgressDocument = await this.syncProgressModel.findOne(
+      let lastProgress: SyncProgressDocument | null = await this.syncProgressModel.findOne(
         { shop },
         {},
         { sort: { 'createdAt': -1} }
@@ -272,37 +272,45 @@ export class SyncService {
         state: 'starting',
         lastError: null,
       });
-      this.eventService.emit(`sync-${progress.state}`, shop, progress);
 
-      let subSyncPromises = new Array<Promise<SubSyncProgressDocument>>();
-      if (options.includeProducts) {
-        subSyncPromises.push(this.productsService.startSync(shopifyConnect, options, progress, lastProgress));
-      }
+      const subprogressServices = [
+        this.ordersService,
+        this.productsService,
+        this.smartCollectionsService,
+        this.customCollectionsService,
+        this.pagesService,
+      ];
 
-      if (options.includeOrders) {
-        subSyncPromises.push(this.ordersService.startSync(shopifyConnect, options, progress, lastProgress));
-      }
-
-      if (options.includePages) {
-        subSyncPromises.push(this.pagesService.startSync(shopifyConnect, options, progress, lastProgress));
-      }
-
-      if (options.includeSmartCollections) {
-        subSyncPromises.push(this.smartCollectionsService.startSync(shopifyConnect, options, progress, lastProgress));
-      }
-
-      if (options.includeCustomCollections) {
-        subSyncPromises.push(this.customCollectionsService.startSync(shopifyConnect, options, progress, lastProgress));
+      let subSyncFinishedPromises = new Array<Promise<SubSyncProgressDocument>>();
+      for (let i=0; i<subprogressServices.length; i++) {
+        let subService = subprogressServices[i];
+        if (options[`include${subService.upperCaseResourceName}`]) {
+          this.logger.debug(`start subprogress: ${subService.resourceName}`);
+          let resolveSubProgress: (subdoc: SubSyncProgressDocument) => void;
+          let rejectSubProgress: (error: Error) => void;
+          let subSyncFinishedPromise = new Promise<SubSyncProgressDocument>((resolve, reject) => {
+            resolveSubProgress = resolve;
+            rejectSubProgress = reject;
+          });
+          subSyncFinishedPromises.push(subSyncFinishedPromise);
+          try {
+            await this.productsService.startSync(
+              shopifyConnect,
+              options,
+              progress,
+              lastProgress,
+              resolveSubProgress,
+            );
+          } catch (error) {
+            rejectSubProgress(error);
+          }
+        }
       }
 
       progress.state = 'running';
 
-      // save initialized progress for the first time
-      await pRetry(() => progress.save());
-
       // We don't want to return the result of this promise, but the initialized progress as it is now immediately.
-      Promise.all(subSyncPromises)
-      .then((subProgresses) => {
+      Promise.all(subSyncFinishedPromises).then((subProgresses) => {
         this.logger.debug('[startSync] All syncs done')
         let cancelled = false;
         let failed = subProgresses.some((subProgress, i) => {
@@ -338,7 +346,7 @@ export class SyncService {
         })
       });
 
-      // return the initialized progress
+      // return the initialized progress immediately
       return progress;
     } catch (error) {
       this.logger.error(error);

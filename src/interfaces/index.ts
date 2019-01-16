@@ -5,5 +5,6 @@ export * from './shopify-module-options';
 export * from './sync-options';
 export * from './sync-progress';
 export * from './sub-sync-progress';
+export * from './sub-sync-progress-finished-callback';
 export * from './user-request';
 export * from './webhook';

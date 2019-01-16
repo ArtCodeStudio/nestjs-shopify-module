@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 import * as pRetry from 'p-retry';
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
-import { SyncProgressDocument, SubSyncProgressDocument, ISyncProgress, ISyncOptions } from '../interfaces';
+import { SyncProgressDocument, SubSyncProgressDocument, ISyncProgress, ISyncOptions, ISubSyncProgressFinishedCallback } from '../interfaces';
 import { listAllCallback, IListAllCallbackData, SyncOptions, ShopifyBaseObjectType, RootCount, RootGet, RootList } from './interfaces';
 import { deleteUndefinedProperties, getDiff } from '../helpers';
 import { ShopifyApiRootService } from './shopify-api-root.service';
@@ -191,7 +191,7 @@ export abstract class ShopifyApiRootCountableService<
    * @event sync (shop, lastProgress)
    * @event sync-cancelled:[shop]:[progressId] ()
    */
-  public async startSync(shopifyConnect: IShopifyConnect, options: ISyncOptions, progress: SyncProgressDocument, lastProgress?: SyncProgressDocument): Promise<SubSyncProgressDocument> {
+  public async startSync(shopifyConnect: IShopifyConnect, options: ISyncOptions, progress: SyncProgressDocument, lastProgress: SyncProgressDocument | null, finishedCallback?: ISubSyncProgressFinishedCallback) {
     this.logger.debug(`[startSync] start`, options);
 
     const shop: string = shopifyConnect.myshopify_domain;
@@ -234,46 +234,48 @@ export abstract class ShopifyApiRootCountableService<
       ...this.getSyncListOptions(options)
     };
 
-    return pRetry(() => {
+    // save the initialized progress for the first time
+    await pRetry(() => {
       return progress.save()
+    });
+
+    // We don't want to return the result of this promise, but the initialized progress as it is now immediately.
+    this.listAllFromShopify(shopifyConnect, listAllOptions as ListOptions, listAllCallback)
+    .then(async () => {
+      if (listAllError) {
+        throw listAllError;
+      }
+      this.logger.debug(`[${this.resourceName}] sync ${syncSignal} success`);
+      progress[this.resourceName].state = 'success';
+      return pRetry(() => {
+        return progress.save()
+      });
     })
-    .then(async (progress) => {
-      return this.listAllFromShopify(shopifyConnect, listAllOptions as ListOptions, listAllCallback)
-      .then(async () => {
-        if (listAllError) {
-          throw listAllError;
-        }
-        this.logger.debug(`[${this.resourceName}] sync ${syncSignal} success`);
-        progress[this.resourceName].state = 'success';
-        return pRetry(() => {
-          return progress.save()
-        })
-      })
-      .then((progress) => {
-        return progress[this.resourceName];
-      })
-      .catch(async (error) => {
-        if (error.message === 'cancelled') {
-          this.logger.debug(`[${this.resourceName}] sync ${syncSignal} cancelled`);
-          progress[this.resourceName].state = 'cancelled';
-        } else {
-          this.logger.error(`[${this.resourceName}] sync ${syncSignal} error`, error);
-          progress[this.resourceName].state = 'failed';
-          progress[this.resourceName].error = error.message;
-          // TODO ? progress.lastError = `${this.resourceName}:${error.message}`;
-        }
-        return pRetry(() => {
-          return progress.save()
-        })
-        .then((progress) => {
-          return progress[this.resourceName];
-        });
+    .catch(async (error) => {
+      if (error.message === 'cancelled') {
+        this.logger.debug(`[${this.resourceName}] sync ${syncSignal} cancelled`);
+        progress[this.resourceName].state = 'cancelled';
+      } else {
+        this.logger.error(`[${this.resourceName}] sync ${syncSignal} error`, error);
+        progress[this.resourceName].state = 'failed';
+        progress[this.resourceName].error = error.message;
+        // TODO ? progress.lastError = `${this.resourceName}:${error.message}`;
+      }
+    })
+    .then(() => {
+      return pRetry(() => {
+        return progress.save()
       });
     })
     .then((_) => {
-      this.logger.debug(`[startSync] done`);
-      return _;
+      this.logger.debug(`[startSync] ${this.resourceName} done: ${progress[this.resourceName].state}`);
+      if (typeof finishedCallback === 'function') {
+        finishedCallback(progress[this.resourceName]);
+      }
     });
+
+    // return the initialized progress immediately
+    return progress[this.resourceName];
   }
 
   /**

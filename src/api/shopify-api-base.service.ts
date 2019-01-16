@@ -37,7 +37,7 @@ export abstract class ShopifyApiBaseService<
 
   abstract subResourceNames: string[]; // e.g. 'transactions' in case of orders
 
-  get upperCaseResourceNames(): string[] {
+  get upperCaseSubResourceNames(): string[] {
     return this.subResourceNames.map((name) => {
       return firstCharUppercase(name);
     });
