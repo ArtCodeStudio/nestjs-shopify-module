@@ -39,7 +39,7 @@ export abstract class ShopifyApiRootService<
   }
 
   /**
-   * Retrieves a single order directly from the shopify API
+   * Retrieves a single `ShopifyObjectType` directly from the shopify API
    * @param user 
    * @param id 
    * @param sync 
@@ -63,14 +63,14 @@ export abstract class ShopifyApiRootService<
   }
 
   /**
-   * Retrieves a list of orders directly from shopify.
+   * Retrieves a list of `ShopifyObjectType` directly from shopify.
    * @param user
    * @param options
    */
   public async listFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions): Promise<ShopifyObjectType[]> {
-    this.logger.debug('[listFromShopify]');
     // Delete undefined options
     deleteUndefinedProperties(options);
+    this.logger.debug('[listFromShopify]', options);
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     let syncToDb = options && options.syncToDb;
     let syncToSearch = options && options.syncToSearch;
@@ -106,7 +106,7 @@ export abstract class ShopifyApiRootService<
   }
 
   /**
-   * Gets a list of all of the shop's products directly from the shopify API
+   * Gets a list of all of the shop's `ShopifyObjectType` directly from the shopify API
    * @param options Options for filtering the results.
    */
   public async listAllFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions): Promise<ShopifyObjectType[]>
@@ -114,6 +114,7 @@ export abstract class ShopifyApiRootService<
   public async listAllFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions, listAllPageCallback?: listAllCallback<ShopifyObjectType>): Promise<ShopifyObjectType[]|void> {
     // Delete undefined options
     deleteUndefinedProperties(options);
+    this.logger.debug('[listAllFromShopify]', options);
 
     return this.listFromShopify(shopifyConnect, options)
     .then((objects) => {
@@ -136,7 +137,7 @@ export abstract class ShopifyApiRootService<
   }
 
   /**
-   * Gets a list of all of the shop's products directly from the shopify API as a stream
+   * Gets a list of all of the shop's `ShopifyObjectType` directly from the shopify API as a stream
    * @param options Options for filtering the results.
    */
   public listAllFromShopifyStream(shopifyConnect: IShopifyConnect, options?: ListOptions): Readable {
@@ -168,7 +169,7 @@ export abstract class ShopifyApiRootService<
   }
 
   /**
-   * Gets a list of the shop's products directly from the shopify API as an Observable
+   * Gets a list of the shop's `ShopifyObjectType` directly from the shopify API as an Observable
    * @param options Options for filtering the results.
    */
   public listAllFromShopifyObservable(user: IShopifyConnect, eventName: string, options?: ListOptions): Observable<WsResponse<ShopifyObjectType>> {
@@ -179,11 +180,11 @@ export abstract class ShopifyApiRootService<
         if (error) {
           observer.error(error);
         } else {
-          const products = data.data;
-          products.forEach((product, i) => {
+          const shopifyObjectTypes = data.data;
+          shopifyObjectTypes.forEach((shopifyObjectType, i) => {
             observer.next({
               event: eventName,
-              data: product,
+              data: shopifyObjectType,
             });
           });
         }

@@ -191,21 +191,16 @@ export abstract class ShopifyApiBaseService<
    * @param user 
    * @param object The objects to create / update
    */
-  public async updateOrCreateInApp(user: IShopifyConnect, selectBy: string = 'id', update: Partial<ShopifyObjectType>, inMongoDb: boolean =  true, inEs: boolean = false) {
+  public async updateOrCreateInApp(user: IShopifyConnect, selectBy: string = 'id', update: Partial<ShopifyObjectType>, inDb: boolean =  true, inSearch: boolean = false) {
     this.logger.debug(`[updateOrCreateInApp:${this.resourceName}] start`);
     const promises = new Array<Promise<any>>();
-    if (inEs) {
-      promises.push(this.updateOrCreateInEs(user, selectBy, update));
+    if (inSearch) {
+      promises.push(this.updateOrCreateInSearch(user, selectBy, update));
     }
-    if (inMongoDb) {
-      promises.push(
-        this.updateOrCreateInEs(user, selectBy, update)
-        .then((_) => {
-          const conditions = {};
-          conditions[selectBy] = update[selectBy];
-          return this.updateOrCreateInDb(user, conditions, update)
-        })
-      );
+    if (inDb) {
+      const conditions = {};
+      conditions[selectBy] = update[selectBy];
+      promises.push(this.updateOrCreateInDb(user, conditions, update));
     }
     return Promise.all(promises)
     .then((_) => {
@@ -219,7 +214,7 @@ export abstract class ShopifyApiBaseService<
    * @param user 
    * @param object The objects to create
    */
-  protected async updateOrCreateInEs(user: IShopifyConnect, selectBy: string = 'id', createOrCreate: Partial<ShopifyObjectType>) {
+  protected async updateOrCreateInSearch(user: IShopifyConnect, selectBy: string = 'id', createOrCreate: Partial<ShopifyObjectType>) {
     if (createOrCreate[selectBy]) {
       const updateDocumentParams: ESUpdateDocumentParams = {
         index: this.esService.getIndex(user.shop.myshopify_domain, this.resourceName),
@@ -250,6 +245,7 @@ export abstract class ShopifyApiBaseService<
    * @param objects The objects to create / update
    */
   public async updateOrCreateManyInDb(user: IShopifyConnect, selectBy: string, objects: ShopifyObjectType[]): Promise<BulkWriteOpResultObject | {}> {
+    this.logger.debug(`[updateOrCreateManyInDb:${this.resourceName}] start selectBy: ${selectBy} objects.length: ${objects.length}`);
     // An empty bulkwrite is not allowed. Just return an empty object if the passed array is empty.
     if (objects.length === 0) {
       return {};
@@ -267,7 +263,11 @@ export abstract class ShopifyApiBaseService<
           }
         }
       })
-    );
+    )
+    .then((result) => {
+      this.logger.debug(`[updateOrCreateManyInDb:${this.resourceName}] done result: ${result}`);
+      return result;
+    });
   }
 
   /**
@@ -276,12 +276,17 @@ export abstract class ShopifyApiBaseService<
    * @param selectBy 
    * @param objects 
    */
-  public async updateOrCreateManyInEs(user: IShopifyConnect, selectBy: string, objects: ShopifyObjectType[]): Promise<BulkWriteOpResultObject | {}> {
+  public async updateOrCreateManyInSearch(user: IShopifyConnect, selectBy: string, objects: ShopifyObjectType[]): Promise<BulkWriteOpResultObject | {}> {
+    this.logger.debug(`[updateOrCreateManyInSearch:${this.resourceName}] start selectBy: ${selectBy} objects.length: ${objects.length}`);
     const promises = new Array<Promise<void | ESCreateDocumentResponse>>();
     objects.forEach((object) => {
-      promises.push(this.updateOrCreateInEs(user, selectBy, object));
+      promises.push(this.updateOrCreateInSearch(user, selectBy, object));
     });
-    return Promise.all(promises);
+    return Promise.all(promises)
+    .then((result) => {
+      this.logger.debug(`[updateOrCreateManyInSearch:${this.resourceName}] done`);
+      return result;
+    });
   }
 
   /**
@@ -290,16 +295,16 @@ export abstract class ShopifyApiBaseService<
    * @param selectBy 
    * @param objects 
    */
-  public async updateOrCreateManyInApp(user: IShopifyConnect, selectBy: string = 'id', objects: ShopifyObjectType[], inMongoDb: boolean =  true, inEs: boolean = false): Promise<BulkWriteOpResultObject | {}> {
-    this.logger.debug(`[updateOrCreateManyInApp:${this.resourceName}] start`);
+  public async updateOrCreateManyInApp(user: IShopifyConnect, selectBy: string = 'id', objects: ShopifyObjectType[], inDb: boolean =  true, inSearch: boolean = false): Promise<BulkWriteOpResultObject | {}> {
+    this.logger.debug(`[updateOrCreateManyInApp:${this.resourceName}] start inDb: ${inDb} inSearch: ${inSearch} objects.length: ${objects.length}`);
     const promises = new Array<Promise<any>>();
 
-    if (inEs) {
-      promises.push(this.updateOrCreateManyInEs(user, selectBy, objects));
+    if (inSearch) {
+      promises.push(this.updateOrCreateManyInSearch(user, selectBy, objects));
     }
 
-    if (inMongoDb) {
-      promises.push(this.updateOrCreateManyInEs(user, selectBy, objects));
+    if (inDb) {
+      promises.push(this.updateOrCreateManyInDb(user, selectBy, objects));
     }
     
     return Promise.all(promises)
