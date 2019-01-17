@@ -6,9 +6,20 @@ import * as pRetry from 'p-retry';
 import { Products, Options } from 'shopify-prime'; 
 import { Product, ProductUpdateCreate } from 'shopify-prime/models';
 import { Model } from 'mongoose';
+import { GenericParams as ESGenericParams } from 'elasticsearch';
+
 
 import { IShopifyConnect } from '../../auth/interfaces';
-import { ProductDocument, IListAllCallbackData, ProductCountOptions, ProductGetOptions, ProductListOptions } from '../interfaces';
+import {
+  ProductDocument,
+  IListAllCallbackData,
+  ShopifySyncProductCountOptions,
+  ShopifySyncProductGetOptions,
+  ShopifySyncProductListOptions,
+  AppProductCountOptions,
+  AppProductGetOptions,
+  AppProductListOptions,
+} from '../interfaces';
 import { EventService } from '../../event.service';
 import { SyncProgressDocument, SubSyncProgressDocument, ISyncOptions } from '../../interfaces';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
@@ -18,9 +29,9 @@ import { ElasticsearchService } from '../../elasticsearch.service';
 export class ProductsService extends ShopifyApiRootCountableService<
 Product, // ShopifyObjectType
 Products, // ShopifyModelClass
-ProductCountOptions, // CountOptions
-ProductGetOptions, // GetOptions
-ProductListOptions, // ListOptions
+ShopifySyncProductCountOptions, // CountOptions
+ShopifySyncProductGetOptions, // GetOptions
+ShopifySyncProductListOptions, // ListOptions
 ProductDocument // DatabaseDocumentType
 > {
 
@@ -39,7 +50,51 @@ ProductDocument // DatabaseDocumentType
   }
 
   /**
-   * Creates a new product directly in shopify
+   * Retrieves a list of products from the app's mongodb database.
+   * @param user 
+   */
+  public async listFromDb(user: IShopifyConnect, conditions = {}): Promise<Product[]> {
+    return super.listFromDb(user, conditions);
+  }
+
+  /**
+   * Retrieves a list of products from elasticsearch.
+   * @param user 
+   * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html and https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
+   */
+  public async listFromSearch(user: IShopifyConnect, options: AppProductListOptions): Promise<Product[]> {
+    
+    
+    const query = {
+      match_all: {},
+    };
+
+    // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
+    let _source: boolean | string[] = true;
+
+    // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-from-size.html
+    let size = 250;
+
+    // Convert fields to ES fields
+    if (options.fields) {
+      _source = options.fields.split(',');
+    }
+
+    // Convert limit to ES limit
+    if (options.limit) {
+      size = options.limit || 250;
+      if (size > 250 || size <= 0) {
+        size = 250
+      }
+    }
+
+    const body = {_source, size, query};
+    
+    return super.listFromSearch(user, body);
+  }
+
+  /**
+   * Creates a new product directly in shopify.
    * @param user 
    * @param product 
    */

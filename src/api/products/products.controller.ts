@@ -20,7 +20,14 @@ import { DebugService } from '../../debug.service';
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
 import { IUserRequest } from '../../interfaces';
-import {  ProductCountOptions, ProductGetOptions, ProductListOptions } from '../interfaces';
+import {
+  ShopifySyncProductCountOptions,
+  ShopifySyncProductGetOptions,
+  ShopifySyncProductListOptions,
+  AppProductCountOptions,
+  AppProductGetOptions,
+  AppProductListOptions,
+} from '../interfaces';
 import { Response } from 'express';
 import { ProductUpdateCreate } from 'shopify-prime/models';
 
@@ -69,7 +76,7 @@ export class ProductsController {
       sync_to_db = false;
       sync_to_search = false;
     }
-    const options: ProductListOptions = {
+    const options: ShopifySyncProductListOptions = {
       collection_id,
       created_at_max,
       created_at_min,
@@ -89,7 +96,7 @@ export class ProductsController {
       updated_at_min,
       vendor,
     }
-    this.logger.debug('[listFromShopify] ProductListOptions', options);
+    this.logger.debug('[listFromShopify] ShopifySyncProductListOptions', options);
     return this.productsService.listFromShopify(req.shopifyConnect, options)
     .then((products) => {
       this.logger.debug('[listFromShopify] products.length', products.length);
@@ -137,22 +144,58 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('search')
-  async listFromEs(@Req() req: IUserRequest, @Res() res: Response) {
-    try {
-      return this.productsService.listFromEs(req.shopifyConnect)
-      .then((products) => {
-        return res.jsonp(products);
-      })
-      .catch((error) => {
-        this.logger.error(error);
-        const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
-        res.status(statusCode).jsonp(error);
-      });
-    } catch(error) {
+  async listFromSearch(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Query('collection_id') collection_id?: string,
+    @Query('created_at_max') created_at_max?: string,
+    @Query('created_at_min') created_at_min?: string,
+    @Query('ids') ids?: string,
+    @Query('page') page?: number,
+    @Query('fields') fields?: string,
+    @Query('limit') limit?: number,
+    @Query('product_type') product_type?: string,
+    @Query('published_at_max') published_at_max?: string,
+    @Query('published_at_min') published_at_min?: string | undefined,
+    @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
+    @Query('since_id') since_id?: number,
+    @Query('sync_to_db') sync_to_db?: boolean,
+    @Query('sync_to_search') sync_to_search?: boolean,
+    @Query('title') title?: string,
+    @Query('updated_at_max') updated_at_max?: string,
+    @Query('updated_at_min') updated_at_min?: string,
+    @Query('vendor') vendor?: string,
+  ) {
+    if (req.session.isThemeClientRequest) {
+      published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
+    }
+    const options: AppProductListOptions = {
+      collection_id,
+      created_at_max,
+      created_at_min,
+      ids,
+      page,
+      fields,
+      limit,
+      product_type,
+      published_at_max,
+      published_at_min,
+      published_status,
+      since_id,
+      title,
+      updated_at_max,
+      updated_at_min,
+      vendor,
+    }
+    return this.productsService.listFromSearch(req.shopifyConnect, options)
+    .then((products) => {
+      return res.jsonp(products);
+    })
+    .catch((error) => {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
       res.status(statusCode).jsonp(error);
-    }
+    });
   }
 
   /**
@@ -286,7 +329,7 @@ export class ProductsController {
     @Query('updated_at_min') updated_at_min: string,
     @Query('vendor') vendor: string,
   ) {
-    const options: ProductCountOptions = {
+    const options: ShopifySyncProductCountOptions = {
       collection_id,
       created_at_max,
       created_at_min,
@@ -488,7 +531,7 @@ export class ProductsController {
     @Param('id') id: number,
     @Query('fields') fields?: string,
   ) {
-    const options: ProductGetOptions = {
+    const options: ShopifySyncProductGetOptions = {
       fields
     }
     try {

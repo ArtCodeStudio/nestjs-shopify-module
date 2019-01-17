@@ -14,6 +14,7 @@ import {
 
 import { IShopifyConnect } from '../auth/interfaces';
 import { ShopifyModuleOptions } from '../interfaces';
+import { IESResponseError } from './interfaces'
 import { DebugService } from '../debug.service';
 import { EventService } from '../event.service';
 import { ElasticsearchService } from '../elasticsearch.service';
@@ -86,11 +87,16 @@ export abstract class ShopifyApiBaseService<
    * @param user 
    * @param id 
    */
-  protected async _searchInEs(user: IShopifyConnect, body: ESGenericParams['body']): Promise<ESSearchResponse<ShopifyObjectType>> {
+  protected async _searchInEs(user: IShopifyConnect, body: ESGenericParams['body']) {
     return this.esService.client.search({
       index: this.esService.getIndex(user.shop.myshopify_domain, this.resourceName),
       body,
-    });
+    })
+    // .catch((error: IESResponseError) => {
+    //   error.body = JSON.parse(error.body);
+    //   error.response = JSON.parse(error.response);
+    //   throw error;
+    // })
   }
 
   /**
@@ -161,14 +167,9 @@ export abstract class ShopifyApiBaseService<
    * @param user 
    * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
    */
-  public async listFromEs(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {"match_all": {}}}): Promise<ShopifyObjectType[]> {
-    this.logger.debug('[listFromEs]', user.shop.myshopify_domain, this.resourceName, this.esService);
-    const index = this.esService.getIndex(user.shop.myshopify_domain, this.resourceName);
-    this.logger.debug('[listFromEs] index', index); 
-    return this._searchInEs(user, {
-      index,
-      body: body,
-    })
+  public async listFromSearch(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {"match_all": {}}}): Promise<ShopifyObjectType[]> {
+    this.logger.debug(`[listFromSearch:${this.resourceName}]`, user.shop.myshopify_domain);
+    return this._searchInEs(user, body)
     .then((value: ESSearchResponse<ShopifyObjectType>) => {
       return value.hits.hits.map((value) => {
         return value._source;

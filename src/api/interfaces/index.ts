@@ -1,3 +1,4 @@
+export * from './errors';
 export * from './mongoose';
 export * from './options';
 export * from './api-cache';
