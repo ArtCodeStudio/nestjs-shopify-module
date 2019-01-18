@@ -76,7 +76,7 @@ export abstract class ShopifyApiRootCountableService<
           await listAllPageCallback(error, null);
           if (options.failOnSyncError) {
             this.events.off(options.cancelSignal, cancelHandler);
-            throw new Error('cancelled');
+            throw error;
           }
         } else {
           if (options.cancelSignal) {
