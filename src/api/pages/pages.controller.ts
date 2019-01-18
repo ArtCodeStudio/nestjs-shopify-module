@@ -11,7 +11,7 @@ import {
   Delete,
   HttpStatus,
   Header,
-  Body
+  Body,
 } from '@nestjs/common';
 
 import { PagesService } from './pages.service';
@@ -19,7 +19,6 @@ import { DebugService } from '../../debug.service';
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
 import { Readable } from 'stream';
-
 
 // Interfaces
 import { Page } from 'shopify-prime/models';
@@ -31,23 +30,23 @@ import {
   IAppPageListOptions,
   IShopifySyncPageCountOptions,
   IShopifySyncPageGetOptions,
-  IShopifySyncPageListOptions
-} from '../interfaces'
+  IShopifySyncPageListOptions,
+} from '../interfaces';
 
 @Controller('shopify/api/pages')
 export class PagesController {
 
   constructor(
-    protected readonly pagesService: PagesService
-  ) {};
+    protected readonly pagesService: PagesService,
+  ) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   /**
    * Creates a new page in shopify.
-   * @param req 
-   * @param res 
-   * @param id 
-   * @param page 
+   * @param req
+   * @param res
+   * @param id
+   * @param page
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -63,8 +62,8 @@ export class PagesController {
       .then((result) => {
         this.logger.debug('result', result);
         return res.jsonp(result);
-      })
-    } catch(error) {
+      });
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
     }
@@ -72,9 +71,9 @@ export class PagesController {
 
   /**
    * Retrieves a list of pages directly from shopify.
-   * @param req 
-   * @param res 
-   * @param options 
+   * @param req
+   * @param res
+   * @param options
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
@@ -119,9 +118,9 @@ export class PagesController {
         syncToSearch: sync_to_search,
         title,
         updated_at_max,
-        updated_at_min
-      }
-      
+        updated_at_min,
+      };
+
       this.logger.debug('PageListOptions', options);
       return res.jsonp(await this.pagesService.list(req.shopifyConnect, options));
     } catch (error) {
@@ -132,9 +131,9 @@ export class PagesController {
 
   /**
    * Retrieves a count of pages directly from shopify.
-   * @param req 
-   * @param res 
-   * @param options 
+   * @param req
+   * @param res
+   * @param options
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
@@ -165,7 +164,7 @@ export class PagesController {
         updated_at_max,
         updated_at_min,
       }));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
     }
@@ -173,8 +172,8 @@ export class PagesController {
 
   /**
    * Retrieves a single page directly from shopify.
-   * @param req 
-   * @param res 
+   * @param req
+   * @param res
    * @param id page id
    */
   @UseGuards(ShopifyApiGuard)
@@ -183,11 +182,11 @@ export class PagesController {
   async getFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Param('id') id: number
+    @Param('id') id: number,
   ) {
     try {
       return res.jsonp(await this.pagesService.get(req.shopifyConnect, id));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
     }
@@ -195,8 +194,8 @@ export class PagesController {
 
   /**
    * Deletes a page with the given id directly in shopify.
-   * @param req 
-   * @param res 
+   * @param req
+   * @param res
    * @param id Id of the page being deleted.
    */
   @UseGuards(ShopifyApiGuard)
@@ -209,7 +208,7 @@ export class PagesController {
   ) {
     try {
       return res.jsonp(await this.pagesService.delete(req.shopifyConnect, id));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
     }
@@ -217,10 +216,10 @@ export class PagesController {
 
   /**
    * Updates a page directly from shopify.
-   * @param req 
-   * @param res 
+   * @param req
+   * @param res
    * @param id Page id
-   * @param page 
+   * @param page
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -234,7 +233,7 @@ export class PagesController {
     this.logger.debug('update page', id, page);
     try {
       return res.jsonp(await this.pagesService.update(req.shopifyConnect, id, page));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
     }

@@ -9,7 +9,6 @@ import { Roles } from '../../guards/roles.decorator';
 
 import { Readable } from 'stream';
 
-
 // Interfaces
 import { IUserRequest } from '../../interfaces/user-request';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
@@ -20,14 +19,13 @@ import {
   IShopifySyncOrderCountOptions,
   IShopifySyncOrderGetOptions,
   IShopifySyncOrderListOptions,
-} from '../interfaces'
-
+} from '../interfaces';
 
 @Controller('shopify/api/orders')
 export class OrdersController {
   constructor(
-    protected readonly ordersService: OrdersService
-  ) {};
+    protected readonly ordersService: OrdersService,
+  ) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   @UseGuards(ShopifyApiGuard)
@@ -50,7 +48,7 @@ export class OrdersController {
   async listFromDb(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.ordersService.listFromDb(req.shopifyConnect));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -72,7 +70,7 @@ export class OrdersController {
   async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncOrderCountOptions) {
     try {
       return res.jsonp(await this.ordersService.countFromDb(req.shopifyConnect, options));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -86,7 +84,7 @@ export class OrdersController {
   async diffSynced(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.ordersService.diffSynced(req.shopifyConnect));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -97,10 +95,14 @@ export class OrdersController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('count')
-  async countFromShopify(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncOrderCountOptions) {
+  async countFromShopify(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Query() options: IShopifySyncOrderCountOptions,
+  ) {
     try {
       return res.jsonp(await this.ordersService.countFromShopify(req.shopifyConnect, options));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -128,7 +130,7 @@ export class OrdersController {
   async listSyncProgress(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.ordersService.listSyncProgress(req.shopifyConnect));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -142,7 +144,7 @@ export class OrdersController {
   async getLastSyncProgress(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.ordersService.getLastSyncProgress(req.shopifyConnect));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -156,7 +158,7 @@ export class OrdersController {
   async getFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
     try {
       return res.jsonp(await this.ordersService.getFromShopify(req.shopifyConnect, id));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,

@@ -10,7 +10,7 @@ import { DebugService } from '../../debug.service';
 import {
   IShopifySyncCustomCollectionListOptions,
   IShopifySyncCustomCollectionGetOptions,
-  IShopifySyncCustomCollectionCountOptions
+  IShopifySyncCustomCollectionCountOptions,
 } from '../interfaces';
 import { CustomCollectionsService } from './custom-collections.service';
 
@@ -19,8 +19,8 @@ export class CustomCollectionsController {
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
-    protected readonly customCollectionsService: CustomCollectionsService
-  ) {};
+    protected readonly customCollectionsService: CustomCollectionsService,
+  ) {}
 
   @UseGuards(ShopifyApiGuard)
   @Roles() // Empty == Allowed from shop frontend and backend
@@ -96,7 +96,7 @@ export class CustomCollectionsController {
       published_at_max,
       published_status,
       fields,
-    }
+    };
 
     try {
       return res.jsonp(await this.customCollectionsService.listFromShopify(req.shopifyConnect, options));
@@ -114,7 +114,7 @@ export class CustomCollectionsController {
   async listFromDb(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.customCollectionsService.listFromDb(req.shopifyConnect));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -136,7 +136,7 @@ export class CustomCollectionsController {
   async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncCustomCollectionCountOptions) {
     try {
       return res.jsonp(await this.customCollectionsService.countFromDb(req.shopifyConnect, options));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -150,7 +150,7 @@ export class CustomCollectionsController {
   async diffSynced(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.customCollectionsService.diffSynced(req.shopifyConnect));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -161,7 +161,7 @@ export class CustomCollectionsController {
   @UseGuards(ShopifyApiGuard)
   @Roles() // Empty == Allowed from shop frontend and backend
   @Get('count')
-  async countFromShopify(
+  countFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
     /**
@@ -201,10 +201,10 @@ export class CustomCollectionsController {
       published_at_min,
       published_at_max,
       published_status,
-    }
+    };
     try {
       return res.jsonp(await this.customCollectionsService.countFromShopify(req.shopifyConnect, options));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -237,10 +237,10 @@ export class CustomCollectionsController {
   ) {
     const options: IShopifySyncCustomCollectionGetOptions = {
       fields,
-    }
+    };
     try {
       return res.jsonp(await this.customCollectionsService.getFromShopify(req.shopifyConnect, id, options));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
