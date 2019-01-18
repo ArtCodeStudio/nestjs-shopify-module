@@ -5,9 +5,8 @@ import { Reflector } from '@nestjs/core';
 import { IUserRequest, IShopifyConnect } from '../interfaces/user-request';
 import { TRoles } from '../auth/interfaces/role';
 import { DebugService } from '../debug.service';
-import { ShopifyAuthService } from '../auth/auth.service'
+import { ShopifyAuthService } from '../auth/auth.service';
 import { SessionSocket } from '../interfaces/session-socket';
-
 
 /**
  * Guard to check the backend user roles
@@ -66,11 +65,10 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    // DO NOT USE request.shopifyConnect because this can always be set on theme-client requests 
+    // DO NOT USE request.shopifyConnect because this can always be set on theme-client requests
     if (!this.hasRole(request.session.user, roles)) {
       return false;
     }
-
     return true;
   }
 

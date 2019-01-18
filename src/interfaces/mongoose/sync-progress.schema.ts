@@ -26,7 +26,7 @@ export const SubSyncProgressSchema = new mongoose.Schema({
   state: String,
   error: String,
 
-  continuedFromPrevious: { type: Schema.Types.ObjectId, ref: 'shopify_sync-progress' }
+  continuedFromPrevious: { type: Schema.Types.ObjectId, ref: 'shopify_sync-progress' },
 }, {
   timestamps: true,
 });
@@ -49,7 +49,7 @@ export const OrderSyncProgressSchema = new mongoose.Schema({
   state: String,
   error: String,
 
-  continuedFromPrevious: { type: Schema.Types.ObjectId, ref: 'shopify_sync-progress' }
+  continuedFromPrevious: { type: Schema.Types.ObjectId, ref: 'shopify_sync-progress' },
 }, {
   timestamps: true,
 });

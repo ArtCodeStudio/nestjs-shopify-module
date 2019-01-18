@@ -102,7 +102,7 @@ export class LocalesController {
       const errorRes = {
         name: error.name,
         message: error.message,
-        statusCode: statusCode,
+        statusCode,
         id: themeId,
         stack: undefined,
       };
@@ -145,7 +145,7 @@ export class LocalesController {
       const errorRes = {
         name: error.name,
         message: error.message,
-        statusCode: statusCode,
+        statusCode,
         id: themeId,
         stack: undefined,
       };
@@ -189,7 +189,7 @@ export class LocalesController {
       const errorRes = {
         name: error.name,
         message: error.message,
-        statusCode: statusCode,
+        statusCode,
         id: themeId,
         filename,
         stack: undefined,
@@ -250,7 +250,7 @@ export class LocalesController {
       const errorRes = {
         name: error.name,
         message: error.message,
-        statusCode: statusCode,
+        statusCode,
         id: themeId,
         path,
         stack: undefined,

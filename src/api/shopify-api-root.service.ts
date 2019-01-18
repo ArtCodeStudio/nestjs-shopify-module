@@ -33,16 +33,16 @@ export abstract class ShopifyApiRootService<
     protected readonly dbModel: (shopName: string) => Model<DatabaseDocumentType>,
     protected readonly ShopifyModel: new (shopDomain: string, accessToken: string) => ShopifyModelClass,
     protected readonly events: EventService,
-    protected readonly syncprogressModel: Model<SyncProgressDocument>
+    protected readonly syncprogressModel: Model<SyncProgressDocument>,
   ) {
     super(esService, dbModel, ShopifyModel, events);
   }
 
   /**
    * Retrieves a single `ShopifyObjectType` directly from the shopify API
-   * @param user 
-   * @param id 
-   * @param sync 
+   * @param user
+   * @param id
+   * @param sync
    * @see https://help.shopify.com/en/api/reference/products/product#show
    */
   public async getFromShopify(user: IShopifyConnect, id: number, options?: GetOptions): Promise<Partial<ShopifyObjectType> | null> {
@@ -52,13 +52,13 @@ export abstract class ShopifyApiRootService<
     delete options.syncToDb;
     delete options.syncToSearch;
     return pRetry(() => {
-      return shopifyModel.get(id, options)
+      return shopifyModel.get(id, options);
     })
     .then(async (shopifyObj) => {
       return this.updateOrCreateInApp(user, 'id', shopifyObj, syncToDb, syncToSearch)
       .then((_) => {
         return shopifyObj;
-      })
+      });
     });
   }
 
@@ -72,10 +72,10 @@ export abstract class ShopifyApiRootService<
     deleteUndefinedProperties(options);
     this.logger.debug('[listFromShopify]', options);
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
-    let syncToDb = options && options.syncToDb;
-    let syncToSearch = options && options.syncToSearch;
+    const syncToDb = options && options.syncToDb;
+    const syncToSearch = options && options.syncToSearch;
     options = Object.assign({}, options);
-    let failOnSyncError = options && options.failOnSyncError;
+    const failOnSyncError = options && options.failOnSyncError;
     delete options.syncToDb;
     delete options.syncToSearch;
     delete options.failOnSyncError;
@@ -86,7 +86,7 @@ export abstract class ShopifyApiRootService<
       .catch((error) => {
         this.logger.error(error);
         throw error;
-      })
+      });
     })
     .then(async (shopifyObjects: ShopifyObjectType[]) => {
       this.logger.debug('[listFromShopify] result length', shopifyObjects.length);
@@ -109,9 +109,20 @@ export abstract class ShopifyApiRootService<
    * Gets a list of all of the shop's `ShopifyObjectType` directly from the shopify API
    * @param options Options for filtering the results.
    */
-  public async listAllFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions): Promise<Partial<ShopifyObjectType>[]>
-  public async listAllFromShopify(shopifyConnect: IShopifyConnect, options: ListOptions, listAllPageCallback: listAllCallback<Partial<ShopifyObjectType>>): Promise<void>
-  public async listAllFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions, listAllPageCallback?: listAllCallback<Partial<ShopifyObjectType>>): Promise<Partial<ShopifyObjectType>[]|void> {
+  public async listAllFromShopify(
+    shopifyConnect: IShopifyConnect,
+    options?: ListOptions,
+  ): Promise<Partial<ShopifyObjectType>[]>;
+  public async listAllFromShopify(
+    shopifyConnect: IShopifyConnect,
+    options: ListOptions,
+    listAllPageCallback: listAllCallback<Partial<ShopifyObjectType>>,
+  ): Promise<void>;
+  public async listAllFromShopify(
+    shopifyConnect: IShopifyConnect,
+    options?: ListOptions,
+    listAllPageCallback?: listAllCallback<Partial<ShopifyObjectType>>,
+  ): Promise<Partial<ShopifyObjectType>[]|void> {
     // Delete undefined options
     deleteUndefinedProperties(options);
     this.logger.debug('[listAllFromShopify]', options);
@@ -120,7 +131,7 @@ export abstract class ShopifyApiRootService<
     .then((objects) => {
       if (typeof (listAllPageCallback) === 'function') {
         listAllPageCallback(null, {
-          pages: 1, page: 1, data: objects
+          pages: 1, page: 1, data: objects,
         });
         return;
       } else {
@@ -141,17 +152,17 @@ export abstract class ShopifyApiRootService<
    * @param options Options for filtering the results.
    */
   public listAllFromShopifyStream(shopifyConnect: IShopifyConnect, options?: ListOptions): Readable {
-    const stream = new Readable({objectMode: true, read: s=>s});
+    const stream = new Readable({objectMode: true, read: s => s});
     stream.push('[\n');
     this.listAllFromShopify(shopifyConnect, options, (error, data) => {
       if (error) {
         stream.emit('error', error);
       } else {
         const objects = data.data;
-        for (let j = 0; j < objects.length-1; j++) {
-          stream.push(JSON.stringify([objects[j]], null, 2).slice(2,-2) + ',');
+        for (let j = 0; j < objects.length - 1; j++) {
+          stream.push(JSON.stringify([objects[j]], null, 2).slice(2, -2) + ',');
         }
-        stream.push(JSON.stringify([objects[objects.length-1]], null, 2).slice(2,-2));
+        stream.push(JSON.stringify([objects[objects.length - 1]], null, 2).slice(2, -2));
         if (data.page === data.pages) {
           stream.push('\n]');
         } else {
@@ -172,7 +183,11 @@ export abstract class ShopifyApiRootService<
    * Gets a list of the shop's `ShopifyObjectType` directly from the shopify API as an Observable
    * @param options Options for filtering the results.
    */
-  public listAllFromShopifyObservable(user: IShopifyConnect, eventName: string, options?: ListOptions): Observable<WsResponse<Partial<ShopifyObjectType>>> {
+  public listAllFromShopifyObservable(
+    user: IShopifyConnect,
+    eventName: string,
+    options?: ListOptions,
+  ): Observable<WsResponse<Partial<ShopifyObjectType>>> {
     // Delete undefined options
     deleteUndefinedProperties(options);
     return Observable.create((observer: Observer<WsResponse<Partial<ShopifyObjectType>>>) => {
@@ -197,4 +212,4 @@ export abstract class ShopifyApiRootService<
       });
     });
   }
-};
+}

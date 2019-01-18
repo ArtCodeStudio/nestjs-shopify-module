@@ -50,7 +50,7 @@ export class TransactionsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get(':order_id/transactions/count')
-  countFromShopify(
+  async countFromShopify(
     @Req() req: IUserRequest,
     @Res() res,
     @Param('order_id') orderId: number,

@@ -1,15 +1,14 @@
 import { Connection, Document, Model, Mongoose } from 'mongoose';
 import { ShopifyConnectSchema } from './connect.schema';
-import { IShopifyConnect } from './interfaces/connect'
+import { IShopifyConnectDocument } from './interfaces/connect';
 
 const shopifyConnectProviders = (connection: Mongoose) => {
   return [
     {
       provide: 'ShopifyConnectModelToken',
-      useValue: <Model<IShopifyConnect>> connection.model('shopify_connect', ShopifyConnectSchema),
+      useValue: connection.model('shopify_connect', ShopifyConnectSchema) as Model<IShopifyConnectDocument>,
     },
   ];
-}
-
+};
 
 export { shopifyConnectProviders };

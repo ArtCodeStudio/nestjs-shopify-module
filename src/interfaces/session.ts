@@ -16,5 +16,5 @@ export interface Session {
   // passport
   passport: {
     user: number;
-  }
+  };
 }

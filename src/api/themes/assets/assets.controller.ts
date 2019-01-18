@@ -11,8 +11,8 @@ import * as url from 'url';
 @Controller('shopify/api/themes')
 export class AssetsController {
   constructor(
-    protected readonly assetsService: AssetsService
-  ) {};
+    protected readonly assetsService: AssetsService,
+  ) {}
 
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
@@ -46,7 +46,7 @@ export class AssetsController {
   /**
    * Get asset file by filename
    * @note This is allowed to be used from any user in the theme
-   * 
+   *
    * @param req
    * @param res
    * @param themeId
@@ -78,7 +78,7 @@ export class AssetsController {
   /**
    * Get theme template file by filename
    * @note This is allowed to be used from any user in the theme
-   * 
+   *
    * @param req
    * @param res
    * @param themeId
@@ -110,7 +110,7 @@ export class AssetsController {
   /**
    * Get theme snippets file by filename
    * @note This is allowed to be used from any user in the theme
-   * 
+   *
    * @param req
    * @param res
    * @param themeId
@@ -142,7 +142,7 @@ export class AssetsController {
   /**
    * Get any theme file by key path
    * @note For security reasons, this is only allowed from shopify backend (role: shopify-staff-member)
-   * 
+   *
    * @param req
    * @param res
    * @param themeId

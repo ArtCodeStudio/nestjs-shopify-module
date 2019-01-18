@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { IShopifyConnect } from '../auth/interfaces/connect';
-import { Session } from './session'
+import { Session } from './session';
 
 interface IUserRequest extends Request {
   user?: IShopifyConnect;
@@ -8,4 +8,4 @@ interface IUserRequest extends Request {
   session: Session;
 }
 
-export { IShopifyConnect, IUserRequest }
+export { IShopifyConnect, IUserRequest };

@@ -34,14 +34,14 @@ export class SyncController {
 
   /**
    * Start sync progress
-   * @param req 
-   * @param res 
-   * @param includeOrders 
-   * @param includeTransactions 
-   * @param includeProducts 
-   * @param includePages 
-   * @param resync 
-   * @param cancelExisting 
+   * @param req
+   * @param res
+   * @param includeOrders
+   * @param includeTransactions
+   * @param includeProducts
+   * @param includePages
+   * @param resync
+   * @param cancelExisting
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -72,8 +72,8 @@ export class SyncController {
       includeCustomCollections,
       resync,
       cancelExisting,
-    })
-    let options: IStartSyncOptions = {
+    });
+    const options: IStartSyncOptions = {
       syncToDb: syncToDb === 'true' || syncToDb === true,
       syncToSearch: syncToSearch === 'true' || syncToSearch === true,
       includeOrders: includeOrders === 'true' || includeOrders === true,
@@ -84,7 +84,7 @@ export class SyncController {
       includeCustomCollections: includeCustomCollections === 'true' || includeCustomCollections === true,
       resync: resync === 'true' || resync === true,
       cancelExisting: cancelExisting === 'true' || cancelExisting === true,
-    }
+    };
     // this.logger.debug('startSync body', body)
     this.logger.debug(`startSync`, options);
     return this.syncService.startSync(req.shopifyConnect, options)
@@ -101,13 +101,13 @@ export class SyncController {
 
   /**
    * @deprecated Use @Post() instead
-   * @param req 
-   * @param res 
-   * @param includeOrders 
-   * @param includeTransactions 
-   * @param includeProducts 
-   * @param resync 
-   * @param cancelExisting 
+   * @param req
+   * @param res
+   * @param includeOrders
+   * @param includeTransactions
+   * @param includeProducts
+   * @param resync
+   * @param cancelExisting
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -151,9 +151,9 @@ export class SyncController {
 
   /**
    * Cancel sync progress
-   * @param req 
-   * @param res 
-   * @param id 
+   * @param req
+   * @param res
+   * @param id
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -177,9 +177,9 @@ export class SyncController {
 
   /**
    * @deprecated Use @Delete() instead
-   * @param req 
-   * @param res 
-   * @param id 
+   * @param req
+   * @param res
+   * @param id
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -194,9 +194,9 @@ export class SyncController {
 
   /**
    * Recives the latest sync progress
-   * @param req 
-   * @param res 
-   * @param query 
+   * @param req
+   * @param res
+   * @param query
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -210,7 +210,7 @@ export class SyncController {
       shop: req.shopifyConnect.shop.myshopify_domain,
     };
 
-    return this.syncService.findOne(query, { sort: { 'createdAt': -1} })
+    return this.syncService.findOne(query, { sort: { createdAt: -1} })
     .then((progress) => {
       res.jsonp(progress);
     })
@@ -224,8 +224,8 @@ export class SyncController {
 
   /**
    * List sync progresses
-   * @param req 
-   * @param res 
+   * @param req
+   * @param res
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -239,7 +239,7 @@ export class SyncController {
       shop: req.shopifyConnect.shop.myshopify_domain,
     };
 
-    return this.syncService.find(query, { sort: { 'createdAt': -1} })
+    return this.syncService.find(query, { sort: { createdAt: -1} })
     .then((progress) => {
       res.jsonp(progress);
     })

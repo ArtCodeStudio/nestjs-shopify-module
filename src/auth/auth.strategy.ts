@@ -36,9 +36,9 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
 
   /**
    * Verify callback method, called insite of the ShopifyAuthStrategy
-   * 
+   *
    * @note Do not use verifiedDone callback function, this leads to "Cannot set headers after they are sent to the client"
-   * 
+   *
    * @param shop
    * @param accessToken
    * @param refreshToken

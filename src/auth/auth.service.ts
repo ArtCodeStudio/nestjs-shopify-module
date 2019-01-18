@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 
 import { IUserRequest } from '../interfaces/user-request';
-import { IShopifyConnect } from './interfaces/connect'
+import { IShopifyConnect } from './interfaces/connect';
 import { DebugService } from '../debug.service';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 import { IShopifyAuthProfile } from './interfaces/profile';
@@ -26,7 +26,7 @@ export class ShopifyAuthService {
    * @param request Express request object
    * @param myshopify_domain shop origin, e.g. myshop.myshopify.com
    * @param redirectUri whitelisted redirect URI from Shopify Partner Dashboard
-   * 
+   *
    * @see https://help.shopify.com/en/api/embedded-apps/embedded-app-sdk/oauth
    */
   oAuthConnect(request: IUserRequest, myshopify_domain?: string) {
@@ -51,19 +51,19 @@ export class ShopifyAuthService {
     return {
       nonce,
       authUrl,
-    }
+    };
   }
 
   /**
    * Alternative for AuthStrategy.validate.
    * Used for auth with a clientsite redirect (needed in the shopify iframe).
-   * @param hmac 
-   * @param signature 
-   * @param state 
-   * @param code 
-   * @param shop 
-   * @param timestamp 
-   * @param session 
+   * @param hmac
+   * @param signature
+   * @param state
+   * @param code
+   * @param shop
+   * @param timestamp
+   * @param session
    */
   async oAuthCallback(hmac: string, signature: string, state: string, code: string, shop: string, timestamp: string, session) {
     const shopifyToken = new ShopifyToken({
@@ -94,13 +94,13 @@ export class ShopifyAuthService {
         const profile: IShopifyAuthProfile = {
           provider: 'shopify',
           _json: {
-            shop: shopObject
+            shop: shopObject,
           },
           displayName: shopObject.name,
           username: shopObject.name,
           id: shopObject.id.toString(),
           _raw: '',
-        }
+        };
         this.logger.debug(`profile:`, profile);
         return this.shopifyConnectService.connectOrUpdate(profile, accessToken)
         .then((user) => {
@@ -132,8 +132,8 @@ export class ShopifyAuthService {
       isAppBackendRequest: false,
       isThemeClientRequest: false,
       isUnknownClientRequest: false,
-      myshopifyDomain: <string | null> null,
-    }
+      myshopifyDomain: null as string | null,
+    };
     const host = this.getClientHost(request);
     this.logger.debug('host', host, 'app.host', this.shopifyModuleOptions.app.host);
     if (host === this.shopifyModuleOptions.app.host) {
@@ -161,8 +161,8 @@ export class ShopifyAuthService {
 
   /**
    * Like SecureForThemeClients but always returns the myshopify_domain if found
-   * 
-   * @param request 
+   *
+   * @param request
    */
   async getMyShopifyDomainSecureForThemeClients(request: IUserRequest) {
     const anyDomain = this.getShopSecureForThemeClients(request);
@@ -191,7 +191,6 @@ export class ShopifyAuthService {
     return false;
   }
 
-
   /**
    * Get the client host on request
    * @param request
@@ -212,9 +211,9 @@ export class ShopifyAuthService {
    * Get the shop the request comes from.
    * If a shop string is returned, the request is either from a shop theme or the backend app with logged in user,
    * otherwise null is returend
-   * 
+   *
    * This is method can be used to get the shopifyConnect object because this method only returns the shop on allowed hosts.
-   *  
+   *
    * @param request
    */
   protected getShopSecureForThemeClients(request: IUserRequest): string | null {
@@ -260,12 +259,12 @@ export class ShopifyAuthService {
 
   /**
    * Unsecure version of getMyShopifyDomainSecureForThemeClients.
-   * 
+   *
    * This also returns the shopify domain if just the shop is set has query param or header param.
-   * 
+   *
    * Do not use this on dangerous authentications like get the shopifyConnect object
    * only if you know what you are doing.
-   * 
+   *
    * @param request
    */
   protected async getMyShopifyDomainUnsecure(request: IUserRequest) {
@@ -276,7 +275,7 @@ export class ShopifyAuthService {
       if (request.headers.shop || request.headers['x-shopify-shop-domain']) {
         /**
          * Note: You Can set the shop header in the client for each jquery request by:
-         * 
+         *
          * ```
          *  JQuery.ajaxSetup({
          *    beforeSend: (xhr: JQueryXHR) => {
@@ -284,9 +283,9 @@ export class ShopifyAuthService {
          *    },
          *  });
          * ```
-         * 
+         *
          * Or on riba with:
-         * 
+         *
          * ```
          *   Utils.setRequestHeaderEachRequest('shop', shop);
          * ```

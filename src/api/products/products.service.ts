@@ -5,9 +5,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import * as pRetry from 'p-retry';
 import { GenericParams as ESGenericParams } from 'elasticsearch';
 
-
 import { IShopifyConnect } from '../../auth/interfaces';
-import { Products, Options } from 'shopify-prime'; 
+import { Products, Options } from 'shopify-prime';
 import { Product, ProductUpdateCreate } from 'shopify-prime/models';
 import { Model } from 'mongoose';
 import {
@@ -51,7 +50,7 @@ ProductDocument // DatabaseDocumentType
 
   /**
    * Retrieves a list of products from the app's mongodb database.
-   * @param user 
+   * @param user
    */
   public async listFromDb(user: IShopifyConnect, conditions = {}): Promise<Product[]> {
     return super.listFromDb(user, conditions);
@@ -59,13 +58,12 @@ ProductDocument // DatabaseDocumentType
 
   /**
    * Retrieves a list of products from elasticsearch.
-   * @param user 
+   * @param user
    * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
    * and https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
    */
   public async listFromSearch(user: IShopifyConnect, options: IAppProductListOptions): Promise<Product[]> {
-    
-    
+
     const query = {};
 
     const basicOptions: Options.FieldOptions & Options.BasicListOptions & Options.DateOptions & Options.PublishedOptions = {
@@ -76,17 +74,17 @@ ProductDocument // DatabaseDocumentType
       created_at_min: options.created_at_min,
       published_at_max: options.published_at_max,
       published_at_min: options.published_at_min,
-    }
+    };
 
     const body = {query};
-    
+
     return super.listFromSearch(user, body, basicOptions);
   }
 
   /**
    * Creates a new product directly in shopify.
-   * @param user 
-   * @param product 
+   * @param user
+   * @param product
    */
   public async createInShopify(user: IShopifyConnect, product: ProductUpdateCreate): Promise<Product> {
     const products = new Products(user.myshopify_domain, user.accessToken);
@@ -95,9 +93,9 @@ ProductDocument // DatabaseDocumentType
 
   /**
    * Updates a product and its variants and images directly in shopify.
-   * @param user 
-   * @param id 
-   * @param product 
+   * @param user
+   * @param id
+   * @param product
    */
   public async updateInShopify(user: IShopifyConnect, id: number, product: ProductUpdateCreate): Promise<Product> {
     const products = new Products(user.myshopify_domain, user.accessToken);
@@ -106,9 +104,9 @@ ProductDocument // DatabaseDocumentType
 
   /**
    * Deletes a product directly in shopify.
-   * @param user 
-   * @param id 
-   * @param product 
+   * @param user
+   * @param id
+   * @param product
    */
   public async deleteInShopify(user: IShopifyConnect, id: number) {
     const products = new Products(user.myshopify_domain, user.accessToken);
@@ -116,21 +114,21 @@ ProductDocument // DatabaseDocumentType
   }
 
   /**
-   * 
-   * @param shopifyConnect 
-   * @param subProgress 
-   * @param options 
-   * @param data 
+   *
+   * @param shopifyConnect
+   * @param subProgress
+   * @param options
+   * @param data
    */
   async syncedDataCallback(
     shopifyConnect: IShopifyConnect,
     subProgress: SubSyncProgressDocument,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Product>
+    data: IListAllCallbackData<Product>,
   ): Promise<void> {
     const products = data.data;
     subProgress.syncedCount += products.length;
-    const lastProduct = products[products.length-1];
+    const lastProduct = products[products.length - 1];
     subProgress.lastId = lastProduct.id;
     subProgress.info = lastProduct.title;
   }

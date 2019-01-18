@@ -17,7 +17,7 @@ import {
   IShopifySyncPageListOptions,
   IAppPageCountOptions,
   IAppPageGetOptions,
-  IAppPageListOptions
+  IAppPageListOptions,
 } from '../interfaces';
 import {
   SyncProgressDocument,
@@ -52,20 +52,20 @@ PageDocument // DatabaseDocumentType
 
   /**
    * Creates a new page.
-   * @param user 
+   * @param user
    * @param page The page being created.
    */
   public async create(user: IShopifyConnect, page: Partial<Page>): Promise<Page> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     return pages.create(page)
-    .then((page) => {
-      return page;
+    .then((pageObj) => {
+      return pageObj;
     });
   }
 
   /**
    * Retrieves a single page by its ID.
-   * @param user 
+   * @param user
    * @param id Id of the page to retrieve.
    * @param options Options for filtering the result.
    */
@@ -80,36 +80,36 @@ PageDocument // DatabaseDocumentType
 
   /**
    * Updates a page with the given id.
-   * @param user 
+   * @param user
    * @param id Id of the page being updated.
    * @param page The updated page.
    */
   public async update(user: IShopifyConnect, id: number, page: Partial<Page>): Promise<Page> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     return pages.update(id, page)
-    .then((page) => {
-      return page;
+    .then((pageObj) => {
+      return pageObj;
     });
   }
 
   /**
    * Retrieve a list of all pages.
-   * @param user 
+   * @param user
    * @param options Options for filtering the results.
    */
   public async list(user: IShopifyConnect, options?: Options.FieldOptions): Promise<Partial<Page>[]> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
     return pages.list(options)
-    .then((pages) => {
-      return pages;
+    .then((pageObj) => {
+      return pageObj;
     });
   }
 
   /**
    * Retrieves a page count.
-   * @param user 
-   * @param options 
+   * @param user
+   * @param options
    */
   public async count(user: IShopifyConnect, options?: Options.PageCountOptions): Promise<number> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
@@ -123,7 +123,7 @@ PageDocument // DatabaseDocumentType
 
   /**
    * Deletes a page with the given id.
-   * @param user 
+   * @param user
    * @param id Id of the page being deleted.
    */
   public async delete(user: IShopifyConnect, id: number): Promise<{id: number}> {
@@ -135,21 +135,21 @@ PageDocument // DatabaseDocumentType
   }
 
   /**
-   * 
-   * @param shopifyConnect 
-   * @param subProgress 
-   * @param options 
-   * @param data 
+   *
+   * @param shopifyConnect
+   * @param subProgress
+   * @param options
+   * @param data
    */
   async syncedDataCallback(
     shopifyConnect: IShopifyConnect,
     subProgress: ISubSyncProgress,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Page>
+    data: IListAllCallbackData<Page>,
   ): Promise<void> {
     const pages = data.data;
     subProgress.syncedCount += pages.length;
-    const lastPage = pages[pages.length-1];
+    const lastPage = pages[pages.length - 1];
     subProgress.lastId = lastPage.id;
     subProgress.info = lastPage.title;
   }

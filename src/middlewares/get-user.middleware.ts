@@ -17,7 +17,7 @@ export class GetUserMiddleware implements NestMiddleware {
   async resolve(...args: any[]): Promise<MiddlewareFunction> {
     return async (req: IUserRequest, res: Response, next: NextFunction) => {
 
-      let requestType = await this.shopifyAuthService.getRequestType(req)
+      const requestType = await this.shopifyAuthService.getRequestType(req)
       .catch((error) => {
         // DO nothing
         this.logger.error('error', error);
@@ -37,7 +37,7 @@ export class GetUserMiddleware implements NestMiddleware {
 
       /**
        * If shop is not set you need to add the shop to your header on your shopify app client code like this:
-       * 
+       *
        * ```
        *  JQuery.ajaxSetup({
        *    beforeSend: (xhr: JQueryXHR) => {
@@ -45,9 +45,9 @@ export class GetUserMiddleware implements NestMiddleware {
        *    },
        *  });
        * ```
-       * 
+       *
        * Or on riba with:
-       * 
+       *
        * ```
        *   Utils.setRequestHeaderEachRequest('shop', shop);
        * ```
@@ -59,7 +59,7 @@ export class GetUserMiddleware implements NestMiddleware {
 
       // get user from session
       if (req.session) {
-        if(req.session[`user-${req.session.shop}`]) {
+        if (req.session[`user-${req.session.shop}`]) {
           // set to session (for websockets)
           req.session.user = req.session[`user-${req.session.shop}`];
           // set to request (for passport and co)
@@ -76,9 +76,7 @@ export class GetUserMiddleware implements NestMiddleware {
         req.user = req[`user-${req.session.shop}`];
         // set to session (for websockets)
         req.session.user = req.user;
-
         req.session.isLoggedInToAppBackend = true;
-        
         return next();
       }
 
@@ -99,7 +97,7 @@ export class GetUserMiddleware implements NestMiddleware {
         })
         .catch((error) => {
           this.logger.error(error);
-        })
+        });
       }
 
       return next();

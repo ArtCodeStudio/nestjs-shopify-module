@@ -40,16 +40,21 @@ SmartCollectionDocument // DatabaseDocumentType
   }
 
   /**
-   * 
-   * @param shopifyConnect 
-   * @param subProgress 
-   * @param options 
-   * @param data 
+   *
+   * @param shopifyConnect
+   * @param subProgress
+   * @param options
+   * @param data
    */
-  async syncedDataCallback(shopifyConnect: IShopifyConnect, subProgress: SubSyncProgressDocument, options: IStartSyncOptions, data: IListAllCallbackData<SmartCollection>) {
+  async syncedDataCallback(
+    shopifyConnect: IShopifyConnect,
+    subProgress: SubSyncProgressDocument,
+    options: IStartSyncOptions,
+    data: IListAllCallbackData<SmartCollection>,
+  ) {
     const products = data.data;
     subProgress.syncedCount += products.length;
-    const lastProduct = products[products.length-1];
+    const lastProduct = products[products.length - 1];
     subProgress.lastId = lastProduct.id;
     subProgress.info = lastProduct.title;
   }

@@ -34,7 +34,7 @@ export class VerifyWebhookMiddleware implements NestMiddleware {
         } catch (e) {
           req.body = {};
           this.logger.error(`webhook failed parsing body: ${rawBody}`);
-          res.status(415).send({ error: 'INVALID JSON'})
+          res.status(415).send({ error: 'INVALID JSON'});
         }
         if (hmac) {
           if (isAuthenticWebhook(req.headers, rawBody, this.shopifyModuleOptions.shopify.clientSecret)) {

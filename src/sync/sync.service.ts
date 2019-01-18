@@ -14,7 +14,6 @@ import { DebugService } from '../debug.service';
 import { IStartSyncOptions, SyncProgressDocument, SubSyncProgressDocument, ISubSyncProgress } from '../interfaces';
 import * as pRetry from 'p-retry';
 
-
 @Injectable()
 export class SyncService {
 
@@ -28,15 +27,15 @@ export class SyncService {
     private readonly productsService: ProductsService,
     private readonly pagesService: PagesService,
     private readonly smartCollectionsService: SmartCollectionsService,
-    private readonly customCollectionsService: CustomCollectionsService
+    private readonly customCollectionsService: CustomCollectionsService,
   ) {
     this.find({
-      state: 'running'
+      state: 'running',
     })
     .then((progresses) => {
       // Cancel running progresses
       this.logger.debug('Cancel running progresses', progresses);
-      const promises = new Array<Promise<SyncProgressDocument>>()
+      const promises = new Array<Promise<SyncProgressDocument>>();
       progresses.forEach((progress: SyncProgressDocument) => {
         promises.push(this.update({_id: progress._id}, {state: 'cancelled'}));
       });
@@ -49,14 +48,13 @@ export class SyncService {
     .catch((error) => {
       this.logger.debug('Can\'t cancel running progresses');
       this.logger.error(error);
-    })
+    });
   }
-
 
   /**
    *
    * @param shop
-   * @param id 
+   * @param id
    * @param waitMilliseconds
    * @event sync:[shop]:[id]
    */
@@ -80,11 +78,11 @@ export class SyncService {
    * @param shop
    * @param projection
    */
-  async getLastShopSync(shop: string, projection: {} = {}, ) : Promise<Partial<SyncProgressDocument>> {
+  async getLastShopSync(shop: string, projection: {} = {}): Promise<Partial<SyncProgressDocument>> {
     return this.syncProgressModel.findOne(
       { shop },
       projection,
-      { sort: { 'createdAt': -1} }
+      { sort: { createdAt: -1} },
     ).lean();
   }
 
@@ -93,11 +91,11 @@ export class SyncService {
    * @param shop
    * @param projection
    */
-  async listShopSync(shop: string, projection: {} = {}, ) : Promise<Partial<SyncProgressDocument>[]> {
+  async listShopSync(shop: string, projection: {} = {}): Promise<Partial<SyncProgressDocument>[]> {
     return this.syncProgressModel.find(
       { shop },
       projection,
-      { sort: { 'createdAt': -1} }
+      { sort: { createdAt: -1} },
     ).lean();
   }
 
@@ -114,9 +112,9 @@ export class SyncService {
   }
 
   /**
-   * 
-   * @param shopifyConnect 
-   * @param id 
+   *
+   * @param shopifyConnect
+   * @param id
    * @event sync-cancel:[shop]:[id] ()
    * @event sync-exception:[shop]:[id] (error)
    * @event sync-exception (shop: string, error)
@@ -127,7 +125,7 @@ export class SyncService {
       const lastProgress = await this.syncProgressModel.findOne(
         { shop },
         { _id: true },
-        { sort: { 'createdAt': -1} }
+        { sort: { createdAt: -1} },
       ).lean();
       if (lastProgress) {
         id = lastProgress._id;
@@ -160,7 +158,6 @@ export class SyncService {
       throw error;
     });
   }
-
 
   /**
    * @event sync-cancel:[shop]:[lastProgressId] ()
@@ -201,10 +198,10 @@ export class SyncService {
       this.logger.debug(`[startSync] (${JSON.stringify(options, null, 2)}`);
 
       // Get the last sync progress (if it exists)
-      let lastProgress: SyncProgressDocument | null = await this.syncProgressModel.findOne(
+      const lastProgress: SyncProgressDocument | null = await this.syncProgressModel.findOne(
         { shop },
         {},
-        { sort: { 'createdAt': -1} }
+        { sort: { createdAt: -1} },
       );
 
       if (lastProgress && lastProgress.state === 'running') {
@@ -233,7 +230,7 @@ export class SyncService {
             'includePages',
             'includeSmartCollections',
             'includeCustomCollections',
-            'resync'
+            'resync',
           ];
 
           // If `cancelExisting` option is set, we cancel the existing running progress unless it is compatible with our options.
@@ -245,7 +242,7 @@ export class SyncService {
                   ${JSON.stringify(options, null, 2)}.`);
               this.logger.debug(`${key} is missing from lastProgress`);
               if (options.cancelExisting) {
-                this.logger.debug(`[startSync] cancel existing progress and start a new one.`)
+                this.logger.debug(`[startSync] cancel existing progress and start a new one.`);
                 this.eventService.emit(`sync-cancel:${shop}:${lastProgress._id}`);
                 return true;
               } else {
@@ -281,14 +278,13 @@ export class SyncService {
         this.pagesService,
       ];
 
-      let subSyncFinishedPromises = new Array<Promise<SubSyncProgressDocument>>();
-      for (let i=0; i<subprogressServices.length; i++) {
-        let subService = subprogressServices[i];
+      const subSyncFinishedPromises = new Array<Promise<SubSyncProgressDocument>>();
+      for (const subService of subprogressServices) {
         if (options[`include${subService.upperCaseResourceName}`]) {
           this.logger.debug(`start subprogress: ${subService.resourceName}`);
           let resolveSubProgress: (subdoc: SubSyncProgressDocument) => void;
           let rejectSubProgress: (error: Error) => void;
-          let subSyncFinishedPromise = new Promise<SubSyncProgressDocument>((resolve, reject) => {
+          const subSyncFinishedPromise = new Promise<SubSyncProgressDocument>((resolve, reject) => {
             resolveSubProgress = resolve;
             rejectSubProgress = reject;
           });
@@ -311,9 +307,9 @@ export class SyncService {
 
       // We don't want to return the result of this promise, but the initialized progress as it is now immediately.
       Promise.all(subSyncFinishedPromises).then((subProgresses) => {
-        this.logger.debug('[startSync] All syncs done')
+        this.logger.debug('[startSync] All syncs done');
         let cancelled = false;
-        let failed = subProgresses.some((subProgress, i) => {
+        const failed = subProgresses.some((subProgress, i) => {
           if (subProgress.state === 'failed') {
             return true;
           }
@@ -333,7 +329,7 @@ export class SyncService {
         return pRetry(() => {
           this.eventService.emit(`save progress`, progress);
           return progress.save();
-        })
+        });
       })
       .catch((error) => {
         this.logger.error('FIXME', error);
@@ -343,7 +339,7 @@ export class SyncService {
         return pRetry(() => {
           this.eventService.emit(`save progress`, progress);
           return progress.save();
-        })
+        });
       });
 
       // return the initialized progress immediately

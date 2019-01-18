@@ -16,7 +16,7 @@ export class ChargeController {
 
   constructor(
     @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
-    protected readonly chargeService: ChargeService
+    protected readonly chargeService: ChargeService,
   ){}
 
   /**

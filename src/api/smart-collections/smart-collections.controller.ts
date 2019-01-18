@@ -10,7 +10,7 @@ import {
   IShopifySyncSmartCollectionListOptions,
   IShopifySyncSmartCollectionGetOptions,
   IShopifySyncSmartCollectionCountOptions,
-} from '../interfaces'
+} from '../interfaces';
 
 import { SmartCollectionsService } from './smart-collections.service';
 
@@ -19,14 +19,14 @@ export class SmartCollectionsController {
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
-    protected readonly smartCollectionsService: SmartCollectionsService
-  ) {};
+    protected readonly smartCollectionsService: SmartCollectionsService,
+  ) {}
 
   /**
    * Retrieves a list of smart collections directly from shopify.
-   * @param req 
-   * @param res 
-   * @param options 
+   * @param req
+   * @param res
+   * @param options
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Empty == Allowed from shop frontend and backend
@@ -105,7 +105,7 @@ export class SmartCollectionsController {
       published_at_max,
       published_status,
       fields,
-    }
+    };
 
     try {
       return res.jsonp(await this.smartCollectionsService.listFromShopify(req.shopifyConnect, options));
@@ -119,9 +119,9 @@ export class SmartCollectionsController {
 
   /**
    * Retrieves a list of smart collections from app database.
-   * @param req 
-   * @param res 
-   * @param options 
+   * @param req
+   * @param res
+   * @param options
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -129,7 +129,7 @@ export class SmartCollectionsController {
   async listFromDb(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.smartCollectionsService.listFromDb(req.shopifyConnect));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -139,9 +139,9 @@ export class SmartCollectionsController {
 
   /**
    * Retrieves a list with full data as `ReadableStream` of smart collections directly from shopify.
-   * @param req 
-   * @param res 
-   * @param options 
+   * @param req
+   * @param res
+   * @param options
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -157,7 +157,7 @@ export class SmartCollectionsController {
   async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncSmartCollectionCountOptions) {
     try {
       return res.jsonp(await this.smartCollectionsService.countFromDb(req.shopifyConnect, options));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -171,7 +171,7 @@ export class SmartCollectionsController {
   async diffSynced(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.smartCollectionsService.diffSynced(req.shopifyConnect));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -181,9 +181,9 @@ export class SmartCollectionsController {
 
   /**
    * Retrieves a count of smart collections directly from shopify.
-   * @param req 
-   * @param res 
-   * @param options 
+   * @param req
+   * @param res
+   * @param options
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Empty == Allowed from shop frontend and backend
@@ -228,10 +228,10 @@ export class SmartCollectionsController {
       published_at_min,
       published_at_max,
       published_status,
-    }
+    };
     try {
       return res.jsonp(await this.smartCollectionsService.countFromShopify(req.shopifyConnect, options));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -255,9 +255,9 @@ export class SmartCollectionsController {
 
   /**
    * Retrieves a single smart collection by it's id directly from shopify.
-   * @param req 
-   * @param res 
-   * @param id 
+   * @param req
+   * @param res
+   * @param id
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Empty == Allowed from shop frontend and backend
@@ -270,10 +270,10 @@ export class SmartCollectionsController {
   ) {
     const options: IShopifySyncSmartCollectionGetOptions = {
       fields,
-    }
+    };
     try {
       return res.jsonp(await this.smartCollectionsService.getFromShopify(req.shopifyConnect, id, options));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,

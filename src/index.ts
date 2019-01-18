@@ -13,4 +13,3 @@ export * from './middlewares';
 export * from './guards';
 
 export { ShopifyShopSchema } from './shop/shop.schema';
-

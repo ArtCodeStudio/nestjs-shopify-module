@@ -18,6 +18,6 @@ export interface ISubSyncProgress {
 }
 
 export interface IOrderSyncProgress extends ISubSyncProgress {
-  includeTransactions: boolean,
-  syncedTransactionsCount: number,
+  includeTransactions: boolean;
+  syncedTransactionsCount: number;
 }

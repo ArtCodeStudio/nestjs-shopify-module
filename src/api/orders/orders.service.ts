@@ -53,21 +53,21 @@ export class OrdersService extends ShopifyApiRootCountableService<
    * Sub-routine to configure the sync.
    * In case of orders we have to check if transactions should be included.
    *
-   * @param shopifyConnect 
-   * @param subProgress 
-   * @param options 
-   * @param data 
+   * @param shopifyConnect
+   * @param subProgress
+   * @param options
+   * @param data
    */
   protected async syncedDataCallback(
     shopifyConnect: IShopifyConnect,
     subProgress: OrderSyncProgressDocument,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Order>
+    data: IListAllCallbackData<Order>,
   ): Promise<void> {
     const orders = data.data;
-    const lastOrder =orders[orders.length-1];
+    const lastOrder = orders[orders.length - 1];
     if (options.includeTransactions) {
-      for (let i=0; i<orders.length; i++) {
+      for (const order of orders) {
         await this.transactionsService.listFromShopify(shopifyConnect, lastOrder.id, {
           syncToDb: options.syncToDb,
           syncToSearch: options.syncToSearch,
@@ -80,8 +80,8 @@ export class OrdersService extends ShopifyApiRootCountableService<
   }
 
   /**
-   * 
-   * @param syncOptions 
+   *
+   * @param syncOptions
    */
   protected getSyncListOptions(syncOptions: IStartSyncOptions): IShopifySyncOrderListOptions {
     return { status: 'any'};

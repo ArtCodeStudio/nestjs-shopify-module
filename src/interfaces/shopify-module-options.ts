@@ -10,7 +10,7 @@ export interface ShopifyModuleOptions {
     port: number;
     debug: boolean;
     environment: 'production' | 'development' | 'test';
-  }
+  };
 
   shopify: {
     /** client id / Api key */
@@ -27,7 +27,7 @@ export interface ShopifyModuleOptions {
     webhooks: {
       autoSubscribe: Topic[];
     };
-  }
+  };
 
   charges: {
     plans: IPlan[];

@@ -14,12 +14,12 @@ import {
 
 import { IShopifyConnect } from '../auth/interfaces';
 import { ShopifyModuleOptions } from '../interfaces';
-import { IESResponseError } from './interfaces'
+import { IESResponseError } from './interfaces';
 import { DebugService } from '../debug.service';
 import { EventService } from '../event.service';
 import { ElasticsearchService } from '../elasticsearch.service';
 import { BulkIndexDocumentsParams } from 'elasticsearch';
-import { firstCharUppercase, underscoreCase } from '../helpers'
+import { firstCharUppercase, underscoreCase } from '../helpers';
 
 export abstract class ShopifyApiBaseService<
     ShopifyObjectType,
@@ -63,8 +63,8 @@ export abstract class ShopifyApiBaseService<
 
   /**
    * Retrieves a single `ShopifyObjectType` from the app's mongodb database.
-   * @param user 
-   * @param id 
+   * @param user
+   * @param id
    */
   async getFromDb(user: IShopifyConnect, conditions): Promise<ShopifyObjectType | null> {
     return this.dbModel(user.shop.myshopify_domain).findOne(conditions).select('-_id -__v').lean();
@@ -72,8 +72,8 @@ export abstract class ShopifyApiBaseService<
 
   /**
    * Retrieves a single `ShopifyObjectType` from elasticsearch by the elasticsearch `_id` (not the shopify object id).
-   * @param user 
-   * @param id 
+   * @param user
+   * @param id
    */
   protected async _getFromEs(user: IShopifyConnect, id: string): Promise<ESGetResponse<ShopifyObjectType>> {
     return this.esService.client.get({
@@ -85,14 +85,14 @@ export abstract class ShopifyApiBaseService<
 
   /**
    * Retrieves a list of `ShopifyObjectType` from elasticsearch.
-   * @param user 
-   * @param id 
+   * @param user
+   * @param id
    */
   protected async _searchInEs(user: IShopifyConnect, body: ESGenericParams['body']) {
     return this.esService.client.search({
       index: this.esService.getIndex(user.shop.myshopify_domain, this.resourceName),
       body,
-    })
+    });
     // .catch((error: IESResponseError) => {
     //   error.body = JSON.parse(error.body);
     //   error.response = JSON.parse(error.response);
@@ -102,15 +102,15 @@ export abstract class ShopifyApiBaseService<
 
   /**
    * Retrieves a single `ShopifyObjectType` from elasticsearch by ShopifyObjectType id (not the elasticsearch `_id`)
-   * @param user 
-   * @param id 
+   * @param user
+   * @param id
    */
   public async getFromEs(user: IShopifyConnect, id: number): Promise<ShopifyObjectType | null> {
     return this._searchInEs(user, {
       query: {
         match: {
           id,
-        }
+        },
       },
     })
     .then((searchResponse) => {
@@ -118,13 +118,13 @@ export abstract class ShopifyApiBaseService<
         return null;
       }
       return searchResponse.hits[0].hits._source;
-    })
+    });
   }
 
   /**
    * Retrieves a count of `ShopifyObjectType` from the app's mongodb database.
-   * @param user 
-   * @param options 
+   * @param user
+   * @param options
    */
   async countFromDb(user: IShopifyConnect, conditions = {}): Promise<number> {
     return this.dbModel(user.shop.myshopify_domain).count(conditions);
@@ -132,10 +132,10 @@ export abstract class ShopifyApiBaseService<
 
   /**
    * Retrieves a count of `ShopifyObjectType` from elasticsearch.
-   * @param user 
-   * @param options 
+   * @param user
+   * @param options
    */
-  protected async _countFromEs(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {"match_all": {}}}): Promise<ESCountResponse> {
+  protected async _countFromEs(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {match_all: {}}}): Promise<ESCountResponse> {
     const shopName = user.shop.myshopify_domain.replace('.myshopify.com', '');
     return this.esService.client.count({
       index: this.esService.getIndex(user.shop.myshopify_domain, this.resourceName),
@@ -145,10 +145,10 @@ export abstract class ShopifyApiBaseService<
 
   /**
    * Retrieves a count of `ShopifyObjectType` from elasticsearch.
-   * @param user 
-   * @param options 
+   * @param user
+   * @param options
    */
-  public async countFromEs(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {"match_all": {}}}): Promise<number> {
+  public async countFromEs(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {match_all: {}}}): Promise<number> {
     return this._countFromEs(user, body)
     .then((coutResult) => {
       return coutResult.count;
@@ -157,7 +157,7 @@ export abstract class ShopifyApiBaseService<
 
   /**
    * Retrieves a list of `ShopifyObjectType` from the app's mongodb database.
-   * @param user 
+   * @param user
    */
   public async listFromDb(user: IShopifyConnect, conditions = {}): Promise<ShopifyObjectType[]> {
     return this.dbModel(user.shop.myshopify_domain).find(conditions).select('-_id -__v').lean();
@@ -165,17 +165,21 @@ export abstract class ShopifyApiBaseService<
 
   /**
    * Retrieves a list of `ShopifyObjectType` from elasticsearch.
-   * @param user 
+   * @param user
    * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
    */
-  public async listFromSearch(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {"match_all": {}}}, basicOptions: Options.FieldOptions & Options.BasicListOptions & Options.DateOptions & Options.PublishedOptions): Promise<ShopifyObjectType[]> {
-    
+  public async listFromSearch(
+    user: IShopifyConnect,
+    body: ESGenericParams['body'] = {query: {match_all: {}}},
+    basicOptions: Options.FieldOptions & Options.BasicListOptions & Options.DateOptions & Options.PublishedOptions,
+  ): Promise<ShopifyObjectType[]> {
+
     // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
     let _source: boolean | string[] = true;
 
     // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-from-size.html
     let size = 250;
-    let from = 0
+    let from = 0;
 
     // Convert fields to ES fields
     if (basicOptions.fields) {
@@ -186,7 +190,7 @@ export abstract class ShopifyApiBaseService<
     if (basicOptions.limit) {
       size = basicOptions.limit || 250;
       if (size > 250 || size <= 0) {
-        size = 250
+        size = 250;
       }
     }
 
@@ -194,18 +198,18 @@ export abstract class ShopifyApiBaseService<
       from = basicOptions.page * size;
     }
 
-    const range: any = {}
+    const range: any = {};
 
     if (basicOptions.created_at_max) {
       range.created_at_max = {
         lte: basicOptions.created_at_max,
-      }
+      };
     }
 
     if (basicOptions.created_at_min) {
       range.created_at_min = {
         gte: basicOptions.created_at_min,
-      }
+      };
     }
 
     body._source = _source;
@@ -215,11 +219,11 @@ export abstract class ShopifyApiBaseService<
     if (Object.keys(range).length) {
       body.query.rage = range;
     }
-    
+
     this.logger.debug(`[listFromSearch:${this.resourceName}]`, user.shop.myshopify_domain);
     return this._searchInEs(user, body)
-    .then((value: ESSearchResponse<ShopifyObjectType>) => {
-      return value.hits.hits.map((value) => {
+    .then((response: ESSearchResponse<ShopifyObjectType>) => {
+      return response.hits.hits.map((value) => {
         return value._source;
       });
     });
@@ -227,7 +231,7 @@ export abstract class ShopifyApiBaseService<
 
   /**
    * Internal method to update or create a single `ShopifyObjectType` in the app mongodb database.
-   * @param user 
+   * @param user
    * @param object The objects to create / update
    */
   public async updateOrCreateInDb(user: IShopifyConnect, conditions = {}, update: Partial<ShopifyObjectType>) {
@@ -237,10 +241,16 @@ export abstract class ShopifyApiBaseService<
 
   /**
    * Internal method to update or create a single `ShopifyObjectType` in mongodb AND / OR elasticsearch.
-   * @param user 
+   * @param user
    * @param object The objects to create / update
    */
-  public async updateOrCreateInApp(user: IShopifyConnect, selectBy: string = 'id', update: Partial<ShopifyObjectType>, inDb: boolean =  true, inSearch: boolean = false) {
+  public async updateOrCreateInApp(
+    user: IShopifyConnect,
+    selectBy: string = 'id',
+    update: Partial<ShopifyObjectType>,
+    inDb: boolean =  true,
+    inSearch: boolean = false,
+  ) {
     this.logger.debug(`[updateOrCreateInApp:${this.resourceName}] start`);
     const promises = new Array<Promise<any>>();
     if (inSearch) {
@@ -255,12 +265,12 @@ export abstract class ShopifyApiBaseService<
     .then((_) => {
       this.logger.debug(`[updateOrCreateInApp:${this.resourceName}] done`);
       return _;
-    })
+    });
   }
 
   /**
    * Internal method to create a single `ShopifyObjectType` in elasticsearch.
-   * @param user 
+   * @param user
    * @param object The objects to create
    */
   protected async updateOrCreateInSearch(user: IShopifyConnect, selectBy: string = 'id', createOrCreate: Partial<ShopifyObjectType>) {
@@ -273,24 +283,22 @@ export abstract class ShopifyApiBaseService<
           doc: createOrCreate,
           doc_as_upsert: true,
         },
-      }
+      };
       return this.esService.client.update(updateDocumentParams);
     }
 
     const createDocumentParams: ESCreateDocumentParams = {
       index: this.esService.getIndex(user.shop.myshopify_domain, this.resourceName),
       type: 'doc',
-      id: createOrCreate['id'],
+      id: (createOrCreate as any).id, // FIXME
       body: createOrCreate,
-    }
+    };
     return this.esService.client.create(createDocumentParams);
   }
 
-
-
   /**
    * Internal method to update several `ShopifyObjectType` in the app mongodb database.
-   * @param user 
+   * @param user
    * @param objects The objects to create / update
    */
   public async updateOrCreateManyInDb(user: IShopifyConnect, selectBy: string, objects: ShopifyObjectType[]): Promise<BulkWriteOpResultObject | {}> {
@@ -305,13 +313,13 @@ export abstract class ShopifyApiBaseService<
         return {
           replaceOne: {
             filter: {
-              id: object[selectBy]
+              id: object[selectBy],
             },
             replacement: object,
             upsert: true,
-          }
-        }
-      })
+          },
+        };
+      }),
     )
     .then((result) => {
       this.logger.debug(`[updateOrCreateManyInDb:${this.resourceName}] done result: ${result}`);
@@ -321,13 +329,13 @@ export abstract class ShopifyApiBaseService<
 
   /**
    * TODO use bulk api: https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
-   * @param user 
-   * @param selectBy 
-   * @param objects 
+   * @param user
+   * @param selectBy
+   * @param objects
    */
   public async updateOrCreateManyInSearch(user: IShopifyConnect, selectBy: string, objects: ShopifyObjectType[]): Promise<any> {
     const _index = this.esService.getIndex(user.shop.myshopify_domain, this.resourceName);
-    let bulkActions = [];
+    const bulkActions = [];
     objects.forEach((object) => {
       const action = {
         update: {
@@ -340,22 +348,28 @@ export abstract class ShopifyApiBaseService<
     });
     const bulkParams: BulkIndexDocumentsParams = {
       body: bulkActions,
-    }
+    };
     this.logger.debug(`[updateOrCreateManyInSearch:${this.resourceName}] start selectBy: ${selectBy} objects.length: ${objects.length}`);
     return this.esService.client.bulk(bulkParams)
     .then((result) => {
       this.logger.debug(`[updateOrCreateManyInSearch:${this.resourceName}] done`);
       return result;
-    })
+    });
   }
 
   /**
-   * 
-   * @param user 
-   * @param selectBy 
-   * @param objects 
+   *
+   * @param user
+   * @param selectBy
+   * @param objects
    */
-  public async updateOrCreateManyInApp(user: IShopifyConnect, selectBy: string = 'id', objects: ShopifyObjectType[], inDb: boolean =  true, inSearch: boolean = false): Promise<BulkWriteOpResultObject | {}> {
+  public async updateOrCreateManyInApp(
+    user: IShopifyConnect,
+    selectBy: string = 'id',
+    objects: ShopifyObjectType[],
+    inDb: boolean =  true,
+    inSearch: boolean = false,
+  ): Promise<BulkWriteOpResultObject | {}> {
     this.logger.debug(`[updateOrCreateManyInApp:${this.resourceName}] start inDb: ${inDb} inSearch: ${inSearch} objects.length: ${objects.length}`);
     const promises = new Array<Promise<any>>();
 
@@ -366,11 +380,11 @@ export abstract class ShopifyApiBaseService<
     if (inDb) {
       promises.push(this.updateOrCreateManyInDb(user, selectBy, objects));
     }
-    
+
     return Promise.all(promises)
     .then((_) => {
       this.logger.debug(`[updateOrCreateManyInApp:${this.resourceName}] done`);
       return _;
-    })
+    });
   }
 }
