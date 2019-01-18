@@ -18,6 +18,7 @@ import { IESResponseError } from './interfaces'
 import { DebugService } from '../debug.service';
 import { EventService } from '../event.service';
 import { ElasticsearchService } from '../elasticsearch.service';
+import { BulkIndexDocumentsParams } from 'elasticsearch';
 import { firstCharUppercase, underscoreCase } from '../helpers'
 
 export abstract class ShopifyApiBaseService<
@@ -324,17 +325,28 @@ export abstract class ShopifyApiBaseService<
    * @param selectBy 
    * @param objects 
    */
-  public async updateOrCreateManyInSearch(user: IShopifyConnect, selectBy: string, objects: ShopifyObjectType[]): Promise<BulkWriteOpResultObject | {}> {
-    this.logger.debug(`[updateOrCreateManyInSearch:${this.resourceName}] start selectBy: ${selectBy} objects.length: ${objects.length}`);
-    const promises = new Array<Promise<void | ESCreateDocumentResponse>>();
+  public async updateOrCreateManyInSearch(user: IShopifyConnect, selectBy: string, objects: ShopifyObjectType[]): Promise<any> {
+    const _index = this.esService.getIndex(user.shop.myshopify_domain, this.resourceName);
+    let bulkActions = [];
     objects.forEach((object) => {
-      promises.push(this.updateOrCreateInSearch(user, selectBy, object));
+      const action = {
+        update: {
+          _index,
+          _type: 'doc',
+          _id: object[selectBy],
+        },
+      };
+      bulkActions.push(action, { doc: object, doc_as_upsert: true });
     });
-    return Promise.all(promises)
+    const bulkParams: BulkIndexDocumentsParams = {
+      body: bulkActions,
+    }
+    this.logger.debug(`[updateOrCreateManyInSearch:${this.resourceName}] start selectBy: ${selectBy} objects.length: ${objects.length}`);
+    return this.esService.client.bulk(bulkParams)
     .then((result) => {
       this.logger.debug(`[updateOrCreateManyInSearch:${this.resourceName}] done`);
       return result;
-    });
+    })
   }
 
   /**
