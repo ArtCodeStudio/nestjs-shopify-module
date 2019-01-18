@@ -161,7 +161,7 @@ export class CustomCollectionsController {
   @UseGuards(ShopifyApiGuard)
   @Roles() // Empty == Allowed from shop frontend and backend
   @Get('count')
-  countFromShopify(
+  async countFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
     /**
