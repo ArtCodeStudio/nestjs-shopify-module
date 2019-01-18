@@ -28,7 +28,6 @@ export abstract class ShopifyApiRootCountableService<
   DatabaseDocumentType
 > {
 
-  public async countFromShopify(shopifyConnect: IShopifyConnect): Promise<number>;
   public async countFromShopify(shopifyConnect: IShopifyConnect, options?: CountOptions): Promise<number> {
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     // Delete undefined options
