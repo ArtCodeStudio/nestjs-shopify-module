@@ -1,4 +1,4 @@
-export interface ISyncOptions {
+export interface IStartSyncOptions {
   /**
    * If true, sync the receive data to the internal database (MongoDB)
    */

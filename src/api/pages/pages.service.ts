@@ -1,40 +1,38 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Pages, Options } from 'shopify-prime';
-import { Page } from 'shopify-prime/models';
-import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Model } from 'mongoose';
 import { deleteUndefinedProperties } from '../../helpers';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
-import { PageDocument, IListAllCallbackData } from '../interfaces';
-import { SyncProgressDocument, ISubSyncProgress, ISyncOptions, ShopifyModuleOptions } from '../../interfaces';
 import { ElasticsearchService } from '../../elasticsearch.service';
 
-export interface PageListOptions extends Options.PageListOptions {
-  syncToDb?: boolean;
-  syncToSearch?: boolean;
-  failOnSyncError?: boolean;
-}
-
-export interface PageGetOptions extends Options.FieldOptions {
-  syncToDb?: boolean;
-  syncToSearch?: boolean;
-}
-
-export interface PageCountOptions extends Options.PageCountOptions {}
-
-export interface PageSyncOptions {
-  resync: boolean,
-}
-
+// Interfaces
+import { Model } from 'mongoose';
+import { IShopifyConnect } from '../../auth/interfaces/connect';
+import { Page } from 'shopify-prime/models';
+import { Pages, Options } from 'shopify-prime';
+import {
+  PageDocument,
+  IListAllCallbackData,
+  IShopifySyncPageCountOptions,
+  IShopifySyncPageGetOptions,
+  IShopifySyncPageListOptions,
+  IAppPageCountOptions,
+  IAppPageGetOptions,
+  IAppPageListOptions
+} from '../interfaces';
+import {
+  SyncProgressDocument,
+  ISubSyncProgress,
+  IStartSyncOptions,
+  ShopifyModuleOptions,
+} from '../../interfaces';
 
 @Injectable()
 export class PagesService extends ShopifyApiRootCountableService<
 Page, // ShopifyObjectType
 Pages, // ShopifyModelClass
-PageCountOptions, // CountOptions
-PageGetOptions, // GetOptions
-PageListOptions, // ListOptions
+IShopifySyncPageCountOptions, // CountOptions
+IShopifySyncPageGetOptions, // GetOptions
+IShopifySyncPageListOptions, // ListOptions
 PageDocument // DatabaseDocumentType
 > {
 
@@ -72,7 +70,7 @@ PageDocument // DatabaseDocumentType
    * @param id Id of the page to retrieve.
    * @param options Options for filtering the result.
    */
-  public async get(user: IShopifyConnect, id: number, options?: Options.FieldOptions): Promise<Page> {
+  public async get(user: IShopifyConnect, id: number, options?: Options.FieldOptions): Promise<Partial<Page>> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
     return pages.get(id, options)
@@ -100,7 +98,7 @@ PageDocument // DatabaseDocumentType
    * @param user 
    * @param options Options for filtering the results.
    */
-  public async list(user: IShopifyConnect, options?: Options.FieldOptions): Promise<Page[]> {
+  public async list(user: IShopifyConnect, options?: Options.FieldOptions): Promise<Partial<Page>[]> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
     return pages.list(options)
@@ -147,7 +145,7 @@ PageDocument // DatabaseDocumentType
   async syncedDataCallback(
     shopifyConnect: IShopifyConnect,
     subProgress: ISubSyncProgress,
-    options: ISyncOptions,
+    options: IStartSyncOptions,
     data: IListAllCallbackData<Page>
   ): Promise<void> {
     const pages = data.data;

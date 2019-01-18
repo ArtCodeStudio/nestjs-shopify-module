@@ -14,15 +14,25 @@ import {
   Body
 } from '@nestjs/common';
 
-import { PagesService, PageListOptions, PageCountOptions } from './pages.service';
+import { PagesService } from './pages.service';
 import { DebugService } from '../../debug.service';
-
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
 import { Readable } from 'stream';
+
+
+// Interfaces
+import { Page } from 'shopify-prime/models';
 import { IUserRequest } from '../../interfaces/user-request';
 import { Response } from 'express';
-import { Page } from 'shopify-prime/models';
+import {
+  IAppPageCountOptions,
+  IAppPageGetOptions,
+  IAppPageListOptions,
+  IShopifySyncPageCountOptions,
+  IShopifySyncPageGetOptions,
+  IShopifySyncPageListOptions
+} from '../interfaces'
 
 @Controller('shopify/api/pages')
 export class PagesController {
@@ -94,7 +104,7 @@ export class PagesController {
         sync_to_db = false;
         sync_to_search = false;
       }
-      const options: PageListOptions = {
+      const options: IShopifySyncPageListOptions = {
         created_at_max,
         created_at_min,
         fields,

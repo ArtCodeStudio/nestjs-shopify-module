@@ -21,12 +21,12 @@ import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
 import { IUserRequest } from '../../interfaces';
 import {
-  ShopifySyncProductCountOptions,
-  ShopifySyncProductGetOptions,
-  ShopifySyncProductListOptions,
-  AppProductCountOptions,
-  AppProductGetOptions,
-  AppProductListOptions,
+  IShopifySyncProductCountOptions,
+  IShopifySyncProductGetOptions,
+  IShopifySyncProductListOptions,
+  IAppProductCountOptions,
+  IAppProductGetOptions,
+  IAppProductListOptions,
 } from '../interfaces';
 import { Response } from 'express';
 import { ProductUpdateCreate } from 'shopify-prime/models';
@@ -76,7 +76,7 @@ export class ProductsController {
       sync_to_db = false;
       sync_to_search = false;
     }
-    const options: ShopifySyncProductListOptions = {
+    const options: IShopifySyncProductListOptions = {
       collection_id,
       created_at_max,
       created_at_min,
@@ -169,7 +169,7 @@ export class ProductsController {
     if (req.session.isThemeClientRequest) {
       published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
     }
-    const options: AppProductListOptions = {
+    const options: IAppProductListOptions = {
       collection_id,
       created_at_max,
       created_at_min,
@@ -329,7 +329,7 @@ export class ProductsController {
     @Query('updated_at_min') updated_at_min: string,
     @Query('vendor') vendor: string,
   ) {
-    const options: ShopifySyncProductCountOptions = {
+    const options: IShopifySyncProductCountOptions = {
       collection_id,
       created_at_max,
       created_at_min,
@@ -531,7 +531,7 @@ export class ProductsController {
     @Param('id') id: number,
     @Query('fields') fields?: string,
   ) {
-    const options: ShopifySyncProductGetOptions = {
+    const options: IShopifySyncProductGetOptions = {
       fields
     }
     try {

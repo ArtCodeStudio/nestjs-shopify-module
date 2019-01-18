@@ -1,15 +1,26 @@
 import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus, Header } from '@nestjs/common';
 import { Response } from 'express';
 
-import { OrdersService, OrderListOptions, OrderCountOptions } from './orders.service';
+import { OrdersService } from './orders.service';
 import { DebugService } from '../../debug.service';
 
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
 
 import { Readable } from 'stream';
+
+
+// Interfaces
 import { IUserRequest } from '../../interfaces/user-request';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
+import {
+  IAppOrderCountOptions,
+  IAppOrderGetOptions,
+  IAppOrderListOptions,
+  IShopifySyncOrderCountOptions,
+  IShopifySyncOrderGetOptions,
+  IShopifySyncOrderListOptions,
+} from '../interfaces'
 
 
 @Controller('shopify/api/orders')
@@ -22,7 +33,7 @@ export class OrdersController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get()
-  async list(@Req() req: IUserRequest, @Res() res: Response, @Query() options: OrderListOptions) {
+  async list(@Req() req: IUserRequest, @Res() res: Response, @Query() options: IShopifySyncOrderListOptions) {
     try {
       return res.jsonp(await this.ordersService.listFromShopify(req.shopifyConnect, {...options, status: 'any'}));
     } catch (error) {
@@ -51,14 +62,14 @@ export class OrdersController {
   @Roles('shopify-staff-member')
   @Get('all')
   @Header('Content-type', 'application/json')
-  listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Query() options: OrderListOptions) {
+  listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Query() options: IShopifySyncOrderListOptions) {
     this.ordersService.listAllFromShopifyStream(req.shopifyConnect, {...options, status: 'any'}).pipe(res);
   }
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('synced/count')
-  async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: OrderCountOptions) {
+  async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncOrderCountOptions) {
     try {
       return res.jsonp(await this.ordersService.countFromDb(req.shopifyConnect, options));
     } catch(error) {
@@ -86,7 +97,7 @@ export class OrdersController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('count')
-  async countFromShopify(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: OrderCountOptions) {
+  async countFromShopify(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncOrderCountOptions) {
     try {
       return res.jsonp(await this.ordersService.countFromShopify(req.shopifyConnect, options));
     } catch(error) {

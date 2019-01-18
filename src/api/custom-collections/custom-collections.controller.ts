@@ -7,7 +7,11 @@ import { Roles } from '../../guards/roles.decorator';
 import { Readable } from 'stream';
 import { DebugService } from '../../debug.service';
 
-import { CustomCollectionListOptions, CustomCollectionGetOptions, CustomCollectionCountOptions } from '../interfaces';
+import {
+  IShopifySyncCustomCollectionListOptions,
+  IShopifySyncCustomCollectionGetOptions,
+  IShopifySyncCustomCollectionCountOptions
+} from '../interfaces';
 import { CustomCollectionsService } from './custom-collections.service';
 
 @Controller('shopify/api/custom-collections')
@@ -78,7 +82,7 @@ export class CustomCollectionsController {
     @Query('fields') fields?: string,
   ) {
 
-    const options: CustomCollectionListOptions = {
+    const options: IShopifySyncCustomCollectionListOptions = {
       limit,
       page,
       ids,
@@ -122,14 +126,14 @@ export class CustomCollectionsController {
   @Roles('shopify-staff-member')
   @Get('all')
   @Header('Content-type', 'application/json')
-  listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Query() options: CustomCollectionListOptions) {
+  listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Query() options: IShopifySyncCustomCollectionListOptions) {
     this.customCollectionsService.listAllFromShopifyStream(req.shopifyConnect, options).pipe(res);
   }
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('synced/count')
-  async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: CustomCollectionCountOptions) {
+  async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncCustomCollectionCountOptions) {
     try {
       return res.jsonp(await this.customCollectionsService.countFromDb(req.shopifyConnect, options));
     } catch(error) {
@@ -189,7 +193,7 @@ export class CustomCollectionsController {
      */
     @Query('published_status') published_status: 'published' | 'unpublished' | 'any' = 'any',
   ) {
-    const options: CustomCollectionCountOptions = {
+    const options: IShopifySyncCustomCollectionCountOptions = {
       title,
       product_id,
       updated_at_min,
@@ -231,7 +235,7 @@ export class CustomCollectionsController {
     @Param('id') id: number,
     @Query('fields') fields?: string,
   ) {
-    const options: CustomCollectionGetOptions = {
+    const options: IShopifySyncCustomCollectionGetOptions = {
       fields,
     }
     try {

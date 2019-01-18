@@ -1,5 +1,5 @@
-import { SyncOptions } from './options';
+import { ISyncOptions } from './options';
 import { Options } from 'shopify-prime';
-export interface RootList<ShopifyObjectType, ListOptions extends SyncOptions & Options.BasicListOptions = SyncOptions & Options.BasicListOptions> {
-  list(options: ListOptions): Promise<ShopifyObjectType[]>;
+export interface RootList<ShopifyObjectType, ListOptions extends ISyncOptions & Options.BasicListOptions = ISyncOptions & Options.BasicListOptions> {
+  list(options: ListOptions): Promise<Partial<ShopifyObjectType>[]>;
 }

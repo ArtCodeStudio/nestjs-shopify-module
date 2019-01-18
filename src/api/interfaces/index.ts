@@ -1,4 +1,5 @@
 export * from './errors';
+export * from './models';
 export * from './mongoose';
 export * from './options';
 export * from './api-cache';
@@ -10,4 +11,4 @@ export * from './root-count';
 export * from './root-get';
 export * from './root-list';
 export * from './shopify-base-object-type';
-export * from './options/sync-options';
+export * from './options/sync';

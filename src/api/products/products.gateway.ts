@@ -1,7 +1,7 @@
 import { SubscribeMessage, WebSocketGateway, WsResponse, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from '@nestjs/websockets';
 import { Observable } from 'rxjs';
 import { SessionSocket } from '../../interfaces/session-socket';
-import { ProductListOptions, ProductCountOptions } from '../interfaces'
+import { IShopifySyncProductListOptions, IShopifySyncProductCountOptions } from '../interfaces'
 import { ProductsService } from './products.service';
 import { Product, ProductUpdateCreate } from 'shopify-prime/models';
 import { DebugService } from '../../debug.service';
@@ -19,7 +19,7 @@ export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   ){}
 
   @SubscribeMessage('all')
-  onAll(client: SessionSocket, options: ProductListOptions = {}): Observable<WsResponse<Product>> {
+  onAll(client: SessionSocket, options: IShopifySyncProductListOptions = {}): Observable<WsResponse<Partial<Product>>> {
     return this.productsService.listAllFromShopifyObservable(client.handshake.session.shopifyConnect, 'all', options);
   }
 

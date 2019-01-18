@@ -1,37 +1,36 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Orders, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
-import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Order } from 'shopify-prime/models';
-import { OrderDocument } from '../interfaces/mongoose/order.schema';
-import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
-import { IListAllCallbackData } from '../../api/interfaces';
-import { SyncProgressDocument, ISyncOptions, OrderSyncProgressDocument } from '../../interfaces';
 import { TransactionsService } from './transactions/transactions.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 import { ElasticsearchService } from '../../elasticsearch.service';
 
-export interface OrderListOptions extends Options.OrderListOptions {
-  syncToDb?: boolean;
-  syncToSearch?: boolean;
-  failOnSyncError?: boolean;
-}
-
-export interface OrderGetOptions extends Options.FieldOptions {
-  syncToDb?: boolean;
-  syncToSearch?: boolean;
-}
-
-export interface OrderCountOptions extends Options.OrderCountOptions {
-}
+// Interfaces
+import { Model } from 'mongoose';
+import { Order } from 'shopify-prime/models';
+import { Orders } from 'shopify-prime';
+import {
+  OrderDocument,
+  IShopifySyncOrderCountOptions,
+  IShopifySyncOrderGetOptions,
+  IShopifySyncOrderListOptions,
+  IAppOrderCountOptions,
+  IAppOrderGetOptions,
+  IAppOrderListOptions,
+} from '../interfaces';
+import { SyncProgressDocument,
+  IStartSyncOptions,
+  OrderSyncProgressDocument,
+} from '../../interfaces';
+import { IListAllCallbackData } from '../../api/interfaces';
+import { IShopifyConnect } from '../../auth/interfaces/connect';
 
 @Injectable()
 export class OrdersService extends ShopifyApiRootCountableService<
   Order, // ShopifyObjectType
   Orders, // ShopifyModelClass
-  OrderCountOptions, // CountOptions
-  OrderGetOptions, // GetOptions
-  OrderListOptions, // ListOptions
+  IShopifySyncOrderCountOptions, // CountOptions
+  IShopifySyncOrderGetOptions, // GetOptions
+  IShopifySyncOrderListOptions, // ListOptions
   OrderDocument // DatabaseDocumentType
   > {
 
@@ -62,7 +61,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
   protected async syncedDataCallback(
     shopifyConnect: IShopifyConnect,
     subProgress: OrderSyncProgressDocument,
-    options: ISyncOptions,
+    options: IStartSyncOptions,
     data: IListAllCallbackData<Order>
   ): Promise<void> {
     const orders = data.data;
@@ -84,7 +83,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
    * 
    * @param syncOptions 
    */
-  protected getSyncListOptions(syncOptions: ISyncOptions): OrderListOptions {
+  protected getSyncListOptions(syncOptions: IStartSyncOptions): IShopifySyncOrderListOptions {
     return { status: 'any'};
   }
 }

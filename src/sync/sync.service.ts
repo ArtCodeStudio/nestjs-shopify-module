@@ -11,7 +11,7 @@ import { CustomCollectionsService } from '../api/custom-collections/custom-colle
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { DebugService } from '../debug.service';
-import { ISyncOptions, SyncProgressDocument, SubSyncProgressDocument, ISubSyncProgress } from '../interfaces';
+import { IStartSyncOptions, SyncProgressDocument, SubSyncProgressDocument, ISubSyncProgress } from '../interfaces';
 import * as pRetry from 'p-retry';
 
 
@@ -168,7 +168,7 @@ export class SyncService {
    * @event sync (shop, lastProgress)
    * @event sync-exception (shop: string, error)
    */
-  async startSync(shopifyConnect: IShopifyConnect, options: ISyncOptions): Promise<SyncProgressDocument> {
+  async startSync(shopifyConnect: IShopifyConnect, options: IStartSyncOptions): Promise<SyncProgressDocument> {
     const shop = shopifyConnect.myshopify_domain;
     // this.logger.debug(`[startSync] (${shop})`);
     try {

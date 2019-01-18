@@ -19,7 +19,7 @@ import { IUserRequest } from '../interfaces/user-request';
 
 import { SyncService } from './sync.service';
 
-import { ISyncOptions } from '../interfaces';
+import { IStartSyncOptions } from '../interfaces';
 
 import { ShopifyApiGuard } from '../guards/shopify-api.guard';
 import { Roles } from '../guards/roles.decorator';
@@ -73,7 +73,7 @@ export class SyncController {
       resync,
       cancelExisting,
     })
-    let options: ISyncOptions = {
+    let options: IStartSyncOptions = {
       syncToDb: syncToDb === 'true' || syncToDb === true,
       syncToSearch: syncToSearch === 'true' || syncToSearch === true,
       includeOrders: includeOrders === 'true' || includeOrders === true,

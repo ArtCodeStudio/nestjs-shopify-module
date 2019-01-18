@@ -4,8 +4,8 @@ import { Document } from 'mongoose';
 import * as pRetry from 'p-retry';
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
-import { SyncProgressDocument, SubSyncProgressDocument, ISyncProgress, ISyncOptions, ISubSyncProgressFinishedCallback } from '../interfaces';
-import { listAllCallback, IListAllCallbackData, SyncOptions, ShopifyBaseObjectType, RootCount, RootGet, RootList } from './interfaces';
+import { SyncProgressDocument, SubSyncProgressDocument, ISyncProgress, IStartSyncOptions, ISubSyncProgressFinishedCallback } from '../interfaces';
+import { listAllCallback, IListAllCallbackData, ISyncOptions, ShopifyBaseObjectType, RootCount, RootGet, RootList } from './interfaces';
 import { deleteUndefinedProperties, getDiff } from '../helpers';
 import { ShopifyApiRootService } from './shopify-api-root.service';
 
@@ -13,8 +13,8 @@ export abstract class ShopifyApiRootCountableService<
   ShopifyObjectType extends ShopifyBaseObjectType,
   ShopifyModelClass extends Infrastructure.BaseService & RootCount<CountOptions> & RootGet<ShopifyObjectType, GetOptions> & RootList<ShopifyObjectType, ListOptions>,
   CountOptions extends object = {},
-  GetOptions extends SyncOptions = SyncOptions,
-  ListOptions extends CountOptions & SyncOptions & Options.ListOptions = CountOptions & SyncOptions & Options.ListOptions,
+  GetOptions extends ISyncOptions = ISyncOptions,
+  ListOptions extends CountOptions & ISyncOptions & Options.ListOptions = CountOptions & ISyncOptions & Options.ListOptions,
   DatabaseDocumentType extends Document = ShopifyObjectType & Document,
 > extends ShopifyApiRootService<
   ShopifyObjectType,
@@ -39,9 +39,9 @@ export abstract class ShopifyApiRootCountableService<
    * Gets a list of all of the shop's products directly from the shopify API
    * @param options Options for filtering the results.
    */
-  public async listAllFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions): Promise<ShopifyObjectType[]>
-  public async listAllFromShopify(shopifyConnect: IShopifyConnect, options: ListOptions, listAllPageCallback: listAllCallback<ShopifyObjectType>): Promise<void>
-  public async listAllFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions, listAllPageCallback?: listAllCallback<ShopifyObjectType>): Promise<ShopifyObjectType[]|void> {
+  public async listAllFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions): Promise<Partial<ShopifyObjectType>[]>
+  public async listAllFromShopify(shopifyConnect: IShopifyConnect, options: ListOptions, listAllPageCallback: listAllCallback<Partial<ShopifyObjectType>>): Promise<void>
+  public async listAllFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions, listAllPageCallback?: listAllCallback<Partial<ShopifyObjectType>>): Promise<Partial<ShopifyObjectType>[]|void> {
     // Delete undefined options
     deleteUndefinedProperties(options);
 
@@ -120,24 +120,24 @@ export abstract class ShopifyApiRootCountableService<
     .lean();
   }
 
-  protected async syncedDataCallback(shopifyConnect: IShopifyConnect, subProgress: Partial<SubSyncProgressDocument>, options: ISyncOptions, data: IListAllCallbackData<ShopifyObjectType>) {
+  protected async syncedDataCallback(shopifyConnect: IShopifyConnect, subProgress: Partial<SubSyncProgressDocument>, options: IStartSyncOptions, data: IListAllCallbackData<ShopifyObjectType>) {
     const objects = data.data;
     subProgress.syncedCount += objects.length;
     subProgress.lastId = objects[objects.length-1].id;
   }
 
-  protected getSyncListOptions(options: ISyncOptions): Partial<ListOptions> {
+  protected getSyncListOptions(options: IStartSyncOptions): Partial<ListOptions> {
     return {};
   }
 
-  protected getlastSyncProgressForOptions(shopifyConnect, options: ISyncOptions) {
+  protected getlastSyncProgressForOptions(shopifyConnect, options: IStartSyncOptions) {
     return {
       shop: shopifyConnect.myshopify_domain,
       [`options.include${this.upperCaseResourceName}`]: true,
     };
   }
 
-  protected async seedSyncProgress(shopifyConnect: IShopifyConnect, options: ISyncOptions, lastProgress: SyncProgressDocument): Promise<Partial<SubSyncProgressDocument>> {
+  protected async seedSyncProgress(shopifyConnect: IShopifyConnect, options: IStartSyncOptions, lastProgress: SyncProgressDocument): Promise<Partial<SubSyncProgressDocument>> {
     const shop = shopifyConnect.myshopify_domain;
     let seedSubProgress: Partial<SubSyncProgressDocument> = {
       shop: shop,
@@ -191,7 +191,7 @@ export abstract class ShopifyApiRootCountableService<
    * @event sync (shop, lastProgress)
    * @event sync-cancelled:[shop]:[progressId] ()
    */
-  public async startSync(shopifyConnect: IShopifyConnect, options: ISyncOptions, progress: SyncProgressDocument, lastProgress: SyncProgressDocument | null, finishedCallback?: ISubSyncProgressFinishedCallback) {
+  public async startSync(shopifyConnect: IShopifyConnect, options: IStartSyncOptions, progress: SyncProgressDocument, lastProgress: SyncProgressDocument | null, finishedCallback?: ISubSyncProgressFinishedCallback) {
     this.logger.debug(`[startSync] start`, options);
 
     const shop: string = shopifyConnect.myshopify_domain;

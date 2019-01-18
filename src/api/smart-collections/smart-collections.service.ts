@@ -2,8 +2,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import { SmartCollections, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
 import { SmartCollection } from 'shopify-prime/models';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { SmartCollectionDocument, IListAllCallbackData, SmartCollectionListOptions, SmartCollectionCountOptions, SmartCollectionGetOptions } from '../interfaces';
-import { SyncProgressDocument, SubSyncProgressDocument, ISyncOptions, ShopifyModuleOptions } from '../../interfaces';
+import {
+  SmartCollectionDocument,
+  IListAllCallbackData,
+  IShopifySyncSmartCollectionListOptions,
+  IShopifySyncSmartCollectionCountOptions,
+  IShopifySyncSmartCollectionGetOptions,
+} from '../interfaces';
+import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions, ShopifyModuleOptions } from '../../interfaces';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
@@ -13,9 +19,9 @@ import { ElasticsearchService } from '../../elasticsearch.service';
 export class SmartCollectionsService extends ShopifyApiRootCountableService<
 SmartCollection, // ShopifyObjectType
 SmartCollections, // ShopifyModelClass
-SmartCollectionCountOptions, // CountOptions
-SmartCollectionGetOptions, // GetOptions
-SmartCollectionListOptions, // ListOptions
+IShopifySyncSmartCollectionCountOptions, // CountOptions
+IShopifySyncSmartCollectionGetOptions, // GetOptions
+IShopifySyncSmartCollectionListOptions, // ListOptions
 SmartCollectionDocument // DatabaseDocumentType
 > {
 
@@ -40,7 +46,7 @@ SmartCollectionDocument // DatabaseDocumentType
    * @param options 
    * @param data 
    */
-  async syncedDataCallback(shopifyConnect: IShopifyConnect, subProgress: SubSyncProgressDocument, options: ISyncOptions, data: IListAllCallbackData<SmartCollection>) {
+  async syncedDataCallback(shopifyConnect: IShopifyConnect, subProgress: SubSyncProgressDocument, options: IStartSyncOptions, data: IListAllCallbackData<SmartCollection>) {
     const products = data.data;
     subProgress.syncedCount += products.length;
     const lastProduct = products[products.length-1];

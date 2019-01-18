@@ -3,25 +3,25 @@ import { Inject, Injectable } from '@nestjs/common';
 
 // Third party
 import * as pRetry from 'p-retry';
-import { Products, Options } from 'shopify-prime'; 
-import { Product, ProductUpdateCreate } from 'shopify-prime/models';
-import { Model } from 'mongoose';
 import { GenericParams as ESGenericParams } from 'elasticsearch';
 
 
 import { IShopifyConnect } from '../../auth/interfaces';
+import { Products, Options } from 'shopify-prime'; 
+import { Product, ProductUpdateCreate } from 'shopify-prime/models';
+import { Model } from 'mongoose';
 import {
   ProductDocument,
   IListAllCallbackData,
-  ShopifySyncProductCountOptions,
-  ShopifySyncProductGetOptions,
-  ShopifySyncProductListOptions,
-  AppProductCountOptions,
-  AppProductGetOptions,
-  AppProductListOptions,
+  IShopifySyncProductCountOptions,
+  IShopifySyncProductGetOptions,
+  IShopifySyncProductListOptions,
+  IAppProductCountOptions,
+  IAppProductGetOptions,
+  IAppProductListOptions,
 } from '../interfaces';
 import { EventService } from '../../event.service';
-import { SyncProgressDocument, SubSyncProgressDocument, ISyncOptions } from '../../interfaces';
+import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions } from '../../interfaces';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 import { ElasticsearchService } from '../../elasticsearch.service';
 
@@ -29,9 +29,9 @@ import { ElasticsearchService } from '../../elasticsearch.service';
 export class ProductsService extends ShopifyApiRootCountableService<
 Product, // ShopifyObjectType
 Products, // ShopifyModelClass
-ShopifySyncProductCountOptions, // CountOptions
-ShopifySyncProductGetOptions, // GetOptions
-ShopifySyncProductListOptions, // ListOptions
+IShopifySyncProductCountOptions, // CountOptions
+IShopifySyncProductGetOptions, // GetOptions
+IShopifySyncProductListOptions, // ListOptions
 ProductDocument // DatabaseDocumentType
 > {
 
@@ -62,7 +62,7 @@ ProductDocument // DatabaseDocumentType
    * @param user 
    * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html and https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
    */
-  public async listFromSearch(user: IShopifyConnect, options: AppProductListOptions): Promise<Product[]> {
+  public async listFromSearch(user: IShopifyConnect, options: IAppProductListOptions): Promise<Product[]> {
     
     
     const query = {
@@ -135,7 +135,7 @@ ProductDocument // DatabaseDocumentType
   async syncedDataCallback(
     shopifyConnect: IShopifyConnect,
     subProgress: SubSyncProgressDocument,
-    options: ISyncOptions,
+    options: IStartSyncOptions,
     data: IListAllCallbackData<Product>
   ): Promise<void> {
     const products = data.data;

@@ -1,18 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Options, Models, Assets } from 'shopify-prime';
-import { AssetDocument } from '../../interfaces/mongoose/asset.schema';
+import { AssetDocument, IAppAsset, IAppAssetListOptions } from '../../interfaces';
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
 import { Model, Types } from 'mongoose';
 import { DebugService } from 'debug.service';
-
-export interface CustomAssetListOptions extends Options.FieldOptions {
-  key_starts_with?: string;
-  content_type?: string;
-}
-
-export interface ICustomAsset extends Models.Asset {
-  json?: any;
-}
 
 @Injectable()
 export class AssetsService {
@@ -35,7 +26,7 @@ export class AssetsService {
     }
   }
 
-  private parseSection(asset: ICustomAsset) {
+  private parseSection(asset: IAppAsset) {
     const startSchema = this.regexIndexOf(asset.value, /{%\s*?schema\s*?%}/gm, false);
     const endSchema = this.regexIndexOf(asset.value, /{%\s*?endschema\s*?%}/gm, true);
     const startLiquid = 0;
@@ -61,7 +52,7 @@ export class AssetsService {
     return asset;
   }
 
-  private parseLocale(asset: ICustomAsset) {
+  private parseLocale(asset: IAppAsset) {
     let sectionSchema;
     try {
       sectionSchema = JSON.parse(asset.value);
@@ -71,7 +62,7 @@ export class AssetsService {
     }
   }
 
-  async list(user: IShopifyConnect, id: number, options: CustomAssetListOptions = {}): Promise<Models.Asset[]> {
+  async list(user: IShopifyConnect, id: number, options: IAppAssetListOptions = {}): Promise<Models.Asset[]> {
     const assets = new Assets(user.myshopify_domain, user.accessToken);
     return assets.list(id, options)
     .then((assetData) => {
@@ -94,7 +85,7 @@ export class AssetsService {
   async get(user: IShopifyConnect, id: number, key: string, options: Options.FieldOptions = {}) {
     const assets = new Assets(user.myshopify_domain, user.accessToken);
     return assets.get(id, key, options)
-    .then((assetData: ICustomAsset) => {
+    .then((assetData: IAppAsset) => {
       // this.logger.debug(`assetData`, assetData);
       if (assetData.content_type === 'application/json') {
         assetData.json = JSON.parse(assetData.value);

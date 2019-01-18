@@ -3,38 +3,29 @@ import { Themes, Options } from 'shopify-prime'; // https://github.com/nozzlegea
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Theme } from 'shopify-prime/models';
 import { ThemeDocument } from '../interfaces/mongoose/theme.schema';
-import { SyncProgressDocument, ShopifyModuleOptions } from '../../interfaces';
 import { Model } from 'mongoose';
 import { ShopifyApiRootService } from '../shopify-api-root.service';
 import { EventService } from '../../event.service';
 import { ElasticsearchService } from '../../elasticsearch.service';
 
-export interface IThemeListFilter {
-  name?: string;
-  created_at?: string;
-  updated_at?: string;
-  role?: 'main' | 'unpublished' | 'demo';
-  previewable?: boolean;
-  processing?: boolean;
-}
-
-export interface ThemeGetOptions extends Options.FieldOptions {
-  syncToDb?: boolean;
-  syncToSearch?: boolean;
-}
-
-export interface ThemeListOptions extends Options.FieldOptions {
-  syncToDb?: boolean;
-  syncToSearch?: boolean;
-  failOnSyncError?: boolean;
-}
+import {
+  SyncProgressDocument,
+  ShopifyModuleOptions,
+} from '../../interfaces';
+import {
+  IShopifySyncThemeGetOptions,
+  IShopifySyncThemeListOptions,
+  IAppThemeGetOptions,
+  IAppThemeListOptions,
+  IAppThemeListFilter,
+} from '../interfaces';
 
 @Injectable()
 export class ThemesService extends ShopifyApiRootService<
 Theme, // ShopifyObjectType
 Themes, // ShopifyModelClass
-ThemeGetOptions, // GetOptions
-ThemeListOptions, // ListOptions
+IShopifySyncThemeGetOptions, // GetOptions
+IShopifySyncThemeListOptions, // ListOptions
 ThemeDocument // DatabaseDocumentType
 > {
 
@@ -60,7 +51,7 @@ ThemeDocument // DatabaseDocumentType
    * 
    * @see https://help.shopify.com/en/api/reference/online-store/theme#index
    */
-  public async listFromShopify(shopifyConnect: IShopifyConnect, options?: ThemeListOptions, filter?: IThemeListFilter): Promise<Theme[]> {
+  public async listFromShopify(shopifyConnect: IShopifyConnect, options?: IAppThemeListOptions, filter?: IAppThemeListFilter): Promise<Partial<Theme>[]> {
     return super.listFromShopify(shopifyConnect, options)
     .then((themes) => {
       if(!filter) {
@@ -83,7 +74,7 @@ ThemeDocument // DatabaseDocumentType
    * @param id theme id
    * @see https://help.shopify.com/en/api/reference/online-store/theme#show
    */
-  public async getActive(user: IShopifyConnect): Promise<Theme | null> {
+  public async getActive(user: IShopifyConnect): Promise<Partial<Theme> | null> {
     return this.listFromShopify(user, {}, { role: 'main' })
     .then((themes) => {
       if (themes.length) {

@@ -1,9 +1,9 @@
-import { ISyncOptions } from './sync-options';
+import { IStartSyncOptions } from './sync-options';
 import { ISubSyncProgress, IOrderSyncProgress } from './sub-sync-progress';
 
 export interface ISyncProgress {
   shop: String,
-  options: ISyncOptions,
+  options: IStartSyncOptions,
   orders?: IOrderSyncProgress,
   products?: ISubSyncProgress,
   createdAt: Date,

@@ -1,27 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { AssetsService, CustomAssetListOptions, ICustomAsset } from '../assets/assets.service';
-import { IShopifyConnect } from '../../../auth/interfaces/connect';
+import { AssetsService } from '../assets/assets.service';
+import { IAppAssetListOptions, IAppAsset, IAppLocaleFile, IAppLocaleListOptions, IAppLocales } from '../../interfaces'
+import { IShopifyConnect } from '../../../auth/interfaces';
 import { Options, Models } from 'shopify-prime';
 import { DebugService } from 'debug.service';
 
 import pMap from 'p-map';
 import * as path from 'path';
 import * as merge from 'deepmerge';
-
-export interface ILocales {
-  [langcode: string]: any;
-}
-
-export interface ILocaleFile extends ICustomAsset {
-  json?: any;
-  lang_code?: string;
-  is_default?: boolean;
-  locales?: ILocales;
-}
-
-export interface CustomLocaleListOptions extends CustomAssetListOptions {
-  lang_code?: string;
-}
 
 @Injectable()
 export class LocalesService {
@@ -39,12 +25,12 @@ export class LocalesService {
    * @param filename
    * @param options
    */
-  async getLocalFile(user: IShopifyConnect, id: number, filename: string, options: Options.FieldOptions = {}): Promise<ILocaleFile> {
+  async getLocalFile(user: IShopifyConnect, id: number, filename: string, options: Options.FieldOptions = {}): Promise<IAppLocaleFile> {
     const key = `locales/${filename}`;
     // this.logger.debug('getLocalFile', filename);
     return this.assetsService.get(user, id, key, options)
     .then((asset) => {
-      const locale: ILocaleFile = this.parseLangCode(asset);
+      const locale: IAppLocaleFile = this.parseLangCode(asset);
       return {
         key: locale.key,
         locales: locale.json,
@@ -56,13 +42,13 @@ export class LocalesService {
     });
   }
 
-  async listSections(user: IShopifyConnect, id: number, options: CustomAssetListOptions = {}): Promise<ILocaleFile[]> {
+  async listSections(user: IShopifyConnect, id: number, options: IAppAssetListOptions = {}): Promise<IAppLocaleFile[]> {
     options.content_type = 'text/x-liquid';
     options.key_starts_with = 'sections/';
     return this.assetsService.list(user, id, options)
     .then((assets) => {
       // this.logger.debug('assets', assets);
-      const locales: ILocaleFile[] = assets;
+      const locales: IAppLocaleFile[] = assets;
       locales.forEach((locale) => {
         locale = this.parseLangCode(locale);
       });
@@ -76,10 +62,10 @@ export class LocalesService {
    * @param filename
    * @param options
    */
-  async getSectionFile(user: IShopifyConnect, id: number, filename: string, options: CustomAssetListOptions = {}): Promise<ILocaleFile> {
+  async getSectionFile(user: IShopifyConnect, id: number, filename: string, options: IAppAssetListOptions = {}): Promise<IAppLocaleFile> {
     const key = `sections/${filename}`;
     return this.assetsService.get(user, id, key, options)
-    .then((asset: ICustomAsset) => {
+    .then((asset: IAppAsset) => {
       let locales: any = null;
       if (asset.json && asset.json.locales) {
         locales = asset.json.locales;
@@ -100,7 +86,7 @@ export class LocalesService {
    * @param id
    * @param options
    */
-  private async getSectionAll(user: IShopifyConnect, id: number, options: CustomAssetListOptions = {}): Promise<ILocales> {
+  private async getSectionAll(user: IShopifyConnect, id: number, options: IAppAssetListOptions = {}): Promise<IAppLocales> {
     // get locales from sections/*.liquid files
     return this.listSections(user, id, options)
     .then(async (sectionLocales) => {
@@ -144,7 +130,7 @@ export class LocalesService {
    * @param filename
    * @param options
    */
-  async getByLangCode(user: IShopifyConnect, id: number, langCode: string, options: Options.FieldOptions = {}): Promise<ILocaleFile> {
+  async getByLangCode(user: IShopifyConnect, id: number, langCode: string, options: Options.FieldOptions = {}): Promise<IAppLocaleFile> {
     let filename = `${langCode}.json`;
     return this.getLocalFile(user, id, filename, options)
     .then((locale) => {
@@ -165,7 +151,7 @@ export class LocalesService {
    * @param id
    * @param options {langcode: 'de'} would only return german locales
    */
-  async getAll(user: IShopifyConnect, id: number, options: CustomLocaleListOptions = {}): Promise<ILocales> {
+  async getAll(user: IShopifyConnect, id: number, options: IAppLocaleListOptions = {}): Promise<IAppLocales> {
     return this.list(user, id, options)
     // get locales from locales/*.json files
     .then(async (locales) => {
@@ -193,7 +179,7 @@ export class LocalesService {
    */
   async get(user: IShopifyConnect, id: number, properties?: string[], options: Options.FieldOptions = {}) {
     return this.getAll(user, id, options)
-    .then(async (mergedLocales: ILocales) => {
+    .then(async (mergedLocales: IAppLocales) => {
       return this.getSectionAll(user, id, options)
       .then(async (mergedSectionLocales) => {
         // this.logger.debug('merge section', mergedSectionLocales.en.sections, mergedLocales.en.sections);
@@ -223,12 +209,12 @@ export class LocalesService {
    * @param id theme id
    * @param options
    */
-  async list(user: IShopifyConnect, id: number, options: CustomLocaleListOptions = {}): Promise<ILocaleFile[]> {
+  async list(user: IShopifyConnect, id: number, options: IAppLocaleListOptions = {}): Promise<IAppLocaleFile[]> {
     options.content_type = 'application/json';
     options.key_starts_with = 'locales/';
     return this.assetsService.list(user, id, options)
-    .then((_assets: ICustomAsset[]) => {
-      const assets: ILocaleFile[] = _assets;
+    .then((_assets: IAppAsset[]) => {
+      const assets: IAppLocaleFile[] = _assets;
       assets.forEach((locale) => {
         locale = this.parseLangCode(locale);
       });
@@ -250,7 +236,7 @@ export class LocalesService {
     });
   }
 
-  private parseLangCode(locale: ILocaleFile) {
+  private parseLangCode(locale: IAppLocaleFile) {
     if (locale.key.indexOf('sections/') >= 0) {
       locale.is_default = true;
       locale.lang_code = null;
