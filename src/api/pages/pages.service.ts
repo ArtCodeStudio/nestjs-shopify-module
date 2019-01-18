@@ -43,7 +43,6 @@ PageDocument // DatabaseDocumentType
     protected readonly esService: ElasticsearchService,
     @Inject('PageModelToken')
     private readonly pageModel: (shopName: string) => Model<PageDocument>,
-    // @Inject('PageSyncProgressModelToken') private readonly productSyncProgressModel: (shopName: string) => Model<PageSyncProgressDocument>,
     private readonly eventService: EventService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,

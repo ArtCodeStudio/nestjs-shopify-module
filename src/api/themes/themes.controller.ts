@@ -1,7 +1,7 @@
 import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { Roles } from '../../guards/roles.decorator';
-import { DebugService } from 'debug.service';
+import { DebugService } from './../../debug.service';
 import { ThemesService } from './themes.service';
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { IUserRequest } from '../../interfaces/user-request';
@@ -13,7 +13,7 @@ export class ThemesController {
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
-    protected readonly themesService: ThemesService
+    protected readonly themesService: ThemesService,
   ) {  }
 
   @UseGuards(ShopifyApiGuard)

@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AssetsService } from '../assets/assets.service';
-import { IAppAssetListOptions, IAppAsset, IAppLocaleFile, IAppLocaleListOptions, IAppLocales } from '../../interfaces'
+import { IAppAssetListOptions, IAppAsset, IAppLocaleFile, IAppLocaleListOptions, IAppLocales } from '../../interfaces';
 import { IShopifyConnect } from '../../../auth/interfaces';
 import { Options, Models } from 'shopify-prime';
-import { DebugService } from 'debug.service';
+import { DebugService } from './../../../debug.service';
 
 import pMap from 'p-map';
 import * as path from 'path';

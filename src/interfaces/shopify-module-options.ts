@@ -9,7 +9,7 @@ export interface ShopifyModuleOptions {
     host: string;
     port: number;
     debug: boolean;
-    environment: 'production' | 'development';
+    environment: 'production' | 'development' | 'test';
   }
 
   shopify: {

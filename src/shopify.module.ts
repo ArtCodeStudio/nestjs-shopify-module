@@ -1,6 +1,7 @@
-import { Module, DynamicModule, CacheModule, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { Module, DynamicModule, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { BodyParserJsonMiddleware, BodyParserUrlencodedMiddleware, GetShopifyConnectMiddleware, GetUserMiddleware, VerifyWebhookMiddleware } from './middlewares';
+import { BodyParserJsonMiddleware, BodyParserUrlencodedMiddleware,
+GetShopifyConnectMiddleware, GetUserMiddleware, VerifyWebhookMiddleware } from './middlewares';
 import { ShopifyAuthController } from './auth/auth.controller';
 import { shopifyConnectProviders } from './auth/connect.providers';
 import { shopifyApiProviders } from './api/api.providers';
@@ -9,9 +10,7 @@ import { ChargeController } from './charge/charge.controller';
 import { ChargeService } from './charge/charge.service';
 import { ShopController } from './shop/shop.controller';
 import { ShopService } from './shop/shop.service';
-import { IShopifyShop } from './shop/interfaces/shop';
 import { RolesGuard } from './guards/roles.guard';
-import { Roles } from './guards/roles.decorator';
 import { ShopifyApiGuard } from './guards/shopify-api.guard';
 import { ThemesService } from './api/themes/themes.service';
 import { ThemesController } from './api/themes/themes.controller';
@@ -48,10 +47,9 @@ import { CustomCollectionsController } from './api/custom-collections/custom-col
 import { SearchController } from './api/search/search.controller';
 import { SearchService } from './api/search/search.service';
 import { ElasticsearchService } from './elasticsearch.service';
-
 export { OrdersService };
 export { RequestGuard } from './guards/request.guard';
-
+import { Model } from 'mongoose';
 
 @Module({
   providers: [
@@ -104,10 +102,16 @@ export { RequestGuard } from './guards/request.guard';
   ],
   exports: [
     ShopifyConnectService,
+    ShopService,
     ShopifyApiGuard,
     ShopifyAuthService,
     ChargeService,
     EventService,
+    WebhooksService,
+    ProductsGateway,
+    SyncGateway,
+    WebhooksGateway,
+    SyncService,
     OrdersService,
     TransactionsService,
     ProductsService,
@@ -118,13 +122,15 @@ export { RequestGuard } from './guards/request.guard';
     LocalesService,
     SmartCollectionsService,
     CustomCollectionsService,
+    ElasticsearchService,
   ],
 })
 export class ShopifyModule implements NestModule {
   static forRoot(options: ShopifyModuleOptions, database: Mongoose, passport: PassportStatic): DynamicModule {
+
     const shopifyModuleOptions = {
       provide: SHOPIFY_MODULE_OPTIONS,
-      useValue: options
+      useValue: options,
     };
     const mongooseDatabase = {
       provide: 'defaultDatabase',
@@ -151,7 +157,8 @@ export class ShopifyModule implements NestModule {
         ...syncProviders(database),
       ],
       exports: [
-        OrdersService,
+        passportProvider,
+        shopifyModuleOptions,
         mongooseDatabase,
         BodyParserJsonMiddleware,
         BodyParserUrlencodedMiddleware,
@@ -160,8 +167,8 @@ export class ShopifyModule implements NestModule {
         ...shopifyConnectProviders(database),
         ...shopifyApiProviders(database),
         ...syncProviders(database),
-      ]
-    }
+      ],
+    };
   }
   configure(consumer: MiddlewareConsumer) {
     consumer
@@ -181,10 +188,9 @@ export class ShopifyModule implements NestModule {
       .apply(BodyParserUrlencodedMiddleware)
       .forRoutes(SyncController)
 
-
       .apply(GetUserMiddleware)
       .forRoutes({
-        path: '*', method: RequestMethod.ALL
+        path: '*', method: RequestMethod.ALL,
       })
 
       .apply(GetShopifyConnectMiddleware)

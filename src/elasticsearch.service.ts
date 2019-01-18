@@ -3,7 +3,7 @@ import { Client } from 'elasticsearch';
 
 import { SHOPIFY_MODULE_OPTIONS } from './shopify.constants';
 import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
-import { underscoreCase } from './helpers'
+import { underscoreCase } from './helpers';
 
 /**
  * Elasticsearch Service

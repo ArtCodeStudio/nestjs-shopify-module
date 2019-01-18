@@ -1,6 +1,7 @@
 import { Document } from 'mongoose';
+import { Models } from 'shopify-prime';
 
-export interface IShopifyShop extends Document {
+export interface IShopifyShop {
   id: number;
 
   /**
@@ -206,5 +207,8 @@ export interface IShopifyShop extends Document {
    * Indicates whether the shop supports the Gift Cards api
    */
   has_gift_cards?: boolean;
+}
 
+export interface IShopifyShopDocument extends IShopifyShop, Document {
+  id: number;
 }

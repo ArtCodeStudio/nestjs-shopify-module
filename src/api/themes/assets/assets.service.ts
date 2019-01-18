@@ -3,7 +3,7 @@ import { Options, Models, Assets } from 'shopify-prime';
 import { AssetDocument, IAppAsset, IAppAssetListOptions } from '../../interfaces';
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
 import { Model, Types } from 'mongoose';
-import { DebugService } from 'debug.service';
+import { DebugService } from '../../../debug.service';
 
 @Injectable()
 export class AssetsService {

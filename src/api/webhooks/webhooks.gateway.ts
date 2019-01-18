@@ -11,7 +11,7 @@ import { UseGuards} from '@nestjs/common';
 
 // Third party
 import { Observable } from 'rxjs';
-import { Server } from 'socket.io'
+import { Server } from 'socket.io';
 import { Models } from 'shopify-prime';
 
 // Guards
@@ -239,7 +239,7 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       // For theme clients
       nsp.to(`${myshopifyDomain}-client-theme`).emit('products/delete', data);
     });
- 
+
     this.eventService.on(`webhook:product_listings/add`, (myshopifyDomain: string, data: any) => {
       nsp.to(`${myshopifyDomain}-app-backend`).emit('product_listings/add', data);
     });
@@ -301,4 +301,3 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   }
 
 }
-

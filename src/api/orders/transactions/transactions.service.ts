@@ -48,7 +48,7 @@ TransactionListOptions
     protected readonly esService: ElasticsearchService,
     @Inject('TransactionModelToken')
     private readonly transactionModel: (shopName: string) => Model<TransactionDocument>,
-    private readonly eventService: EventService
+    private readonly eventService: EventService,
   ) {
     super(esService, transactionModel, Transactions, eventService);
   }
@@ -58,13 +58,12 @@ TransactionListOptions
     const syncToDb = options && options.syncToDb;
     const syncToSearch = options && options.syncToSearch;
     return transactions.get(order_id, id)
-    .then(async (transactions) => {
-      return this.updateOrCreateInApp(user, 'id', transactions, syncToDb, syncToSearch)
+    .then(async (transaction) => {
+      return this.updateOrCreateInApp(user, 'id', transaction, syncToDb, syncToSearch)
       .then((_) => {
-        return transactions;
+        return transaction;
       });
     });
-    
   }
 
   public async countFromShopify(user: IShopifyConnect, orderId: number): Promise<number> {
@@ -75,10 +74,17 @@ TransactionListOptions
   public async diffSynced(user: IShopifyConnect, order_id: number): Promise<any> {
     const fromDb = await this.listFromDb(user);
     const fromShopify = await this.listFromShopify(user, order_id);
-    console.log('from DB', fromDb.length);
-    console.log('from Shopify', fromShopify.length);
     let dbObj;
-    return fromShopify.map(obj => (dbObj = fromDb.find(x => x.id === obj.id)) && {[obj.id]: getDiff(obj, dbObj).filter(x=>x.operation!=='update' && !x.path.endsWith('._id'))})
-    .reduce((a,c)=>({...a, ...c}), {})
+    return fromShopify.map((obj) =>
+      dbObj = fromDb.find((x) => {
+        return x.id === obj.id;
+      }) && {
+        [obj.id]: getDiff(obj, dbObj)
+        .filter((x) => {
+          return x.operation !== 'update' && !x.path.endsWith('._id');
+        }),
+      },
+    )
+    .reduce((a, c) => ({...a, ...c}), {});
   }
 }

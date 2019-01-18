@@ -3,7 +3,7 @@ import { Webhooks } from 'shopify-prime';
 import { Webhook } from 'shopify-prime/models';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
-import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants'
+import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 import { EventService } from '../event.service';
 import { ShopifyConnectService } from '../auth/connect.service';
 import { DebugService } from '../debug.service';
@@ -17,7 +17,7 @@ import { takeUntil } from 'rxjs/operators';
 export class WebhooksService {
   static webhookObservables: {
     [key: string]: Observable<WsResponse<any>>;
-  }
+  };
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
@@ -65,7 +65,7 @@ export class WebhooksService {
     const webhooks = new Webhooks(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     return webhooks.create({
       address: `https://${this.shopifyModuleOptions.app.host}/webhooks/${topic}`,
-      topic
+      topic,
     });
   }
 
@@ -289,7 +289,7 @@ export class WebhooksService {
   }
 
   protected takeUntilOneDay() {
-    return takeUntil(timer(1000 * 60 * 60 * 24))
+    return takeUntil(timer(1000 * 60 * 60 * 24));
   }
 
 }

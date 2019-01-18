@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 
-import { IShopifyConnect } from '../auth/interfaces/connect';
+import { IShopifyConnectDocument } from '../auth/interfaces/connect';
 import { IShopifyShop } from './interfaces/shop';
 import { DebugService } from '../debug.service';
 
@@ -12,12 +12,12 @@ export class ShopService {
 
   constructor(
     @Inject('ShopifyConnectModelToken')
-    private readonly shopifyConnectModel: Model<IShopifyConnect>,
+    private readonly shopifyConnectModel: Model<IShopifyConnectDocument>,
   ) {}
 
   async findAll(): Promise<IShopifyShop[]> {
     return this.shopifyConnectModel.find().exec()
-    .then((connects: IShopifyConnect[]) => {
+    .then((connects: IShopifyConnectDocument[]) => {
       const shops: IShopifyShop[] = [];
       connects.forEach(connect => {
         shops.push(connect.shop);
@@ -28,7 +28,7 @@ export class ShopService {
 
   async findByShopifyID(id: number, fields?: string[]): Promise<IShopifyShop> {
     return this.shopifyConnectModel.findOne({shopifyID: id}).exec()
-    .then((connect: IShopifyConnect) => {
+    .then((connect: IShopifyConnectDocument) => {
       let shop;
       if (fields) {
         shop = {};

@@ -12,7 +12,7 @@ export class WebhooksController {
   constructor(
     protected readonly webhooksService: WebhooksService,
     protected readonly eventService: EventService,
-  ) {};
+  ) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   /**
@@ -40,9 +40,9 @@ export class WebhooksController {
     @Headers('x-shopify-shop-domain') myShopifyDomain: string,
     @Param('resource') resource: string,
     @Param('event') event: string,
-    @Body() body: any
+    @Body() body: any,
   ) {
-    const topic = `${resource}/${event}`
+    const topic = `${resource}/${event}`;
     this.logger.debug(`[${myShopifyDomain}] Webhook ${topic}`, body);
     res.sendStatus(200);
     this.eventService.emit(`webhook:${topic}`, myShopifyDomain, body);

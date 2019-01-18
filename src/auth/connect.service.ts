@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { IShopifyAuthProfile } from './interfaces/profile';
 import { DebugService } from '../debug.service';
-import { IShopifyConnect } from './interfaces/connect';
+import { IShopifyConnect, IShopifyConnectDocument } from './interfaces/connect';
 import { EventService } from '../event.service';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class ShopifyConnectService {
 
   constructor(
     @Inject('ShopifyConnectModelToken')
-    private readonly shopifyConnectModel: Model<IShopifyConnect>,
+    private readonly shopifyConnectModel: Model<IShopifyConnectDocument>,
     private readonly eventService: EventService,
   ) {}
 
@@ -72,8 +72,8 @@ export class ShopifyConnectService {
       const query = {'shop.myshopify_domain': domain};
       return this.shopifyConnectModel.findOne(query).exec();
     } else {
-      let query: any = {'shop.domain': domain};
-      return this.shopifyConnectModel.findOne(query).exec()
+      const query: any = {'shop.domain': domain};
+      return this.shopifyConnectModel.findOne(query).exec();
     }
   }
 

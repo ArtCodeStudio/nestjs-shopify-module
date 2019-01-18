@@ -1,12 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SyncController } from './sync.controller';
+import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
+import { ShopifyModule } from '../shopify.module';
+import { config, mongooseConnectionPromise } from '../../test/config.test';
+import * as passport from 'passport';
 
 describe('Sync Controller', () => {
   let module: TestingModule;
-  
+
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      controllers: [SyncController],
+      imports: [ShopifyModule.forRoot(config, await mongooseConnectionPromise, passport)],
     }).compile();
   });
   it('should be defined', () => {

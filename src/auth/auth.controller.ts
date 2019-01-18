@@ -11,11 +11,11 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 
-import { 
+import {
   Response,
 } from 'express';
-import { IUserRequest } from '../interfaces/user-request'
-import { Session as IUserSession } from '../interfaces/session'
+import { IUserRequest } from '../interfaces/user-request';
+import { Session as IUserSession } from '../interfaces/session';
 
 import { PassportStatic } from 'passport';
 import { ShopifyAuthStrategy } from './auth.strategy';
@@ -24,7 +24,7 @@ import { ShopifyAuthService} from './auth.service';
 import { DebugService } from '../debug.service';
 import { ShopifyModuleOptions} from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
-import { IShopifyConnect } from './interfaces/connect'
+import { IShopifyConnect } from './interfaces/connect';
 
 import { Roles } from '../guards/roles.decorator';
 @Controller('shopify/auth')
@@ -52,7 +52,7 @@ export class ShopifyAuthController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Next() next,
-    @Session() session: IUserSession
+    @Session() session: IUserSession,
   ) {
     if (typeof shop !== 'string') {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
@@ -62,24 +62,24 @@ export class ShopifyAuthController {
 
     this.logger.debug('auth called', `AuthController:${shop}`);
 
-    const shopifyAuthStrategy = new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions, this.passport)
+    const shopifyAuthStrategy = new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions, this.passport);
 
     this.passport.use(`shopify-${shop}`, shopifyAuthStrategy);
 
     return this.passport.authenticate(`shopify-${shop}`, {
       scope: this.shopifyModuleOptions.shopify.scope,
-      shop: shop,
+      shop,
     } as any)(req, res, next);
   }
 
   /**
    * Alternative for route 'shopify/auth'
    * Used for auth with a clientsite redirect (needed in the shopify iframe).
-   * @param shop 
-   * @param req 
-   * @param res 
-   * @param next 
-   * @param session 
+   * @param shop
+   * @param req
+   * @param res
+   * @param next
+   * @param session
    */
   @Get('/iframe')
   oAuthConnectIframe(
@@ -102,15 +102,15 @@ export class ShopifyAuthController {
   /**
    * Alternative for route 'shopify/auth/callback'
    * Used for auth with a clientsite auth (needed in the shopify iframe).
-   * @param shop 
-   * @param code 
-   * @param hmac 
-   * @param state 
-   * @param timestamp 
-   * @param req 
-   * @param res 
-   * @param next 
-   * @param session 
+   * @param shop
+   * @param code
+   * @param hmac
+   * @param state
+   * @param timestamp
+   * @param req
+   * @param res
+   * @param next
+   * @param session
    */
   @Get('callback/iframe')
   oAuthConnectIframeCallback(

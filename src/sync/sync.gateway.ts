@@ -1,12 +1,20 @@
-import { SubscribeMessage, WebSocketGateway, WsResponse, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from '@nestjs/websockets';
+import {
+  SubscribeMessage,
+  WebSocketGateway,
+  WsResponse,
+  OnGatewayInit,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  WebSocketServer,
+} from '@nestjs/websockets';
 import { Observable } from 'rxjs';
 import { SessionSocket } from '../interfaces/session-socket';
 import { SyncService } from './sync.service';
 import { Product, ProductUpdateCreate } from 'shopify-prime/models';
 import { DebugService } from '../debug.service';
-import { Server } from 'socket.io'
+import { Server } from 'socket.io';
 import { EventService } from '../event.service';
-import { 
+import {
   SyncProgressSchema, SyncProgressDocument,
 } from '../interfaces';
 
@@ -19,7 +27,7 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   constructor(
     protected readonly eventService: EventService,
-    protected readonly syncService: SyncService
+    protected readonly syncService: SyncService,
   ){}
 
   // @SubscribeMessage('start')
@@ -49,11 +57,10 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.eventService.on(`sync-failed`, (myshopifyDomain: string, progress: SyncProgressDocument) => {
       nsp.to(`${myshopifyDomain}-app-backend`).emit('sync-failed', progress);
     });
-  
+
     this.eventService.on(`sync-cancelled`, (myshopifyDomain: string, progress: SyncProgressDocument) => {
       nsp.to(`${myshopifyDomain}-app-backend`).emit('sync-cancelled', progress);
     });
-    
   }
 
   handleConnection(client: SessionSocket) {

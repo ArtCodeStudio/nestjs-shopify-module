@@ -6,9 +6,8 @@ import { IUserRequest } from '../interfaces/user-request';
 import { Session } from '../interfaces/session';
 import { TRequestTypes } from '../auth/interfaces/request-type';
 import { DebugService } from '../debug.service';
-import { ShopifyAuthService } from '../auth/auth.service'
+import { ShopifyAuthService } from '../auth/auth.service';
 import { SessionSocket } from '../interfaces/session-socket';
-
 
 /**
  * Guard to check where the request comes from (an registed shopify theme or the app backend)

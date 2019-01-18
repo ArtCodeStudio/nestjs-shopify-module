@@ -8,12 +8,11 @@ import { DebugService } from '../../../debug.service';
 import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
 import { Roles } from '../../../guards/roles.decorator';
 
-
 @Controller('shopify/api/orders')
 export class TransactionsController {
   constructor(
-    protected readonly transactionsService: TransactionsService
-  ) {};
+    protected readonly transactionsService: TransactionsService,
+  ) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   @UseGuards(ShopifyApiGuard)
@@ -40,7 +39,7 @@ export class TransactionsController {
   async listFromDb(@Req() req: IUserRequest, @Param('order_id') orderId, @Res() res) {
     try {
       return res.jsonp(await this.transactionsService.listFromDb(req.shopifyConnect, orderId));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -80,7 +79,6 @@ export class TransactionsController {
     });
   }
 
-
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get(':order_id/transactions/:id/synced')
@@ -95,11 +93,16 @@ export class TransactionsController {
     }
   }
 
-
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get(':order_id/transactions/:id')
-  getFromShopify(@Req() req: IUserRequest, @Res() res, @Param('order_id') orderId, @Param('id') id: number, @Query() options: TransactionBaseOptions) {
+  getFromShopify(
+    @Req() req: IUserRequest,
+    @Res() res,
+    @Param('order_id') orderId,
+    @Param('id') id: number,
+    @Query() options: TransactionBaseOptions,
+  ) {
     return this.transactionsService.getFromShopify(req.shopifyConnect, orderId, id, options)
     .then((transaction) => {
       return res.jsonp(transaction);

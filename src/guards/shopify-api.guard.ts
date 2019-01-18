@@ -52,7 +52,7 @@ class ShopifyApiGuard implements CanActivate {
   }
 
   /**
-   * 
+   *
    * @param client Validate websocket request
    */
   validateClient(client: SessionSocket) {

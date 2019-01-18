@@ -48,21 +48,27 @@ ThemeDocument // DatabaseDocumentType
    * @param user
    * @param options Show only certain fields, specified by a comma-separated list of field names.
    * @param filter Filter the list by property
-   * 
+   *
    * @see https://help.shopify.com/en/api/reference/online-store/theme#index
    */
-  public async listFromShopify(shopifyConnect: IShopifyConnect, options?: IAppThemeListOptions, filter?: IAppThemeListFilter): Promise<Partial<Theme>[]> {
+  public async listFromShopify(
+    shopifyConnect: IShopifyConnect,
+    options?: IAppThemeListOptions,
+    filter?: IAppThemeListFilter,
+  ): Promise<Partial<Theme>[]> {
     return super.listFromShopify(shopifyConnect, options)
     .then((themes) => {
-      if(!filter) {
+      if (!filter) {
         return themes;
       } else {
         return themes.filter((theme) => {
           let matches = true;
-          for (let key in filter) {
-            matches = matches && (theme[key] === filter[key]);
+          for (const key in filter) {
+            if (filter[key]) {
+              matches = matches && (theme[key] === filter[key]);
+            }
           }
-          return matches;          
+          return matches;
         });
       }
     });
@@ -70,7 +76,7 @@ ThemeDocument // DatabaseDocumentType
 
   /**
    * Retrieves the single active theme or null if no theme is active
-   * @param user 
+   * @param user
    * @param id theme id
    * @see https://help.shopify.com/en/api/reference/online-store/theme#show
    */

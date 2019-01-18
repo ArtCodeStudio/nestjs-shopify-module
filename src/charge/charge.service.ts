@@ -119,8 +119,8 @@ export class ChargeService {
   async active(user: IShopifyConnect): Promise<Models.RecurringCharge | null> {
     const charges = new RecurringCharges(user.myshopify_domain, user.accessToken);
     return charges.list()
-    .then(async (charges) => {
-      for (const charge of charges) {
+    .then(async (chargesList) => {
+      for (const charge of chargesList) {
         if (charge.status === 'active') {
           return charge;
         }

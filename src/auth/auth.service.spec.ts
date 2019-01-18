@@ -1,13 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
+import { ShopifyAuthService } from './auth.service';
 
-describe('AuthService', () => {
-  let service: AuthService;
+import { ShopifyModule } from '../shopify.module';
+import { config, mongooseConnectionPromise } from '../../test/config.test';
+import * as passport from 'passport';
+
+describe('ShopifyAuthService', () => {
+  let module: TestingModule;
+  let service: ShopifyAuthService;
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService],
+    module = await Test.createTestingModule({
+      imports: [ShopifyModule.forRoot(config, await mongooseConnectionPromise, passport)],
     }).compile();
-    service = module.get<AuthService>(AuthService);
+    service = module.get<ShopifyAuthService>(ShopifyAuthService);
+
   });
   it('should be defined', () => {
     expect(service).toBeDefined();

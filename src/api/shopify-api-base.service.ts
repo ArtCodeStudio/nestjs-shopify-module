@@ -167,7 +167,54 @@ export abstract class ShopifyApiBaseService<
    * @param user 
    * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
    */
-  public async listFromSearch(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {"match_all": {}}}): Promise<ShopifyObjectType[]> {
+  public async listFromSearch(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {"match_all": {}}}, basicOptions: Options.FieldOptions & Options.BasicListOptions & Options.DateOptions & Options.PublishedOptions): Promise<ShopifyObjectType[]> {
+    
+    // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
+    let _source: boolean | string[] = true;
+
+    // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-from-size.html
+    let size = 250;
+    let from = 0
+
+    // Convert fields to ES fields
+    if (basicOptions.fields) {
+      _source = basicOptions.fields.split(',');
+    }
+
+    // Convert limit to ES limit
+    if (basicOptions.limit) {
+      size = basicOptions.limit || 250;
+      if (size > 250 || size <= 0) {
+        size = 250
+      }
+    }
+
+    if (basicOptions.page) {
+      from = basicOptions.page * size;
+    }
+
+    const range: any = {}
+
+    if (basicOptions.created_at_max) {
+      range.created_at_max = {
+        lte: basicOptions.created_at_max,
+      }
+    }
+
+    if (basicOptions.created_at_min) {
+      range.created_at_min = {
+        gte: basicOptions.created_at_min,
+      }
+    }
+
+    body._source = _source;
+    body.size = size;
+    body.from = from;
+
+    if (Object.keys(range).length) {
+      body.query.rage = range;
+    }
+    
     this.logger.debug(`[listFromSearch:${this.resourceName}]`, user.shop.myshopify_domain);
     return this._searchInEs(user, body)
     .then((value: ESSearchResponse<ShopifyObjectType>) => {

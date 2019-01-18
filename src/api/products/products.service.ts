@@ -60,37 +60,27 @@ ProductDocument // DatabaseDocumentType
   /**
    * Retrieves a list of products from elasticsearch.
    * @param user 
-   * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html and https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
+   * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
+   * and https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
    */
   public async listFromSearch(user: IShopifyConnect, options: IAppProductListOptions): Promise<Product[]> {
     
     
-    const query = {
-      match_all: {},
-    };
+    const query = {};
 
-    // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
-    let _source: boolean | string[] = true;
-
-    // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-from-size.html
-    let size = 250;
-
-    // Convert fields to ES fields
-    if (options.fields) {
-      _source = options.fields.split(',');
+    const basicOptions: Options.FieldOptions & Options.BasicListOptions & Options.DateOptions & Options.PublishedOptions = {
+      fields: options.fields,
+      limit: options.limit,
+      page: options.page,
+      created_at_max: options.created_at_max,
+      created_at_min: options.created_at_min,
+      published_at_max: options.published_at_max,
+      published_at_min: options.published_at_min,
     }
 
-    // Convert limit to ES limit
-    if (options.limit) {
-      size = options.limit || 250;
-      if (size > 250 || size <= 0) {
-        size = 250
-      }
-    }
-
-    const body = {_source, size, query};
+    const body = {query};
     
-    return super.listFromSearch(user, body);
+    return super.listFromSearch(user, body, basicOptions);
   }
 
   /**
