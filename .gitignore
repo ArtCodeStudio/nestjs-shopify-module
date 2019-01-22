@@ -1,6 +1,9 @@
 ormconfig.json
 node_modules/
 package-lock.json
-src/config.service.ts
 dist/
 .vscode/
+
+# Configs
+src/config.service.ts
+test/config.*.ts 

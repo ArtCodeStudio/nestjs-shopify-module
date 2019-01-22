@@ -11,7 +11,7 @@ import {
   Delete,
   HttpStatus,
   Header,
-  Body
+  Body,
 } from '@nestjs/common';
 
 import { ProductsService } from './products.service';
@@ -34,16 +34,16 @@ import { ProductUpdateCreate } from 'shopify-prime/models';
 @Controller('shopify/api/products')
 export class ProductsController {
   constructor(
-    protected readonly productsService: ProductsService
-  ) {};
+    protected readonly productsService: ProductsService,
+  ) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   /**
    * Retrieves a list of products directly from shopify.
-   * @param req 
-   * @param res 
-   * @param options 
-   * 
+   * @param req
+   * @param res
+   * @param options
+   *
    * @see https://help.shopify.com/en/api/reference/products/product#index
    */
   @UseGuards(ShopifyApiGuard)
@@ -95,7 +95,7 @@ export class ProductsController {
       updated_at_max,
       updated_at_min,
       vendor,
-    }
+    };
     this.logger.debug('[listFromShopify] ShopifySyncProductListOptions', options);
     return this.productsService.listFromShopify(req.shopifyConnect, options)
     .then((products) => {
@@ -111,10 +111,10 @@ export class ProductsController {
 
   /**
    * Retrieves a list of products from mongodb.
-   * @param req 
-   * @param res 
-   * @param options 
-   * 
+   * @param req
+   * @param res
+   * @param options
+   *
    * @see https://help.shopify.com/en/api/reference/products/product#index
    */
   @UseGuards(ShopifyApiGuard)
@@ -123,7 +123,7 @@ export class ProductsController {
   async listFromDb(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.productsService.listFromDb(req.shopifyConnect));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
       res.status(statusCode).jsonp(error);
@@ -135,10 +135,10 @@ export class ProductsController {
 
   /**
    * Retrieves a list of products from elasticsearch.
-   * @param req 
-   * @param res 
-   * @param options 
-   * 
+   * @param req
+   * @param res
+   * @param options
+   *
    * @see https://help.shopify.com/en/api/reference/products/product#index
    */
   @UseGuards(ShopifyApiGuard)
@@ -186,7 +186,7 @@ export class ProductsController {
       updated_at_max,
       updated_at_min,
       vendor,
-    }
+    };
     return this.productsService.listFromSearch(req.shopifyConnect, options)
     .then((products) => {
       return res.jsonp(products);
@@ -200,10 +200,10 @@ export class ProductsController {
 
   /**
    * Retrieves all products as a stream directly from shopify.
-   * @param req 
-   * @param res 
-   * @param options 
-   * 
+   * @param req
+   * @param res
+   * @param options
+   *
    * @see https://help.shopify.com/en/api/reference/products/product#count
    */
   @UseGuards(ShopifyApiGuard)
@@ -260,10 +260,10 @@ export class ProductsController {
 
   /**
    * Retrieves a count of products from mongodb.
-   * @param req 
-   * @param res 
-   * @param options 
-   * 
+   * @param req
+   * @param res
+   * @param options
+   *
    * @see https://help.shopify.com/en/api/reference/products/product#count
    */
   @UseGuards(ShopifyApiGuard)
@@ -299,7 +299,7 @@ export class ProductsController {
         updated_at_min,
         vendor,
       }));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
       return res.status(statusCode).jsonp(error);
@@ -308,9 +308,9 @@ export class ProductsController {
 
   /**
    * Retrieves a count of products directly from shopify.
-   * @param req 
-   * @param res 
-   * @param options 
+   * @param req
+   * @param res
+   * @param options
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
@@ -340,13 +340,13 @@ export class ProductsController {
       updated_at_max,
       updated_at_min,
       vendor,
-    }
+    };
     try {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
       }
       return res.jsonp(await this.productsService.countFromShopify(req.shopifyConnect, options));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
       return res.status(statusCode).jsonp(error);
@@ -355,19 +355,19 @@ export class ProductsController {
 
   /**
    * Helper route to check the sync
-   * @param req 
-   * @param res 
+   * @param req
+   * @param res
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('synced/diff')
   async diffSynced(
     @Req() req: IUserRequest,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     try {
       return res.jsonp(await this.productsService.diffSynced(req.shopifyConnect));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
       return res.status(statusCode).jsonp(error);
@@ -376,10 +376,10 @@ export class ProductsController {
 
   /**
    * Updates a product and its variants and images directly from shopify.
-   * @param req 
-   * @param res 
-   * @param id 
-   * @param product 
+   * @param req
+   * @param res
+   * @param id
+   * @param product
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -393,7 +393,7 @@ export class ProductsController {
     this.logger.debug('update product', id, product);
     try {
       return res.jsonp(await this.productsService.updateInShopify(req.shopifyConnect, id, product));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
       return res.status(statusCode).jsonp(error);
@@ -402,10 +402,10 @@ export class ProductsController {
 
   /**
    * Creates a new product directly from shopify.
-   * @param req 
-   * @param res 
-   * @param id 
-   * @param product 
+   * @param req
+   * @param res
+   * @param id
+   * @param product
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -425,7 +425,7 @@ export class ProductsController {
         const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
         return res.status(statusCode).jsonp(error);
       });
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -435,8 +435,8 @@ export class ProductsController {
 
   /**
    * Get sync progress
-   * @param req 
-   * @param res 
+   * @param req
+   * @param res
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -444,7 +444,7 @@ export class ProductsController {
   async listSyncProgress(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.productsService.listSyncProgress(req.shopifyConnect));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
         message: error.message,
@@ -454,8 +454,8 @@ export class ProductsController {
 
   /**
    * Get sync progress
-   * @param req 
-   * @param res 
+   * @param req
+   * @param res
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
@@ -463,7 +463,7 @@ export class ProductsController {
   async getLastSyncProgress(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.productsService.getLastSyncProgress(req.shopifyConnect));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
       return res.status(statusCode).jsonp(error);
@@ -472,8 +472,8 @@ export class ProductsController {
 
   /**
    * Deletes a product with the given id directly in shopify.
-   * @param req 
-   * @param res 
+   * @param req
+   * @param res
    * @param id Id of the product being deleted.
    */
   @UseGuards(ShopifyApiGuard)
@@ -486,7 +486,7 @@ export class ProductsController {
   ) {
     try {
       return res.jsonp(await this.productsService.deleteInShopify(req.shopifyConnect, id));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
       return res.status(statusCode).jsonp(error);
@@ -532,11 +532,11 @@ export class ProductsController {
     @Query('fields') fields?: string,
   ) {
     const options: IShopifySyncProductGetOptions = {
-      fields
-    }
+      fields,
+    };
     try {
       return res.jsonp(await this.productsService.getFromShopify(req.shopifyConnect, id, options));
-    } catch(error) {
+    } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
       return res.status(statusCode).jsonp(error);

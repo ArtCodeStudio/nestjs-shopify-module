@@ -11,7 +11,8 @@
     "link": "npm link && npm install && npm link shopify-prime && cd node_modules/shopify-prime && npm install",
     "test": "jest --config=jest.json",
     "test:watch": "jest --watch --config=jest.json",
-    "test:coverage": "jest --config=jest.json --coverage --coverageDirectory=coverage"
+    "test:coverage": "jest --config=jest.json --coverage --coverageDirectory=coverage",
+    "test:product": "jest --config=jest.json -t 'ProductsService'"
   },
   "dependencies": {
     "@nestjs/passport": "^5.1.0",
