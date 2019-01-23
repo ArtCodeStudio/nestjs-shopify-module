@@ -1,6 +1,6 @@
 // Third party
 import { BulkWriteOpResultObject } from 'mongodb';
-import { Model, Document } from 'mongoose';
+import { Model, Document, Mongoose, Query as MongooseQuery} from 'mongoose';
 import { Infrastructure, Options } from 'shopify-prime';
 import {
   SearchResponse as ESSearchResponse,
@@ -14,7 +14,10 @@ import {
 
 import { IShopifyConnect } from '../auth/interfaces';
 import { ShopifyModuleOptions } from '../interfaces';
-import { IESResponseError } from './interfaces';
+import {
+  IESResponseError,
+  IAppBasicListOptions,
+} from './interfaces';
 import { DebugService } from '../debug.service';
 import { EventService } from '../event.service';
 import { ElasticsearchService } from '../elasticsearch.service';
@@ -89,15 +92,28 @@ export abstract class ShopifyApiBaseService<
    * @param id
    */
   protected async _searchInEs(user: IShopifyConnect, body: ESGenericParams['body']) {
+
+    // If query is empty match all
+    if (Object.keys(body.query).length === 0) {
+      body.query = {
+        match_all: {},
+      };
+    }
+
     return this.esService.client.search({
       index: this.esService.getIndex(user.shop.myshopify_domain, this.resourceName),
       body,
+    })
+    .catch((error: IESResponseError) => {
+      if (typeof(error.body) === 'string' && error.response.charAt(0) === '{') {
+        error.body = JSON.parse(error.body);
+      }
+      if (typeof(error.response) === 'string' && error.response.charAt(0) === '{') {
+        error.response = JSON.parse(error.response);
+      }
+      this.logger.error(error);
+      throw error;
     });
-    // .catch((error: IESResponseError) => {
-    //   error.body = JSON.parse(error.body);
-    //   error.response = JSON.parse(error.response);
-    //   throw error;
-    // })
   }
 
   /**
@@ -156,11 +172,69 @@ export abstract class ShopifyApiBaseService<
   }
 
   /**
+   * Set default list options like limit, sort, page, etc
+   * @param basicOptions
+   */
+  protected setDefaultAppListOptions(basicOptions: IAppBasicListOptions) {
+    basicOptions.page = Math.max(0, basicOptions.page);
+
+    if (!basicOptions.limit || basicOptions.limit > 250 || basicOptions.limit <= 0) {
+      basicOptions.limit = 50;
+    }
+
+    if (!basicOptions.sortBy) {
+      basicOptions.sortBy = 'created_at';
+    }
+
+    // Ascending Order or Descending Order
+    if (!basicOptions.sortDir) {
+      basicOptions.sortDir = 'asc';
+    }
+
+    return basicOptions;
+  }
+
+  /**
    * Retrieves a list of `ShopifyObjectType` from the app's mongodb database.
    * @param user
    */
-  public async listFromDb(user: IShopifyConnect, conditions = {}): Promise<ShopifyObjectType[]> {
-    return this.dbModel(user.shop.myshopify_domain).find(conditions).select('-_id -__v').lean();
+  protected _listFromDb(
+    user: IShopifyConnect,
+    conditions: any = {},
+    ): MongooseQuery<ShopifyObjectType[]> {
+      return this.dbModel(user.shop.myshopify_domain)
+      .find(conditions)
+      .select('-_id -__v') // Removes :id and __v properties from result
+      .lean(); // Just return the result data without mongoose methods like `.save()`
+    }
+
+  /**
+   * Retrieves a list of `ShopifyObjectType` from the app's mongodb database.
+   * @param user
+   */
+  public async listFromDb(
+    user: IShopifyConnect,
+    conditions: any = {},
+    basicOptions: IAppBasicListOptions,
+    ): Promise<ShopifyObjectType[]> {
+
+    basicOptions = this.setDefaultAppListOptions(basicOptions);
+
+    let skip = 0;
+    const sort = {};
+    sort[basicOptions.sortBy] = basicOptions.sortDir;
+
+    if (basicOptions.page) {
+      skip = basicOptions.page * basicOptions.limit;
+    }
+
+    return this._listFromDb(user, conditions)
+    .find(conditions)
+    .sort(sort)
+    .limit(basicOptions.limit)
+    .skip(skip)
+    .select('-_id -__v') // Removes :id and __v properties from result
+    .lean(); // Just return the result data without mongoose methods like `.save()`
   }
 
   /**
@@ -171,11 +245,19 @@ export abstract class ShopifyApiBaseService<
   public async listFromSearch(
     user: IShopifyConnect,
     body: ESGenericParams['body'] = {query: {match_all: {}}},
-    basicOptions: Options.FieldOptions & Options.BasicListOptions & Options.DateOptions & Options.PublishedOptions,
+    basicOptions: IAppBasicListOptions,
   ): Promise<ShopifyObjectType[]> {
+
+    basicOptions = this.setDefaultAppListOptions(basicOptions);
 
     // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
     let _source: boolean | string[] = true;
+
+    // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
+    const sortList = [];
+    const sort = {};
+    sort[basicOptions.sortBy] = basicOptions.sortDir;
+    sortList.push(sort);
 
     // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-from-size.html
     let size = 250;
@@ -188,10 +270,7 @@ export abstract class ShopifyApiBaseService<
 
     // Convert limit to ES limit
     if (basicOptions.limit) {
-      size = basicOptions.limit || 250;
-      if (size > 250 || size <= 0) {
-        size = 250;
-      }
+      size = basicOptions.limit;
     }
 
     if (basicOptions.page) {
@@ -215,6 +294,7 @@ export abstract class ShopifyApiBaseService<
     body._source = _source;
     body.size = size;
     body.from = from;
+    body.sort = sortList;
 
     if (Object.keys(range).length) {
       body.query.rage = range;

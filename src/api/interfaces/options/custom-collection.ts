@@ -1,5 +1,5 @@
 import { Options } from 'shopify-prime';
-import { ISyncOptions } from './sync'
+import { ISyncOptions } from './sync';
 
 export interface IShopifySyncCustomCollectionListOptions extends Options.CollectionListOptions, ISyncOptions {}
 export interface IShopifySyncCustomCollectionGetOptions extends Options.CollectionGetOptions, ISyncOptions {}

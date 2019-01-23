@@ -12,6 +12,7 @@ import { Model } from 'mongoose';
 import {
   ProductDocument,
   IListAllCallbackData,
+  IAppBasicListOptions,
   IShopifySyncProductCountOptions,
   IShopifySyncProductGetOptions,
   IShopifySyncProductListOptions,
@@ -52,8 +53,23 @@ ProductDocument // DatabaseDocumentType
    * Retrieves a list of products from the app's mongodb database.
    * @param user
    */
-  public async listFromDb(user: IShopifyConnect, conditions = {}): Promise<Product[]> {
-    return super.listFromDb(user, conditions);
+  public async listFromDb(user: IShopifyConnect, options: IAppProductListOptions): Promise<Product[]> {
+
+    const query = {};
+
+    const basicOptions: IAppBasicListOptions = {
+      sortBy: options.sortBy,
+      sortDir: options.sortDir,
+      fields: options.fields,
+      limit: options.limit,
+      page: options.page,
+      created_at_max: options.created_at_max,
+      created_at_min: options.created_at_min,
+      published_at_max: options.published_at_max,
+      published_at_min: options.published_at_min,
+    };
+
+    return super.listFromDb(user, query, basicOptions);
   }
 
   /**
@@ -64,9 +80,13 @@ ProductDocument // DatabaseDocumentType
    */
   public async listFromSearch(user: IShopifyConnect, options: IAppProductListOptions): Promise<Product[]> {
 
-    const query = {};
+    const body = {
+      query: {},
+    };
 
-    const basicOptions: Options.FieldOptions & Options.BasicListOptions & Options.DateOptions & Options.PublishedOptions = {
+    const basicOptions: IAppBasicListOptions = {
+      sortBy: options.sortBy,
+      sortDir: options.sortDir,
       fields: options.fields,
       limit: options.limit,
       page: options.page,
@@ -75,8 +95,6 @@ ProductDocument // DatabaseDocumentType
       published_at_max: options.published_at_max,
       published_at_min: options.published_at_min,
     };
-
-    const body = {query};
 
     return super.listFromSearch(user, body, basicOptions);
   }

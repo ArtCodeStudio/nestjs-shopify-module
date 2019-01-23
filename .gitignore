@@ -6,4 +6,4 @@ dist/
 
 # Configs
 src/config.service.ts
-test/config.*.ts 
+test/config.test.ts 

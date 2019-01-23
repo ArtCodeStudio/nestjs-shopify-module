@@ -1,3 +1,5 @@
+/* tslint:disable:no-console */
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsService } from './products.service';
 import { ShopifyConnectService } from '../../auth/connect.service';
@@ -13,8 +15,10 @@ describe('ProductsService', () => {
   let module: TestingModule;
   let shopifyConnectService: ShopifyConnectService;
   let user: IShopifyConnect;
+  let countFromShopify: number;
+  let pagesForLimit2: number;
 
-  beforeAll(async () => {
+  beforeAll(async (done) => {
     module = await Test.createTestingModule({
       imports: [ShopifyModule.forRoot(config, await mongooseConnectionPromise, passport)],
     }).compile();
@@ -22,7 +26,12 @@ describe('ProductsService', () => {
     service = module.get<ProductsService>(ProductsService);
     shopifyConnectService = module.get<ShopifyConnectService>(ShopifyConnectService);
 
-    user = await shopifyConnectService.findByDomain('jewelberry-dev.myshopify.com')
+    user = await shopifyConnectService.findByDomain('jewelberry-dev.myshopify.com');
+
+    countFromShopify = await service.countFromShopify(user, {});
+    pagesForLimit2 = Math.ceil((countFromShopify / 2));
+
+    done();
   });
 
   it('should be defined', () => {
@@ -39,20 +48,120 @@ describe('ProductsService', () => {
     it('should be defined', () => {
       expect(service.countFromShopify).toBeDefined();
     });
-  });
-
-  describe('compare list methods', async () => {
-    let countFromShopify: number;
-    let listFromShopify: Partial<Models.Product>[] = [];
-
-    it('count should be a number', async () => {
-      countFromShopify = await service.countFromShopify(user, {});
+    it('result should be a number', async () => {
       expect(typeof(countFromShopify)).toBe('number');
     });
+  });
 
-    it('shopifyListResult should have the same length like count', async () => {
-      listFromShopify = await service.listFromShopify(user, {});
-      expect(listFromShopify.length).toBe(countFromShopify);
+  describe('listFromShopify', async () => {
+
+    it('should have the default limit of 50', async () => {
+      const listFromShopify = await service.listFromShopify(user, {});
+      const listFromDb = await service.listFromDb(user, {});
+      if (countFromShopify >= 50) {
+        expect(listFromShopify.length).toBe(50);
+      } else {
+        expect(listFromShopify.length).toBe(countFromShopify);
+      }
+    });
+
+    it('list result should have a length of 2 on limit with 2', async () => {
+      const _listFromShopify = await service.listFromShopify(user, {limit: 2});
+      if (countFromShopify >= 2) {
+        expect(_listFromShopify.length).toBe(2);
+      } else {
+        expect(_listFromShopify.length).toBe(countFromShopify);
+      }
+    });
+
+    it(`The last page result should be not empty`, async () => {
+      console.debug(`{limit: 2, page: ${pagesForLimit2}}`);
+      const _listFromShopify2 = await service.listFromShopify(user, {limit: 2, page: pagesForLimit2});
+      expect(_listFromShopify2.length).toBeGreaterThan(0);
+    });
+
+    it(`The last page + 1 result should be not existing`, async () => {
+      console.debug(`{limit: 2, page: ${pagesForLimit2 + 1}}`);
+      const _listFromShopify2 = await service.listFromShopify(user, {limit: 2, page: pagesForLimit2 + 1});
+      expect(_listFromShopify2.length).toBe(0);
+    });
+
+  });
+
+  describe('listFromDb', async () => {
+    it('listFromShopify and listFromDb list results should have the same length', async () => {
+      const listFromShopify = await service.listFromShopify(user, {});
+      const listFromDb = await service.listFromDb(user, {});
+      expect(listFromShopify.length).toBe(listFromDb.length);
+    });
+
+    it('should have the default limit of 50', async () => {
+      const listFromDb = await service.listFromDb(user, {});
+      if (countFromShopify >= 50) {
+        expect(listFromDb.length).toBe(50);
+      } else {
+        expect(listFromDb.length).toBe(countFromShopify);
+      }
+    });
+
+    it('listFromDb({limit: 2}) list result should have a length of 2', async () => {
+      const _listFromDb = await service.listFromDb(user, {limit: 2});
+      if (countFromShopify >= 2) {
+        expect(_listFromDb.length).toBe(2);
+      } else {
+        expect(_listFromDb.length).toBe(countFromShopify);
+      }
+    });
+
+    it(`The last page should be not empty`,
+    async () => {
+      const _listFromDb = await service.listFromDb(user, {limit: 2, page: pagesForLimit2});
+      expect(_listFromDb.length).toBeGreaterThan(0);
+    });
+
+    it(`The last page + 1 should be not existing`, async () => {
+      const _listFromDb2 = await service.listFromDb(user, {limit: 2, page: pagesForLimit2 + 1});
+      expect(_listFromDb2.length).toBe(0);
+    });
+
+  });
+
+  describe('listFromSearch', async () => {
+
+    it('listFromShopify and listFromSearch list results should have the same length', async () => {
+      const listFromShopify = await service.listFromShopify(user, {});
+      const listFromSearch = await service.listFromSearch(user, {});
+      expect(listFromShopify.length).toBe(listFromSearch.length);
+    });
+
+    it('should have the default limit of 50', async () => {
+      const listFromSearch = await service.listFromSearch(user, {});
+      if (countFromShopify >= 50) {
+        expect(listFromSearch.length).toBe(50);
+      } else {
+        expect(listFromSearch.length).toBe(countFromShopify);
+      }
+    });
+
+    it('List result should have a length of 2 on limit 2', async () => {
+      const _listFromSearch = await service.listFromSearch(user, {limit: 2});
+      if (countFromShopify >= 2) {
+        expect(_listFromSearch.length).toBe(2);
+      } else {
+        expect(_listFromSearch.length).toBe(countFromShopify);
+      }
+    });
+
+    it(`The last page should be existing`, async () => {
+      console.debug(`{limit: 2, page: ${pagesForLimit2}}`);
+      const _listFromShopify = await service.listFromShopify(user, {limit: 2, page: pagesForLimit2});
+      expect(_listFromShopify.length).toBeGreaterThan(0);
+    });
+
+    it(`The last page + 1 should be not existing`, async () => {
+      console.debug(`{limit: 2, page: ${pagesForLimit2 + 1}}`);
+      const _listFromSearch2 = await service.listFromSearch(user, {limit: 2, page: pagesForLimit2 + 1});
+      expect(_listFromSearch2.length).toBe(0);
     });
   });
 });
