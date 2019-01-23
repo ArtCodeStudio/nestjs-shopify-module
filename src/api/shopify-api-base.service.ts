@@ -178,7 +178,7 @@ export abstract class ShopifyApiBaseService<
    */
   protected setDefaultAppListOptions(basicOptions: IAppBasicListOptions) {
 
-    basicOptions.page = Math.max(0, Number(basicOptions.page));
+    basicOptions.page = Math.max(1, Number(basicOptions.page));
 
     basicOptions.limit = Math.max(0, Number(basicOptions.limit));
 
@@ -215,7 +215,7 @@ export abstract class ShopifyApiBaseService<
     sort[basicOptions.sortBy] = basicOptions.sortDir;
 
     if (basicOptions.page) {
-      skip = basicOptions.page * basicOptions.limit;
+      skip = (basicOptions.page - 1 /* Shopify page starts on 1 and not 0 */) * basicOptions.limit;
     }
 
     if (basicOptions.created_at_max) {
@@ -274,7 +274,7 @@ export abstract class ShopifyApiBaseService<
     }
 
     if (basicOptions.page) {
-      from = basicOptions.page * size;
+      from = (basicOptions.page - 1 /* Shopify page starts on 1 and not 0 */) * size;
     }
 
     const range: any = {};
