@@ -125,10 +125,10 @@ export class SmartCollectionsController {
    */
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get('synced')
+  @Get('db')
   async listFromDb(@Req() req: IUserRequest, @Res() res: Response) {
     try {
-      return res.jsonp(await this.smartCollectionsService.listFromDb(req.shopifyConnect));
+      return res.jsonp(await this.smartCollectionsService.listFromDb(req.shopifyConnect, {}, {}));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -153,7 +153,7 @@ export class SmartCollectionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get('synced/count')
+  @Get('db/count')
   async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncSmartCollectionCountOptions) {
     try {
       return res.jsonp(await this.smartCollectionsService.countFromDb(req.shopifyConnect, options));
@@ -167,7 +167,7 @@ export class SmartCollectionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get('synced/diff')
+  @Get('db/diff')
   async diffSynced(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.smartCollectionsService.diffSynced(req.shopifyConnect));
@@ -241,7 +241,7 @@ export class SmartCollectionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get(':id/synced')
+  @Get(':id/db')
   async getFromDb(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
     try {
       return res.jsonp(await this.smartCollectionsService.getFromDb(req.shopifyConnect, id));

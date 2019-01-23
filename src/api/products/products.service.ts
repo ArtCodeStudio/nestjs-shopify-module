@@ -53,9 +53,19 @@ ProductDocument // DatabaseDocumentType
    * Retrieves a list of products from the app's mongodb database.
    * @param user
    */
-  public async listFromDb(user: IShopifyConnect, options: IAppProductListOptions): Promise<Product[]> {
+  public async listFromDb(user: IShopifyConnect, options: IAppProductListOptions = {}): Promise<Product[]> {
 
-    const query = {};
+    const query: any = {};
+
+    if (options.price_max) {
+      query.price = query.price || {};
+      query.price.$lte = options.price_max;
+    }
+
+    if (options.price_min) {
+      query.price = query.price || {};
+      query.price.$gte = options.price_min;
+    }
 
     const basicOptions: IAppBasicListOptions = {
       sortBy: options.sortBy,
@@ -78,7 +88,7 @@ ProductDocument // DatabaseDocumentType
    * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
    * and https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
    */
-  public async listFromSearch(user: IShopifyConnect, options: IAppProductListOptions): Promise<Product[]> {
+  public async listFromSearch(user: IShopifyConnect, options: IAppProductListOptions = {}): Promise<Product[]> {
 
     const body = {
       query: {},

@@ -34,6 +34,18 @@ describe('ProductsService', () => {
     done();
   });
 
+  describe('listAllFromShopify', () => {
+    // Set longer jest timeout for sync
+    jest.setTimeout(30000);
+    it('should be run without error', async () => {
+      await service.listAllFromShopify(user, { syncToDb: true, syncToSearch: true}, (error, data) => {
+        console.debug(`listAllFromShopify page callback: ${data.page}/${data.pages}`);
+        expect(error).toBe(null);
+        expect(data.data.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
@@ -123,7 +135,6 @@ describe('ProductsService', () => {
       const _listFromDb2 = await service.listFromDb(user, {limit: 2, page: pagesForLimit2 + 1});
       expect(_listFromDb2.length).toBe(0);
     });
-
   });
 
   describe('listFromSearch', async () => {
@@ -162,6 +173,20 @@ describe('ProductsService', () => {
       console.debug(`{limit: 2, page: ${pagesForLimit2 + 1}}`);
       const _listFromSearch2 = await service.listFromSearch(user, {limit: 2, page: pagesForLimit2 + 1});
       expect(_listFromSearch2.length).toBe(0);
+    });
+  });
+
+  describe('countFromDb', async () => {
+    it(`Should be equal to count from shopify`, async () => {
+      const _countFromDb = await service.countFromDb(user);
+      expect(_countFromDb).toBe(countFromShopify);
+    });
+  });
+
+  describe('countFromSearch', async () => {
+    it(`Should be equal to count from shopify`, async () => {
+      const _countFromSearch = await service.countFromSearch(user);
+      expect(_countFromSearch).toBe(countFromShopify);
     });
   });
 });

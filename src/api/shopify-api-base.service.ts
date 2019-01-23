@@ -143,7 +143,9 @@ export abstract class ShopifyApiBaseService<
    * @param options
    */
   async countFromDb(user: IShopifyConnect, conditions = {}): Promise<number> {
-    return this.dbModel(user.shop.myshopify_domain).count(conditions);
+    return this.dbModel(user.shop.myshopify_domain)
+    .find(conditions)
+    .countDocuments(conditions);
   }
 
   /**
@@ -152,7 +154,6 @@ export abstract class ShopifyApiBaseService<
    * @param options
    */
   protected async _countFromEs(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {match_all: {}}}): Promise<ESCountResponse> {
-    const shopName = user.shop.myshopify_domain.replace('.myshopify.com', '');
     return this.esService.client.count({
       index: this.esService.getIndex(user.shop.myshopify_domain, this.resourceName),
       body,
@@ -164,7 +165,7 @@ export abstract class ShopifyApiBaseService<
    * @param user
    * @param options
    */
-  public async countFromEs(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {match_all: {}}}): Promise<number> {
+  public async countFromSearch(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {match_all: {}}}): Promise<number> {
     return this._countFromEs(user, body)
     .then((coutResult) => {
       return coutResult.count;
@@ -176,7 +177,10 @@ export abstract class ShopifyApiBaseService<
    * @param basicOptions
    */
   protected setDefaultAppListOptions(basicOptions: IAppBasicListOptions) {
-    basicOptions.page = Math.max(0, basicOptions.page);
+
+    basicOptions.page = Math.max(0, Number(basicOptions.page));
+
+    basicOptions.limit = Math.max(0, Number(basicOptions.limit));
 
     if (!basicOptions.limit || basicOptions.limit > 250 || basicOptions.limit <= 0) {
       basicOptions.limit = 50;
@@ -198,24 +202,10 @@ export abstract class ShopifyApiBaseService<
    * Retrieves a list of `ShopifyObjectType` from the app's mongodb database.
    * @param user
    */
-  protected _listFromDb(
-    user: IShopifyConnect,
-    conditions: any = {},
-    ): MongooseQuery<ShopifyObjectType[]> {
-      return this.dbModel(user.shop.myshopify_domain)
-      .find(conditions)
-      .select('-_id -__v') // Removes :id and __v properties from result
-      .lean(); // Just return the result data without mongoose methods like `.save()`
-    }
-
-  /**
-   * Retrieves a list of `ShopifyObjectType` from the app's mongodb database.
-   * @param user
-   */
   public async listFromDb(
     user: IShopifyConnect,
     conditions: any = {},
-    basicOptions: IAppBasicListOptions,
+    basicOptions: IAppBasicListOptions = {},
     ): Promise<ShopifyObjectType[]> {
 
     basicOptions = this.setDefaultAppListOptions(basicOptions);
@@ -228,12 +218,22 @@ export abstract class ShopifyApiBaseService<
       skip = basicOptions.page * basicOptions.limit;
     }
 
-    return this._listFromDb(user, conditions)
+    if (basicOptions.created_at_max) {
+      conditions.created_at = conditions.created_at || {};
+      conditions.created_at.$lte = basicOptions.created_at_max;
+    }
+
+    if (basicOptions.created_at_min) {
+      conditions.created_at = conditions.created_at || {};
+      conditions.created_at.$gte = basicOptions.created_at_min;
+    }
+
+    return this.dbModel(user.shop.myshopify_domain)
     .find(conditions)
+    .select('-_id -__v') // Removes :id and __v properties from result
     .sort(sort)
     .limit(basicOptions.limit)
     .skip(skip)
-    .select('-_id -__v') // Removes :id and __v properties from result
     .lean(); // Just return the result data without mongoose methods like `.save()`
   }
 
@@ -447,7 +447,7 @@ export abstract class ShopifyApiBaseService<
     user: IShopifyConnect,
     selectBy: string = 'id',
     objects: ShopifyObjectType[],
-    inDb: boolean =  true,
+    inDb: boolean = false,
     inSearch: boolean = false,
   ): Promise<BulkWriteOpResultObject | {}> {
     this.logger.debug(`[updateOrCreateManyInApp:${this.resourceName}] start inDb: ${inDb} inSearch: ${inSearch} objects.length: ${objects.length}`);

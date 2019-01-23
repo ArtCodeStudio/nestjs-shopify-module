@@ -12,6 +12,9 @@ export interface IShopifySyncProductCountOptions extends Options.ProductCountOpt
 /**
  * Product options to get a list of products from the app
  */
-export interface IAppProductListOptions extends Options.ProductListOptions, IAppListSortOptions {}
+export interface IAppProductListOptions extends Options.ProductListOptions, IAppListSortOptions {
+  price_max?: number;
+  price_min?: number;
+}
 export interface IAppProductGetOptions extends Options.ProductGetOptions {}
 export interface IAppProductCountOptions extends Options.ProductCountOptions {}

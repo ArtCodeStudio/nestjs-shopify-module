@@ -110,10 +110,10 @@ export class CustomCollectionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get('synced')
+  @Get('db')
   async listFromDb(@Req() req: IUserRequest, @Res() res: Response) {
     try {
-      return res.jsonp(await this.customCollectionsService.listFromDb(req.shopifyConnect));
+      return res.jsonp(await this.customCollectionsService.listFromDb(req.shopifyConnect, {}, {}));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -132,7 +132,7 @@ export class CustomCollectionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get('synced/count')
+  @Get('db/count')
   async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncCustomCollectionCountOptions) {
     try {
       return res.jsonp(await this.customCollectionsService.countFromDb(req.shopifyConnect, options));
@@ -146,7 +146,7 @@ export class CustomCollectionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get('synced/diff')
+  @Get('db/diff')
   async diffSynced(@Req() req: IUserRequest, @Res() res: Response) {
     try {
       return res.jsonp(await this.customCollectionsService.diffSynced(req.shopifyConnect));
@@ -214,7 +214,7 @@ export class CustomCollectionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get(':id/synced')
+  @Get(':id/db')
   async getFromDb(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
     try {
       return res.jsonp(await this.customCollectionsService.getFromDb(req.shopifyConnect, id));
