@@ -123,6 +123,9 @@ export class ProductsController {
   async listFromDb(
     @Req() req: IUserRequest,
     @Res() res: Response,
+    /*
+     * Options from shopify
+     */
     @Query('collection_id') collection_id?: string,
     @Query('created_at_max') created_at_max?: string,
     @Query('created_at_min') created_at_min?: string,
@@ -132,19 +135,29 @@ export class ProductsController {
     @Query('limit') limit?: number,
     @Query('product_type') product_type?: string,
     @Query('published_at_max') published_at_max?: string,
-    @Query('published_at_min') published_at_min?: string | undefined,
+    @Query('published_at_min') published_at_min?: string,
     @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
     @Query('since_id') since_id?: number,
     @Query('title') title?: string,
     @Query('updated_at_max') updated_at_max?: string,
     @Query('updated_at_min') updated_at_min?: string,
     @Query('vendor') vendor?: string,
+    /*
+     * Custom app options
+     */
+    @Query('price_max') price_max?: number,
+    @Query('price_min') price_min?: number,
+    @Query('sort_by') sort_by?: string,
+    @Query('sort_dir') sort_dir?: 'asc' | 'desc',
   ) {
     try {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
       }
       const options: IAppProductListOptions = {
+        /*
+         * Options from shopify
+         */
         collection_id,
         created_at_max,
         created_at_min,
@@ -161,6 +174,13 @@ export class ProductsController {
         updated_at_max,
         updated_at_min,
         vendor,
+        /*
+         * Custom app options
+         */
+        price_max,
+        price_min,
+        sort_by,
+        sort_dir,
       };
       return res.jsonp(await this.productsService.listFromDb(req.shopifyConnect, options));
     } catch (error) {
@@ -187,6 +207,9 @@ export class ProductsController {
   async listFromSearch(
     @Req() req: IUserRequest,
     @Res() res: Response,
+    /*
+     * Options from shopify
+     */
     @Query('collection_id') collection_id?: string,
     @Query('created_at_max') created_at_max?: string,
     @Query('created_at_min') created_at_min?: string,
@@ -196,18 +219,28 @@ export class ProductsController {
     @Query('limit') limit?: number,
     @Query('product_type') product_type?: string,
     @Query('published_at_max') published_at_max?: string,
-    @Query('published_at_min') published_at_min?: string | undefined,
+    @Query('published_at_min') published_at_min?: string,
     @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
     @Query('since_id') since_id?: number,
     @Query('title') title?: string,
     @Query('updated_at_max') updated_at_max?: string,
     @Query('updated_at_min') updated_at_min?: string,
     @Query('vendor') vendor?: string,
+    /*
+     * Custom app options
+     */
+    @Query('price_max') price_max?: number,
+    @Query('price_min') price_min?: number,
+    @Query('sort_by') sort_by?: string,
+    @Query('sort_dir') sort_dir?: 'asc' | 'desc',
   ) {
     if (req.session.isThemeClientRequest) {
       published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
     }
     const options: IAppProductListOptions = {
+      /*
+       * Options from shopify
+       */
       collection_id,
       created_at_max,
       created_at_min,
@@ -224,6 +257,13 @@ export class ProductsController {
       updated_at_max,
       updated_at_min,
       vendor,
+      /*
+       * Custom app options
+       */
+      price_max,
+      price_min,
+      sort_by,
+      sort_dir,
     };
     return this.productsService.listFromSearch(req.shopifyConnect, options)
     .then((products) => {
@@ -251,24 +291,27 @@ export class ProductsController {
   listAllFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Query('collection_id') collection_id: string | undefined,
-    @Query('created_at_max') created_at_max: string | undefined,
-    @Query('created_at_min') created_at_min: string | undefined,
-    @Query('ids') ids: string | undefined,
-    @Query('page') page: number | undefined,
-    @Query('fields') fields: string | undefined,
-    @Query('limit') limit: number | undefined,
-    @Query('product_type') product_type: string | undefined,
-    @Query('published_at_max') published_at_max: string | undefined,
-    @Query('published_at_min') published_at_min: string | undefined,
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any' | undefined,
-    @Query('since_id') since_id: number | undefined,
-    @Query('sync_to_db') sync_to_db: boolean | undefined,
-    @Query('sync_to_search') sync_to_search: boolean | undefined,
-    @Query('title') title: string | undefined,
-    @Query('updated_at_max') updated_at_max: string | undefined,
-    @Query('updated_at_min') updated_at_min: string | undefined,
-    @Query('vendor') vendor: string | undefined,
+    /*
+     * Options from shopify
+     */
+    @Query('collection_id') collection_id?: string,
+    @Query('created_at_max') created_at_max?: string,
+    @Query('created_at_min') created_at_min?: string,
+    @Query('ids') ids?: string,
+    @Query('page') page?: number,
+    @Query('fields') fields?: string,
+    @Query('limit') limit?: number,
+    @Query('product_type') product_type?: string,
+    @Query('published_at_max') published_at_max?: string,
+    @Query('published_at_min') published_at_min?: string,
+    @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
+    @Query('since_id') since_id?: number,
+    @Query('sync_to_db') sync_to_db?: boolean,
+    @Query('sync_to_search') sync_to_search?: boolean,
+    @Query('title') title?: string,
+    @Query('updated_at_max') updated_at_max?: string,
+    @Query('updated_at_min') updated_at_min?: string,
+    @Query('vendor') vendor?: string,
   ) {
     this.productsService.listAllFromShopifyStream(req.shopifyConnect, {
       collection_id,

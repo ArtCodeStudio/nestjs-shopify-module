@@ -93,6 +93,10 @@ export abstract class ShopifyApiBaseService<
    */
   protected async _searchInEs(user: IShopifyConnect, body: ESGenericParams['body']) {
 
+    if (Object.keys(body.query.range).length === 0) {
+      delete body.query.range;
+    }
+
     // If query is empty match all
     if (Object.keys(body.query).length === 0) {
       body.query = {
@@ -186,13 +190,13 @@ export abstract class ShopifyApiBaseService<
       basicOptions.limit = 50;
     }
 
-    if (!basicOptions.sortBy) {
-      basicOptions.sortBy = 'created_at';
+    if (!basicOptions.sort_by) {
+      basicOptions.sort_by = 'created_at';
     }
 
     // Ascending Order or Descending Order
-    if (!basicOptions.sortDir) {
-      basicOptions.sortDir = 'asc';
+    if (!basicOptions.sort_dir) {
+      basicOptions.sort_dir = 'asc';
     }
 
     return basicOptions;
@@ -212,20 +216,46 @@ export abstract class ShopifyApiBaseService<
 
     let skip = 0;
     const sort = {};
-    sort[basicOptions.sortBy] = basicOptions.sortDir;
+    sort[basicOptions.sort_by] = basicOptions.sort_dir;
 
     if (basicOptions.page) {
       skip = (basicOptions.page - 1 /* Shopify page starts on 1 and not 0 */) * basicOptions.limit;
     }
 
+    /*
+     * created_at min and max
+     */
     if (basicOptions.created_at_max) {
       conditions.created_at = conditions.created_at || {};
       conditions.created_at.$lte = basicOptions.created_at_max;
     }
-
     if (basicOptions.created_at_min) {
       conditions.created_at = conditions.created_at || {};
       conditions.created_at.$gte = basicOptions.created_at_min;
+    }
+
+    /*
+     * published_at min and max
+     */
+    if (basicOptions.published_at_max) {
+      conditions.published_at = conditions.published_at || {};
+      conditions.published_at.$lte = basicOptions.published_at_max;
+    }
+    if (basicOptions.published_at_min) {
+      conditions.published_at = conditions.published_at || {};
+      conditions.published_at.$gte = basicOptions.published_at_min;
+    }
+
+    /*
+     * updated_at min and max
+     */
+    if (basicOptions.updated_at_max) {
+      conditions.updated_at = conditions.updated_at || {};
+      conditions.updated_at.$lte = basicOptions.updated_at_max;
+    }
+    if (basicOptions.updated_at_min) {
+      conditions.updated_at = conditions.updated_at || {};
+      conditions.updated_at.$gte = basicOptions.updated_at_min;
     }
 
     return this.dbModel(user.shop.myshopify_domain)
@@ -256,7 +286,7 @@ export abstract class ShopifyApiBaseService<
     // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
     const sortList = [];
     const sort = {};
-    sort[basicOptions.sortBy] = basicOptions.sortDir;
+    sort[basicOptions.sort_by] = basicOptions.sort_dir;
     sortList.push(sort);
 
     // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-from-size.html
@@ -277,28 +307,53 @@ export abstract class ShopifyApiBaseService<
       from = (basicOptions.page - 1 /* Shopify page starts on 1 and not 0 */) * size;
     }
 
-    const range: any = {};
+    // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
+    body.query.range = body.query.range || {};
 
+    /*
+     * created_at min and max
+     */
     if (basicOptions.created_at_max) {
-      range.created_at_max = {
+      body.query.range.created_at = body.query.range.created_at || {};
+      body.query.range.created_at = {
         lte: basicOptions.created_at_max,
       };
     }
-
     if (basicOptions.created_at_min) {
-      range.created_at_min = {
+      body.query.range.created_at = body.query.range.created_at || {};
+      body.query.range.created_at = {
         gte: basicOptions.created_at_min,
       };
+    }
+
+    /*
+     * published_at min and max
+     */
+    if (basicOptions.published_at_max) {
+      body.query.range.published_at = body.query.range.published_at || {};
+      body.query.range.published_at.lte = basicOptions.published_at_max;
+    }
+    if (basicOptions.published_at_min) {
+      body.query.range.published_at = body.query.range.published_at || {};
+      body.query.range.published_at.gte = basicOptions.published_at_min;
+    }
+
+    /*
+     * updated_at min and max
+     */
+    if (basicOptions.updated_at_max) {
+      body.query.range.updated_at = body.query.range.updated_at || {};
+      body.query.range.updated_at.lte = basicOptions.updated_at_max;
+    }
+    if (basicOptions.updated_at_min) {
+      body.query.range.updated_at = body.query.range.updated_at || {};
+      body.query.range.updated_at.gte = basicOptions.updated_at_min;
     }
 
     body._source = _source;
     body.size = size;
     body.from = from;
     body.sort = sortList;
-
-    if (Object.keys(range).length) {
-      body.query.rage = range;
-    }
 
     this.logger.debug(`[listFromSearch:${this.resourceName}]`, user.shop.myshopify_domain);
     return this._searchInEs(user, body)

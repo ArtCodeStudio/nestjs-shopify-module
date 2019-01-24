@@ -57,19 +57,21 @@ ProductDocument // DatabaseDocumentType
 
     const query: any = {};
 
+    /*
+     * price min and max
+     */
     if (options.price_max) {
       query.price = query.price || {};
       query.price.$lte = options.price_max;
     }
-
     if (options.price_min) {
       query.price = query.price || {};
       query.price.$gte = options.price_min;
     }
 
     const basicOptions: IAppBasicListOptions = {
-      sortBy: options.sortBy,
-      sortDir: options.sortDir,
+      sort_by: options.sort_by,
+      sort_dir: options.sort_dir,
       fields: options.fields,
       limit: options.limit,
       page: options.page,
@@ -77,6 +79,9 @@ ProductDocument // DatabaseDocumentType
       created_at_min: options.created_at_min,
       published_at_max: options.published_at_max,
       published_at_min: options.published_at_min,
+      updated_at_max: options.updated_at_max,
+      updated_at_min: options.updated_at_min,
+      published_status: options.published_status,
     };
 
     return super.listFromDb(user, query, basicOptions);
@@ -91,12 +96,30 @@ ProductDocument // DatabaseDocumentType
   public async listFromSearch(user: IShopifyConnect, options: IAppProductListOptions = {}): Promise<Product[]> {
 
     const body = {
-      query: {},
+      query: {
+        range: {},
+      } as any,
     };
 
+    /*
+     * price min and max
+     */
+    if (options.price_max) {
+      body.query.range.price = body.query.range.price || {};
+      body.query.range.price = {
+        lte: options.price_max,
+      };
+    }
+    if (options.price_min) {
+       body.query.range.price =  body.query.range.price || {};
+       body.query.range.price = {
+        gte: options.price_min,
+      };
+    }
+
     const basicOptions: IAppBasicListOptions = {
-      sortBy: options.sortBy,
-      sortDir: options.sortDir,
+      sort_by: options.sort_by,
+      sort_dir: options.sort_dir,
       fields: options.fields,
       limit: options.limit,
       page: options.page,
@@ -104,6 +127,9 @@ ProductDocument // DatabaseDocumentType
       created_at_min: options.created_at_min,
       published_at_max: options.published_at_max,
       published_at_min: options.published_at_min,
+      updated_at_max: options.updated_at_max,
+      updated_at_min: options.updated_at_min,
+      published_status: options.published_status,
     };
 
     return super.listFromSearch(user, body, basicOptions);

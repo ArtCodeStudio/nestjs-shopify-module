@@ -7,11 +7,11 @@ export interface IAppListSortOptions {
   /**
    * Property to sort by
    */
-  sortBy?: string;
+  sort_by?: string;
   /**
    * Sort direction
    */
-  sortDir?: 'asc' | 'desc';
+  sort_dir?: 'asc' | 'desc';
 }
 
 /**

@@ -2,11 +2,11 @@ export interface ISyncOptions {
   /**
    * If true, sync the receive data to the internal database (MongoDB)
    */
-  syncToDb?: boolean,
+  syncToDb?: boolean;
   /**
    * If true, sync the receive data to internal search engine (Elasticsearch)
    */
-  syncToSearch?: boolean,
-  failOnSyncError?: boolean,
-  cancelSignal?: string,
+  syncToSearch?: boolean;
+  failOnSyncError?: boolean;
+  cancelSignal?: string;
 }
