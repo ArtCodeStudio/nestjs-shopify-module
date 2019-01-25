@@ -47,7 +47,16 @@ import { CustomCollectionsController } from './api/custom-collections/custom-col
 import { SearchController } from './api/search/search.controller';
 import { SearchService } from './api/search/search.service';
 import { ElasticsearchService } from './elasticsearch.service';
-export { OrdersService };
+export {
+  OrdersService,
+  ProductsService,
+  TransactionsService,
+  ThemesService,
+  AssetsService,
+  PagesService,
+  SmartCollectionsService,
+  CustomCollectionsService
+};
 export { RequestGuard } from './guards/request.guard';
 import { Model } from 'mongoose';
 

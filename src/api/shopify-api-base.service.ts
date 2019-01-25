@@ -268,6 +268,20 @@ export abstract class ShopifyApiBaseService<
   }
 
   /**
+   * returns a Mongoose query object on this data model for the specified conditions.
+   * This does not run the query yet.
+   * The query object has a versatile API to specify further options and methods to
+   * retrieve the data, through streams, callbacks, promises etc.
+   * @see https://mongoosejs.com/docs/api.html#Query
+   */
+  public findInDb(user, conditions={}): MongooseQuery<ShopifyObjectType> {
+    return this.dbModel(user.shop.myshopify_domain)
+    .find(conditions)
+    .select('-_id -__v') // Removes :id and __v properties from result
+    .lean(); // Just return the result data without mongoose methods like `.save()`
+  }
+
+  /**
    * Retrieves a list of `ShopifyObjectType` from elasticsearch.
    * @param user
    * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
