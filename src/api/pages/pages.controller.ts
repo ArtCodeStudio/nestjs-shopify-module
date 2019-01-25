@@ -81,21 +81,29 @@ export class PagesController {
   async listFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Query('created_at_max') created_at_max: string | undefined,
-    @Query('created_at_min') created_at_min: string | undefined,
-    @Query('page') page: number | undefined,
-    @Query('fields') fields: string | undefined,
-    @Query('handle') handle: string | undefined,
-    @Query('limit') limit: number | undefined,
-    @Query('published_at_max') published_at_max: string | undefined,
-    @Query('published_at_min') published_at_min: string | undefined,
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any' | undefined,
-    @Query('since_id') since_id: number | undefined,
-    @Query('sync_to_db') sync_to_db: boolean | undefined,
-    @Query('sync_to_search') sync_to_search: boolean | undefined,
-    @Query('title') title: string | undefined,
-    @Query('updated_at_max') updated_at_max: string | undefined,
-    @Query('updated_at_min') updated_at_min: string | undefined,
+    /*
+     * Options from shopify
+     */
+    @Query('created_at_max') created_at_max?: string,
+    @Query('created_at_min') created_at_min?: string,
+    @Query('page') page?: number,
+    @Query('fields') fields?: string,
+    @Query('handle') handle?: string,
+    @Query('limit') limit?: number,
+    @Query('published_at_max') published_at_max?: string,
+    @Query('published_at_min') published_at_min?: string,
+    @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
+    @Query('since_id') since_id?: number,
+    @Query('title') title?: string,
+    @Query('updated_at_max') updated_at_max?: string,
+    @Query('updated_at_min') updated_at_min?: string,
+    /**
+     * Custom sync options
+     */
+    @Query('sync_to_db') sync_to_db?: boolean,
+    @Query('sync_to_search') sync_to_search?: boolean,
+    @Query('cancel_signal') cancelSignal?: string,
+    @Query('fail_on_sync_error') failOnSyncError?: boolean,
   ) {
     try {
       if (req.session.isThemeClientRequest) {
@@ -119,6 +127,8 @@ export class PagesController {
         title,
         updated_at_max,
         updated_at_min,
+        cancelSignal,
+        failOnSyncError,
       };
 
       this.logger.debug('PageListOptions', options);

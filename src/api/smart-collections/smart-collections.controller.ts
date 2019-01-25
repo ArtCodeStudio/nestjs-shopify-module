@@ -10,6 +10,9 @@ import {
   IShopifySyncSmartCollectionListOptions,
   IShopifySyncSmartCollectionGetOptions,
   IShopifySyncSmartCollectionCountOptions,
+  IAppSmartCollectionListOptions,
+  IAppSmartCollectionGetOptions,
+  IAppSmartCollectionCountOptions,
 } from '../interfaces';
 
 import { SmartCollectionsService } from './smart-collections.service';
@@ -31,7 +34,7 @@ export class SmartCollectionsController {
   @UseGuards(ShopifyApiGuard)
   @Roles() // Empty == Allowed from shop frontend and backend
   @Get()
-  async list(
+  async listFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
     /**
@@ -126,9 +129,57 @@ export class SmartCollectionsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('db')
-  async listFromDb(@Req() req: IUserRequest, @Res() res: Response) {
+  async listFromDb(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    /*
+     * Options from shopify
+     */
+    @Query('fields') fields?: string,
+    @Query('handle') handle?: string,
+    @Query('limit') limit?: number,
+    @Query('page') page?: number,
+    @Query('product_id') product_id?: number,
+    @Query('published_at_max') published_at_max?: string,
+    @Query('published_at_min') published_at_min?: string,
+    @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
+    @Query('since_id') since_id?: number,
+    @Query('title') title?: string,
+    @Query('updated_at_max') updated_at_max?: string,
+    @Query('updated_at_min') updated_at_min?: string,
+    @Query('vendor') vendor?: string,
+    /*
+     * Custom app options
+     */
+    @Query('ids') ids?: string,
+    @Query('sort_by') sort_by?: string,
+    @Query('sort_dir') sort_dir?: 'asc' | 'desc',
+  ) {
     try {
-      return res.jsonp(await this.smartCollectionsService.listFromDb(req.shopifyConnect, {}, {}));
+      const options: IAppSmartCollectionListOptions = {
+        /*
+         * Options from shopify
+         */
+        fields,
+        handle,
+        limit,
+        page,
+        product_id,
+        updated_at_max,
+        updated_at_min,
+        published_at_max,
+        published_at_min,
+        published_status,
+        since_id,
+        title,
+        /*
+         * Custom app options
+         */
+        sort_by,
+        sort_dir,
+        ids,
+      };
+      return res.jsonp(await this.smartCollectionsService.listFromDb(req.shopifyConnect, options, {}));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({

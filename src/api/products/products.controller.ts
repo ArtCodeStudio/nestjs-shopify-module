@@ -52,6 +52,9 @@ export class ProductsController {
   async listFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
+    /*
+     * Options from shopify
+     */
     @Query('collection_id') collection_id?: string,
     @Query('created_at_max') created_at_max?: string,
     @Query('created_at_min') created_at_min?: string,
@@ -64,12 +67,17 @@ export class ProductsController {
     @Query('published_at_min') published_at_min?: string | undefined,
     @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
     @Query('since_id') since_id?: number,
-    @Query('sync_to_db') sync_to_db?: boolean,
-    @Query('sync_to_search') sync_to_search?: boolean,
     @Query('title') title?: string,
     @Query('updated_at_max') updated_at_max?: string,
     @Query('updated_at_min') updated_at_min?: string,
     @Query('vendor') vendor?: string,
+    /*
+     * Custom sync options
+     */
+    @Query('sync_to_db') sync_to_db?: boolean,
+    @Query('sync_to_search') sync_to_search?: boolean,
+    @Query('cancel_signal') cancelSignal?: string,
+    @Query('fail_on_sync_error') failOnSyncError?: boolean,
   ) {
     if (req.session.isThemeClientRequest) {
       published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
@@ -77,6 +85,9 @@ export class ProductsController {
       sync_to_search = false;
     }
     const options: IShopifySyncProductListOptions = {
+      /*
+       * Options from shopify
+       */
       collection_id,
       created_at_max,
       created_at_min,
@@ -89,13 +100,23 @@ export class ProductsController {
       published_at_min,
       published_status,
       since_id,
-      syncToDb: sync_to_db,
-      syncToSearch: sync_to_search,
       title,
       updated_at_max,
       updated_at_min,
       vendor,
+      /*
+       * Custom sync options
+       */
+      syncToDb: sync_to_db,
+      syncToSearch: sync_to_search,
+      cancelSignal,
+      failOnSyncError,
     };
+
+    // replace " and ' if query string was parsed like this: '"1234, 3456, 7890"'
+    // ids = ids.replace(/("|')/g, '');
+    // fields = fields.replace(/("|')/g, '');
+
     this.logger.debug('[listFromShopify] ShopifySyncProductListOptions', options);
     return this.productsService.listFromShopify(req.shopifyConnect, options)
     .then((products) => {
@@ -136,7 +157,7 @@ export class ProductsController {
     @Query('product_type') product_type?: string,
     @Query('published_at_max') published_at_max?: string,
     @Query('published_at_min') published_at_min?: string,
-    @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
+    @Query('published_status') published_status: 'published' | 'unpublished' | 'any' = 'any',
     @Query('since_id') since_id?: number,
     @Query('title') title?: string,
     @Query('updated_at_max') updated_at_max?: string,
@@ -149,6 +170,7 @@ export class ProductsController {
     @Query('price_min') price_min?: number,
     @Query('sort_by') sort_by?: string,
     @Query('sort_dir') sort_dir?: 'asc' | 'desc',
+    // @Query('ids') ids?: string,
   ) {
     try {
       if (req.session.isThemeClientRequest) {
@@ -220,7 +242,7 @@ export class ProductsController {
     @Query('product_type') product_type?: string,
     @Query('published_at_max') published_at_max?: string,
     @Query('published_at_min') published_at_min?: string,
-    @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
+    @Query('published_status') published_status: 'published' | 'unpublished' | 'any' = 'any',
     @Query('since_id') since_id?: number,
     @Query('title') title?: string,
     @Query('updated_at_max') updated_at_max?: string,
@@ -233,6 +255,7 @@ export class ProductsController {
     @Query('price_min') price_min?: number,
     @Query('sort_by') sort_by?: string,
     @Query('sort_dir') sort_dir?: 'asc' | 'desc',
+    // @Query('ids') ids?: string,
   ) {
     if (req.session.isThemeClientRequest) {
       published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user

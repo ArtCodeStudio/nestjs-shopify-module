@@ -82,6 +82,7 @@ ProductDocument // DatabaseDocumentType
       updated_at_max: options.updated_at_max,
       updated_at_min: options.updated_at_min,
       published_status: options.published_status,
+      ids: options.ids,
     };
 
     return super.listFromDb(user, query, basicOptions);
@@ -130,6 +131,7 @@ ProductDocument // DatabaseDocumentType
       updated_at_max: options.updated_at_max,
       updated_at_min: options.updated_at_min,
       published_status: options.published_status,
+      ids: options.ids,
     };
 
     return super.listFromSearch(user, body, basicOptions);

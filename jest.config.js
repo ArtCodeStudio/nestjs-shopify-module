@@ -1,4 +1,5 @@
-{
+module.exports = {
+  "testEnvironment": "node",
   "moduleFileExtensions": [
     "ts",
     "tsx",
@@ -18,4 +19,4 @@
     "json",
     "lcov"
   ]
-}
+};

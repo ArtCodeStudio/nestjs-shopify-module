@@ -22,7 +22,7 @@ import { DebugService } from '../debug.service';
 import { EventService } from '../event.service';
 import { ElasticsearchService } from '../elasticsearch.service';
 import { BulkIndexDocumentsParams } from 'elasticsearch';
-import { firstCharUppercase, underscoreCase } from '../helpers';
+import { firstCharUppercase, underscoreCase, deleteUndefinedProperties } from '../helpers';
 
 export abstract class ShopifyApiBaseService<
     ShopifyObjectType,
@@ -182,9 +182,17 @@ export abstract class ShopifyApiBaseService<
    */
   protected setDefaultAppListOptions(basicOptions: IAppBasicListOptions) {
 
-    basicOptions.page = Math.max(1, Number(basicOptions.page));
+    basicOptions = deleteUndefinedProperties(basicOptions);
 
-    basicOptions.limit = Math.max(0, Number(basicOptions.limit));
+    if (isNaN(basicOptions.page)) {
+      basicOptions.page = 1;
+    }
+    basicOptions.page = Math.max(1, basicOptions.page);
+
+    if (isNaN(basicOptions.limit)) {
+      basicOptions.limit = 50;
+    }
+    basicOptions.limit = Math.max(0, basicOptions.limit);
 
     if (!basicOptions.limit || basicOptions.limit > 250 || basicOptions.limit <= 0) {
       basicOptions.limit = 50;
@@ -214,6 +222,45 @@ export abstract class ShopifyApiBaseService<
 
     basicOptions = this.setDefaultAppListOptions(basicOptions);
 
+    /**
+     * Just return the specified `fields` or removes mongodb internally _id and __v properties from result
+     */
+    const fields: any = {};
+
+    /**
+     * Convert fields to mongodb fields
+     */
+    if (basicOptions.fields) {
+      const _fields = basicOptions.fields.replace(/\s/g, '').split(',');
+      if (_fields.length >= 1) {
+        for (const field of _fields) {
+          fields[field] = 1;
+        }
+      } else {
+        // Projection cannot have a mix of inclusion and exclusion so just add exclusion for internal mongodb properties
+        fields._id = 0;
+        fields.__v = 0;
+      }
+    }
+
+    /**
+     * Filter by ids
+     * @see https://docs.mongodb.com/manual/reference/operator/query/or/
+     */
+    if (basicOptions.ids) {
+      conditions.$or = conditions.$or || new Array<string>();
+      const ids = basicOptions.ids.replace(/\s/g, '').split(',');
+
+      for (const id of ids) {
+        conditions.$or.push({
+          id,
+        });
+      }
+    }
+
+    /*
+     * Pagination: page and limit
+     */
     let skip = 0;
     const sort = {};
     sort[basicOptions.sort_by] = basicOptions.sort_dir;
@@ -222,6 +269,9 @@ export abstract class ShopifyApiBaseService<
       skip = (basicOptions.page - 1 /* Shopify page starts on 1 and not 0 */) * basicOptions.limit;
     }
 
+    /**
+     * Range filters like created_at / published_at / updated_at with min and max
+     */
     /*
      * created_at min and max
      */
@@ -260,7 +310,7 @@ export abstract class ShopifyApiBaseService<
 
     return this.dbModel(user.shop.myshopify_domain)
     .find(conditions)
-    .select('-_id -__v') // Removes :id and __v properties from result
+    .select(fields)
     .sort(sort)
     .limit(basicOptions.limit)
     .skip(skip)
@@ -278,7 +328,7 @@ export abstract class ShopifyApiBaseService<
    *
    * @see https://mongoosejs.com/docs/api.html#Query
    */
-  public queryDb(shopifyConnect: IShopifyConnect, conditions={}): MongooseQuery<ShopifyObjectType> {
+  public queryDb(shopifyConnect: IShopifyConnect, conditions = {}): MongooseQuery<ShopifyObjectType> {
     return this.dbModel(shopifyConnect.shop.myshopify_domain)
     .find(conditions)
     .select('-_id -__v') // Removes :id and __v properties from result
@@ -298,23 +348,54 @@ export abstract class ShopifyApiBaseService<
 
     basicOptions = this.setDefaultAppListOptions(basicOptions);
 
-    // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
-    let _source: boolean | string[] = true;
+    // @see https://stackoverflow.com/a/40755927/1465919
+    const and = []; // ~ query.bool.must = []
+    const or = []; // ~ query.bool.must[x].bool.should = []
 
-    // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
+    /**
+     * Sort the result
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html
+     */
     const sortList = [];
     const sort = {};
     sort[basicOptions.sort_by] = basicOptions.sort_dir;
     sortList.push(sort);
 
-    // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-from-size.html
-    let size = 250;
-    let from = 0;
+    /**
+     * Just return the specified `fields`
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-source-filtering.html
+     */
+    let _source: boolean | string[] = true;
 
     // Convert fields to ES fields
     if (basicOptions.fields) {
-      _source = basicOptions.fields.split(',');
+      _source = basicOptions.fields.replace(/\s/g, '').split(',');
     }
+
+    /**
+     * Filter by ids
+     * * `OR` is spelled `should`
+     * * `AND` is spelled `must`
+     * * `NOR` is spelled `should_not`
+     * @see https://stackoverflow.com/a/40755927/1465919
+     */
+    if (basicOptions.ids) {
+      const ids = basicOptions.ids.replace(/\s/g, '').split(',');
+      for (const id of ids) {
+        or.push({
+          term: {
+            id,
+          },
+        });
+      }
+    }
+
+    /**
+     * Pagination like limit and page
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-from-size.html
+     */
+    let size = 250;
+    let from = 0;
 
     // Convert limit to ES limit
     if (basicOptions.limit) {
@@ -325,7 +406,10 @@ export abstract class ShopifyApiBaseService<
       from = (basicOptions.page - 1 /* Shopify page starts on 1 and not 0 */) * size;
     }
 
-    // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
+    /**
+     * Range filters like created_at / published_at / updated_at with min and max
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
+     */
     body.query.range = body.query.range || {};
 
     /*
@@ -372,6 +456,21 @@ export abstract class ShopifyApiBaseService<
     body.size = size;
     body.from = from;
     body.sort = sortList;
+
+    // Set or filter to query (as parent of the and filter)
+    if (or.length > 0) {
+      and.push({
+        bool: {
+          should: or,
+        },
+      });
+    }
+
+    // Set and filter to query
+    if (and.length > 0) {
+      body.query.bool = body.query.bool || {};
+      body.query.bool.must = and;
+    }
 
     this.logger.debug(`[listFromSearch:${this.resourceName}]`, user.shop.myshopify_domain);
     return this._searchInEs(user, body)

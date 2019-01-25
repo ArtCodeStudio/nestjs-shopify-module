@@ -145,7 +145,7 @@ export abstract class ShopifyApiRootCountableService<
     return {};
   }
 
-  protected getlastSyncProgressForOptions(shopifyConnect, options: IStartSyncOptions) {
+  protected getlastSyncProgressForOptions(shopifyConnect: IShopifyConnect, options: IStartSyncOptions) {
     return {
       shop: shopifyConnect.myshopify_domain,
       [`options.include${this.upperCaseResourceName}`]: true,

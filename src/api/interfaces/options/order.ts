@@ -1,5 +1,6 @@
 import { Options } from 'shopify-prime';
-import { ISyncOptions } from './sync'
+import { ISyncOptions } from './sync';
+import { IAppListSortOptions, IAppListFilterOptions } from './basic';
 
 /**
  * Order options to get a list of orders from shopify
@@ -11,6 +12,6 @@ export interface IShopifySyncOrderCountOptions extends Options.OrderCountOptions
 /**
  * Order options to get a list of orders from the app
  */
-export interface IAppOrderListOptions extends Options.OrderListOptions {}
+export interface IAppOrderListOptions extends Options.OrderListOptions, IAppListSortOptions, IAppListFilterOptions {}
 export interface IAppOrderGetOptions extends Options.OrderGetOptions {}
 export interface IAppOrderCountOptions extends Options.OrderCountOptions {}

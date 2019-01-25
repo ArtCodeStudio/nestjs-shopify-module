@@ -1,6 +1,6 @@
 import { Options } from 'shopify-prime';
 import { ISyncOptions } from './sync';
-import { IAppListSortOptions } from './basic';
+import { IAppListSortOptions, IAppListFilterOptions } from './basic';
 
 /**
  * Product options to get a list of products from shopify
@@ -12,7 +12,7 @@ export interface IShopifySyncProductCountOptions extends Options.ProductCountOpt
 /**
  * Product options to get a list of products from the app
  */
-export interface IAppProductListOptions extends Options.ProductListOptions, IAppListSortOptions {
+export interface IAppProductListOptions extends Options.ProductListOptions, IAppListSortOptions, IAppListFilterOptions {
   price_max?: number;
   price_min?: number;
 }
