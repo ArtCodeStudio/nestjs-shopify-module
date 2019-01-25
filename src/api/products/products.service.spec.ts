@@ -220,6 +220,70 @@ describe('ProductsService', () => {
     //   }
     // });
 
+    it(`Result vendor property should contain "Jewelberry"`, async () => {
+      const vendor = 'Jewelberry';
+      const listFromShopify = await service.listFromShopify(user, {
+        fields: 'vendor',
+        vendor,
+      });
+      expect(listFromShopify.length).toBeGreaterThan(0);
+      for (const getFromShopify of listFromShopify) {
+        // console.debug('getFromShopify', getFromShopify);
+        expect(getFromShopify.vendor.toLowerCase()).toContain(vendor.toLowerCase());
+      }
+    });
+
+    it(`Result handle property should contain "copy-of-jewelberry-ring-tiny-flowers-925-silber"`, async () => {
+      const handle = 'copy-of-jewelberry-ring-tiny-flowers-925-silber';
+      const listFromShopify = await service.listFromShopify(user, {
+        fields: 'handle',
+        handle,
+      });
+      expect(listFromShopify.length).toBeGreaterThan(0);
+      for (const getFromShopify of listFromShopify) {
+        // console.debug('getFromShopify', getFromShopify);
+        expect(getFromShopify.handle.toLowerCase()).toContain(handle.toLowerCase());
+      }
+    });
+
+    it(`Result product_type property should contain "ring"`, async () => {
+      const product_type = 'ring';
+      const listFromShopify = await service.listFromShopify(user, {
+        fields: 'product_type',
+        product_type,
+      });
+      expect(listFromShopify.length).toBeGreaterThan(0);
+      for (const getFromShopify of listFromShopify) {
+        // console.debug('getFromShopify', getFromShopify);
+        expect(getFromShopify.product_type.toLowerCase()).toContain(product_type.toLowerCase());
+      }
+    });
+
+    it(`Result product_type property should contain "ring"`, async () => {
+      const product_type = 'ring';
+      const listFromShopify = await service.listFromShopify(user, {
+        fields: 'product_type',
+        product_type,
+      });
+      expect(listFromShopify.length).toBeGreaterThan(0);
+      for (const getFromShopify of listFromShopify) {
+        // console.debug('getFromShopify', getFromShopify);
+        expect(getFromShopify.product_type.toLowerCase()).toContain(product_type.toLowerCase());
+      }
+    });
+
+    it(`Filter with collection_id "251585671" should return products with product type "ring"`, async () => {
+      const collection_id = '251585671';
+      const listFromShopify = await service.listFromShopify(user, {
+        fields: 'product_type',
+        collection_id,
+      });
+      expect(listFromShopify.length).toBeGreaterThan(0);
+      for (const getFromShopify of listFromShopify) {
+        // console.debug('getFromShopify', getFromShopify);
+        expect(getFromShopify.product_type.toLowerCase()).toContain('ring');
+      }
+    });
   });
 
   describe('listFromDb', async () => {
@@ -394,6 +458,71 @@ describe('ProductsService', () => {
     //   }
     // });
 
+    it(`Result vendor property should contain "Jewelberry"`, async () => {
+      const vendor = 'Jewelberry';
+      const listFromDb = await service.listFromDb(user, {
+        fields: 'vendor',
+        vendor,
+      });
+      expect(listFromDb.length).toBeGreaterThan(0);
+      for (const getFromDb of listFromDb) {
+        console.debug('getFromDb', getFromDb);
+        expect(getFromDb.vendor.toLowerCase()).toContain(vendor.toLowerCase());
+      }
+    });
+
+    it(`Result handle property should contain "copy-of-jewelberry-ring-tiny-flowers-925-silber"`, async () => {
+      const handle = 'copy-of-jewelberry-ring-tiny-flowers-925-silber';
+      const listFromDb = await service.listFromDb(user, {
+        fields: 'handle',
+        handle,
+      });
+      expect(listFromDb.length).toBeGreaterThan(0);
+      for (const getFromDb of listFromDb) {
+        console.debug('getFromDb', getFromDb);
+        expect(getFromDb.handle.toLowerCase()).toContain(handle.toLowerCase());
+      }
+    });
+
+    it(`Result product_type property should contain "ring"`, async () => {
+      const product_type = 'ring';
+      const listFromDb = await service.listFromDb(user, {
+        fields: 'product_type',
+        product_type,
+      });
+      expect(listFromDb.length).toBeGreaterThan(0);
+      for (const getFromDb of listFromDb) {
+        console.debug('getFromDb', getFromDb);
+        expect(getFromDb.product_type.toLowerCase()).toContain(product_type.toLowerCase());
+      }
+    });
+
+    it(`Result product_type property should contain "ring"`, async () => {
+      const product_type = 'ring';
+      const listFromDb = await service.listFromDb(user, {
+        fields: 'product_type',
+        product_type,
+      });
+      expect(listFromDb.length).toBeGreaterThan(0);
+      for (const getFromDb of listFromDb) {
+        console.debug('getFromDb', getFromDb);
+        expect(getFromDb.product_type.toLowerCase()).toContain(product_type.toLowerCase());
+      }
+    });
+
+    it(`Filter with collection_id "251585671" should return products with product type "ring"`, async () => {
+      const collection_id = '251585671';
+      const listFromDb = await service.listFromDb(user, {
+        fields: 'product_type',
+        collection_id,
+      });
+      expect(listFromDb.length).toBeGreaterThan(0);
+      for (const getFromDb of listFromDb) {
+        console.debug('getFromDb', getFromDb);
+        expect(getFromDb.product_type.toLowerCase()).toContain('ring');
+      }
+    });
+
   });
 
   describe('listFromSearch', async () => {
@@ -513,7 +642,7 @@ describe('ProductsService', () => {
       });
       expect(listFromSearch.length).toBeGreaterThan(0);
       for (const getFromSearch of listFromSearch) {
-        console.debug('getFromSearch', getFromSearch);
+        // console.debug('getFromSearch', getFromSearch);
         expect(getFromSearch.title.toLowerCase()).toContain(title.toLowerCase());
       }
     });
@@ -526,12 +655,12 @@ describe('ProductsService', () => {
       });
       expect(listFromSearch.length).toBeGreaterThan(0);
       for (const getFromSearch of listFromSearch) {
-        console.debug('getFromSearch', getFromSearch);
+        // console.debug('getFromSearch', getFromSearch);
         expect(getFromSearch.title.toLowerCase()).toContain(title.toLowerCase());
       }
     });
 
-    it(`Result title property should contain "ett"`, async () => {
+    it(`Result title property should contain "kett"`, async () => {
       const title = 'kett';
       const listFromSearch = await service.listFromSearch(user, {
         fields: 'title',
@@ -539,10 +668,76 @@ describe('ProductsService', () => {
       });
       expect(listFromSearch.length).toBeGreaterThan(0);
       for (const getFromSearch of listFromSearch) {
-        console.debug('getFromSearch', getFromSearch);
+        // console.debug('getFromSearch', getFromSearch);
         expect(getFromSearch.title.toLowerCase()).toContain(title.toLowerCase());
       }
     });
+
+    it(`Result vendor property should contain "Jewelberry"`, async () => {
+      const vendor = 'Jewelberry';
+      const listFromSearch = await service.listFromSearch(user, {
+        fields: 'vendor',
+        vendor,
+      });
+      expect(listFromSearch.length).toBeGreaterThan(0);
+      for (const getFromSearch of listFromSearch) {
+        // console.debug('getFromSearch', getFromSearch);
+        expect(getFromSearch.vendor.toLowerCase()).toContain(vendor.toLowerCase());
+      }
+    });
+
+    it(`Result handle property should contain "copy-of-jewelberry-ring-tiny-flowers-925-silber"`, async () => {
+      const handle = 'copy-of-jewelberry-ring-tiny-flowers-925-silber';
+      const listFromSearch = await service.listFromSearch(user, {
+        fields: 'handle',
+        handle,
+      });
+      expect(listFromSearch.length).toBeGreaterThan(0);
+      for (const getFromSearch of listFromSearch) {
+        // console.debug('getFromSearch', getFromSearch);
+        expect(getFromSearch.handle.toLowerCase()).toContain(handle.toLowerCase());
+      }
+    });
+
+    it(`Result product_type property should contain "ring"`, async () => {
+      const product_type = 'ring';
+      const listFromSearch = await service.listFromSearch(user, {
+        fields: 'product_type',
+        product_type,
+      });
+      expect(listFromSearch.length).toBeGreaterThan(0);
+      for (const getFromSearch of listFromSearch) {
+        // console.debug('getFromSearch', getFromSearch);
+        expect(getFromSearch.product_type.toLowerCase()).toContain(product_type.toLowerCase());
+      }
+    });
+
+    it(`Result product_type property should contain "ring"`, async () => {
+      const product_type = 'ring';
+      const listFromSearch = await service.listFromSearch(user, {
+        fields: 'product_type',
+        product_type,
+      });
+      expect(listFromSearch.length).toBeGreaterThan(0);
+      for (const getFromSearch of listFromSearch) {
+        // console.debug('getFromSearch', getFromSearch);
+        expect(getFromSearch.product_type.toLowerCase()).toContain(product_type.toLowerCase());
+      }
+    });
+
+    it(`Filter with collection_id "251585671" should return products with product type "ring"`, async () => {
+      const collection_id = '251585671';
+      const listFromSearch = await service.listFromSearch(user, {
+        fields: 'product_type',
+        collection_id,
+      });
+      expect(listFromSearch.length).toBeGreaterThan(0);
+      for (const getFromSearch of listFromSearch) {
+        // console.debug('getFromSearch', getFromSearch);
+        expect(getFromSearch.product_type.toLowerCase()).toContain('ring');
+      }
+    });
+
   });
 
   describe('countFromDb', async () => {
