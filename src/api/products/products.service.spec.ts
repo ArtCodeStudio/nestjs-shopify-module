@@ -165,6 +165,61 @@ describe('ProductsService', () => {
       }
     });
 
+    it(`The result should only return objects with the the passed title filter`, async () => {
+      const title = 'Kette SHINY CIRCLE SINGLE LARGE 925 Sterling Silber vergoldet';
+      const listFromShopify = await service.listFromShopify(user, {
+        fields: 'title',
+        title,
+      });
+      expect(listFromShopify.length).toBeGreaterThan(0);
+      for (const getFromShopify of listFromShopify) {
+        // console.debug('getFromShopify', getFromShopify);
+        expect(getFromShopify.title.toLowerCase()).toContain(title.toLowerCase());
+      }
+    });
+
+    it(`Result title property should contain "Kette"`, async () => {
+      const title = 'Kette';
+      const listFromShopify = await service.listFromShopify(user, {
+        fields: 'title',
+        title,
+      });
+      expect(listFromShopify.length).toBeGreaterThan(0);
+      for (const getFromShopify of listFromShopify) {
+        // console.debug('getFromShopify', getFromShopify);
+        expect(getFromShopify.title.toLowerCase()).toContain(title.toLowerCase());
+      }
+    });
+
+    it(`Result title property should contain "ette"`, async () => {
+      const title = 'ette';
+      const listFromShopify = await service.listFromShopify(user, {
+        fields: 'title',
+        title,
+      });
+      expect(listFromShopify.length).toBeGreaterThan(0);
+      for (const getFromShopify of listFromShopify) {
+        // console.debug('getFromShopify', getFromShopify);
+        expect(getFromShopify.title.toLowerCase()).toContain(title.toLowerCase());
+      }
+    });
+
+    // it(`Result title property should contain "ette" and "Silber"`, async () => {
+    //   const title = 'ette Silber';
+    //   const titles = title.split(' ');
+    //   const listFromShopify = await service.listFromShopify(user, {
+    //     fields: 'title',
+    //     title,
+    //   });
+    //   expect(listFromShopify.length).toBeGreaterThan(0);
+    //   for (const getFromShopify of listFromShopify) {
+    //     console.debug(getFromShopify);
+    //     for (const subtitle of titles) {
+    //       expect(getFromShopify.title.toLowerCase()).toContain(subtitle.toLowerCase());
+    //     }
+    //   }
+    // });
+
   });
 
   describe('listFromDb', async () => {
@@ -276,13 +331,68 @@ describe('ProductsService', () => {
     it(`The result should only contain the passed ids`, async () => {
       const ids: Array<number> = [5973525063, 5972798855, 5973283783, 5973211591, 5973132487];
       const listFromDb = await service.listFromDb(user, {ids: ids.join(', ')});
-      console.debug('ids', ids);
-      console.debug('ids', ids.join(', '));
+      // console.debug('ids', ids);
+      // console.debug('ids', ids.join(', '));
       expect(listFromDb).toHaveLength(ids.length);
       for (const getFromDb of listFromDb) {
         expect(ids).toContain(getFromDb.id);
       }
     });
+
+    it(`The result should only return objects with the the passed title filter`, async () => {
+      const title = 'Kette SHINY CIRCLE SINGLE LARGE 925 Sterling Silber vergoldet';
+      const listFromDb = await service.listFromDb(user, {
+        fields: 'title',
+        title,
+      });
+      expect(listFromDb.length).toBeGreaterThan(0);
+      for (const getFromDb of listFromDb) {
+        // console.debug('getFromDb', getFromDb);
+        expect(getFromDb.title.toLowerCase()).toContain(title.toLowerCase());
+      }
+    });
+
+    it(`Result title property should contain "Kette"`, async () => {
+      const title = 'Kette';
+      const listFromDb = await service.listFromDb(user, {
+        fields: 'title',
+        title,
+      });
+      expect(listFromDb.length).toBeGreaterThan(0);
+      for (const getFromDb of listFromDb) {
+        // console.debug('getFromDb', getFromDb);
+        expect(getFromDb.title.toLowerCase()).toContain(title.toLowerCase());
+      }
+    });
+
+    it(`Result title property should contain "ette"`, async () => {
+      const title = 'ette';
+      const listFromDb = await service.listFromDb(user, {
+        fields: 'title',
+        title,
+      });
+      expect(listFromDb.length).toBeGreaterThan(0);
+      for (const getFromDb of listFromDb) {
+        // console.debug('getFromDb', getFromDb);
+        expect(getFromDb.title.toLowerCase()).toContain(title.toLowerCase());
+      }
+    });
+
+    // it(`Result title property should contain "ette" and "Silber"`, async () => {
+    //   const title = 'ette Silber';
+    //   const titles = title.split(' ');
+    //   const listFromDb = await service.listFromDb(user, {
+    //     fields: 'title',
+    //     title,
+    //   });
+    //   expect(listFromDb.length).toBeGreaterThan(0);
+    //   for (const getFromDb of listFromDb) {
+    //     console.debug(getFromDb);
+    //     for (const subtitle of titles) {
+    //       expect(getFromDb.title.toLowerCase()).toContain(subtitle.toLowerCase());
+    //     }
+    //   }
+    // });
 
   });
 
@@ -325,7 +435,7 @@ describe('ProductsService', () => {
     });
 
     it(`The result should only contain the passed fields (title)`, async () => {
-      console.debug(`{fields: 'title'}`);
+      // console.debug(`{fields: 'title'}`);
       const expected = {
         title: expect.any(String),
       };
@@ -385,10 +495,52 @@ describe('ProductsService', () => {
 
     it(`The result should only contain the passed ids`, async () => {
       const ids: Array<number> = [5973525063, 5972798855, 5973283783, 5973211591, 5973132487];
-      const listFromSearch = await service.listFromSearch(user, {ids: ids.join(', ')});
+      const listFromSearch = await service.listFromSearch(user, {
+        fields: 'id',
+        ids: ids.join(', '),
+      });
       expect(listFromSearch).toHaveLength(ids.length);
       for (const getFromSearch of listFromSearch) {
         expect(ids).toContain(getFromSearch.id);
+      }
+    });
+
+    it(`The result should only return objects with the the passed title filter`, async () => {
+      const title = 'Kette SHINY CIRCLE SINGLE LARGE 925 Sterling Silber vergoldet';
+      const listFromSearch = await service.listFromSearch(user, {
+        fields: 'title',
+        title,
+      });
+      expect(listFromSearch.length).toBeGreaterThan(0);
+      for (const getFromSearch of listFromSearch) {
+        console.debug('getFromSearch', getFromSearch);
+        expect(getFromSearch.title.toLowerCase()).toContain(title.toLowerCase());
+      }
+    });
+
+    it(`Result title property should contain "Kette"`, async () => {
+      const title = 'Kette';
+      const listFromSearch = await service.listFromSearch(user, {
+        fields: 'title',
+        title,
+      });
+      expect(listFromSearch.length).toBeGreaterThan(0);
+      for (const getFromSearch of listFromSearch) {
+        console.debug('getFromSearch', getFromSearch);
+        expect(getFromSearch.title.toLowerCase()).toContain(title.toLowerCase());
+      }
+    });
+
+    it(`Result title property should contain "ett"`, async () => {
+      const title = 'kett';
+      const listFromSearch = await service.listFromSearch(user, {
+        fields: 'title',
+        title,
+      });
+      expect(listFromSearch.length).toBeGreaterThan(0);
+      for (const getFromSearch of listFromSearch) {
+        console.debug('getFromSearch', getFromSearch);
+        expect(getFromSearch.title.toLowerCase()).toContain(title.toLowerCase());
       }
     });
   });

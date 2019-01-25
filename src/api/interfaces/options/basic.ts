@@ -19,6 +19,11 @@ export interface IAppListFilterOptions {
    * Return only certain documents, specified by a comma-separated list of document IDs.
    */
   ids?: string;
+
+  /**
+   * Full text search for a string e.g. in `title` or `body_html`
+   */
+  text?: string;
 }
 
 /**

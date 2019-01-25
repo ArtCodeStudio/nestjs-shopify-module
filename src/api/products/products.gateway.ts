@@ -1,11 +1,19 @@
-import { SubscribeMessage, WebSocketGateway, WsResponse, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from '@nestjs/websockets';
+import {
+  SubscribeMessage,
+  WebSocketGateway,
+  WsResponse,
+  OnGatewayInit,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  WebSocketServer,
+} from '@nestjs/websockets';
 import { Observable } from 'rxjs';
 import { SessionSocket } from '../../interfaces/session-socket';
-import { IShopifySyncProductListOptions, IShopifySyncProductCountOptions } from '../interfaces'
+import { IShopifySyncProductListOptions, IShopifySyncProductCountOptions } from '../interfaces';
 import { ProductsService } from './products.service';
 import { Product, ProductUpdateCreate } from 'shopify-prime/models';
 import { DebugService } from '../../debug.service';
-import { Server } from 'socket.io'
+import { Server } from 'socket.io';
 
 @WebSocketGateway({namespace: '/socket.io/shopify/api/products'})
 export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -15,7 +23,7 @@ export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
-    protected readonly productsService: ProductsService
+    protected readonly productsService: ProductsService,
   ){}
 
   @SubscribeMessage('all')

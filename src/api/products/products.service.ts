@@ -57,6 +57,33 @@ ProductDocument // DatabaseDocumentType
 
     const query: any = {};
 
+    /**
+     * Implements title text search
+     */
+    if (options.title) {
+      // The shopify api also did a full text search here, so we do the same
+      query.title = {
+        $regex: options.title,
+        $options: 'i',
+      };
+    }
+
+    /**
+     * Implements filters
+     */
+    if (options.vendor) {
+      query.vendor = options.vendor;
+    }
+    if (options.handle) {
+      query.handle = options.handle;
+    }
+    if (options.product_type) {
+      query.product_type = options.product_type;
+    }
+    if (options.collection_id) {
+      query.collection_id = options.collection_id;
+    }
+
     /*
      * price min and max
      */
@@ -70,8 +97,9 @@ ProductDocument // DatabaseDocumentType
     }
 
     const basicOptions: IAppBasicListOptions = {
-      sort_by: options.sort_by,
-      sort_dir: options.sort_dir,
+      /**
+       * Copied options from shopify
+       */
       fields: options.fields,
       limit: options.limit,
       page: options.page,
@@ -83,6 +111,12 @@ ProductDocument // DatabaseDocumentType
       updated_at_min: options.updated_at_min,
       published_status: options.published_status,
       ids: options.ids,
+      /**
+       * Custom basic options
+       */
+      sort_by: options.sort_by,
+      sort_dir: options.sort_dir,
+      text:  options.text,
     };
 
     return super.listFromDb(user, query, basicOptions);
@@ -102,6 +136,68 @@ ProductDocument // DatabaseDocumentType
       } as any,
     };
 
+    /**
+     * * `OR` is spelled `should`
+     * * `AND` is spelled `must`
+     * * `NOR` is spelled `should_not`
+     * @see https://stackoverflow.com/a/40755927/1465919
+     */
+    const and = []; // ~ query.bool.must = []
+    const or = []; // ~ query.bool.must[x].bool.should = []
+
+    /**
+     * Implements title search
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/full-text-queries.html
+     */
+    if (options.title) {
+      // The shopify api also did a full text search here, so we do the same
+      // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
+      body.query.match = body.query.match || {};
+      body.query.match.title = {
+        query: options.title,
+        operator: 'and',
+      };
+      // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query-phrase-prefix.html
+      // body.query.match_phrase_prefix = body.query.match_phrase_prefix || {};
+      // body.query.match_phrase_prefix.title = {
+      //   query: options.title,
+      //   operator: 'and',
+      // };
+    }
+
+    /**
+     * Implements filters
+     */
+    if (options.vendor) {
+      and.push({
+        term: {
+          vendor: options.vendor,
+        },
+      });
+    }
+    if (options.handle) {
+      and.push({
+        term: {
+          handle: options.handle,
+        },
+      });
+    }
+    if (options.product_type) {
+      and.push({
+        term: {
+          product_type: options.product_type,
+        },
+      });
+    }
+    if (options.collection_id) {
+      and.push({
+        term: {
+          collection_id: options.collection_id,
+        },
+      });
+    }
+
     /*
      * price min and max
      */
@@ -118,9 +214,25 @@ ProductDocument // DatabaseDocumentType
       };
     }
 
+    // Set or filter to query (as parent of the and filter)
+    if (or.length > 0) {
+      and.push({
+        bool: {
+          should: or,
+        },
+      });
+    }
+
+    // Set and filter to query
+    if (and.length > 0) {
+      body.query.bool = body.query.bool || {};
+      body.query.bool.must = and;
+    }
+
     const basicOptions: IAppBasicListOptions = {
-      sort_by: options.sort_by,
-      sort_dir: options.sort_dir,
+      /**
+       * Copied Options from shopify
+       */
       fields: options.fields,
       limit: options.limit,
       page: options.page,
@@ -132,6 +244,12 @@ ProductDocument // DatabaseDocumentType
       updated_at_min: options.updated_at_min,
       published_status: options.published_status,
       ids: options.ids,
+      /**
+       * Custom basic options
+       */
+      sort_by: options.sort_by,
+      sort_dir: options.sort_dir,
+      text:  options.text,
     };
 
     return super.listFromSearch(user, body, basicOptions);

@@ -53,7 +53,7 @@ export class ProductsController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     /*
-     * Options from shopify
+     * Retransmitt options from shopify
      */
     @Query('collection_id') collection_id?: string,
     @Query('created_at_max') created_at_max?: string,
@@ -86,7 +86,7 @@ export class ProductsController {
     }
     const options: IShopifySyncProductListOptions = {
       /*
-       * Options from shopify
+       * Retransmitt options from shopify
        */
       collection_id,
       created_at_max,
@@ -145,7 +145,7 @@ export class ProductsController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     /*
-     * Options from shopify
+     * Copied options from shopify
      */
     @Query('collection_id') collection_id?: string,
     @Query('created_at_max') created_at_max?: string,
@@ -178,7 +178,7 @@ export class ProductsController {
       }
       const options: IAppProductListOptions = {
         /*
-         * Options from shopify
+         * Copied options from shopify
          */
         collection_id,
         created_at_max,
@@ -230,7 +230,7 @@ export class ProductsController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     /*
-     * Options from shopify
+     * Copied options from shopify
      */
     @Query('collection_id') collection_id?: string,
     @Query('created_at_max') created_at_max?: string,
@@ -262,7 +262,7 @@ export class ProductsController {
     }
     const options: IAppProductListOptions = {
       /*
-       * Options from shopify
+       * Copied options from shopify
        */
       collection_id,
       created_at_max,
@@ -315,7 +315,7 @@ export class ProductsController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     /*
-     * Options from shopify
+     * Retransmitt options from shopify
      */
     @Query('collection_id') collection_id?: string,
     @Query('created_at_max') created_at_max?: string,

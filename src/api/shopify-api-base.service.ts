@@ -244,13 +244,23 @@ export abstract class ShopifyApiBaseService<
     }
 
     /**
+     * Implements text search
+     * @see https://docs.mongodb.com/manual/text-search/
+     */
+    if (basicOptions.text) {
+      conditions.$text = conditions.$text || {};
+      conditions.$text = {
+        $search: basicOptions.text,
+      };
+    }
+
+    /**
      * Filter by ids
      * @see https://docs.mongodb.com/manual/reference/operator/query/or/
      */
     if (basicOptions.ids) {
       conditions.$or = conditions.$or || new Array<string>();
       const ids = basicOptions.ids.replace(/\s/g, '').split(',');
-
       for (const id of ids) {
         conditions.$or.push({
           id,
@@ -348,7 +358,13 @@ export abstract class ShopifyApiBaseService<
 
     basicOptions = this.setDefaultAppListOptions(basicOptions);
 
-    // @see https://stackoverflow.com/a/40755927/1465919
+    /**
+     * * `OR` is spelled `should`
+     * * `AND` is spelled `must`
+     * * `NOR` is spelled `should_not`
+     * @see https://stackoverflow.com/a/40755927/1465919
+     * @see https://stackoverflow.com/a/40755927/1465919
+     */
     const and = []; // ~ query.bool.must = []
     const or = []; // ~ query.bool.must[x].bool.should = []
 
@@ -374,10 +390,6 @@ export abstract class ShopifyApiBaseService<
 
     /**
      * Filter by ids
-     * * `OR` is spelled `should`
-     * * `AND` is spelled `must`
-     * * `NOR` is spelled `should_not`
-     * @see https://stackoverflow.com/a/40755927/1465919
      */
     if (basicOptions.ids) {
       const ids = basicOptions.ids.replace(/\s/g, '').split(',');
@@ -404,6 +416,14 @@ export abstract class ShopifyApiBaseService<
 
     if (basicOptions.page) {
       from = (basicOptions.page - 1 /* Shopify page starts on 1 and not 0 */) * size;
+    }
+
+    /**
+     * Implements text search
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query-phrase-prefix.html
+     */
+    if (basicOptions.text) {
+
     }
 
     /**

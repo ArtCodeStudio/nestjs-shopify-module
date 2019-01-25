@@ -12,8 +12,8 @@
     "test": "jest --config=jest.config.js",
     "test:watch": "jest --watch --config=jest.config.js",
     "test:coverage": "jest --config=jest.config.js --coverage --coverageDirectory=coverage",
-    "test:product": "jest --config=jest.config.js 'src\/.*products.*\\.spec.ts$'",
-    "test:product:watch": "jest --watch --config=jest.config.js 'src\/.*products.*\\.spec.ts$'"
+    "test:product": "jest --config=jest.config.js 'src/.*products.*\\.spec.ts$'",
+    "test:product:watch": "jest --watch --config=jest.config.js 'src/.*products.*\\.spec.ts$'"
   },
   "dependencies": {
     "@nestjs/passport": "^5.1.0",

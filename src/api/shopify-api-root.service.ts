@@ -70,6 +70,7 @@ export abstract class ShopifyApiRootService<
   public async listFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions): Promise<Partial<ShopifyObjectType>[]> {
     // Delete undefined options
     deleteUndefinedProperties(options);
+
     this.logger.debug('[listFromShopify]', options);
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     const syncToDb = options && options.syncToDb;
