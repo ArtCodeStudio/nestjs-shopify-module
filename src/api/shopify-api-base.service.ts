@@ -272,10 +272,14 @@ export abstract class ShopifyApiBaseService<
    * This does not run the query yet.
    * The query object has a versatile API to specify further options and methods to
    * retrieve the data, through streams, callbacks, promises etc.
+   *
+   * @param user
+   * @param conditions
+   *
    * @see https://mongoosejs.com/docs/api.html#Query
    */
-  public findInDb(user, conditions={}): MongooseQuery<ShopifyObjectType> {
-    return this.dbModel(user.shop.myshopify_domain)
+  public queryDb(shopifyConnect: IShopifyConnect, conditions={}): MongooseQuery<ShopifyObjectType> {
+    return this.dbModel(shopifyConnect.shop.myshopify_domain)
     .find(conditions)
     .select('-_id -__v') // Removes :id and __v properties from result
     .lean(); // Just return the result data without mongoose methods like `.save()`
