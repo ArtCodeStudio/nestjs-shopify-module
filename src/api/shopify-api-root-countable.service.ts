@@ -2,6 +2,7 @@
 import { Infrastructure, Options } from 'shopify-prime';
 import { Document } from 'mongoose';
 import * as pRetry from 'p-retry';
+import { shopifyRetry } from './helpers';
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { SyncProgressDocument, SubSyncProgressDocument, ISyncProgress, IStartSyncOptions, ISubSyncProgressFinishedCallback } from '../interfaces';
@@ -32,7 +33,7 @@ export abstract class ShopifyApiRootCountableService<
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     // Delete undefined options
     deleteUndefinedProperties(options);
-    return pRetry(() => {
+    return shopifyRetry(() => {
       return shopifyModel.count(options);
     });
   }

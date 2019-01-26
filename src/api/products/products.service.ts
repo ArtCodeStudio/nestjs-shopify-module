@@ -2,7 +2,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 // Third party
-import * as pRetry from 'p-retry';
+// import * as pRetry from 'p-retry';
+import { shopifyRetry } from '../helpers';
 import { GenericParams as ESGenericParams } from 'elasticsearch';
 
 import { IShopifyConnect } from '../../auth/interfaces';
@@ -262,7 +263,7 @@ ProductDocument // DatabaseDocumentType
    */
   public async createInShopify(user: IShopifyConnect, product: ProductUpdateCreate): Promise<Product> {
     const products = new Products(user.myshopify_domain, user.accessToken);
-    return pRetry(() => products.create(product));
+    return shopifyRetry(() => products.create(product));
   }
 
   /**
@@ -273,7 +274,7 @@ ProductDocument // DatabaseDocumentType
    */
   public async updateInShopify(user: IShopifyConnect, id: number, product: ProductUpdateCreate): Promise<Product> {
     const products = new Products(user.myshopify_domain, user.accessToken);
-    return pRetry(() => products.update(id, product));
+    return shopifyRetry(() => products.update(id, product));
   }
 
   /**
@@ -284,7 +285,7 @@ ProductDocument // DatabaseDocumentType
    */
   public async deleteInShopify(user: IShopifyConnect, id: number) {
     const products = new Products(user.myshopify_domain, user.accessToken);
-    return pRetry(() => products.delete(id));
+    return shopifyRetry(() => products.delete(id));
   }
 
   /**

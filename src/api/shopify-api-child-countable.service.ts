@@ -1,6 +1,7 @@
 // Third party
 import { Infrastructure, Options } from 'shopify-prime';
-import * as pRetry from 'p-retry';
+// import * as pRetry from 'p-retry';
+import { shopifyRetry } from './helpers';
 import { Document } from 'mongoose';
 
 import { IShopifyConnect } from '../auth/interfaces';
@@ -37,7 +38,7 @@ export abstract class ShopifyApiChildCountableService<
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     // Delete undefined options
     deleteUndefinedProperties(options);
-    return pRetry(() => {
+    return shopifyRetry(() => {
       return shopifyModel.count(parentId, options);
     });
   }

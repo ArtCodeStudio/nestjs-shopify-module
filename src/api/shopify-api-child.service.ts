@@ -4,7 +4,8 @@ import { WsResponse } from '@nestjs/websockets';
 // third party
 import { Infrastructure, Options } from 'shopify-prime';
 import { Document } from 'mongoose';
-import * as pRetry from 'p-retry';
+// import * as pRetry from 'p-retry';
+import { shopifyRetry } from './helpers';
 import { Readable } from 'stream';
 import { Observable, Observer } from 'rxjs';
 
@@ -37,7 +38,7 @@ export abstract class ShopifyApiChildService<
     const syncToSearch = options && options.syncToSearch;
     delete options.syncToDb;
     delete options.syncToSearch;
-    return pRetry(() => {
+    return shopifyRetry(() => {
       return shopifyModel.get(parentId, id, options);
     })
     .then(async (shopifyObjectType) => {
@@ -63,7 +64,7 @@ export abstract class ShopifyApiChildService<
     delete options.syncToSearch;
     delete options.failOnSyncError;
     delete options.cancelSignal; // TODO?
-    return pRetry(() => {
+    return shopifyRetry(() => {
       return shopifyModel.list(parentId, options);
     })
     .then(async (shopifyListObjs) => {

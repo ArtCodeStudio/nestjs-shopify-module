@@ -22,6 +22,7 @@
     "@types/mongoose": "^5.3.8",
     "@types/p-queue": "^3.0.0",
     "@types/p-retry": "^2.0.0",
+    "@types/retry": "^0.12.0",
     "@types/socket.io": "^2.1.2",
     "cache-manager": "^2.9.0",
     "cache-manager-redis": "^0.6.0",
