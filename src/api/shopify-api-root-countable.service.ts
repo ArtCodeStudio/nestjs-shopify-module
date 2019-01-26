@@ -2,7 +2,7 @@
 import { Infrastructure, Options } from 'shopify-prime';
 import { Document } from 'mongoose';
 import * as pRetry from 'p-retry';
-import { shopifyRetry } from './helpers';
+import { shopifyRetry } from '../helpers';
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { SyncProgressDocument, SubSyncProgressDocument, ISyncProgress, IStartSyncOptions, ISubSyncProgressFinishedCallback } from '../interfaces';

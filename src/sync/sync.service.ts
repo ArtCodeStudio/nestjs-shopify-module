@@ -12,7 +12,8 @@ import { CustomCollectionsService } from '../api/custom-collections/custom-colle
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { DebugService } from '../debug.service';
 import { IStartSyncOptions, SyncProgressDocument, SubSyncProgressDocument, ISubSyncProgress } from '../interfaces';
-import * as pRetry from 'p-retry';
+// import * as pRetry from 'p-retry';
+import { mongooseParallelRetry } from '../helpers';
 
 @Injectable()
 export class SyncService {
@@ -326,7 +327,7 @@ export class SyncService {
           progress.state = 'success';
         }
         this.eventService.emit(`sync-${progress.state}`, shop, progress);
-        return pRetry(() => {
+        return mongooseParallelRetry(() => {
           this.eventService.emit(`save progress`, progress);
           return progress.save();
         });
@@ -336,7 +337,7 @@ export class SyncService {
         progress.state = 'failed';
         progress.lastError = error.message ? error.message : error;
         this.eventService.emit(`sync-${progress.state}`, shop, progress);
-        return pRetry(() => {
+        return mongooseParallelRetry(() => {
           this.eventService.emit(`save progress`, progress);
           return progress.save();
         });

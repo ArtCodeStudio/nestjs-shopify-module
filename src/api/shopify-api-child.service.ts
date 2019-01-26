@@ -5,7 +5,7 @@ import { WsResponse } from '@nestjs/websockets';
 import { Infrastructure, Options } from 'shopify-prime';
 import { Document } from 'mongoose';
 // import * as pRetry from 'p-retry';
-import { shopifyRetry } from './helpers';
+import { shopifyRetry } from '../helpers';
 import { Readable } from 'stream';
 import { Observable, Observer } from 'rxjs';
 

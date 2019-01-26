@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 // Third party
 // import * as pRetry from 'p-retry';
-import { shopifyRetry } from '../helpers';
+import { shopifyRetry } from '../../helpers';
 import { GenericParams as ESGenericParams } from 'elasticsearch';
 
 import { IShopifyConnect } from '../../auth/interfaces';

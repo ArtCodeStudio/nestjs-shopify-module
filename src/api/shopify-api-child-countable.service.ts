@@ -1,7 +1,7 @@
 // Third party
 import { Infrastructure, Options } from 'shopify-prime';
 // import * as pRetry from 'p-retry';
-import { shopifyRetry } from './helpers';
+import { shopifyRetry } from '../helpers';
 import { Document } from 'mongoose';
 
 import { IShopifyConnect } from '../auth/interfaces';
