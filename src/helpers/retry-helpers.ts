@@ -11,7 +11,7 @@ import { Error as MongooseError } from 'mongoose';
  * This will only retry requests which throw a Shopify error with one of the specified codes
  * OR that throw an EAI_AGAIN network error (stemming from `fetch`).
  *
- * If you want to pass 
+ * If you want to pass
  *
  * @param promiseFn
  * @param retryHttpCodes
@@ -22,9 +22,9 @@ export function shopifyRetry(
   retryHttpCodes: number[] = [429],
   // default options are filled in by retry module
   // @see https://github.com/tim-kos/node-retry#retryoperationoptions
-  options: OperationOptions = {}
+  options: OperationOptions = {},
 ) {
-  return pRetry((n?: number) => {
+  return pRetry(async (n?: number) => {
       return promiseFn(n)
       .catch((e: Error) => {
         if (e instanceof Infrastructure.ShopifyError) {
@@ -33,7 +33,7 @@ export function shopifyRetry(
             throw new pRetry.AbortError(e);
           }
         } else if (e instanceof FetchError) {
-          if (e['code'] !== 'EAI_AGAIN') {
+          if ((e as any).code !== 'EAI_AGAIN') {
             throw new pRetry.AbortError(e);
           }
         }
@@ -41,7 +41,7 @@ export function shopifyRetry(
         throw e;
       });
     },
-    options
+    options,
   );
 }
 
@@ -57,9 +57,9 @@ export function shopifyRetry(
  */
 export function mongooseParallelRetry(
   promiseFn: (attempt?: number) => Promise<any>,
-  options: OperationOptions = {}
+  options: OperationOptions = {},
 ) {
-  return pRetry((n?: number) => {
+  return pRetry(async (n?: number) => {
       return promiseFn(n)
       .catch((e: Error) => {
         if (!(e instanceof MongooseError.ParallelSaveError)) {
@@ -70,5 +70,6 @@ export function mongooseParallelRetry(
         throw e;
       });
     },
-    options)
+    options,
+  );
 }

@@ -171,7 +171,8 @@ export class SyncService {
     // this.logger.debug(`[startSync] (${shop})`);
     try {
       options.syncToDb = !!options.syncToDb;
-      options.syncToSearch = !!options.syncToSearch;
+      options.syncToSwiftype = !!options.syncToSwiftype;
+      options.syncToEs = !!options.syncToEs;
       options.resync = !!options.resync;
       options.includeOrders = !!options.includeOrders;
       options.includeProducts = !!options.includeProducts;
@@ -192,7 +193,7 @@ export class SyncService {
         throw new Error('At least one shopify record must be synchronized!');
       }
 
-      if (!options.syncToDb && !options.syncToSearch) {
+      if (!options.syncToDb && !options.syncToSwiftype && !options.syncToEs) {
         throw new Error('At least one synchronization target must be defined!');
       }
 
@@ -224,7 +225,8 @@ export class SyncService {
 
           const checkOptions = [
             'syncToDb',
-            'syncToSearch',
+            'syncToSwiftype',
+            'syncToEs',
             'includeProducts',
             'includeOrders',
             'includeTransactions',

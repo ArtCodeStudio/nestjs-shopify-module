@@ -12,8 +12,8 @@
     "test": "jest --config=jest.config.js",
     "test:watch": "jest --watch --config=jest.config.js",
     "test:coverage": "jest --config=jest.config.js --coverage --coverageDirectory=coverage",
-    "test:product": "jest --config=jest.config.js 'src/.*products.*\\.spec.ts$'",
-    "test:product:watch": "jest --watch --config=jest.config.js 'src/.*products.*\\.spec.ts$'"
+    "test:product": "SWIFTYPE=1 MONGODB=1 jest --config=jest.config.js 'src/.*products.*\\.spec.ts$'",
+    "test:product:watch": "SWIFTYPE=1 MONGODB=1 jest --watch --config=jest.config.js 'src/.*products.*\\.spec.ts$'"
   },
   "dependencies": {
     "@nestjs/passport": "^5.1.0",
@@ -36,7 +36,8 @@
     "passport-shopify": "^0.1.2",
     "shopify-prime": "github:JumpLink/Shopify-Prime#master",
     "shopify-token": "^3.0.3",
-    "socket.io-redis": "^5.2.0"
+    "socket.io-redis": "^5.2.0",
+    "swiftype-app-search-node": "^0.3.1"
   },
   "devDependencies": {
     "@nestjs/common": "^5.6.2",

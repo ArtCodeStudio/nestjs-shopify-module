@@ -9,26 +9,31 @@ import { getDiff } from '../../../helpers/diff';
 import { ShopifyApiChildCountableService } from '../../shopify-api-child-countable.service';
 import { EventService } from '../../../event.service';
 import { ElasticsearchService } from '../../../elasticsearch.service';
+import { SwiftypeService } from '../../../swiftype.service';
 
 export interface TransactionBaseOptions extends Options.TransactionBaseOptions {
   syncToDb?: boolean;
-  syncToSearch?: boolean;
+  syncToSwiftype?: boolean;
+  syncToEs?: boolean;
 }
 
 export interface TransactionListOptions extends Options.TransactionListOptions {
   syncToDb?: boolean;
-  syncToSearch?: boolean;
+  syncToSwiftype?: boolean;
+  syncToEs?: boolean;
   failOnSyncError?: boolean;
 }
 
 export interface TransactionCountOptions extends Options.TransactionBaseOptions {
   syncToDb?: boolean;
-  syncToSearch?: boolean;
+  syncToSwiftype?: boolean;
+  syncToEs?: boolean;
 }
 
 export interface TransactionGetOptions extends Options.TransactionBaseOptions {
   syncToDb?: boolean;
-  syncToSearch?: boolean;
+  syncToSwiftype?: boolean;
+  syncToEs?: boolean;
 }
 
 @Injectable()
@@ -48,18 +53,20 @@ TransactionListOptions
     protected readonly esService: ElasticsearchService,
     @Inject('TransactionModelToken')
     private readonly transactionModel: (shopName: string) => Model<TransactionDocument>,
+    protected readonly swiftypeService: SwiftypeService,
     private readonly eventService: EventService,
   ) {
-    super(esService, transactionModel, Transactions, eventService);
+    super(esService, transactionModel, swiftypeService, Transactions, eventService);
   }
 
   public async getFromShopify(user: IShopifyConnect, order_id: number, id: number, options?: TransactionBaseOptions): Promise<Transaction|null> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
     const syncToDb = options && options.syncToDb;
-    const syncToSearch = options && options.syncToSearch;
+    const syncToSwiftype = options && options.syncToSwiftype;
+    const syncToEs = options && options.syncToEs;
     return transactions.get(order_id, id)
     .then(async (transaction) => {
-      return this.updateOrCreateInApp(user, 'id', transaction, syncToDb, syncToSearch)
+      return this.updateOrCreateInApp(user, 'id', transaction, syncToDb, syncToSwiftype, syncToEs)
       .then((_) => {
         return transaction;
       });

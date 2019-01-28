@@ -1,7 +1,5 @@
 import { Module, DynamicModule, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { BodyParserJsonMiddleware, BodyParserUrlencodedMiddleware,
-GetShopifyConnectMiddleware, GetUserMiddleware, VerifyWebhookMiddleware } from './middlewares';
 import { ShopifyAuthController } from './auth/auth.controller';
 import { shopifyConnectProviders } from './auth/connect.providers';
 import { shopifyApiProviders } from './api/api.providers';
@@ -47,6 +45,15 @@ import { CustomCollectionsController } from './api/custom-collections/custom-col
 import { SearchController } from './api/search/search.controller';
 import { SearchService } from './api/search/search.service';
 import { ElasticsearchService } from './elasticsearch.service';
+import { Model } from 'mongoose';
+import { SwiftypeService } from './swiftype.service';
+import {
+  BodyParserJsonMiddleware,
+  BodyParserUrlencodedMiddleware,
+  GetShopifyConnectMiddleware,
+  GetUserMiddleware,
+  VerifyWebhookMiddleware,
+} from './middlewares';
 export {
   OrdersService,
   ProductsService,
@@ -55,10 +62,9 @@ export {
   AssetsService,
   PagesService,
   SmartCollectionsService,
-  CustomCollectionsService
+  CustomCollectionsService,
 };
 export { RequestGuard } from './guards/request.guard';
-import { Model } from 'mongoose';
 
 @Module({
   providers: [
@@ -91,6 +97,7 @@ import { Model } from 'mongoose';
     CustomCollectionsService,
     SearchService,
     ElasticsearchService,
+    SwiftypeService,
   ],
   controllers: [
     ShopifyAuthController,

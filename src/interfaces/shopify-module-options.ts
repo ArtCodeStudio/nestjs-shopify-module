@@ -52,4 +52,10 @@ export interface ShopifyModuleOptions {
   };
 
   elasticsearch: ElasticSearchConfigOptions;
+
+  swiftype: {
+    hostIdentifier: string;
+    privateApiKey: string;
+    defaultEngineName: string;
+  };
 }

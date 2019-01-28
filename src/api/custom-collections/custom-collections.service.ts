@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 import { ElasticsearchService } from '../../elasticsearch.service';
+import { SwiftypeService } from '../../swiftype.service';
 
 import {
   CustomCollectionDocument,
@@ -32,11 +33,12 @@ CustomCollectionDocument // DatabaseDocumentType
     protected readonly esService: ElasticsearchService,
     @Inject('CustomCollectionModelToken')
     private readonly customCollectionModel: (shopName: string) => Model<CustomCollectionDocument>,
+    protected readonly swiftypeService: SwiftypeService,
     @Inject('SyncProgressModelToken')
     private readonly eventService: EventService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
   ) {
-    super(esService, customCollectionModel, CustomCollections, eventService, syncProgressModel);
+    super(esService, customCollectionModel, swiftypeService, CustomCollections, eventService, syncProgressModel);
   }
 }

@@ -21,10 +21,13 @@ import {
   IAppProductGetOptions,
   IAppProductListOptions,
 } from '../interfaces';
+import { ElasticsearchService } from '../../elasticsearch.service';
+
 import { EventService } from '../../event.service';
 import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions } from '../../interfaces';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
-import { ElasticsearchService } from '../../elasticsearch.service';
+
+import { SwiftypeService } from '../../swiftype.service';
 
 @Injectable()
 export class ProductsService extends ShopifyApiRootCountableService<
@@ -41,13 +44,12 @@ ProductDocument // DatabaseDocumentType
 
   constructor(
     protected readonly esService: ElasticsearchService,
-    @Inject('ProductModelToken')
-    protected readonly productModel: (shopName: string) => Model<ProductDocument>,
-    @Inject('SyncProgressModelToken')
-    protected readonly syncProgressModel: Model<SyncProgressDocument>,
+    @Inject('ProductModelToken') protected readonly productModel: (shopName: string) => Model<ProductDocument>,
+    protected readonly swiftypeService: SwiftypeService,
+    @Inject('SyncProgressModelToken') protected readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
   ) {
-    super(esService, productModel, Products, eventService, syncProgressModel);
+    super(esService, productModel, swiftypeService, Products, eventService, syncProgressModel);
   }
 
   /**
@@ -129,7 +131,7 @@ ProductDocument // DatabaseDocumentType
    * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
    * and https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
    */
-  public async listFromSearch(user: IShopifyConnect, options: IAppProductListOptions = {}): Promise<Product[]> {
+  public async listFromES(user: IShopifyConnect, options: IAppProductListOptions = {}): Promise<Product[]> {
 
     const body = {
       query: {
@@ -204,18 +206,14 @@ ProductDocument // DatabaseDocumentType
      */
     if (options.price_max) {
       body.query.range.price = body.query.range.price || {};
-      body.query.range.price = {
-        lte: options.price_max,
-      };
+      body.query.range.price.lte = options.price_max;
     }
     if (options.price_min) {
-       body.query.range.price =  body.query.range.price || {};
-       body.query.range.price = {
-        gte: options.price_min,
-      };
+      body.query.range.price =  body.query.range.price || {};
+      body.query.range.price.gte = options.price_min;
     }
 
-    // Set or filter to query (as parent of the and filter)
+    // Set or filter to query (as child of the and filter)
     if (or.length > 0) {
       and.push({
         bool: {
@@ -253,7 +251,103 @@ ProductDocument // DatabaseDocumentType
       text:  options.text,
     };
 
-    return super.listFromSearch(user, body, basicOptions);
+    return super.listFromES(user, body, basicOptions);
+  }
+
+  /**
+   * Retrieves a list of products from swiftype.
+   */
+  public async listFromSwiftype(user: IShopifyConnect, options: IAppProductListOptions = {}): Promise<Product[]> {
+    const swiftypeOptions: any = {};
+
+    const and = []; // ~ query.bool.must = []
+    const or = []; // ~ query.bool.must[x].bool.should = []
+
+    /**
+     * Implements title search
+     */
+    if (options.title) {
+      options.text = options.title;
+      swiftypeOptions.search_fields = {
+        title: {},
+      };
+    }
+
+    /**
+     * Implements filters
+     */
+    if (options.vendor) {
+      and.push({
+        vendor: options.vendor,
+      });
+    }
+    if (options.handle) {
+      and.push({
+        handle: options.handle,
+      });
+    }
+    if (options.product_type) {
+      and.push({
+        product_type: options.product_type,
+      });
+    }
+    if (options.collection_id) {
+      and.push({
+        collection_id: options.collection_id,
+      });
+    }
+
+    /*
+    * price min and max
+    */
+    if (options.price_max || options.price_min) {
+      const price: any = {};
+      if (options.price_max) {
+        price.to = options.price_max;
+      }
+      if (options.price_min) {
+        price.from = options.price_min;
+      }
+      and.push(price);
+    }
+
+    // Set `or` filter to query (as child of the and filter)
+    if (or.length > 0) {
+      and.push({
+        any: or,
+      });
+    }
+
+    // Set and filter to query
+    if (and.length > 0) {
+      swiftypeOptions.filters = swiftypeOptions.filters || {};
+      swiftypeOptions.filters.all = and;
+    }
+
+    const basicOptions: IAppBasicListOptions = {
+      /**
+       * Copied Options from shopify
+       */
+      fields: options.fields,
+      limit: options.limit,
+      page: options.page,
+      created_at_max: options.created_at_max,
+      created_at_min: options.created_at_min,
+      published_at_max: options.published_at_max,
+      published_at_min: options.published_at_min,
+      updated_at_max: options.updated_at_max,
+      updated_at_min: options.updated_at_min,
+      published_status: options.published_status,
+      ids: options.ids,
+      /**
+       * Custom basic options
+       */
+      sort_by: options.sort_by,
+      sort_dir: options.sort_dir,
+      text:  options.text,
+    };
+
+    return super.listFromSwiftype(user, swiftypeOptions, basicOptions);
   }
 
   /**

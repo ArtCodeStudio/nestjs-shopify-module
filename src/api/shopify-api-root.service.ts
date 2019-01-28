@@ -9,9 +9,11 @@ import { Readable } from 'stream';
 import { Observable, Observer } from 'rxjs';
 import { Model, Document } from 'mongoose';
 
+import { SwiftypeService } from '../swiftype.service';
+
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { SyncProgressDocument } from '../interfaces';
-import { listAllCallback, ISyncOptions, ShopifyBaseObjectType, RootGet, RootList } from './interfaces';
+import { listAllCallback, ISyncOptions, ShopifyBaseObjectType, RootGet, RootList, ISwiftypeDocument } from './interfaces';
 import { deleteUndefinedProperties } from '../helpers';
 import { EventService } from '../event.service';
 import { ShopifyApiBaseService } from './shopify-api-base.service';
@@ -32,11 +34,12 @@ export abstract class ShopifyApiRootService<
   constructor(
     protected readonly esService: ElasticsearchService,
     protected readonly dbModel: (shopName: string) => Model<DatabaseDocumentType>,
+    protected readonly swiftypeService: SwiftypeService,
     protected readonly ShopifyModel: new (shopDomain: string, accessToken: string) => ShopifyModelClass,
     protected readonly events: EventService,
     protected readonly syncprogressModel: Model<SyncProgressDocument>,
   ) {
-    super(esService, dbModel, ShopifyModel, events);
+    super(esService, dbModel, swiftypeService, ShopifyModel, events);
   }
 
   /**
@@ -49,14 +52,16 @@ export abstract class ShopifyApiRootService<
   public async getFromShopify(user: IShopifyConnect, id: number, options?: GetOptions): Promise<Partial<ShopifyObjectType> | null> {
     const shopifyModel = new this.ShopifyModel(user.myshopify_domain, user.accessToken);
     const syncToDb = options && options.syncToDb;
-    const syncToSearch = options && options.syncToSearch;
+    const syncToSwiftype = options && options.syncToSwiftype;
+    const syncToEs = options && options.syncToEs;
     delete options.syncToDb;
-    delete options.syncToSearch;
+    delete options.syncToSwiftype;
+    delete options.syncToEs;
     return shopifyRetry(() => {
       return shopifyModel.get(id, options);
     })
     .then(async (shopifyObj) => {
-      return this.updateOrCreateInApp(user, 'id', shopifyObj, syncToDb, syncToSearch)
+      return this.updateOrCreateInApp(user, 'id', shopifyObj, syncToDb, syncToSwiftype, syncToEs)
       .then((_) => {
         return shopifyObj;
       });
@@ -75,11 +80,13 @@ export abstract class ShopifyApiRootService<
     this.logger.debug('[listFromShopify]', options);
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     const syncToDb = options && options.syncToDb;
-    const syncToSearch = options && options.syncToSearch;
+    const syncToSwiftype = options && options.syncToSwiftype;
+    const syncToEs = options && options.syncToEs;
     options = Object.assign({}, options);
     const failOnSyncError = options && options.failOnSyncError;
     delete options.syncToDb;
-    delete options.syncToSearch;
+    delete options.syncToSwiftype;
+    delete options.syncToEs;
     delete options.failOnSyncError;
     delete options.cancelSignal; // TODO?
     return shopifyRetry(async (count) => {
@@ -93,7 +100,7 @@ export abstract class ShopifyApiRootService<
     .then(async (shopifyObjects: ShopifyObjectType[]) => {
       this.logger.debug('[listFromShopify] result length', shopifyObjects.length);
       this.logger.debug('[listFromShopify] updateOrCreateManyInApp');
-      return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyObjects, syncToDb, syncToSearch)
+      return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyObjects, syncToDb, syncToSwiftype, syncToEs)
       .then((syncResult) => {
         return shopifyObjects;
       })
