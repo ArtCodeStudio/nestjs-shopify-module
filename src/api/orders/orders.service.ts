@@ -90,7 +90,9 @@ export class OrdersService extends ShopifyApiRootCountableService<
    *
    * @param syncOptions
    */
-  protected getSyncListOptions(syncOptions: IStartSyncOptions): IShopifySyncOrderListOptions {
+  protected getSyncCountOptions(syncOptions: IStartSyncOptions): IShopifySyncOrderCountOptions {
+    this.logger.debug(`getSyncCountOptions`, syncOptions);
+    this.logger.debug({status: 'any'});
     return { status: 'any'};
   }
 }

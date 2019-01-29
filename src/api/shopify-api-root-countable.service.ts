@@ -1,8 +1,8 @@
 // Third party
 import { Infrastructure, Options } from 'shopify-prime';
 import { Document } from 'mongoose';
-import * as pRetry from 'p-retry';
-import { shopifyRetry } from '../helpers';
+// import * as pRetry from 'p-retry';
+import { shopifyRetry, mongooseParallelRetry } from '../helpers';
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { SyncProgressDocument, SubSyncProgressDocument, ISyncProgress, IStartSyncOptions, ISubSyncProgressFinishedCallback } from '../interfaces';
@@ -142,8 +142,10 @@ export abstract class ShopifyApiRootCountableService<
     subProgress.lastId = objects[objects.length - 1].id;
   }
 
-  protected getSyncListOptions(options: IStartSyncOptions): Partial<ListOptions> {
-    return {};
+  protected getSyncCountOptions(options: IStartSyncOptions): CountOptions {
+    this.logger.debug(`getSyncCountOptions`, options);
+    this.logger.debug('fuck you');
+    return {} as CountOptions;
   }
 
   protected getlastSyncProgressForOptions(shopifyConnect: IShopifyConnect, options: IStartSyncOptions) {
@@ -159,13 +161,14 @@ export abstract class ShopifyApiRootCountableService<
     lastProgress: SyncProgressDocument,
   ): Promise<Partial<SubSyncProgressDocument>> {
     const shop = shopifyConnect.myshopify_domain;
+    const countOptions = this.getSyncCountOptions(options);
     const seedSubProgress: Partial<SubSyncProgressDocument> = {
       shop,
       sinceId: 0,
       lastId: null,
       info: null,
       syncedCount: 0,
-      shopifyCount: await this.countFromShopify(shopifyConnect),
+      shopifyCount: await this.countFromShopify(shopifyConnect, countOptions),
       state: 'starting',
       error: null,
     };
@@ -241,7 +244,7 @@ export abstract class ShopifyApiRootCountableService<
       } else {
         return this.syncedDataCallback(shopifyConnect, progress[this.resourceName], options, data)
         .then(() => {
-          return pRetry(() => {
+          return mongooseParallelRetry(() => {
             return progress.save();
           });
         })
@@ -258,11 +261,11 @@ export abstract class ShopifyApiRootCountableService<
       failOnSyncError: true,
       cancelSignal,
       since_id: progress[this.resourceName].sinceId,
-      ...this.getSyncListOptions(options),
+      ...this.getSyncCountOptions(options),
     };
 
     // save the initialized progress for the first time
-    await pRetry(() => {
+    await mongooseParallelRetry(() => {
       return progress.save();
     });
 
@@ -274,7 +277,7 @@ export abstract class ShopifyApiRootCountableService<
       }
       this.logger.debug(`[${this.resourceName}] sync ${syncSignal} success`);
       progress[this.resourceName].state = 'success';
-      return pRetry(() => {
+      return mongooseParallelRetry(() => {
         return progress.save();
       });
     })
@@ -290,7 +293,7 @@ export abstract class ShopifyApiRootCountableService<
       }
     })
     .then(() => {
-      return pRetry(() => {
+      return mongooseParallelRetry(() => {
         return progress.save();
       });
     })
