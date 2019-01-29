@@ -8,3 +8,4 @@ export * from './product';
 export * from './smart-collection';
 export * from './sync';
 export * from './theme';
+export * from './transactions';

@@ -1,12 +1,22 @@
 import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
+import { Response } from 'express';
 
 import { IUserRequest } from '../../../interfaces/user-request';
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
-import { TransactionsService, TransactionBaseOptions, TransactionListOptions } from './transactions.service';
+import { TransactionsService } from './transactions.service';
 import { DebugService } from '../../../debug.service';
 
 import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
 import { Roles } from '../../../guards/roles.decorator';
+
+import {
+  IAppTransactionCountOptions,
+  IAppTransactionGetOptions,
+  IAppTransactionListOptions,
+  IShopifySyncTransactionCountOptions,
+  IShopifySyncTransactionGetOptions,
+  IShopifySyncTransactionListOptions,
+} from '../../interfaces';
 
 @Controller('shopify/api/orders')
 export class TransactionsController {
@@ -18,7 +28,12 @@ export class TransactionsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get(':order_id/transactions')
-  listFromShopify(@Req() req: IUserRequest, @Res() res, @Param('order_id') orderId, @Query() options: TransactionListOptions) {
+  async listFromShopify(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Param('order_id') orderId: number,
+    @Query() options: IShopifySyncTransactionListOptions,
+  ) {
     return this.transactionsService.listFromShopify(req.shopifyConnect, orderId, {
       ...options,
     })
@@ -35,8 +50,12 @@ export class TransactionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get(':order_id/transactions/synced')
-  async listFromDb(@Req() req: IUserRequest, @Param('order_id') orderId, @Res() res) {
+  @Get(':order_id/transactions/db')
+  async listFromDb(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Param('order_id') orderId: number,
+  ) {
     try {
       return res.jsonp(await this.transactionsService.listFromDb(req.shopifyConnect, orderId));
     } catch (error) {
@@ -52,7 +71,7 @@ export class TransactionsController {
   @Get(':order_id/transactions/count')
   async countFromShopify(
     @Req() req: IUserRequest,
-    @Res() res,
+    @Res() res: Response,
     @Param('order_id') orderId: number,
   ) {
     return this.transactionsService.countFromShopify(req.shopifyConnect, orderId)
@@ -69,8 +88,12 @@ export class TransactionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get(':order_id/transactions/synced/count')
-  countFromDb(@Req() req: IUserRequest, @Res() res, @Param('order_id') orderId) {
+  @Get(':order_id/transactions/db/count')
+  async countFromDb(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Param('order_id') orderId: number,
+  ) {
     return this.transactionsService.countFromDb(req.shopifyConnect, orderId)
     .then((count) => {
       return res.jsonp(count);
@@ -85,8 +108,12 @@ export class TransactionsController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get(':order_id/transactions/:id/synced')
-  async getFromDb(@Req() req: IUserRequest, @Res() res, @Param('id') id: number) {
+  @Get(':order_id/transactions/:id/db')
+  async getFromDb(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Param('id') id: number,
+  ) {
     try {
       return res.jsonp(await this.transactionsService.getFromDb(req.shopifyConnect, id));
     } catch (error) {
@@ -102,10 +129,10 @@ export class TransactionsController {
   @Get(':order_id/transactions/:id')
   getFromShopify(
     @Req() req: IUserRequest,
-    @Res() res,
+    @Res() res: Response,
     @Param('order_id') orderId,
     @Param('id') id: number,
-    @Query() options: TransactionBaseOptions,
+    @Query() options: IShopifySyncTransactionGetOptions,
   ) {
     return this.transactionsService.getFromShopify(req.shopifyConnect, orderId, id, options)
     .then((transaction) => {

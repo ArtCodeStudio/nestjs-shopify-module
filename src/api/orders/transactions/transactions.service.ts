@@ -2,7 +2,15 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Transactions, Options } from 'shopify-prime';
 import { IShopifyConnect } from '../../../auth/interfaces';
 import { Transaction } from 'shopify-prime/models';
-import { TransactionDocument } from '../../interfaces';
+import {
+  TransactionDocument,
+  IAppTransactionCountOptions,
+  IAppTransactionGetOptions,
+  IAppTransactionListOptions,
+  IShopifySyncTransactionCountOptions,
+  IShopifySyncTransactionGetOptions,
+  IShopifySyncTransactionListOptions,
+} from '../../interfaces';
 import { ShopifyModuleOptions } from '../../../interfaces';
 import { Model } from 'mongoose';
 import { getDiff } from '../../../helpers/diff';
@@ -11,38 +19,13 @@ import { EventService } from '../../../event.service';
 import { ElasticsearchService } from '../../../elasticsearch.service';
 import { SwiftypeService } from '../../../swiftype.service';
 
-export interface TransactionBaseOptions extends Options.TransactionBaseOptions {
-  syncToDb?: boolean;
-  syncToSwiftype?: boolean;
-  syncToEs?: boolean;
-}
-
-export interface TransactionListOptions extends Options.TransactionListOptions {
-  syncToDb?: boolean;
-  syncToSwiftype?: boolean;
-  syncToEs?: boolean;
-  failOnSyncError?: boolean;
-}
-
-export interface TransactionCountOptions extends Options.TransactionBaseOptions {
-  syncToDb?: boolean;
-  syncToSwiftype?: boolean;
-  syncToEs?: boolean;
-}
-
-export interface TransactionGetOptions extends Options.TransactionBaseOptions {
-  syncToDb?: boolean;
-  syncToSwiftype?: boolean;
-  syncToEs?: boolean;
-}
-
 @Injectable()
 export class TransactionsService extends ShopifyApiChildCountableService<
 Transaction,
 Transactions,
-TransactionCountOptions,
-TransactionGetOptions,
-TransactionListOptions
+IShopifySyncTransactionCountOptions,
+IShopifySyncTransactionGetOptions,
+IShopifySyncTransactionListOptions
 >
 {
 
@@ -59,7 +42,12 @@ TransactionListOptions
     super(esService, transactionModel, swiftypeService, Transactions, eventService);
   }
 
-  public async getFromShopify(user: IShopifyConnect, order_id: number, id: number, options?: TransactionBaseOptions): Promise<Transaction|null> {
+  public async getFromShopify(
+    user: IShopifyConnect,
+    order_id: number,
+    id: number,
+    options: IShopifySyncTransactionGetOptions = {},
+  ): Promise<Transaction|null> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
     const syncToDb = options && options.syncToDb;
     const syncToSwiftype = options && options.syncToSwiftype;
