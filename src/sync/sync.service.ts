@@ -291,7 +291,7 @@ export class SyncService {
           });
           subSyncFinishedPromises.push(subSyncFinishedPromise);
           try {
-            await this.productsService.startSync(
+            await subService.startSync(
               shopifyConnect,
               options,
               progress,
