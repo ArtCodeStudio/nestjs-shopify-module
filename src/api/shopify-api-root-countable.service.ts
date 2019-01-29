@@ -253,7 +253,8 @@ export abstract class ShopifyApiRootCountableService<
 
     const listAllOptions: Partial<ListOptions> = {
       syncToDb: options.syncToDb,
-      syncToSearch: options.syncToSearch,
+      syncToSwiftype: options.syncToSwiftype,
+      syncToEs: options.syncToEs,
       failOnSyncError: true,
       cancelSignal,
       since_id: progress[this.resourceName].sinceId,

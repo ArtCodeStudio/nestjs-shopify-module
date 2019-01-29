@@ -54,7 +54,8 @@ export class OrdersController {
      * Custom sync options
      */
     @Query('sync_to_db') syncToDb?: boolean,
-    @Query('sync_to_search') syncToSearch?: boolean,
+    @Query('sync_to_search') syncToSwiftype?: boolean,
+    @Query('sync_to_es') syncToEs?: boolean,
     @Query('cancel_signal') cancelSignal?: string,
     @Query('fail_on_sync_error') failOnSyncError?: boolean,
   ) {
@@ -74,7 +75,8 @@ export class OrdersController {
         since_id,
         status,
         syncToDb,
-        syncToSearch,
+        syncToSwiftype,
+        syncToEs,
         updated_at_max,
         updated_at_min,
       };

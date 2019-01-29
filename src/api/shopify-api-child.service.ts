@@ -35,14 +35,16 @@ export abstract class ShopifyApiChildService<
   public async getFromShopify(user: IShopifyConnect, parentId: number, id: number, options?: GetOptions): Promise<Partial<ShopifyObjectType> | null> {
     const shopifyModel = new this.ShopifyModel(user.myshopify_domain, user.accessToken);
     const syncToDb = options && options.syncToDb;
-    const syncToSearch = options && options.syncToSearch;
+    const syncToSwiftype = options && options.syncToSwiftype;
+    const syncToEs = options && options.syncToEs;
     delete options.syncToDb;
-    delete options.syncToSearch;
+    delete options.syncToSwiftype;
+    delete options.syncToEs;
     return shopifyRetry(() => {
       return shopifyModel.get(parentId, id, options);
     })
     .then(async (shopifyObjectType) => {
-      return this.updateOrCreateInApp(user, 'id', shopifyObjectType, syncToDb, syncToSearch)
+      return this.updateOrCreateInApp(user, 'id', shopifyObjectType, syncToDb, syncToSwiftype, syncToEs)
       .then((_) => {
         return shopifyObjectType;
       });
@@ -58,17 +60,19 @@ export abstract class ShopifyApiChildService<
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     options = Object.assign({}, options);
     const syncToDb = options && options.syncToDb;
-    const syncToSearch = options && options.syncToSearch;
+    const syncToSwiftype = options && options.syncToSwiftype;
+    const syncToEs = options && options.syncToEs;
     const failOnSyncError = options && options.failOnSyncError;
     delete options.syncToDb;
-    delete options.syncToSearch;
+    delete options.syncToSwiftype;
+    delete options.syncToEs;
     delete options.failOnSyncError;
     delete options.cancelSignal; // TODO?
     return shopifyRetry(() => {
       return shopifyModel.list(parentId, options);
     })
     .then(async (shopifyListObjs) => {
-      return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyListObjs, syncToDb, syncToSearch)
+      return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyListObjs, syncToDb, syncToSwiftype, syncToEs)
       .then(() => {
         return shopifyListObjs;
       })

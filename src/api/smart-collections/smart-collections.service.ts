@@ -14,6 +14,7 @@ import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 import { ElasticsearchService } from '../../elasticsearch.service';
+import { SwiftypeService } from '../../swiftype.service';
 
 @Injectable()
 export class SmartCollectionsService extends ShopifyApiRootCountableService<
@@ -32,11 +33,12 @@ SmartCollectionDocument // DatabaseDocumentType
     protected readonly esService: ElasticsearchService,
     @Inject('SmartCollectionModelToken')
     private readonly smartCollectionModel: (shopName: string) => Model<SmartCollectionDocument>,
+    protected readonly swiftypeService: SwiftypeService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     private readonly eventService: EventService,
   ) {
-    super(esService, smartCollectionModel, SmartCollections, eventService, syncProgressModel);
+    super(esService, smartCollectionModel, swiftypeService, SmartCollections, eventService, syncProgressModel);
   }
 
   /**

@@ -3,6 +3,7 @@ import { EventService } from '../../event.service';
 import { TransactionsService } from './transactions/transactions.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 import { ElasticsearchService } from '../../elasticsearch.service';
+import { SwiftypeService } from '../../swiftype.service';
 
 // Interfaces
 import { Model } from 'mongoose';
@@ -41,12 +42,13 @@ export class OrdersService extends ShopifyApiRootCountableService<
     protected readonly esService: ElasticsearchService,
     @Inject('OrderModelToken')
     private readonly orderModel: (shopName: string) => Model<OrderDocument>,
+    protected readonly swiftypeService: SwiftypeService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
     private readonly transactionsService: TransactionsService,
   ) {
-    super(esService, orderModel, Orders, eventService, syncProgressModel);
+    super(esService, orderModel, swiftypeService, Orders, eventService, syncProgressModel);
   }
 
   /**
@@ -70,7 +72,8 @@ export class OrdersService extends ShopifyApiRootCountableService<
       for (const order of orders) {
         await this.transactionsService.listFromShopify(shopifyConnect, order.id, {
           syncToDb: options.syncToDb,
-          syncToSearch: options.syncToSearch,
+          syncToSwiftype: options.syncToSwiftype,
+          syncToEs: options.syncToEs,
         });
         subProgress.syncedCount ++;
         subProgress.lastId = order.id;

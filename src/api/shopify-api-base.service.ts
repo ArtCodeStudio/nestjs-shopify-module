@@ -2,6 +2,7 @@
 import { BulkWriteOpResultObject } from 'mongodb';
 import { Model, Document, Mongoose, Query as MongooseQuery} from 'mongoose';
 import { Infrastructure, Options } from 'shopify-prime';
+
 import {
   SearchResponse as ESSearchResponse,
   CountResponse as ESCountResponse,
@@ -10,18 +11,21 @@ import {
   CreateDocumentResponse as ESCreateDocumentResponse,
   CreateDocumentParams as ESCreateDocumentParams,
   UpdateDocumentParams as ESUpdateDocumentParams,
+  BulkIndexDocumentsParams,
 } from 'elasticsearch';
+import { ElasticsearchService } from '../elasticsearch.service';
+
+import { SwiftypeService } from '../swiftype.service';
 
 import { IShopifyConnect } from '../auth/interfaces';
 import { ShopifyModuleOptions } from '../interfaces';
 import {
   IESResponseError,
   IAppBasicListOptions,
+  ISwiftypeDocument,
 } from './interfaces';
 import { DebugService } from '../debug.service';
 import { EventService } from '../event.service';
-import { ElasticsearchService } from '../elasticsearch.service';
-import { BulkIndexDocumentsParams } from 'elasticsearch';
 import { firstCharUppercase, underscoreCase, deleteUndefinedProperties } from '../helpers';
 
 export abstract class ShopifyApiBaseService<
@@ -59,9 +63,28 @@ export abstract class ShopifyApiBaseService<
   constructor(
     protected readonly esService: ElasticsearchService,
     protected readonly dbModel: (shopName: string) => Model<DatabaseDocumentType>,
+    protected readonly swiftypeService: SwiftypeService,
     protected readonly ShopifyModel: new (shopDomain: string, accessToken: string) => ShopifyModelClass,
     protected readonly events: EventService,
   ) {
+  }
+
+  /**
+   * returns a Mongoose query object on this data model for the specified conditions.
+   * This does not run the query yet.
+   * The query object has a versatile API to specify further options and methods to
+   * retrieve the data, through streams, callbacks, promises etc.
+   *
+   * @param user
+   * @param conditions
+   *
+   * @see https://mongoosejs.com/docs/api.html#Query
+   */
+  public queryDb(shopifyConnect: IShopifyConnect, conditions = {}): MongooseQuery<ShopifyObjectType> {
+    return this.dbModel(shopifyConnect.shop.myshopify_domain)
+    .find(conditions)
+    .select('-_id -__v') // Removes :id and __v properties from result
+    .lean(); // Just return the result data without mongoose methods like `.save()`
   }
 
   /**
@@ -69,7 +92,7 @@ export abstract class ShopifyApiBaseService<
    * @param user
    * @param id
    */
-  async getFromDb(user: IShopifyConnect, conditions): Promise<ShopifyObjectType | null> {
+  public async getFromDb(user: IShopifyConnect, conditions: any): Promise<ShopifyObjectType | null> {
     return this.dbModel(user.shop.myshopify_domain).findOne(conditions).select('-_id -__v').lean();
   }
 
@@ -146,7 +169,7 @@ export abstract class ShopifyApiBaseService<
    * @param user
    * @param options
    */
-  async countFromDb(user: IShopifyConnect, conditions = {}): Promise<number> {
+  async countFromDb(user: IShopifyConnect, conditions: any = {}): Promise<number> {
     return this.dbModel(user.shop.myshopify_domain)
     .find(conditions)
     .countDocuments(conditions);
@@ -169,7 +192,7 @@ export abstract class ShopifyApiBaseService<
    * @param user
    * @param options
    */
-  public async countFromSearch(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {match_all: {}}}): Promise<number> {
+  public async countFromES(user: IShopifyConnect, body: ESGenericParams['body'] = {query: {match_all: {}}}): Promise<number> {
     return this._countFromEs(user, body)
     .then((coutResult) => {
       return coutResult.count;
@@ -328,32 +351,14 @@ export abstract class ShopifyApiBaseService<
   }
 
   /**
-   * returns a Mongoose query object on this data model for the specified conditions.
-   * This does not run the query yet.
-   * The query object has a versatile API to specify further options and methods to
-   * retrieve the data, through streams, callbacks, promises etc.
-   *
-   * @param user
-   * @param conditions
-   *
-   * @see https://mongoosejs.com/docs/api.html#Query
-   */
-  public queryDb(shopifyConnect: IShopifyConnect, conditions = {}): MongooseQuery<ShopifyObjectType> {
-    return this.dbModel(shopifyConnect.shop.myshopify_domain)
-    .find(conditions)
-    .select('-_id -__v') // Removes :id and __v properties from result
-    .lean(); // Just return the result data without mongoose methods like `.save()`
-  }
-
-  /**
    * Retrieves a list of `ShopifyObjectType` from elasticsearch.
    * @param user
    * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
    */
-  public async listFromSearch(
+  public async listFromES(
     user: IShopifyConnect,
     body: ESGenericParams['body'] = {query: {match_all: {}}},
-    basicOptions: IAppBasicListOptions,
+    basicOptions: IAppBasicListOptions = {},
   ): Promise<ShopifyObjectType[]> {
 
     basicOptions = this.setDefaultAppListOptions(basicOptions);
@@ -492,13 +497,102 @@ export abstract class ShopifyApiBaseService<
       body.query.bool.must = and;
     }
 
-    this.logger.debug(`[listFromSearch:${this.resourceName}]`, user.shop.myshopify_domain);
+    this.logger.debug(`[listFromES:${this.resourceName}]`, user.shop.myshopify_domain);
     return this._searchInEs(user, body)
     .then((response: ESSearchResponse<ShopifyObjectType>) => {
       return response.hits.hits.map((value) => {
         return value._source;
       });
     });
+  }
+
+  /**
+   * Retrieves a list of `ShopifyObjectType` from swiftype.
+   * @param user
+   * @param body
+   */
+  public async listFromSwiftype(
+    user: IShopifyConnect,
+    options: any = {},
+    basicOptions: IAppBasicListOptions = {},
+  ): Promise<ShopifyObjectType[]> {
+
+    basicOptions = this.setDefaultAppListOptions(basicOptions);
+
+    let textSearch = '';
+
+    /**
+     * COMBINING FILTERS
+     * @see https://swiftype.com/documentation/app-search/api/search/filters
+     */
+    const and = []; // ~ query.bool.must = []
+    const or = []; // ~ query.bool.must[x].bool.should = []
+
+    /**
+     * Sort the result
+     * @see https://swiftype.com/documentation/app-search/api/search/sorting
+     */
+    options.sort = options.sort || {};
+    options.sort[basicOptions.sort_by] = basicOptions.sort_dir;
+
+    // Convert fields to Siftype fields
+    if (basicOptions.fields) {
+      const fields = basicOptions.fields.replace(/\s/g, '').split(',');
+      options.result_fields = options.result_fields || {};
+      for (const field of fields) {
+        options.result_fields[field] = {
+          raw: {},
+        };
+      }
+    }
+
+    /**
+     * Filter by ids
+     */
+    if (basicOptions.ids) {
+      const ids = basicOptions.ids.replace(/\s/g, '').split(',');
+      for (const id of ids) {
+        or.push({id});
+      }
+    }
+
+    /**
+     * Pagination
+     */
+    if (basicOptions.limit) {
+      options.page = options.page || {};
+      options.page.size = basicOptions.limit;
+    }
+
+    if (basicOptions.page) {
+      options.page = options.page || {};
+      options.page.current = basicOptions.page;
+    }
+
+    /**
+     * Implements text search
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query-phrase-prefix.html
+     */
+    if (basicOptions.text) {
+      textSearch = basicOptions.text;
+    }
+
+    // Set or filter to query (as parent of the and filter)
+    if (or.length > 0) {
+      and.push({any: or});
+    }
+
+    // IMPORTANT!
+    and.push({shop: user.myshopify_domain});
+    and.push({resource: this.resourceName});
+
+    // Set and filter to query
+    if (and.length > 0) {
+      options.filters = options.filters || {};
+      options.filters.all = and;
+    }
+
+    return this.swiftypeService.search(textSearch, options);
   }
 
   /**
@@ -521,12 +615,16 @@ export abstract class ShopifyApiBaseService<
     selectBy: string = 'id',
     update: Partial<ShopifyObjectType>,
     inDb: boolean =  true,
-    inSearch: boolean = false,
+    inSwiftype: boolean =  true,
+    inES: boolean = false,
   ) {
     this.logger.debug(`[updateOrCreateInApp:${this.resourceName}] start`);
     const promises = new Array<Promise<any>>();
-    if (inSearch) {
-      promises.push(this.updateOrCreateInSearch(user, selectBy, update));
+    if (inSwiftype) {
+      promises.push(this.updateOrCreateInSwiftype(user, update));
+    }
+    if (inES) {
+      promises.push(this.updateOrCreateInES(user, selectBy, update));
     }
     if (inDb) {
       const conditions = {};
@@ -541,11 +639,22 @@ export abstract class ShopifyApiBaseService<
   }
 
   /**
+   * Internal method to create a single `ShopifyObjectType` in Swiftype App Search.
+   * @param user
+   * @param createOrCreate The document to create or create
+   */
+  protected async updateOrCreateInSwiftype(user: IShopifyConnect, createOrCreate: Partial<ShopifyObjectType> & Partial<ISwiftypeDocument> ) {
+    createOrCreate.shop = user.myshopify_domain;
+    createOrCreate.resource = this.resourceName;
+    return this.swiftypeService.indexDocument(createOrCreate);
+  }
+
+  /**
    * Internal method to create a single `ShopifyObjectType` in elasticsearch.
    * @param user
    * @param object The objects to create
    */
-  protected async updateOrCreateInSearch(user: IShopifyConnect, selectBy: string = 'id', createOrCreate: Partial<ShopifyObjectType>) {
+  protected async updateOrCreateInES(user: IShopifyConnect, selectBy: string = 'id', createOrCreate: Partial<ShopifyObjectType>) {
     if (createOrCreate[selectBy]) {
       const updateDocumentParams: ESUpdateDocumentParams = {
         index: this.esService.getIndex(user.shop.myshopify_domain, this.resourceName),
@@ -569,11 +678,28 @@ export abstract class ShopifyApiBaseService<
   }
 
   /**
+   * Internal method to update several `ShopifyObjectType` in Swiftype App Search.
+   * @param user
+   * @param createOrCreate The document to create or create
+   */
+  protected async updateOrCreateManyInSwiftype(user: IShopifyConnect, objects: (Partial<ShopifyObjectType> & Partial<ISwiftypeDocument>)[]) {
+    for (const object of objects) {
+      object.shop = user.myshopify_domain;
+      object.resource = this.resourceName;
+    }
+    return this.swiftypeService.indexDocuments(objects);
+  }
+
+  /**
    * Internal method to update several `ShopifyObjectType` in the app mongodb database.
    * @param user
    * @param objects The objects to create / update
    */
-  public async updateOrCreateManyInDb(user: IShopifyConnect, selectBy: string, objects: ShopifyObjectType[]): Promise<BulkWriteOpResultObject | {}> {
+  public async updateOrCreateManyInDb(
+    user: IShopifyConnect,
+    selectBy: string,
+    objects: Partial<ShopifyObjectType>[],
+  ): Promise<BulkWriteOpResultObject | {}> {
     this.logger.debug(`[updateOrCreateManyInDb:${this.resourceName}] start selectBy: ${selectBy} objects.length: ${objects.length}`);
     // An empty bulkwrite is not allowed. Just return an empty object if the passed array is empty.
     if (objects.length === 0) {
@@ -605,7 +731,7 @@ export abstract class ShopifyApiBaseService<
    * @param selectBy
    * @param objects
    */
-  public async updateOrCreateManyInSearch(user: IShopifyConnect, selectBy: string, objects: ShopifyObjectType[]): Promise<any> {
+  public async updateOrCreateManyInES(user: IShopifyConnect, selectBy: string, objects: ShopifyObjectType[]): Promise<any> {
     const _index = this.esService.getIndex(user.shop.myshopify_domain, this.resourceName);
     const bulkActions = [];
     objects.forEach((object) => {
@@ -621,10 +747,10 @@ export abstract class ShopifyApiBaseService<
     const bulkParams: BulkIndexDocumentsParams = {
       body: bulkActions,
     };
-    this.logger.debug(`[updateOrCreateManyInSearch:${this.resourceName}] start selectBy: ${selectBy} objects.length: ${objects.length}`);
+    this.logger.debug(`[updateOrCreateManyInES:${this.resourceName}] start selectBy: ${selectBy} objects.length: ${objects.length}`);
     return this.esService.client.bulk(bulkParams)
     .then((result) => {
-      this.logger.debug(`[updateOrCreateManyInSearch:${this.resourceName}] done`);
+      this.logger.debug(`[updateOrCreateManyInES:${this.resourceName}] done`);
       return result;
     });
   }
@@ -640,13 +766,20 @@ export abstract class ShopifyApiBaseService<
     selectBy: string = 'id',
     objects: ShopifyObjectType[],
     inDb: boolean = false,
-    inSearch: boolean = false,
+    inSwiftype: boolean = false,
+    inES: boolean = false,
   ): Promise<BulkWriteOpResultObject | {}> {
-    this.logger.debug(`[updateOrCreateManyInApp:${this.resourceName}] start inDb: ${inDb} inSearch: ${inSearch} objects.length: ${objects.length}`);
+    this.logger.debug(
+      `[updateOrCreateManyInApp:${this.resourceName}] start inDb: ${inDb} inSwiftype: ${inSwiftype} inES: ${inES} objects.length: ${objects.length}`,
+    );
     const promises = new Array<Promise<any>>();
 
-    if (inSearch) {
-      promises.push(this.updateOrCreateManyInSearch(user, selectBy, objects));
+    if (inSwiftype) {
+      promises.push(this.updateOrCreateManyInSwiftype(user, objects));
+    }
+
+    if (inES) {
+      promises.push(this.updateOrCreateManyInES(user, selectBy, objects));
     }
 
     if (inDb) {

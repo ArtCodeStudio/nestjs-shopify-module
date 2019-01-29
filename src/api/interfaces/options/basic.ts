@@ -1,7 +1,23 @@
 import { Options } from 'shopify-prime';
 
+export interface ISwiftypeDocument {
+  shop: string;
+  resource: string;
+}
+
+export interface ISwiftypeListSortOptions {
+  /**
+   * Property to sort by
+   */
+  sort_by?: string;
+  /**
+   * Sort direction
+   */
+  sort_dir?: 'asc' | 'desc';
+}
+
 /**
- * Sort options for listFromDb and listFromSearch methods
+ * Sort options for listFromDb and listFromES methods
  */
 export interface IAppListSortOptions {
   /**
@@ -27,7 +43,7 @@ export interface IAppListFilterOptions {
 }
 
 /**
- * Basic list options wich should be implementated by listFromDb and listFromSearch
+ * Basic list options wich should be implementated by listFromDb and listFromES
  */
 export interface IAppBasicListOptions extends
   IAppListSortOptions,

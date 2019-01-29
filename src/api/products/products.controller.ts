@@ -74,15 +74,17 @@ export class ProductsController {
     /*
      * Custom sync options
      */
-    @Query('sync_to_db') sync_to_db?: boolean,
-    @Query('sync_to_search') sync_to_search?: boolean,
+    @Query('sync_to_db') syncToDb?: boolean,
+    @Query('sync_to_search') syncToSwiftype?: boolean,
+    @Query('sync_to_es') syncToEs?: boolean,
     @Query('cancel_signal') cancelSignal?: string,
     @Query('fail_on_sync_error') failOnSyncError?: boolean,
   ) {
     if (req.session.isThemeClientRequest) {
       published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
-      sync_to_db = false;
-      sync_to_search = false;
+      syncToDb = false;
+      syncToSwiftype = false;
+      syncToEs = false;
     }
     const options: IShopifySyncProductListOptions = {
       /*
@@ -107,8 +109,9 @@ export class ProductsController {
       /*
        * Custom sync options
        */
-      syncToDb: sync_to_db,
-      syncToSearch: sync_to_search,
+      syncToDb,
+      syncToSwiftype,
+      syncToEs,
       cancelSignal,
       failOnSyncError,
     };
@@ -216,7 +219,7 @@ export class ProductsController {
   }
 
   /**
-   * Retrieves a list of products from elasticsearch.
+   * Retrieves a list of products from swiftype.
    * @param req
    * @param res
    * @param options
@@ -224,9 +227,9 @@ export class ProductsController {
    * @see https://help.shopify.com/en/api/reference/products/product#index
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles() // Allowed from shop frontend
   @Get('search')
-  async listFromSearch(
+  async listFromSwiftype(
     @Req() req: IUserRequest,
     @Res() res: Response,
     /*
@@ -288,7 +291,7 @@ export class ProductsController {
       sort_by,
       sort_dir,
     };
-    return this.productsService.listFromSearch(req.shopifyConnect, options)
+    return this.productsService.listFromSwiftype(req.shopifyConnect, options)
     .then((products) => {
       return res.jsonp(products);
     })
@@ -330,7 +333,8 @@ export class ProductsController {
     @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
     @Query('since_id') since_id?: number,
     @Query('sync_to_db') sync_to_db?: boolean,
-    @Query('sync_to_search') sync_to_search?: boolean,
+    @Query('sync_to_search') syncToSwiftype?: boolean,
+    @Query('sync_to_es') syncToEs?: boolean,
     @Query('title') title?: string,
     @Query('updated_at_max') updated_at_max?: string,
     @Query('updated_at_min') updated_at_min?: string,
@@ -350,7 +354,8 @@ export class ProductsController {
       published_status,
       since_id,
       syncToDb: sync_to_db,
-      syncToSearch: sync_to_search,
+      syncToSwiftype,
+      syncToEs,
       title,
       updated_at_max,
       updated_at_min,
