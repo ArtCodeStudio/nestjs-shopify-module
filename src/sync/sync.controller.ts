@@ -128,7 +128,7 @@ export class SyncController {
     @Query('include_smart_collections') includeSmartCollections?: boolean,
     @Query('include_custom_collections') includeCustomCollections?: boolean,
     @Query('resync') resync?: boolean,
-    @Query('cancelExisting') cancelExisting?: boolean,
+    @Query('cancel_existing') cancelExisting?: boolean,
   ) {
     return this.syncService.startSync(req.shopifyConnect, {
       syncToDb,

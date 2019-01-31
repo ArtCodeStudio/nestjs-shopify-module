@@ -8,7 +8,7 @@ export const SyncOptionsSchema = new mongoose.Schema({
   includeTransactions: Boolean,
   includeProducts: Boolean,
   includePages: Boolean,
-  incudeSmartCollections: Boolean,
+  includeSmartCollections: Boolean,
   includeCustomCollections: Boolean,
   resync: Boolean,
   cancelExisting: Boolean,
