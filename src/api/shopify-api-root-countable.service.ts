@@ -145,15 +145,7 @@ export abstract class ShopifyApiRootCountableService<
 
   protected getSyncCountOptions(options: IStartSyncOptions): CountOptions {
     this.logger.debug(`getSyncCountOptions`, options);
-    this.logger.debug('fuck you');
     return {} as CountOptions;
-  }
-
-  protected getlastSyncProgressForOptions(shopifyConnect: IShopifyConnect, options: IStartSyncOptions) {
-    return {
-      shop: shopifyConnect.myshopify_domain,
-      [`options.include${this.upperCaseResourceName}`]: true,
-    };
   }
 
   protected async seedSyncProgress(
@@ -163,7 +155,16 @@ export abstract class ShopifyApiRootCountableService<
   ): Promise<Partial<SubSyncProgressDocument>> {
     const shop = shopifyConnect.myshopify_domain;
     const countOptions = this.getSyncCountOptions(options);
-    const seedSubProgress: Partial<SubSyncProgressDocument> = {
+
+    this.logger.debug(`seedSyncProgress[${this.resourceName}] options:`, options);
+    const includedSubResourceNames = this.upperCaseSubResourceNames.filter((subResourceName: string) => {
+      let string = `include${subResourceName}`;
+      let result = options[`include${subResourceName}`];
+      this.logger.debug(`${string}: ${result}`);
+      return result;
+    });
+
+    let seedSubProgress: Partial<SubSyncProgressDocument> = {
       shop,
       sinceId: 0,
       lastId: null,
@@ -174,18 +175,33 @@ export abstract class ShopifyApiRootCountableService<
       error: null,
     };
 
-    // this.logger.debug(`seed sub-progress`, seedSubProgress.id);
+    includedSubResourceNames.forEach((subResourceName: string) => {
+      seedSubProgress[`synced${subResourceName}Count`] = 0;
+    });
 
+    this.logger.debug(`includedSubResourceNames`, includedSubResourceNames);
     if (!options.resync && lastProgress) {
       let lastSubProgress: SubSyncProgressDocument | null;
       let lastProgressWithTheseOptions: SyncProgressDocument | null;
 
-      if (lastProgress[this.resourceName]) {
+      if (
+        lastProgress[this.resourceName]
+        && !includedSubResourceNames.some((subResourceName: string) => {
+          return !lastProgress.options[`include${subResourceName}`];
+        })
+      ) {
         lastSubProgress = lastProgress[this.resourceName];
         lastProgressWithTheseOptions = lastProgress;
       } else {
+        let conditions = {
+          shop: shopifyConnect.myshopify_domain,
+          [`options.include${this.upperCaseResourceName}`]: true,
+        };
+        includedSubResourceNames.forEach((subResourceName: string) => {
+          conditions[`options.include${subResourceName}`] = true;
+        });
         lastProgressWithTheseOptions = await this.syncprogressModel.findOne(
-          this.getlastSyncProgressForOptions(shopifyConnect, options),
+          conditions,
           {},
           { sort: { createdAt: -1} },
         );
@@ -197,6 +213,9 @@ export abstract class ShopifyApiRootCountableService<
         seedSubProgress.lastId = lastSubProgress.lastId;
         seedSubProgress.info = lastSubProgress.info;
         seedSubProgress.syncedCount = lastSubProgress.syncedCount;
+        includedSubResourceNames.forEach((subResourceName: string) => {
+          seedSubProgress[`synced${subResourceName}Count`] = lastSubProgress[`synced${subResourceName}Count`];
+        });
         seedSubProgress.continuedFromPrevious = lastProgressWithTheseOptions._id;
       }
     }

@@ -37,7 +37,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
   > {
 
   resourceName = 'orders';
-  subResourceNames = [];
+  subResourceNames = ['transactions'];
 
   constructor(
     protected readonly esService: ElasticsearchService,
@@ -72,17 +72,18 @@ export class OrdersService extends ShopifyApiRootCountableService<
     const lastOrder = orders[orders.length - 1];
     if (options.includeTransactions) {
       for (const order of orders) {
-        await this.transactionsService.listFromShopify(shopifyConnect, order.id, {
+        const transactions = await this.transactionsService.listFromShopify(shopifyConnect, order.id, {
           syncToDb: options.syncToDb,
           syncToSwiftype: options.syncToSwiftype,
           syncToEs: options.syncToEs,
         });
+        subProgress.syncedTransactionsCount += transactions.length;
         subProgress.syncedCount ++;
         subProgress.lastId = order.id;
         subProgress.info = order.name;
         await mongooseParallelRetry(() => {
           return progress.save();
-        })
+        });
       }
     } else {
       subProgress.syncedCount += orders.length;
