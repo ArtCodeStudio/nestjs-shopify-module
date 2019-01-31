@@ -113,18 +113,30 @@ describe('SyncService', () => {
     });
 
     it('should increase the object counts with each event and not fail', async () => {
-      let finalProgress: ISyncProgress = await new Promise((resolve, reject) => {
+      let finalProgressPromise: Promise<ISyncProgress> = new Promise((resolve, reject) => {
         eventService.on(`sync:${progress.shop}:${progress._id}`, (nextProgress) => {
-          expect(progress.state).not.toBe('failed');
+          expect(nextProgress.state).not.toBe('failed');
+          if (nextProgress.state === 'failed') {
+            reject(new Error(`sync progress failed`));
+          }
+          progress.state = nextProgress.state;
+
+          // Check each subprogress state
           ['orders', 'products', 'customCollections', 'smartCollections', 'pages']
           .some((resourceName: string) => {
-            expect(nextProgress[resourceName].syncedCount).toBeGreaterThanOrEqual(progress[resourceName].syncedCount);
+            expect(nextProgress[resourceName].syncedCount)
+            .toBeGreaterThanOrEqual(progress[resourceName].syncedCount);
             progress[resourceName].syncedCount = nextProgress[resourceName].syncedCount;
             if (progress[resourceName].syncedCount > nextProgress[resourceName].syncedCount) {
               reject(new Error(`${resourceName} counting backwards`));
               return true;
             }
-            expect(progress[resourceName].state).not.toBe('failed');
+            expect(nextProgress[resourceName].state).not.toBe('failed');
+            if (nextProgress[resourceName].state === 'failed') {
+              reject(new Error(`sync progress failed`));
+              return true;
+            }
+            progress[resourceName].state = nextProgress[resourceName].state;
             return false;
           });
         });
@@ -135,7 +147,15 @@ describe('SyncService', () => {
           reject(new Error(nextProgress.lastError));
         });
       });
-      expect(finalProgress.state).toBe('success');
+      await expect(finalProgressPromise).resolves.toMatchObject({
+        shop: shopifyConnect.myshopify_domain,
+        state: 'success',
+        lastError: null,
+        orders: {
+          syncedCount: progress.orders.shopifyCount,
+        },
+        options: syncContentOptions,
+      });
     });
   });
 });
