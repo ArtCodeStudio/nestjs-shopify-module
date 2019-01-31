@@ -13,7 +13,9 @@
     "test:watch": "jest --watch --config=jest.config.js",
     "test:coverage": "jest --config=jest.config.js --coverage --coverageDirectory=coverage",
     "test:product": "SWIFTYPE=1 MONGODB=1 jest --config=jest.config.js 'src/.*products.*\\.spec.ts$'",
-    "test:product:watch": "SWIFTYPE=1 MONGODB=1 jest --watch --config=jest.config.js 'src/.*products.*\\.spec.ts$'"
+    "test:product:watch": "SWIFTYPE=1 MONGODB=1 jest --watch --config=jest.config.js 'src/.*products.*\\.spec.ts$'",
+    "test:sync": "SWIFTYPE=1 MONGODB=1 jest --config=jest.config.js 'src/sync.*\\.spec.ts$'",
+    "test:sync:watch": "SWIFTYPE=1 MONGODB=1 jest --watch --config=jest.config.js 'src/sync.*\\.spec.ts$'"
   },
   "dependencies": {
     "@nestjs/passport": "^5.1.0",
