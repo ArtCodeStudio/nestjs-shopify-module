@@ -145,6 +145,7 @@ PageDocument // DatabaseDocumentType
    */
   async syncedDataCallback(
     shopifyConnect: IShopifyConnect,
+    progress: SyncProgressDocument,
     subProgress: ISubSyncProgress,
     options: IStartSyncOptions,
     data: IListAllCallbackData<Page>,

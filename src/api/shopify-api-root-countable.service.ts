@@ -133,6 +133,7 @@ export abstract class ShopifyApiRootCountableService<
 
   protected async syncedDataCallback(
     shopifyConnect: IShopifyConnect,
+    progress: SyncProgressDocument,
     subProgress: Partial<SubSyncProgressDocument>,
     options: IStartSyncOptions,
     data: IListAllCallbackData<ShopifyObjectType>,
@@ -238,11 +239,11 @@ export abstract class ShopifyApiRootCountableService<
 
     let listAllError: Error | null = null;
 
-    const listAllCallback2 = async (error: Error, data: IListAllCallbackData<ShopifyObjectType>) => {
+    const listAllCallback = async (error: Error, data: IListAllCallbackData<ShopifyObjectType>) => {
       if (error) {
         listAllError = error;
       } else {
-        return this.syncedDataCallback(shopifyConnect, progress[this.resourceName], options, data)
+        return this.syncedDataCallback(shopifyConnect, progress, progress[this.resourceName], options, data)
         .then(() => {
           return mongooseParallelRetry(() => {
             return progress.save();
@@ -270,7 +271,7 @@ export abstract class ShopifyApiRootCountableService<
     });
 
     // We don't want to return the result of this promise, but the initialized progress as it is now immediately.
-    this.listAllFromShopify(shopifyConnect, listAllOptions as ListOptions, listAllCallback2)
+    this.listAllFromShopify(shopifyConnect, listAllOptions as ListOptions, listAllCallback)
     .then(async () => {
       if (listAllError) {
         throw listAllError;

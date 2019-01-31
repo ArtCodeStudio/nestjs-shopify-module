@@ -391,6 +391,7 @@ ProductDocument // DatabaseDocumentType
    */
   async syncedDataCallback(
     shopifyConnect: IShopifyConnect,
+    progress: SyncProgressDocument,
     subProgress: SubSyncProgressDocument,
     options: IStartSyncOptions,
     data: IListAllCallbackData<Product>,

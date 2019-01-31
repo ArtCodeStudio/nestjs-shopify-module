@@ -24,6 +24,7 @@ import { SyncProgressDocument,
 } from '../../interfaces';
 import { IListAllCallbackData } from '../../api/interfaces';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
+import { mongooseParallelRetry } from '../../helpers';
 
 @Injectable()
 export class OrdersService extends ShopifyApiRootCountableService<
@@ -62,6 +63,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
    */
   protected async syncedDataCallback(
     shopifyConnect: IShopifyConnect,
+    progress: SyncProgressDocument,
     subProgress: OrderSyncProgressDocument,
     options: IStartSyncOptions,
     data: IListAllCallbackData<Order>,
@@ -78,6 +80,9 @@ export class OrdersService extends ShopifyApiRootCountableService<
         subProgress.syncedCount ++;
         subProgress.lastId = order.id;
         subProgress.info = order.name;
+        await mongooseParallelRetry(() => {
+          return progress.save();
+        })
       }
     } else {
       subProgress.syncedCount += orders.length;
