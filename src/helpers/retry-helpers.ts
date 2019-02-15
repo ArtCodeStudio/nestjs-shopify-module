@@ -62,7 +62,7 @@ export function mongooseParallelRetry(
   return pRetry(async (n?: number) => {
       return promiseFn(n)
       .catch((e: Error) => {
-        if (!(e instanceof MongooseError.ParallelSaveError)) {
+        if (!(e instanceof MongooseError.ParallelSaveError || e.name === 'ParallelSaveError')) {
           // this will abort the pRetry chain and make pRetry reject with the original error.
           throw new pRetry.AbortError(e);
         }
