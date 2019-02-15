@@ -91,58 +91,16 @@ export class OrdersController {
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
-  @Get('db ')
+  @Get('db')
   async listFromDb(
     @Req() req: IUserRequest,
     @Res() res: Response,
     /*
      * Options from shopify
      */
-    @Query('created_at_max') created_at_max?: string,
-    @Query('created_at_min') created_at_min?: string,
-    @Query('fields') fields?: string,
-    @Query('financial_status') financial_status?: string,
-    @Query('fulfillment_status') fulfillment_status?: string,
-    @Query('limit') limit?: number,
-    @Query('page') page?: number,
-    @Query('processed_at_max') processed_at_max?: string,
-    @Query('processed_at_min') processed_at_min?: string,
-    @Query('since_id') since_id?: number,
-    @Query('status') status?: string,
-    @Query('updated_at_max') updated_at_max?: string,
-    @Query('updated_at_min') updated_at_min?: string,
-    /*
-     * Custom app options
-     */
-    @Query('sort_by') sort_by?: string,
-    @Query('sort_dir') sort_dir?: 'asc' | 'desc',
-    @Query('ids') ids?: string,
+    @Query() options: IAppOrderListOptions
   ) {
     try {
-      const options: IAppOrderListOptions = {
-        /*
-         * Options from shopify
-         */
-        created_at_max,
-        created_at_min,
-        fields,
-        financial_status,
-        fulfillment_status,
-        limit,
-        page,
-        processed_at_max,
-        processed_at_min,
-        since_id,
-        status,
-        updated_at_max,
-        updated_at_min,
-        /*
-         * Custom app options
-         */
-        sort_by,
-        sort_dir,
-        ids,
-      };
       return res.jsonp(await this.ordersService.listFromDb(req.shopifyConnect, options, {}));
     } catch (error) {
       this.logger.error(error);
