@@ -42,6 +42,8 @@ import { SmartCollectionsService } from './api/smart-collections/smart-collectio
 import { CustomCollectionsService } from './api/custom-collections/custom-collections.service';
 import { SmartCollectionsController } from './api/smart-collections/smart-collections.controller';
 import { CustomCollectionsController } from './api/custom-collections/custom-collections.controller';
+import { CollectsService } from './api/collects/collects.service';
+import { CollectsController } from './api/collects/collects.controller';
 import { SearchController } from './api/search/search.controller';
 import { SearchService } from './api/search/search.service';
 import { ElasticsearchService } from './elasticsearch.service';
@@ -98,6 +100,7 @@ export { RequestGuard } from './guards/request.guard';
     SearchService,
     ElasticsearchService,
     SwiftypeService,
+    CollectsService,
   ],
   controllers: [
     ShopifyAuthController,
@@ -115,6 +118,7 @@ export { RequestGuard } from './guards/request.guard';
     SmartCollectionsController,
     CustomCollectionsController,
     SearchController,
+    CollectsController,
   ],
   exports: [
     ShopifyConnectService,

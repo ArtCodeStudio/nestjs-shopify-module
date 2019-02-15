@@ -8,6 +8,8 @@ import { AssetSchema, AssetDocument } from './interfaces/mongoose/asset.schema';
 import { PageSchema, PageDocument } from './interfaces/mongoose/page.schema';
 import { CustomCollectionSchema, CustomCollectionDocument } from './interfaces/mongoose/custom-collection.schema';
 import { SmartCollectionSchema, SmartCollectionDocument } from './interfaces/mongoose/smart-collection.schema';
+import { CollectSchema, CollectDocument } from './interfaces/mongoose/collect.schema';
+
 import { underscoreCase } from '../helpers';
 
 function getDbModel<DocumentType extends Document>(connection: Mongoose, myShopifyDomain: string, resourceName: string, schema: Schema) {
@@ -75,6 +77,12 @@ export const shopifyApiProviders = (connection: Mongoose) => {
       provide: 'SmartCollectionModelToken',
       useValue: (myshopifyDomain: string) => {
         return getDbModel<SmartCollectionDocument>(connection, myshopifyDomain, 'smart_collection', SmartCollectionSchema);
+      },
+    },
+    {
+      provide: 'CollectModelToken',
+      useValue: (myshopifyDomain: string) => {
+        return getDbModel<CollectDocument>(connection, myshopifyDomain, 'collect', CollectSchema);
       },
     },
   ];
