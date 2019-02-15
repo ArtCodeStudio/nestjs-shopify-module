@@ -16,7 +16,7 @@ export class DebugService {
         }
         return arg;
       })
-      .join('\n'),
+      .join(' '),
       this.context,
     );
   }
