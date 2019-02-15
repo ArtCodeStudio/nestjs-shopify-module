@@ -9,7 +9,7 @@ export interface ICollectionImage {
 };
 
 export const CollectionImageSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: {type: Number, index: {unique: true, sparse: true}},
   created_at: String,
   alt: String,
   width: Number,

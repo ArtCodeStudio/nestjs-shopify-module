@@ -15,7 +15,7 @@ export const LineItemPropertySchema = new Schema({
 })
 
 export const LineItemSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: {type: Number, index: {unique: true, sparse: true}},
   admin_graphql_api_id: String,
   discount_allocations: [DiscountAllocationSchema],
   destination_location: LocationSchema,

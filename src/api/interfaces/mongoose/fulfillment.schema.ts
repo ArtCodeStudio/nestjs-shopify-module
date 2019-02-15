@@ -5,7 +5,7 @@ import { LineItemSchema } from './line-item.schema';
 export type FulfillmentDocument = Fulfillment & Document;
 
 export const FulfillmentSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: {type: Number, index: {unique: true, sparse: true}},
   created_at: String,
   admin_graphql_api_id: String,
   line_items: [LineItemSchema],

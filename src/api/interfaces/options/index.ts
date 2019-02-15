@@ -1,5 +1,6 @@
 export * from './asset';
 export * from './basic';
+export * from './collect';
 export * from './custom-collection';
 export * from './locale';
 export * from './order';

@@ -11,7 +11,7 @@ export type RefundLineItemDocument = RefundLineItem & Document;
 export type RefundDocument = Refund & Document;
 
 export const OrderAdjustmentSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: {type: Number, index: {unique: true, sparse: true}},
   amount: String,
   amount_set: PriceSetSchema,
   kind: String,
@@ -25,7 +25,7 @@ export const OrderAdjustmentSchema = new Schema({
 });
 
 export const RefundLineItemSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: {type: Number, index: {unique: true, sparse: true}},
   line_item_id: Number,
   line_item: LineItemSchema,
   location_id: Number,
@@ -41,7 +41,7 @@ export const RefundLineItemSchema = new Schema({
 
 export const RefundSchema = new Schema({
   admin_graphql_api_id: String,
-  id: {type: Number, index: {unique: true}},
+  id: {type: Number, index: {unique: true, sparse: true}},
   created_at: String,
   note: String,
   order_adjustments: [OrderAdjustmentSchema],
