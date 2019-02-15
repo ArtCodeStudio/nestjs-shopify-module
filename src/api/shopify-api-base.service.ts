@@ -244,11 +244,12 @@ export abstract class ShopifyApiBaseService<
     ): Promise<ShopifyObjectType[]> {
 
     basicOptions = this.setDefaultAppListOptions(basicOptions);
-
     /**
      * Just return the specified `fields` or removes mongodb internally _id and __v properties from result
      */
-    const fields: any = {};
+    const fields: any = {
+      _id: 0,
+    };
 
     /**
      * Convert fields to mongodb fields
@@ -261,7 +262,6 @@ export abstract class ShopifyApiBaseService<
         }
       } else {
         // Projection cannot have a mix of inclusion and exclusion so just add exclusion for internal mongodb properties
-        fields._id = 0;
         fields.__v = 0;
       }
     }
