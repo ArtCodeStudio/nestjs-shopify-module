@@ -168,7 +168,7 @@ export class SyncService {
    */
   async startSync(shopifyConnect: IShopifyConnect, options: IStartSyncOptions): Promise<SyncProgressDocument> {
     const shop = shopifyConnect.myshopify_domain;
-    // this.logger.debug(`[startSync] (${shop})`);
+    this.logger.debug(`[startSync] (${shop})`);
     try {
       options.syncToDb = !!options.syncToDb;
       options.syncToSwiftype = !!options.syncToSwiftype;
@@ -337,7 +337,7 @@ export class SyncService {
       .catch((error) => {
         this.logger.error('FIXME', error);
         progress.state = 'failed';
-        progress.lastError = error.message ? error.message : error;
+        progress.lastError = error.message ? error.message + (process.env.NODE_ENV === 'development' ? '\n' + error.stack : '') : error;
         this.eventService.emit(`sync-${progress.state}`, shop, progress);
         return mongooseParallelRetry(() => {
           this.eventService.emit(`save progress`, progress);
