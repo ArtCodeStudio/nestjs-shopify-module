@@ -158,13 +158,13 @@ export abstract class ShopifyApiRootCountableService<
 
     this.logger.debug(`seedSyncProgress[${this.resourceName}] options:`, options);
     const includedSubResourceNames = this.upperCaseSubResourceNames.filter((subResourceName: string) => {
-      let string = `include${subResourceName}`;
-      let result = options[`include${subResourceName}`];
+      const string = `include${subResourceName}`;
+      const result = options[`include${subResourceName}`];
       this.logger.debug(`${string}: ${result}`);
       return result;
     });
 
-    let seedSubProgress: Partial<SubSyncProgressDocument> = {
+    const seedSubProgress: Partial<SubSyncProgressDocument> = {
       shop,
       sinceId: 0,
       lastId: null,
@@ -193,7 +193,7 @@ export abstract class ShopifyApiRootCountableService<
         lastSubProgress = lastProgress[this.resourceName];
         lastProgressWithTheseOptions = lastProgress;
       } else {
-        let conditions = {
+        const conditions = {
           shop: shopifyConnect.myshopify_domain,
           [`options.include${this.upperCaseResourceName}`]: true,
         };
@@ -210,9 +210,9 @@ export abstract class ShopifyApiRootCountableService<
 
       if (lastSubProgress) {
         seedSubProgress.sinceId = lastSubProgress.lastId || 0;
-        seedSubProgress.lastId = lastSubProgress.lastId;
-        seedSubProgress.info = lastSubProgress.info;
-        seedSubProgress.syncedCount = lastSubProgress.syncedCount;
+        seedSubProgress.lastId = lastSubProgress.lastId || null;
+        seedSubProgress.info = lastSubProgress.info || null;
+        seedSubProgress.syncedCount = lastSubProgress.syncedCount || 0;
         includedSubResourceNames.forEach((subResourceName: string) => {
           seedSubProgress[`synced${subResourceName}Count`] = lastSubProgress[`synced${subResourceName}Count`];
         });
@@ -308,8 +308,9 @@ export abstract class ShopifyApiRootCountableService<
       } else {
         this.logger.error(`[${this.resourceName}] sync ${syncSignal} error`, error);
         progress[this.resourceName].state = 'failed';
-        progress[this.resourceName].error = error.message;
-        // TODO ? progress.lastError = `${this.resourceName}:${error.message}`;
+        const errMsg = `${error.message}\n${error.stack}`;
+        progress[this.resourceName].error = `${error.message}` + process.env.NODE_ENV === 'development' ? `\n${error.stack}` : '';
+        progress.lastError = `${this.resourceName}:${errMsg}`;
       }
     })
     .then(() => {
