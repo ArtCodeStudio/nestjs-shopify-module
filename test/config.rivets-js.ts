@@ -5,8 +5,8 @@ import * as mongoose from 'mongoose';
 
 const app = {
   protocol: 'https',
-  host: '127.0.0.1',
-  port: 3000,
+  host: `nest-shopify.artandcode.studio`,
+  port: 3038,
   debug: true,
   environment: 'test' as 'production' | 'development' | 'test',
 };
@@ -110,7 +110,7 @@ const shopify = {
 const redis = {
   store: redisStore,
   host: 'localhost',
-  auth_pass: 'tester',
+  auth_pass: 'habib-poet-pew-divan',
   port: 6379,
   ttl: 1, // second
   max: 100,
@@ -127,15 +127,15 @@ const elasticsearch: ElasticSearchConfigOptions = {
  * ```
  *  > mongo
  *  use admin
- *  db.createUser({user:"tester", pwd:"tester", roles:[{role:"root", db:"admin"}]})
+ *  db.createUser({user:"nest-shopify", pwd:"bore-hydra-benign-barber-dispose-bulginess", roles:[{role:"root", db:"admin"}]})
  *  exit
  * ```
  */
 const mongodb = {
-  host: '127.0.0.1',
+  host: 'localhost',
   port: 27017,
-  username: 'tester',
-  password: 'tester',
+  username: 'nest-shopify',
+  password: 'bore-hydra-benign-barber-dispose-bulginess',
   database: 'nest-shopify',
 };
 
@@ -151,58 +151,6 @@ const mongooseConnectionPromise: Promise<typeof mongoose> = mongoose.connect(
     },
   },
 );
-
-const user = {
-  roles: [
-    'shopify-staff-member',
-  ],
-  shopifyID: 12396948,
-  myshopify_domain: 'jewelberry-dev.myshopify.com',
-  shop: {
-    id: 12396948,
-    name: 'jewelberry-dev',
-    email: 'pascal@jumplink.eu',
-    domain: 'jewelberry-dev.myshopify.com',
-    province: null,
-    country: 'DE',
-    address1: 'Bei der Kirche 12',
-    zip: '27476',
-    city: 'Cuxhaven',
-    source: 'jumplink',
-    phone: '+4915756431988',
-    latitude: '53.8837',
-    longitude: '8.673869999999999',
-    primary_locale: 'de',
-    address2: null,
-    created_at: '2016-04-07T07:40:11-04:00',
-    country_code: 'DE',
-    country_name: 'Germany',
-    currency: 'EUR',
-    customer_email: 'pascal@jumplink.eu',
-    timezone: '(GMT-05:00) Eastern Time (US & Canada)',
-    iana_timezone: 'America/New_York',
-    shop_owner: 'Moritz Raguschat',
-    money_format: '€{{amount}}',
-    money_with_currency_format: '€{{amount}} EUR',
-    province_code: null,
-    taxes_included: true,
-    tax_shipping: null,
-    county_taxes: true,
-    plan_name: 'affiliate',
-    has_discounts: false,
-    has_gift_cards: false,
-    myshopify_domain: 'jewelberry-dev.myshopify.com',
-    google_apps_domain: null,
-    google_apps_login_enabled: null,
-    password_enabled: true,
-    has_storefront: true,
-    setup_required: false,
-    force_ssl: true,
-  },
-  accessToken: '958bed3b47a08a7003b385e1551fce24',
-  updatedAt: new Date ('2019-01-16T16:21:11.455'),
-  createdAt: new Date('2018-11-29T19:43:03.964Z'),
-};
 
 const swiftype = {
   privateApiKey: 'private-vy62umk4py2cnpwh8aepq97x',
@@ -220,7 +168,7 @@ const config: ShopifyModuleOptions = {
   swiftype,
 };
 
-export { config, mongooseConnectionPromise, user };
+export { config, mongooseConnectionPromise };
 
 mongooseConnectionPromise
 .catch((error) => {
