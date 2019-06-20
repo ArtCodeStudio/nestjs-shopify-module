@@ -3,7 +3,7 @@ import { CollectsController } from './collects.controller';
 
 describe('Collects Controller', () => {
   let module: TestingModule;
-  
+
   beforeAll(async () => {
     module = await Test.createTestingModule({
       controllers: [CollectsController],

@@ -37,6 +37,8 @@ import { SyncGateway } from './sync/sync.gateway';
 import { syncProviders } from './sync/sync-providers';
 import { PagesController } from './api/pages/pages.controller';
 import { PagesService } from './api/pages/pages.service';
+import { BlogsController } from './api/blogs/blogs.controller';
+import { BlogsService } from './api/blogs/blogs.service';
 import { SyncController } from './sync/sync.controller';
 import { SmartCollectionsService } from './api/smart-collections/smart-collections.service';
 import { CustomCollectionsService } from './api/custom-collections/custom-collections.service';
@@ -63,6 +65,7 @@ export {
   ThemesService,
   AssetsService,
   PagesService,
+  BlogsService,
   SmartCollectionsService,
   CustomCollectionsService,
 };
@@ -85,6 +88,7 @@ export { RequestGuard } from './guards/request.guard';
     SyncService,
     OrdersService,
     PagesService,
+    BlogsService,
     ProductsService,
     ThemesService,
     AssetsService,
@@ -111,6 +115,7 @@ export { RequestGuard } from './guards/request.guard';
     LocalesController,
     OrdersController,
     PagesController,
+    BlogsController,
     ProductsController,
     TransactionsController,
     WebhooksController,
@@ -137,6 +142,7 @@ export { RequestGuard } from './guards/request.guard';
     ProductsService,
     TransactionsService,
     PagesService,
+    BlogsService,
     ThemesService,
     AssetsService,
     LocalesService,
@@ -199,6 +205,11 @@ export class ShopifyModule implements NestModule {
       .forRoutes(PagesController)
 
       .apply(BodyParserJsonMiddleware)
+      .forRoutes(BlogsController)
+      .apply(BodyParserUrlencodedMiddleware)
+      .forRoutes(BlogsController)
+
+      .apply(BodyParserJsonMiddleware)
       .forRoutes(ProductsController)
       .apply(BodyParserUrlencodedMiddleware)
       .forRoutes(ProductsController)
@@ -228,6 +239,10 @@ export class ShopifyModule implements NestModule {
       .apply(GetShopifyConnectMiddleware)
       .with('ShopifyModule')
       .forRoutes(PagesController)
+
+      .apply(GetShopifyConnectMiddleware)
+      .with('ShopifyModule')
+      .forRoutes(BlogsController)
 
       .apply(GetShopifyConnectMiddleware)
       .with('ShopifyModule')

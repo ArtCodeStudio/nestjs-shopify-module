@@ -258,7 +258,7 @@ export abstract class ShopifyApiRootCountableService<
 
     let listAllError: Error | null = null;
 
-    const listAllCallback = async (error: Error, data: IListAllCallbackData<ShopifyObjectType>) => {
+    const _listAllCallback = async (error: Error, data: IListAllCallbackData<ShopifyObjectType>) => {
       if (error) {
         listAllError = error;
       } else {
@@ -290,7 +290,7 @@ export abstract class ShopifyApiRootCountableService<
     });
 
     // We don't want to return the result of this promise, but the initialized progress as it is now immediately.
-    this.listAllFromShopify(shopifyConnect, listAllOptions as ListOptions, listAllCallback)
+    this.listAllFromShopify(shopifyConnect, listAllOptions as ListOptions, _listAllCallback)
     .then(async () => {
       if (listAllError) {
         throw listAllError;

@@ -6,6 +6,7 @@ import { EventService } from '../event.service';
 import { OrdersService } from '../api/orders/orders.service';
 import { ProductsService } from '../api/products/products.service';
 import { PagesService } from '../api/pages/pages.service';
+import { BlogsService } from '../api/blogs/blogs.service';
 import { SmartCollectionsService } from '../api/smart-collections/smart-collections.service';
 import { CustomCollectionsService } from '../api/custom-collections/custom-collections.service';
 
@@ -27,6 +28,7 @@ export class SyncService {
     private readonly ordersService: OrdersService,
     private readonly productsService: ProductsService,
     private readonly pagesService: PagesService,
+    private readonly blogsService: BlogsService,
     private readonly smartCollectionsService: SmartCollectionsService,
     private readonly customCollectionsService: CustomCollectionsService,
   ) {
@@ -279,6 +281,7 @@ export class SyncService {
         this.smartCollectionsService,
         this.customCollectionsService,
         this.pagesService,
+        this.blogsService,
       ];
 
       const subSyncFinishedPromises = new Array<Promise<SubSyncProgressDocument>>();
