@@ -7,6 +7,7 @@ import { OrdersService } from '../api/orders/orders.service';
 import { ProductsService } from '../api/products/products.service';
 import { PagesService } from '../api/pages/pages.service';
 import { BlogsService } from '../api/blogs/blogs.service';
+import { ArticlesService } from '../api/blogs/articles/articles.service';
 import { SmartCollectionsService } from '../api/smart-collections/smart-collections.service';
 import { CustomCollectionsService } from '../api/custom-collections/custom-collections.service';
 
@@ -29,6 +30,7 @@ export class SyncService {
     private readonly productsService: ProductsService,
     private readonly pagesService: PagesService,
     private readonly blogsService: BlogsService,
+    private readonly articlesService: ArticlesService,
     private readonly smartCollectionsService: SmartCollectionsService,
     private readonly customCollectionsService: CustomCollectionsService,
   ) {

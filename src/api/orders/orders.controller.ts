@@ -98,7 +98,7 @@ export class OrdersController {
     /*
      * Options from shopify
      */
-    @Query() options: IAppOrderListOptions
+    @Query() options: IAppOrderListOptions,
   ) {
     try {
       return res.jsonp(await this.ordersService.listFromDb(req.shopifyConnect, options, {}));

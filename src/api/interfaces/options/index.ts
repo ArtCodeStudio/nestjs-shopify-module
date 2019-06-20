@@ -1,3 +1,4 @@
+export * from './article';
 export * from './asset';
 export * from './basic';
 export * from './blog';

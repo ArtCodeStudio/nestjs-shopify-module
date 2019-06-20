@@ -1,4 +1,5 @@
 export * from './address.schema';
+export * from './article.schema';
 export * from './asset.schema';
 export * from './blog.schema';
 export * from './client-details.schema';

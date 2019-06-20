@@ -7,6 +7,7 @@ import { ThemeSchema, ThemeDocument } from './interfaces/mongoose/theme.schema';
 import { AssetSchema, AssetDocument } from './interfaces/mongoose/asset.schema';
 import { PageSchema, PageDocument } from './interfaces/mongoose/page.schema';
 import { BlogSchema, BlogDocument } from './interfaces/mongoose/blog.schema';
+import { ArticleSchema, ArticleDocument } from './interfaces/mongoose/article.schema';
 import { CustomCollectionSchema, CustomCollectionDocument } from './interfaces/mongoose/custom-collection.schema';
 import { SmartCollectionSchema, SmartCollectionDocument } from './interfaces/mongoose/smart-collection.schema';
 import { CollectSchema, CollectDocument } from './interfaces/mongoose/collect.schema';
@@ -71,7 +72,13 @@ export const shopifyApiProviders = (connection: Mongoose) => {
     {
       provide: 'BlogModelToken',
       useValue: (myshopifyDomain: string) => {
-        return getDbModel<PageDocument>(connection, myshopifyDomain, 'blog', BlogSchema);
+        return getDbModel<BlogDocument>(connection, myshopifyDomain, 'blog', BlogSchema);
+      },
+    },
+    {
+      provide: 'ArticleModelToken',
+      useValue: (myshopifyDomain: string) => {
+        return getDbModel<ArticleDocument>(connection, myshopifyDomain, 'article', ArticleSchema);
       },
     },
     {

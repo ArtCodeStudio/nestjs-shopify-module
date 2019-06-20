@@ -18,7 +18,8 @@ import {
   IAppOrderGetOptions,
   IAppOrderListOptions,
 } from '../interfaces';
-import { SyncProgressDocument,
+import {
+  SyncProgressDocument,
   IStartSyncOptions,
   OrderSyncProgressDocument,
 } from '../../interfaces';

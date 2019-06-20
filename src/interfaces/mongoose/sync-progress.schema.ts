@@ -1,11 +1,13 @@
 import * as mongoose from 'mongoose';
 import { Schema, Document } from 'mongoose';
 import { ISyncProgress } from '../sync-progress';
-import { ISubSyncProgress, IOrderSyncProgress } from '../sub-sync-progress';
+import { ISubSyncProgress, IOrderSyncProgress, IBlogSyncProgress } from '../sub-sync-progress';
 
 export const SyncOptionsSchema = new mongoose.Schema({
   includeOrders: Boolean,
   includeTransactions: Boolean,
+  includeBlogs: Boolean,
+  includeArticles: Boolean,
   includeProducts: Boolean,
   includePages: Boolean,
   includeSmartCollections: Boolean,
@@ -55,6 +57,8 @@ export const OrderSyncProgressSchema = new mongoose.Schema({
 });
 
 export type OrderSyncProgressDocument = IOrderSyncProgress & Document;
+
+export type BlogSyncProgressDocument = IBlogSyncProgress & Document;
 
 export const SyncProgressSchema = new mongoose.Schema({
   shop: String,

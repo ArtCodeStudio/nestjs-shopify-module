@@ -4,12 +4,14 @@ import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 import { ElasticsearchService } from '../../elasticsearch.service';
 import { SwiftypeService } from '../../swiftype.service';
+import { mongooseParallelRetry } from '../../helpers';
 
 // Interfaces
 import { Model } from 'mongoose';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Blog } from 'shopify-prime/models';
 import { Blogs, Options } from 'shopify-prime';
+import { ArticlesService } from './articles/articles.service';
 import {
   BlogDocument,
   IListAllCallbackData,
@@ -25,6 +27,7 @@ import {
   ISubSyncProgress,
   IStartSyncOptions,
   ShopifyModuleOptions,
+  BlogSyncProgressDocument,
 } from '../../interfaces';
 
 @Injectable()
@@ -48,6 +51,7 @@ BlogDocument // DatabaseDocumentType
     private readonly eventService: EventService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
+    private readonly articlesService: ArticlesService,
   ) {
     super(esService, blogModel, swiftypeService, Blogs, eventService, syncProgressModel);
   }
@@ -137,24 +141,43 @@ BlogDocument // DatabaseDocumentType
   }
 
   /**
+   * Sub-routine to configure the sync.
+   * In case of blogs we have to check if articles should be included.
    *
    * @param shopifyConnect
    * @param subProgress
    * @param options
    * @param data
    */
-  async syncedDataCallback(
+  protected async syncedDataCallback(
     shopifyConnect: IShopifyConnect,
     progress: SyncProgressDocument,
-    subProgress: ISubSyncProgress,
+    subProgress: BlogSyncProgressDocument,
     options: IStartSyncOptions,
     data: IListAllCallbackData<Blog>,
   ): Promise<void> {
     const blogs = data.data;
-    subProgress.syncedCount += blogs.length;
     const lastBlog = blogs[blogs.length - 1];
-    subProgress.lastId = lastBlog.id;
-    subProgress.info = lastBlog.title;
+    if (options.includeTransactions) {
+      for (const blog of blogs) {
+        const articles = await this.articlesService.listFromShopify(shopifyConnect, blog.id, {
+          syncToDb: options.syncToDb,
+          syncToSwiftype: options.syncToSwiftype,
+          syncToEs: options.syncToEs,
+        });
+        subProgress.syncedArticlesCount += articles.length;
+        subProgress.syncedCount ++;
+        subProgress.lastId = blog.id;
+        subProgress.info = blog.title;
+        await mongooseParallelRetry(() => {
+          return progress.save();
+        });
+      }
+    } else {
+      subProgress.syncedCount += blogs.length;
+      subProgress.lastId = lastBlog.id;
+      subProgress.info = lastBlog.title;
+    }
   }
 
 }

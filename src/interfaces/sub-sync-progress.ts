@@ -21,3 +21,8 @@ export interface IOrderSyncProgress extends ISubSyncProgress {
   includeTransactions: boolean;
   syncedTransactionsCount: number;
 }
+
+export interface IBlogSyncProgress extends ISubSyncProgress {
+  includeArticles: boolean;
+  syncedArticlesCount: number;
+}
