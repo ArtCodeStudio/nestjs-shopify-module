@@ -167,7 +167,7 @@ export class ShopifyAuthService {
   async getMyShopifyDomainSecureForThemeClients(request: IUserRequest) {
     const anyDomain = this.getShopSecureForThemeClients(request);
     if (!anyDomain) {
-      throw new Error('Shop not found!');
+      throw new Error('Shop not found! ' + anyDomain);
     }
     if (anyDomain.endsWith('.myshopify.com')) {
       return anyDomain;
@@ -321,7 +321,7 @@ export class ShopifyAuthService {
     }
 
     if (!shop) {
-      throw new Error('Shop not found!');
+      throw new Error('Shop not found! ' + shop);
     }
 
     return this.shopifyConnectService.findByDomain(shop)
