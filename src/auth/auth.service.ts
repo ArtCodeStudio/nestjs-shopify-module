@@ -305,8 +305,8 @@ export class ShopifyAuthService {
     }
 
     // Get shop from query param
-    if (request.query.shop) {
-      shop = request.query.shop as string;
+    if (typeof request.query.shop === 'string') {
+      shop = request.query.shop;
       if (shop.endsWith('.myshopify.com')) {
         return shop;
       }
