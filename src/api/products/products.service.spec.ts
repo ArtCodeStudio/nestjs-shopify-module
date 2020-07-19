@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsService } from './products.service';
 import { ShopifyConnectService } from '../../auth/connect.service';
 import { IShopifyConnect } from '../../auth/interfaces';
-import { Models } from 'shopify-prime';
+import { Models } from 'shopify-admin-api';
 
 import { ShopifyModule } from '../../shopify.module';
 import { config, mongooseConnectionPromise } from '../../../test/config.test';

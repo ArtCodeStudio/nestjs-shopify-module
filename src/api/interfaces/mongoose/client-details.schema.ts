@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { ClientDetails } from 'shopify-prime/models';
+import { ClientDetails } from 'shopify-admin-api/dist/models';
 
 export type ClientDetailsDocument = ClientDetails & Document;
 

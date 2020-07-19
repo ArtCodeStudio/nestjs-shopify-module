@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { Refund, RefundLineItem, OrderAdjustment } from 'shopify-prime/models';
+import { Refund, RefundLineItem, OrderAdjustment } from 'shopify-admin-api/dist/models';
 import { TransactionSchema } from './transaction.schema';
 import { LineItemSchema } from './line-item.schema';
 import { PriceSetSchema } from './price-set.schema';

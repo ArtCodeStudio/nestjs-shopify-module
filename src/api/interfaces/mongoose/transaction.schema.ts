@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { Transaction } from 'shopify-prime/models';
+import { Transaction } from 'shopify-admin-api/dist/models';
 import { PaymentDetailsSchema } from './payment-details.schema';
 
 export type TransactionDocument = Transaction & Document;

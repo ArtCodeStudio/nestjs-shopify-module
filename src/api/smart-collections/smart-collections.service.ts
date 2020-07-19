@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { SmartCollections, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
-import { SmartCollection } from 'shopify-prime/models';
+import { SmartCollections, Options } from 'shopify-admin-api'; // https://github.com/nozzlegear/Shopify-Prime
+import { SmartCollection } from 'shopify-admin-api/dist/models';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import {
   SmartCollectionDocument,

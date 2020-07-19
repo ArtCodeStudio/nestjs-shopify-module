@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { DiscountApplication } from 'shopify-prime/models';
+import { DiscountApplication } from 'shopify-admin-api/dist/models';
 
 export type DiscountApplicationDocument = DiscountApplication & Document;
 

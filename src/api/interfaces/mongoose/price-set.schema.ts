@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { TaxLine } from 'shopify-prime/models';
+import { TaxLine } from 'shopify-admin-api/dist/models';
 
 export type PriceSetDocument = TaxLine & Document;
 

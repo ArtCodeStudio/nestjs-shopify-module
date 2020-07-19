@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Webhooks } from 'shopify-prime';
-import { Webhook } from 'shopify-prime/models';
+import { Webhooks } from 'shopify-admin-api';
+import { Webhook } from 'shopify-admin-api/dist/models';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';

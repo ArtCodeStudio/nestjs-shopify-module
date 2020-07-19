@@ -9,7 +9,7 @@ import { IShopifyAuthProfile } from './interfaces/profile';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 import { ShopifyConnectService } from './connect.service';
 import * as ShopifyToken from 'shopify-token'; // https://github.com/lpinca/shopify-token
-import { Shops, Options } from 'shopify-prime';
+import { Shops, Options } from 'shopify-admin-api';
 import { Session } from '../interfaces/session';
 
 @Injectable()

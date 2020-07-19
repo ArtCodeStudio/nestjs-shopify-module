@@ -1,4 +1,4 @@
-import { Options } from 'shopify-prime';
+import { Options } from 'shopify-admin-api';
 
 export interface ISwiftypeDocument {
   shop: string;

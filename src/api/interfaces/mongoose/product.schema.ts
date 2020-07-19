@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { Product } from 'shopify-prime/models';
+import { Product } from 'shopify-admin-api/dist/models';
 
 export type ProductDocument = Product & Document;
 

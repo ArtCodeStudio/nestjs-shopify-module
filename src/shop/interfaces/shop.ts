@@ -1,5 +1,5 @@
 import { Document } from 'mongoose';
-import { Models } from 'shopify-prime';
+import { Models } from 'shopify-admin-api';
 
 export interface IShopifyShop {
   id: number;

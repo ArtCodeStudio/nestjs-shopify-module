@@ -1,4 +1,4 @@
-import { Options } from 'shopify-prime';
+import { Options } from 'shopify-admin-api';
 import { ISyncOptions } from './sync';
 import { IAppListSortOptions, IAppListFilterOptions } from './basic';
 

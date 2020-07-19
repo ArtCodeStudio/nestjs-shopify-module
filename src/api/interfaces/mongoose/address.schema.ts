@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { Address } from 'shopify-prime/models';
+import { Address } from 'shopify-admin-api/dist/models';
 
 export type AddressDocument = Address & Document;
 

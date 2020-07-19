@@ -7,8 +7,8 @@ import { SwiftypeService } from '../../swiftype.service';
 
 // Interfaces
 import { Model } from 'mongoose';
-import { Order } from 'shopify-prime/models';
-import { Orders } from 'shopify-prime';
+import { Order } from 'shopify-admin-api/dist/models';
+import { Orders } from 'shopify-admin-api';
 import {
   OrderDocument,
   IShopifySyncOrderCountOptions,

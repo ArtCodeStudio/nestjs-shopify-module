@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { DiscountAllocation } from 'shopify-prime/models';
+import { DiscountAllocation } from 'shopify-admin-api/dist/models';
 import { PriceSetSchema } from './price-set.schema';
 
 export type DiscountAllocationDocument = DiscountAllocation & Document;

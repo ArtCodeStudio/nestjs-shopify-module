@@ -1,5 +1,5 @@
 import { Inject } from '@nestjs/common';
-import { RecurringCharges, Models } from 'shopify-prime';
+import { RecurringCharges, Models } from 'shopify-admin-api';
 import { DebugService } from '../debug.service';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';

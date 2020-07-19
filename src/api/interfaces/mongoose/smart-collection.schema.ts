@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { SmartCollection } from 'shopify-prime/models';
+import { SmartCollection } from 'shopify-admin-api/dist/models';
 import { CollectionImageSchema } from './collection-image.schema';
 
 export type SmartCollectionDocument = SmartCollection & Document;

@@ -12,7 +12,7 @@ import { UseGuards} from '@nestjs/common';
 // Third party
 import { Observable } from 'rxjs';
 import { Server } from 'socket.io';
-import { Models } from 'shopify-prime';
+import { Models } from 'shopify-admin-api';
 
 // Guards
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';

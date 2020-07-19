@@ -3,7 +3,7 @@ import { Inject, Controller, Param, UseGuards, Req, Res, Get, HttpStatus } from 
 
 // Third party
 import { Response } from 'express';
-import { Infrastructure } from 'shopify-prime';
+import { Infrastructure } from 'shopify-admin-api';
 import * as url from 'url';
 
 import { DebugService } from '../../../debug.service';

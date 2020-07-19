@@ -1,7 +1,7 @@
 // Third party
 import { BulkWriteOpResultObject } from 'mongodb';
 import { Model, Document, Mongoose, Query as MongooseQuery} from 'mongoose';
-import { Infrastructure, Options } from 'shopify-prime';
+import { Infrastructure, Options } from 'shopify-admin-api';
 
 import {
   SearchResponse as ESSearchResponse,

@@ -5,7 +5,7 @@ import { ChargeService } from './charge.service';
 import { DebugService } from '../debug.service';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { Roles } from '../guards/roles.decorator';
-import { Models } from 'shopify-prime';
+import { Models } from 'shopify-admin-api';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 

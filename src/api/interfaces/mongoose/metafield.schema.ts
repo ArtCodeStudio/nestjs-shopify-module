@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { MetaField } from 'shopify-prime/models';
+import { MetaField } from 'shopify-admin-api/dist/models';
 
 export type MetafieldDocument = MetaField & Document;
 

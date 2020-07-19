@@ -7,8 +7,8 @@ import { shopifyRetry } from '../../helpers';
 import { GenericParams as ESGenericParams } from 'elasticsearch';
 
 import { IShopifyConnect } from '../../auth/interfaces';
-import { Products, Options } from 'shopify-prime';
-import { Product, ProductUpdateCreate } from 'shopify-prime/models';
+import { Products, Options } from 'shopify-admin-api';
+import { Product, ProductUpdateCreate } from 'shopify-admin-api/dist/models';
 import { Model } from 'mongoose';
 import {
   ProductDocument,

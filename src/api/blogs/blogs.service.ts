@@ -9,8 +9,8 @@ import { mongooseParallelRetry } from '../../helpers';
 // Interfaces
 import { Model } from 'mongoose';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Blog } from 'shopify-prime/models';
-import { Blogs, Options } from 'shopify-prime';
+import { Blog } from 'shopify-admin-api/dist/models';
+import { Blogs, Options } from 'shopify-admin-api';
 import { ArticlesService } from './articles/articles.service';
 import {
   BlogDocument,

@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { Order } from 'shopify-prime/models';
+import { Order } from 'shopify-admin-api/dist/models';
 
 import { AddressSchema } from './address.schema';
 import { ClientDetailsSchema } from './client-details.schema';

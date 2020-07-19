@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { ShippingLine } from 'shopify-prime/models';
+import { ShippingLine } from 'shopify-admin-api/dist/models';
 import { TaxLineSchema } from './tax-line.schema';
 import { PriceSetSchema } from './price-set.schema';
 import { DiscountAllocationSchema } from './discount-allocation.schema';

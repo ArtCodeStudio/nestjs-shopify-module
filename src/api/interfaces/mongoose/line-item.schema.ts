@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { LineItem, LineItemProperty } from 'shopify-prime/models';
+import { LineItem, LineItemProperty } from 'shopify-admin-api/dist/models';
 import { TaxLineSchema } from './tax-line.schema';
 import { PriceSetSchema } from './price-set.schema';
 import { LocationSchema } from './location.schema';

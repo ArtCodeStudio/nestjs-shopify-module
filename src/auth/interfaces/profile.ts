@@ -1,4 +1,4 @@
-import { Models as ShopifyModels} from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
+import { Models as ShopifyModels} from 'shopify-admin-api'; // https://github.com/nozzlegear/Shopify-Prime
 import { Profile } from 'passport'
 
 /**

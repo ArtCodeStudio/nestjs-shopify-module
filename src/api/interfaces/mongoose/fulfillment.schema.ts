@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { Fulfillment } from 'shopify-prime/models';
+import { Fulfillment } from 'shopify-admin-api/dist/models';
 import { LineItemSchema } from './line-item.schema';
 
 export type FulfillmentDocument = Fulfillment & Document;

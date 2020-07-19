@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { Collect } from 'shopify-prime/models';
+import { Collect } from 'shopify-admin-api/dist/models';
 
 export type CollectDocument = Collect & Document;
 

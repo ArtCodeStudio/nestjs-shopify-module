@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Transactions, Options } from 'shopify-prime';
+import { Transactions, Options } from 'shopify-admin-api';
 import { IShopifyConnect } from '../../../auth/interfaces';
-import { Transaction } from 'shopify-prime/models';
+import { Transaction } from 'shopify-admin-api/dist/models';
 import {
   TransactionDocument,
   IAppTransactionCountOptions,

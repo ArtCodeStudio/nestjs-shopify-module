@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Options, Models, Assets } from 'shopify-prime';
+import { Options, Models, Assets } from 'shopify-admin-api';
 import { AssetDocument, IAppAsset, IAppAssetListOptions } from '../../interfaces';
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
 import { Model, Types } from 'mongoose';

@@ -1,5 +1,5 @@
 // Third party
-import { Infrastructure, Options } from 'shopify-prime';
+import { Infrastructure, Options } from 'shopify-admin-api';
 // import * as pRetry from 'p-retry';
 import { shopifyRetry } from '../helpers';
 import { Document } from 'mongoose';

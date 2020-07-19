@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 import { SessionSocket } from '../../interfaces/session-socket';
 import { IShopifySyncProductListOptions, IShopifySyncProductCountOptions } from '../interfaces';
 import { ProductsService } from './products.service';
-import { Product, ProductUpdateCreate } from 'shopify-prime/models';
+import { Product, ProductUpdateCreate } from 'shopify-admin-api/dist/models';
 import { DebugService } from '../../debug.service';
 import { Server } from 'socket.io';
 

@@ -1,5 +1,5 @@
 import * as pRetry from 'p-retry';
-import { Infrastructure } from 'shopify-prime';
+import { Infrastructure } from 'shopify-admin-api';
 import { OperationOptions } from 'retry';
 import { FetchError } from 'node-fetch';
 

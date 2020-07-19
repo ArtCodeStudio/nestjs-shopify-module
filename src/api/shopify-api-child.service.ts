@@ -2,7 +2,7 @@
 import { WsResponse } from '@nestjs/websockets';
 
 // third party
-import { Infrastructure, Options } from 'shopify-prime';
+import { Infrastructure, Options } from 'shopify-admin-api';
 import { Document } from 'mongoose';
 // import * as pRetry from 'p-retry';
 import { shopifyRetry } from '../helpers';

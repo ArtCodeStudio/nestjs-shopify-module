@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { NoteAttribute } from 'shopify-prime/models';
+import { NoteAttribute } from 'shopify-admin-api/dist/models';
 
 export type NoteAttributeDocument = NoteAttribute & Document;
 

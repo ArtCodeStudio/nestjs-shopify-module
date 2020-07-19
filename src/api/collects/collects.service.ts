@@ -6,8 +6,8 @@ import { SwiftypeService } from '../../swiftype.service';
 
 // Interfaces
 import { Model } from 'mongoose';
-import { Collect } from 'shopify-prime/models';
-import { Collects } from 'shopify-prime';
+import { Collect } from 'shopify-admin-api/dist/models';
+import { Collects } from 'shopify-admin-api';
 import {
   CollectDocument,
   IShopifySyncCollectCountOptions,

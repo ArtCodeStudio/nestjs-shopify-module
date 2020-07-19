@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { Location } from 'shopify-prime/models';
+import { Location } from 'shopify-admin-api/dist/models';
 
 export type LocationDocument = Location & Document;
 

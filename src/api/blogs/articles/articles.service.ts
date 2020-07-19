@@ -8,8 +8,8 @@ import { SwiftypeService } from '../../../swiftype.service';
 // Interfaces
 import { Model } from 'mongoose';
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
-import { Article } from 'shopify-prime/models';
-import { Articles, Options } from 'shopify-prime';
+import { Article } from 'shopify-admin-api/dist/models';
+import { Articles, Options } from 'shopify-admin-api';
 import {
   ArticleDocument,
   IListAllCallbackData,

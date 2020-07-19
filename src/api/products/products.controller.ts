@@ -29,7 +29,7 @@ import {
   IAppProductListOptions,
 } from '../interfaces';
 import { Response } from 'express';
-import { ProductUpdateCreate } from 'shopify-prime/models';
+import { ProductUpdateCreate } from 'shopify-admin-api/dist/models';
 
 @Controller('shopify/api/products')
 export class ProductsController {

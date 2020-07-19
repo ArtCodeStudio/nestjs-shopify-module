@@ -21,7 +21,7 @@ import { Roles } from '../../../guards/roles.decorator';
 import { Readable } from 'stream';
 
 // Interfaces
-import { Article } from 'shopify-prime/models';
+import { Article } from 'shopify-admin-api/dist/models';
 import { IUserRequest } from '../../../interfaces/user-request';
 import { Response } from 'express';
 import {

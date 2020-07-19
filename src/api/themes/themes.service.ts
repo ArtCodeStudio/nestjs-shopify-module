@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Themes, Options } from 'shopify-prime'; // https://github.com/nozzlegear/Shopify-Prime
+import { Themes, Options } from 'shopify-admin-api'; // https://github.com/nozzlegear/Shopify-Prime
 import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Theme } from 'shopify-prime/models';
+import { Theme } from 'shopify-admin-api/dist/models';
 import { ThemeDocument } from '../interfaces/mongoose/theme.schema';
 import { Model } from 'mongoose';
 import { ShopifyApiRootService } from '../shopify-api-root.service';

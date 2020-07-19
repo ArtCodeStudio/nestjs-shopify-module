@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { CustomCollection } from 'shopify-prime/models';
+import { CustomCollection } from 'shopify-admin-api/dist/models';
 import { CollectionImageSchema } from './collection-image.schema';
 
 export type CustomCollectionDocument = CustomCollection & Document;

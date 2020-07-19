@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { Theme } from 'shopify-prime/models';
+import { Theme } from 'shopify-admin-api/dist/models';
 
 export type ThemeDocument = Theme & Document;
 
