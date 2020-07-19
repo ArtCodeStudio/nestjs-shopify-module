@@ -1,6 +1,7 @@
 import { IShopifyConnect } from '../auth/interfaces/connect';
+import { Express } from 'express';
 
-export interface Session {
+export interface Session extends Express.Session {
   // see get-user.middleware.ts
   user?: IShopifyConnect;
   // see get-shopify-connect.middleware.ts
