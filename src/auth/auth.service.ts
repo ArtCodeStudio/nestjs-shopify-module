@@ -85,10 +85,11 @@ export class ShopifyAuthService {
       throw new Error('unauthorized');
     }
 
-    return shopifyToken.getAccessToken(shop, code)
-    .then(async (accessToken) => {
-      this.logger.debug('accessToken', accessToken);
-      const shops = new Shops(shop, accessToken);
+    // TODO Fix type on https://github.com/lpinca/shopify-token see https://shopify.dev/tutorials/authenticate-with-oauth
+    return (shopifyToken.getAccessToken(shop, code) as Promise<{ access_token: string; scope: string }>)
+    .then(async (responise) => {
+      this.logger.debug('[getAccessToken] responise', responise);
+      const shops = new Shops(shop, responise.access_token); // // TODO NEST7 CHECKME also store returned scope?
       return shops.get()
       .then(async (shopObject) => {
         const profile: IShopifyAuthProfile = {
@@ -102,7 +103,7 @@ export class ShopifyAuthService {
           _raw: '',
         };
         this.logger.debug(`profile:`, profile);
-        return this.shopifyConnectService.connectOrUpdate(profile, accessToken)
+        return this.shopifyConnectService.connectOrUpdate(profile, responise.access_token)
         .then((user) => {
           if (!user) {
             throw new Error('Error on connect or update user');

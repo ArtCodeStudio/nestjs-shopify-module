@@ -1,6 +1,6 @@
 // Third party
 import { BulkWriteOpResultObject } from 'mongodb';
-import { Model, Document, Mongoose, Query as MongooseQuery} from 'mongoose';
+import { Model, Document, Mongoose, Query as MongooseQuery, DocumentQuery} from 'mongoose';
 import { Infrastructure, Options } from 'shopify-admin-api';
 
 import {
@@ -80,7 +80,7 @@ export abstract class ShopifyApiBaseService<
    *
    * @see https://mongoosejs.com/docs/api.html#Query
    */
-  public queryDb(shopifyConnect: IShopifyConnect, conditions = {}): MongooseQuery<ShopifyObjectType> {
+  public queryDb(shopifyConnect: IShopifyConnect, conditions = {})/*: MongooseQuery<ShopifyObjectType>*/ {
     return this.dbModel(shopifyConnect.shop.myshopify_domain)
     .find(conditions)
     .select('-_id -__v') // Removes :id and __v properties from result
@@ -600,9 +600,9 @@ export abstract class ShopifyApiBaseService<
    * @param user
    * @param object The objects to create / update
    */
-  public async updateOrCreateInDb(user: IShopifyConnect, conditions = {}, update: Partial<ShopifyObjectType>) {
+  public async updateOrCreateInDb(user: IShopifyConnect, conditions = {}, update: Partial<ShopifyObjectType>): Promise<DocumentQuery<DatabaseDocumentType, DatabaseDocumentType, {}>> {
     const model = this.dbModel(user.shop.myshopify_domain);
-    return model.findOneAndUpdate(conditions, update, {upsert: true});
+    return model.findOneAndUpdate(conditions, update as any, {upsert: true}); // TODO NEST7 CHECKME
   }
 
   /**

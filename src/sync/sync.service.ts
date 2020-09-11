@@ -87,7 +87,6 @@ export class SyncService {
     return this.syncProgressModel.findOne(
       { shop },
       projection,
-      { sort: { createdAt: -1} },
     ).lean();
   }
 
@@ -130,7 +129,6 @@ export class SyncService {
       const lastProgress = await this.syncProgressModel.findOne(
         { shop },
         { _id: true },
-        { sort: { createdAt: -1} },
       ).lean();
       if (lastProgress) {
         id = lastProgress._id;
@@ -207,7 +205,6 @@ export class SyncService {
       const lastProgress: SyncProgressDocument | null = await this.syncProgressModel.findOne(
         { shop },
         {},
-        { sort: { createdAt: -1} },
       );
 
       if (lastProgress && lastProgress.state === 'running') {
@@ -275,7 +272,7 @@ export class SyncService {
         options,
         state: 'starting',
         lastError: null,
-      });
+      } as any); // TODO NEST7 CHECKME
 
       const subprogressServices = [
         this.ordersService,

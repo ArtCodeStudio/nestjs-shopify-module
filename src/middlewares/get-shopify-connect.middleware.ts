@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware, MiddlewareFunction } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { ShopifyConnectService } from '../auth/connect.service';
 import { DebugService } from '../debug.service';
 import { IUserRequest } from '../interfaces/user-request';
@@ -12,21 +12,19 @@ export class GetShopifyConnectMiddleware implements NestMiddleware {
   ) {
 
   }
-  async resolve(...args: any[]): Promise<MiddlewareFunction> {
-    return async (req: IUserRequest, res: Response, next: NextFunction) => {
-      return this.shopifyConnectService.findByDomain(req.session.shop)
-      .then((shopifyConnect) => {
-        // this.logger.debug('shopifyConnect', shopifyConnect);
-        if (!shopifyConnect) {
-          return next();
-        }
-        // set to session
-        req.session.shopifyConnect = shopifyConnect;
-
-        // set to request
-        req.shopifyConnect = req.session.shopifyConnect;
+  async use(req: IUserRequest, res: Response, next: NextFunction) {
+    return this.shopifyConnectService.findByDomain(req.session.shop)
+    .then((shopifyConnect) => {
+      // this.logger.debug('shopifyConnect', shopifyConnect);
+      if (!shopifyConnect) {
         return next();
-      });
-    };
+      }
+      // set to session
+      req.session.shopifyConnect = shopifyConnect;
+
+      // set to request
+      req.shopifyConnect = req.session.shopifyConnect;
+      return next();
+    });
   }
 }

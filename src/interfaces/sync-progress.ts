@@ -8,6 +8,6 @@ export interface ISyncProgress {
   products?: ISubSyncProgress;
   createdAt: Date;
   updatedAt: Date;
-  state: 'running' | 'failed' | 'cancelled' | 'success';
+  state: 'running' | 'failed' | 'cancelled' | 'success' | 'starting';
   lastError: string | null;
 }

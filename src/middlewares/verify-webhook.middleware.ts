@@ -1,10 +1,10 @@
-import { Inject, Injectable, NestMiddleware, MiddlewareFunction } from '@nestjs/common';
+import { Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { DebugService } from '../debug.service';
 
 import { ShopifyModuleOptions} from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS} from '../shopify.constants';
 import { isAuthenticWebhook } from 'shopify-admin-api/dist/auth';
-import * as concat from 'concat-stream';
+import concat from 'concat-stream';
 import { IUserRequest } from '../interfaces/user-request';
 import { Response, NextFunction } from 'express';
 
@@ -16,7 +16,7 @@ export class VerifyWebhookMiddleware implements NestMiddleware {
   ) {
 
   }
-  async resolve(...args: any[]): Promise<MiddlewareFunction> {
+  async use(...args: any[]) {
     return async (req: IUserRequest, res: Response, next: NextFunction) => {
       this.logger.debug('verifyWebhook middleware');
       this.logger.debug('req.headers', req.headers);
