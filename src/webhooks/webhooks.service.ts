@@ -10,7 +10,7 @@ import { DebugService } from '../debug.service';
 import { SessionSocket } from '../interfaces/session-socket';
 import { Topic } from '../interfaces/webhook';
 import { WsResponse } from '@nestjs/websockets';
-import { Observable, Observer, timer } from 'rxjs';
+import { Observable, Observer, timer, MonoTypeOperatorFunction } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Injectable()
@@ -288,8 +288,8 @@ export class WebhooksService {
     ];
   }
 
-  protected takeUntilOneDay() {
-    return takeUntil(timer(1000 * 60 * 60 * 24));
+  protected takeUntilOneDay(): MonoTypeOperatorFunction<unknown> {
+    return takeUntil<unknown>(timer(1000 * 60 * 60 * 24));
   }
 
 }

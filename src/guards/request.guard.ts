@@ -26,6 +26,7 @@ export class RequestGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     // this.logger.debug('context', context);
+    // TODO NEST7 CHECKME
     const types = this.reflector.get<TRequestTypes>('request', context.getHandler());
     const request = context.switchToHttp().getRequest() as IUserRequest;
     // this.logger.debug('request', request);

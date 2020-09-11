@@ -1,21 +1,21 @@
 module.exports = {
-  "testEnvironment": "node",
-  "moduleFileExtensions": [
+  testEnvironment: "node",
+  moduleFileExtensions: [
     "ts",
     "tsx",
     "js",
     "json"
   ],
-  "transform": {
+  transform: {
     "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
   },
-  "testRegex": "/src/.*\\.(test|spec).(ts|tsx|js)$",
-  "collectCoverageFrom": [
+  testRegex: "/src/.*\\.(test|spec).(ts|tsx|js)$",
+  collectCoverageFrom: [
     "src/**/*.{js,jsx,tsx,ts}",
     "!**/node_modules/**",
     "!**/vendor/**"
   ],
-  "coverageReporters": [
+  coverageReporters: [
     "json",
     "lcov"
   ]

@@ -236,63 +236,63 @@ export class ShopifyModule implements NestModule {
       })
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(ShopifyAuthController)
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(LocalesController)
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(OrdersController)
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(PagesController)
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(BlogsController)
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(ArticlesController)
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(SmartCollectionsController)
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(CustomCollectionsController)
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(ProductsController)
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(ThemesController)
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(AssetsController)
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(TransactionsController)
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(WebhooksController)
 
       .apply(VerifyWebhookMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes('webhooks/:resource/:event')
 
       .apply(GetShopifyConnectMiddleware)
-      .with('ShopifyModule')
+      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(SyncController);
   }
 }

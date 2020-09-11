@@ -126,7 +126,7 @@ export abstract class ShopifyApiRootCountableService<
         [`options.include${this.upperCaseResourceName}`]: true,
       },
       {},
-      { sort: { createdAt: -1} },
+      // TODO NEST7 CHECKME{ sort: { createdAt: -1} },
     )
     .lean();
   }
@@ -203,7 +203,7 @@ export abstract class ShopifyApiRootCountableService<
         lastProgressWithTheseOptions = await this.syncprogressModel.findOne(
           conditions,
           {},
-          { sort: { createdAt: -1} },
+          // TODO NEST7 CHECKME { sort: { createdAt: -1} },
         );
         lastSubProgress = lastProgressWithTheseOptions && lastProgressWithTheseOptions[this.resourceName];
       }

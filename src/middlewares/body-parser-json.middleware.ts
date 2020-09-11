@@ -1,4 +1,4 @@
-import { Injectable, MiddlewareFunction, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import * as bodyParser from 'body-parser';
 import { IUserRequest } from '../interfaces/user-request';
 import { Response, NextFunction } from 'express';
@@ -10,10 +10,8 @@ import { Response, NextFunction } from 'express';
  */
 @Injectable()
 export class BodyParserJsonMiddleware implements NestMiddleware {
-  resolve(...args: any[]): MiddlewareFunction {
-    return (req: IUserRequest, res: Response, next: NextFunction) => {
-      const jsonParser = bodyParser.json();
-      return jsonParser(req, res, next);
-    };
-  }
+  use(req: IUserRequest, res: Response, next: NextFunction) {
+    const jsonParser = bodyParser.json();
+    return jsonParser(req, res, next);
+  };
 }
