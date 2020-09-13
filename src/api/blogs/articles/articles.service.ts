@@ -2,8 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { deleteUndefinedProperties } from '../../../helpers';
 import { EventService } from '../../../event.service';
 import { ShopifyApiChildCountableService } from '../../shopify-api-child-countable.service';
-import { ElasticsearchService } from '../../../elasticsearch.service';
-import { SwiftypeService } from '../../../swiftype.service';
 
 // Interfaces
 import { Model } from 'mongoose';
@@ -41,15 +39,13 @@ ArticleDocument // DatabaseDocumentType
   subResourceNames = [];
 
   constructor(
-    protected readonly esService: ElasticsearchService,
     @Inject('ArticleModelToken')
     private readonly articleModel: (shopName: string) => Model<ArticleDocument>,
-    protected readonly swiftypeService: SwiftypeService,
     private readonly eventService: EventService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
   ) {
-    super(esService, articleModel, swiftypeService, Articles, eventService);
+    super(articleModel, Articles, eventService);
   }
 
   /**

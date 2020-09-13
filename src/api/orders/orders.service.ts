@@ -2,8 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { EventService } from '../../event.service';
 import { TransactionsService } from './transactions/transactions.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
-import { ElasticsearchService } from '../../elasticsearch.service';
-import { SwiftypeService } from '../../swiftype.service';
 
 // Interfaces
 import { Model } from 'mongoose';
@@ -41,16 +39,14 @@ export class OrdersService extends ShopifyApiRootCountableService<
   subResourceNames = ['transactions'];
 
   constructor(
-    protected readonly esService: ElasticsearchService,
     @Inject('OrderModelToken')
     private readonly orderModel: (shopName: string) => Model<OrderDocument>,
-    protected readonly swiftypeService: SwiftypeService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
     private readonly transactionsService: TransactionsService,
   ) {
-    super(esService, orderModel, swiftypeService, Orders, eventService, syncProgressModel);
+    super(orderModel, Orders, eventService, syncProgressModel);
   }
 
   /**
@@ -75,8 +71,6 @@ export class OrdersService extends ShopifyApiRootCountableService<
       for (const order of orders) {
         const transactions = await this.transactionsService.listFromShopify(shopifyConnect, order.id, {
           syncToDb: options.syncToDb,
-          syncToSwiftype: options.syncToSwiftype,
-          syncToEs: options.syncToEs,
         });
         subProgress.syncedTransactionsCount += transactions.length;
         subProgress.syncedCount ++;

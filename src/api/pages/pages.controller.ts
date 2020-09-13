@@ -101,8 +101,6 @@ export class PagesController {
      * Custom sync options
      */
     @Query('sync_to_db') syncToDb?: boolean,
-    @Query('sync_to_search') syncToSwiftype?: boolean,
-    @Query('sync_to_es') syncToEs?: boolean,
     @Query('cancel_signal') cancelSignal?: string,
     @Query('fail_on_sync_error') failOnSyncError?: boolean,
   ) {
@@ -110,8 +108,6 @@ export class PagesController {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public pages if the request comes not from a logged in user
         syncToDb = false;
-        syncToSwiftype = false;
-        syncToEs = false;
       }
       const options: IShopifySyncPageListOptions = {
         created_at_max,
@@ -125,8 +121,6 @@ export class PagesController {
         published_status,
         since_id,
         syncToDb,
-        syncToSwiftype,
-        syncToEs,
         title,
         updated_at_max,
         updated_at_min,

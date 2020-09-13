@@ -1,6 +1,5 @@
 import { IPlan } from '../charge/interfaces/plan';
 import { Topic } from '../interfaces/webhook';
-import { ConfigOptions as ElasticSearchConfigOptions } from 'elasticsearch';
 
 export interface ShopifyModuleOptions {
 
@@ -49,13 +48,8 @@ export interface ShopifyModuleOptions {
     username: string;
     password: string;
     database: string;
+    /** Optional MongoDB connection string */
+    url?: string;
   };
 
-  elasticsearch: ElasticSearchConfigOptions;
-
-  swiftype: {
-    hostIdentifier: string;
-    privateApiKey: string;
-    defaultEngineName: string;
-  };
 }

@@ -2,8 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { deleteUndefinedProperties } from '../../helpers';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
-import { ElasticsearchService } from '../../elasticsearch.service';
-import { SwiftypeService } from '../../swiftype.service';
 import { mongooseParallelRetry } from '../../helpers';
 
 // Interfaces
@@ -44,16 +42,14 @@ BlogDocument // DatabaseDocumentType
   subResourceNames = [];
 
   constructor(
-    protected readonly esService: ElasticsearchService,
     @Inject('BlogModelToken')
     private readonly blogModel: (shopName: string) => Model<BlogDocument>,
-    protected readonly swiftypeService: SwiftypeService,
     private readonly eventService: EventService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     private readonly articlesService: ArticlesService,
   ) {
-    super(esService, blogModel, swiftypeService, Blogs, eventService, syncProgressModel);
+    super(blogModel, Blogs, eventService, syncProgressModel);
   }
 
   /**
@@ -162,8 +158,6 @@ BlogDocument // DatabaseDocumentType
       for (const blog of blogs) {
         const articles = await this.articlesService.listFromShopify(shopifyConnect, blog.id, {
           syncToDb: options.syncToDb,
-          syncToSwiftype: options.syncToSwiftype,
-          syncToEs: options.syncToEs,
         });
         subProgress.syncedArticlesCount += articles.length;
         subProgress.syncedCount ++;

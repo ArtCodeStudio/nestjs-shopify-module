@@ -1,8 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
-import { ElasticsearchService } from '../../elasticsearch.service';
-import { SwiftypeService } from '../../swiftype.service';
 
 // Interfaces
 import { Model } from 'mongoose';
@@ -39,14 +37,12 @@ export class CollectsService extends ShopifyApiRootCountableService<
   subResourceNames = [];
 
   constructor(
-    protected readonly esService: ElasticsearchService,
     @Inject('CollectModelToken')
     private readonly collectModel: (shopName: string) => Model<CollectDocument>,
-    protected readonly swiftypeService: SwiftypeService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
   ) {
-    super(esService, collectModel, swiftypeService, Collects, eventService, syncProgressModel);
+    super(collectModel, Collects, eventService, syncProgressModel);
   }
 }

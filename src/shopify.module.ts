@@ -50,9 +50,7 @@ import { CollectsService } from './api/collects/collects.service';
 import { CollectsController } from './api/collects/collects.controller';
 import { SearchController } from './api/search/search.controller';
 import { SearchService } from './api/search/search.service';
-import { ElasticsearchService } from './elasticsearch.service';
 import { Model } from 'mongoose';
-import { SwiftypeService } from './swiftype.service';
 import {
   BodyParserJsonMiddleware,
   BodyParserUrlencodedMiddleware,
@@ -106,8 +104,6 @@ export { RequestGuard } from './guards/request.guard';
     SmartCollectionsService,
     CustomCollectionsService,
     SearchService,
-    ElasticsearchService,
-    SwiftypeService,
     CollectsService,
   ],
   controllers: [
@@ -154,7 +150,6 @@ export { RequestGuard } from './guards/request.guard';
     LocalesService,
     SmartCollectionsService,
     CustomCollectionsService,
-    ElasticsearchService,
   ],
 })
 export class ShopifyModule implements NestModule {

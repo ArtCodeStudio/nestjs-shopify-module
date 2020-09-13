@@ -204,20 +204,12 @@ const user = {
   createdAt: new Date('2018-11-29T19:43:03.964Z'),
 };
 
-const swiftype = {
-  privateApiKey: 'private-vy62umk4py2cnpwh8aepq97x',
-  hostIdentifier: 'host-jsbcq1',
-  defaultEngineName: 'default',
-};
-
 const config: ShopifyModuleOptions = {
   app,
   charges,
-  elasticsearch,
   mongodb,
   redis,
   shopify,
-  swiftype,
 };
 
 export { config, mongooseConnectionPromise, user };

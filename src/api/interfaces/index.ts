@@ -1,4 +1,3 @@
-export * from './errors';
 export * from './models';
 export * from './mongoose';
 export * from './options';

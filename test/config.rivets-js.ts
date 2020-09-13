@@ -1,6 +1,5 @@
 import { ShopifyModuleOptions, Topic } from '../src/interfaces';
 import * as redisStore from 'cache-manager-redis';
-import { ConfigOptions as ElasticSearchConfigOptions } from 'elasticsearch';
 import * as mongoose from 'mongoose';
 
 const app = {
@@ -116,12 +115,6 @@ const redis = {
   max: 100,
 };
 
-const elasticsearch: ElasticSearchConfigOptions = {
-  host: 'localhost:9200',
-  log: 'warning',
-  requestTimeout: 1000,
-};
-
 /**
  * Create user and with
  * ```
@@ -152,20 +145,12 @@ const mongooseConnectionPromise: Promise<typeof mongoose> = mongoose.connect(
   },
 );
 
-const swiftype = {
-  privateApiKey: 'private-vy62umk4py2cnpwh8aepq97x',
-  hostIdentifier: 'host-jsbcq1',
-  defaultEngineName: 'default',
-};
-
 const config: ShopifyModuleOptions = {
   app,
   charges,
-  elasticsearch,
   mongodb,
   redis,
   shopify,
-  swiftype,
 };
 
 export { config, mongooseConnectionPromise };

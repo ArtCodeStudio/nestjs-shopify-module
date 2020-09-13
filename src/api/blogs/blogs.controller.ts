@@ -92,8 +92,6 @@ export class BlogsController {
      * Custom sync options
      */
     @Query('sync_to_db') syncToDb?: boolean,
-    @Query('sync_to_search') syncToSwiftype?: boolean,
-    @Query('sync_to_es') syncToEs?: boolean,
     @Query('cancel_signal') cancelSignal?: string,
     @Query('fail_on_sync_error') failOnSyncError?: boolean,
   ) {
@@ -101,16 +99,12 @@ export class BlogsController {
       if (req.session.isThemeClientRequest) {
         // published_status = 'published'; // For security reasons, only return visible blogs if the request comes not from a logged in user
         syncToDb = false;
-        syncToSwiftype = false;
-        syncToEs = false;
       }
       const options: IShopifySyncBlogListOptions = {
         fields,
         handle,
         since_id,
         syncToDb,
-        syncToSwiftype,
-        syncToEs,
         cancelSignal,
         failOnSyncError,
       };

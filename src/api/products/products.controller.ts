@@ -75,16 +75,12 @@ export class ProductsController {
      * Custom sync options
      */
     @Query('sync_to_db') syncToDb?: boolean,
-    @Query('sync_to_search') syncToSwiftype?: boolean,
-    @Query('sync_to_es') syncToEs?: boolean,
     @Query('cancel_signal') cancelSignal?: string,
     @Query('fail_on_sync_error') failOnSyncError?: boolean,
   ) {
     if (req.session.isThemeClientRequest) {
       published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
       syncToDb = false;
-      syncToSwiftype = false;
-      syncToEs = false;
     }
     const options: IShopifySyncProductListOptions = {
       /*
@@ -110,8 +106,6 @@ export class ProductsController {
        * Custom sync options
        */
       syncToDb,
-      syncToSwiftype,
-      syncToEs,
       cancelSignal,
       failOnSyncError,
     };
@@ -219,90 +213,6 @@ export class ProductsController {
   }
 
   /**
-   * Retrieves a list of products from swiftype.
-   * @param req
-   * @param res
-   * @param options
-   *
-   * @see https://help.shopify.com/en/api/reference/products/product#index
-   */
-  @UseGuards(ShopifyApiGuard)
-  @Roles() // Allowed from shop frontend
-  @Get('search')
-  async listFromSwiftype(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-    /*
-     * Copied options from shopify
-     */
-    @Query('collection_id') collection_id?: string,
-    @Query('created_at_max') created_at_max?: string,
-    @Query('created_at_min') created_at_min?: string,
-    @Query('ids') ids?: string,
-    @Query('page') page?: number,
-    @Query('fields') fields?: string,
-    @Query('limit') limit?: number,
-    @Query('product_type') product_type?: string,
-    @Query('published_at_max') published_at_max?: string,
-    @Query('published_at_min') published_at_min?: string,
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any' = 'any',
-    @Query('since_id') since_id?: number,
-    @Query('title') title?: string,
-    @Query('updated_at_max') updated_at_max?: string,
-    @Query('updated_at_min') updated_at_min?: string,
-    @Query('vendor') vendor?: string,
-    /*
-     * Custom app options
-     */
-    @Query('price_max') price_max?: number,
-    @Query('price_min') price_min?: number,
-    @Query('sort_by') sort_by?: string,
-    @Query('sort_dir') sort_dir?: 'asc' | 'desc',
-    // @Query('ids') ids?: string,
-  ) {
-    if (req.session.isThemeClientRequest) {
-      published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
-    }
-    const options: IAppProductListOptions = {
-      /*
-       * Copied options from shopify
-       */
-      collection_id,
-      created_at_max,
-      created_at_min,
-      ids,
-      page,
-      fields,
-      limit,
-      product_type,
-      published_at_max,
-      published_at_min,
-      published_status,
-      since_id,
-      title,
-      updated_at_max,
-      updated_at_min,
-      vendor,
-      /*
-       * Custom app options
-       */
-      price_max,
-      price_min,
-      sort_by,
-      sort_dir,
-    };
-    return this.productsService.listFromSwiftype(req.shopifyConnect, options)
-    .then((products) => {
-      return res.jsonp(products);
-    })
-    .catch((error) => {
-      this.logger.error(error);
-      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
-      res.status(statusCode).jsonp(error);
-    });
-  }
-
-  /**
    * Retrieves all products as a stream directly from shopify.
    * @param req
    * @param res
@@ -333,8 +243,6 @@ export class ProductsController {
     @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
     @Query('since_id') since_id?: number,
     @Query('sync_to_db') sync_to_db?: boolean,
-    @Query('sync_to_search') syncToSwiftype?: boolean,
-    @Query('sync_to_es') syncToEs?: boolean,
     @Query('title') title?: string,
     @Query('updated_at_max') updated_at_max?: string,
     @Query('updated_at_min') updated_at_min?: string,
@@ -354,8 +262,6 @@ export class ProductsController {
       published_status,
       since_id,
       syncToDb: sync_to_db,
-      syncToSwiftype,
-      syncToEs,
       title,
       updated_at_max,
       updated_at_min,

@@ -16,8 +16,6 @@ import { Model } from 'mongoose';
 import { getDiff } from '../../../helpers/diff';
 import { ShopifyApiChildCountableService } from '../../shopify-api-child-countable.service';
 import { EventService } from '../../../event.service';
-import { ElasticsearchService } from '../../../elasticsearch.service';
-import { SwiftypeService } from '../../../swiftype.service';
 
 @Injectable()
 export class TransactionsService extends ShopifyApiChildCountableService<
@@ -33,13 +31,11 @@ IShopifySyncTransactionListOptions
   subResourceNames = [];
 
   constructor(
-    protected readonly esService: ElasticsearchService,
     @Inject('TransactionModelToken')
     private readonly transactionModel: (shopName: string) => Model<TransactionDocument>,
-    protected readonly swiftypeService: SwiftypeService,
     private readonly eventService: EventService,
   ) {
-    super(esService, transactionModel, swiftypeService, Transactions, eventService);
+    super(transactionModel, Transactions, eventService);
   }
 
   public async getFromShopify(
@@ -50,11 +46,9 @@ IShopifySyncTransactionListOptions
   ): Promise<Transaction|null> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
     const syncToDb = options && options.syncToDb;
-    const syncToSwiftype = options && options.syncToSwiftype;
-    const syncToEs = options && options.syncToEs;
     return transactions.get(order_id, id)
     .then(async (transaction) => {
-      return this.updateOrCreateInApp(user, 'id', transaction, syncToDb, syncToSwiftype, syncToEs)
+      return this.updateOrCreateInApp(user, 'id', transaction, syncToDb)
       .then((_) => {
         return transaction;
       });

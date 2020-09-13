@@ -6,8 +6,6 @@ import { ThemeDocument } from '../interfaces/mongoose/theme.schema';
 import { Model } from 'mongoose';
 import { ShopifyApiRootService } from '../shopify-api-root.service';
 import { EventService } from '../../event.service';
-import { ElasticsearchService } from '../../elasticsearch.service';
-import { SwiftypeService } from '../../swiftype.service';
 
 import {
   SyncProgressDocument,
@@ -34,15 +32,13 @@ ThemeDocument // DatabaseDocumentType
   subResourceNames = ['assets'];
 
   constructor(
-    protected readonly esService: ElasticsearchService,
     @Inject('ThemeModelToken')
     private readonly themeModel: (shopName: string) => Model<ThemeDocument>,
-    protected readonly swiftypeService: SwiftypeService,
     private readonly eventService: EventService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
   ) {
-    super(esService, themeModel, swiftypeService, Themes, eventService, syncProgressModel);
+    super(themeModel, Themes, eventService, syncProgressModel);
   }
 
   /**

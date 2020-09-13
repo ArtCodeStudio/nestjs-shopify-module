@@ -104,8 +104,6 @@ export class ArticlesController {
      * Custom sync options
      */
     @Query('sync_to_db') syncToDb?: boolean,
-    @Query('sync_to_search') syncToSwiftype?: boolean,
-    @Query('sync_to_es') syncToEs?: boolean,
     @Query('cancel_signal') cancelSignal?: string,
     @Query('fail_on_sync_error') failOnSyncError?: boolean,
   ) {
@@ -113,8 +111,6 @@ export class ArticlesController {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public articles if the request comes not from a logged in user
         syncToDb = false;
-        syncToSwiftype = false;
-        syncToEs = false;
       }
       const options: IShopifySyncArticleListOptions = {
         author,
@@ -130,8 +126,6 @@ export class ArticlesController {
         since_id,
         tag,
         syncToDb,
-        syncToSwiftype,
-        syncToEs,
         updated_at_max,
         updated_at_min,
         cancelSignal,

@@ -51,8 +51,6 @@ export class SyncController {
     @Res() res: Response,
     @Body() body: any,
     @Body('syncToDb') syncToDb?: boolean | string,
-    @Body('syncToSwiftype') syncToSwiftype?: boolean | string,
-    @Body('syncToEs') syncToEs?: boolean | string,
     @Body('includeOrders') includeOrders?: boolean | string,
     @Body('includeTransactions') includeTransactions?: boolean | string,
     @Body('includeProducts') includeProducts?: boolean | string,
@@ -64,8 +62,6 @@ export class SyncController {
   ) {
     this.logger.debug({
       syncToDb,
-      syncToSwiftype,
-      syncToEs,
       includeOrders,
       includeTransactions,
       includeProducts,
@@ -77,8 +73,6 @@ export class SyncController {
     });
     const options: IStartSyncOptions = {
       syncToDb: syncToDb === 'true' || syncToDb === true,
-      syncToSwiftype: syncToSwiftype === 'true' || syncToSwiftype === true,
-      syncToEs: syncToEs === 'true' || syncToEs === true,
       includeOrders: includeOrders === 'true' || includeOrders === true,
       includeTransactions: includeTransactions === 'true' || includeTransactions === true,
       includeProducts: includeProducts === 'true' || includeProducts === true,
@@ -119,8 +113,6 @@ export class SyncController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Query('sync_to_db') syncToDb?: boolean,
-    @Query('sync_to_search') syncToSwiftype?: boolean,
-    @Query('sync_to_es') syncToEs?: boolean,
     @Query('include_orders') includeOrders?: boolean,
     @Query('include_transactions') includeTransactions?: boolean,
     @Query('include_products') includeProducts?: boolean,
@@ -132,8 +124,6 @@ export class SyncController {
   ) {
     return this.syncService.startSync(req.shopifyConnect, {
       syncToDb,
-      syncToSwiftype,
-      syncToEs,
       includeOrders,
       includeTransactions,
       includeProducts,

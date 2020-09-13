@@ -47,14 +47,6 @@ describe('SyncService', () => {
     jest.setTimeout(60000);
     const syncDbOptions = {
       syncToDb: true,
-      /**
-       * If true, sync the receive data to internal search engine (Elasticsearch)
-       */
-      syncToSwiftype: true,
-      /**
-       * If true, sync the receive data to internal search engine (Swiftype)
-       */
-      syncToEs: true,
     };
     const syncContentOptions = {
       includeOrders: true,

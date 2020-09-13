@@ -1,8 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { Client as ElasticSearchClient } from 'elasticsearch';
-
-import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
-import { ElasticsearchService } from '../../elasticsearch.service';
+import { Injectable } from '@nestjs/common';
 
 /**
  * Search api service based on Elasticsearch
@@ -12,7 +8,6 @@ import { ElasticsearchService } from '../../elasticsearch.service';
 @Injectable()
 export class SearchService {
   constructor(
-    protected readonly esService: ElasticsearchService,
   ) {
 
   }

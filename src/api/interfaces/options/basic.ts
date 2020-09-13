@@ -1,21 +1,5 @@
 import { Options } from 'shopify-admin-api';
 
-export interface ISwiftypeDocument {
-  shop: string;
-  resource: string;
-}
-
-export interface ISwiftypeListSortOptions {
-  /**
-   * Property to sort by
-   */
-  sort_by?: string;
-  /**
-   * Sort direction
-   */
-  sort_dir?: 'asc' | 'desc';
-}
-
 /**
  * Sort options for listFromDb and listFromES methods
  */
