@@ -24,13 +24,17 @@ import { Cache } from '../../interfaces/api-cache';
 export class LocalesController {
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
-  // WORKAROUND for https://github.com/nestjs/nest/issues/1016
-  redisCache: Cache = cacheManager.caching(this.shopifyModuleOptions.redis) as any as Cache;
+  cache: Cache;
 
   constructor(
     protected readonly localesService: LocalesService,
     @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
+    // WORKAROUND for https://github.com/nestjs/nest/issues/1016
+    if (!this.shopifyModuleOptions.cache && this.shopifyModuleOptions.cache.store) {
+      throw new Error('You need a cache');
+    }
+    this.cache = cacheManager.caching(this.shopifyModuleOptions.cache) as Cache;
   }
 
   /**
@@ -50,7 +54,7 @@ export class LocalesController {
     const shopifyConnect = req.shopifyConnect;
     // WORKAROUND for https://github.com/nestjs/nest/issues/1016
     const key = JSON.stringify({name: `shopify/api/themes/${themeId}`, myshopify_domain: shopifyConnect.shop.myshopify_domain});
-    return this.redisCache.wrap<any>(key, () => {
+    return this.cache.wrap<any>(key, () => {
       return this.localesService.get(req.shopifyConnect, themeId);
     })
     .then((locale) => {
@@ -223,7 +227,7 @@ export class LocalesController {
     // WORKAROUND for https://github.com/nestjs/nest/issues/1016
     const key = JSON.stringify({name: path, myshopify_domain: shopifyConnect.myshopify_domain});
 
-    return this.redisCache.wrap<any>(key, () => {
+    return this.cache.wrap<any>(key, () => {
       // WORKAROUND to get full filename param
       const findStr = `${themeId}/locales/`;
       propertyPath = path.substring(path.lastIndexOf(findStr) + findStr.length);

@@ -1,5 +1,7 @@
 import { IPlan } from '../charge/interfaces/plan';
 import { Topic } from '../interfaces/webhook';
+import * as redisStore from 'cache-manager-ioredis';
+import { Redis } from 'ioredis';
 
 export interface ShopifyModuleOptions {
 
@@ -33,13 +35,22 @@ export interface ShopifyModuleOptions {
     frontend_return_url: string;
   };
 
-  redis: {
-    store: any;
-    host: string;
-    auth_pass: string;
-    port: number;
+  /**
+   * Cache manager options
+   * @see https://github.com/BryanDonovan/node-cache-manager
+   */
+  cache: {
+    store: 'memory' | typeof redisStore;
     ttl: number;
     max: number;
+    [Key: string]: any;
+  }
+
+  redis?: {
+    host: string;
+    auth_pass: string;
+    username?: string;
+    port: number;
   };
 
   mongodb: {
