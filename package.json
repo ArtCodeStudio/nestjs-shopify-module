@@ -8,6 +8,11 @@
   "description": "Nest module for Shopify app backend",
   "author": "Moritz Raguschat<moritz@jumplink.me>, Pascal Garber<pascal@jumplink.eu>",
   "license": "MIT",
+  "url": "https://github.com/ArtCodeStudio/nestjs-shopify-module",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:ArtCodeStudio/nestjs-shopify-module.git"
+  },
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.json",
     "link": "npm link && npm install && npm link shopify-admin-api && cd node_modules/shopify-admin-api && npm install",
