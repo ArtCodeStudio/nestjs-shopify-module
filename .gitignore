@@ -5,5 +5,21 @@ dist/
 .vscode/
 
 # Configs
-src/config.service.ts
-test/config.test.ts 
+src/config.*.ts
+test/config.*.ts
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Yarn see https://next.yarnpkg.com/advanced/qa#which-files-should-be-gitignored
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+

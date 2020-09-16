@@ -3,9 +3,8 @@
   "version": "0.0.1",
   "main": "src/index.ts",
   "description": "Nest module for Shopify app backend",
-  "author": "Moritz Raguschat<moritz@jumplink.me>, Pascal Garber<pascal@jumplink.eu>",
-  "license": "proprietary",
-  "private": true,
+  "author": "Moritz Raguschat<moritz@artandcode.studio>, Pascal Garber<pascal@artandcode.studio>",
+  "license": "MIT",
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.json",
     "link": "npm link && npm install && npm link shopify-admin-api && cd node_modules/shopify-admin-api && npm install",
