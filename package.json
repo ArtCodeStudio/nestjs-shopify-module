@@ -1,6 +1,6 @@
 {
   "name": "nest-shopify",
-  "version": "7.0.0-beta.1",
+  "version": "7.0.0-beta.2",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "source": "src/index.ts",
@@ -24,6 +24,10 @@
     "test:sync": "SWIFTYPE=1 MONGODB=1 jest --config=jest.config.js 'src/sync.*\\.spec.ts$'",
     "test:sync:watch": "SWIFTYPE=1 MONGODB=1 jest --watch --config=jest.config.js 'src/sync.*\\.spec.ts$'"
   },
+  "files": [
+    "src/",
+    "dist/"
+  ],
   "dependencies": {
     "@nestjs/common": "^7.4.4",
     "@nestjs/core": "^7.4.4",
