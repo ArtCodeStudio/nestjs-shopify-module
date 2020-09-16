@@ -1003,13 +1003,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:26.x, @types/jest@npm:^26.0.13":
+"@types/jest@npm:26.x":
   version: 26.0.13
   resolution: "@types/jest@npm:26.0.13"
   dependencies:
     jest-diff: ^25.2.1
     pretty-format: ^25.2.1
   checksum: 6b0ea93a05bd02ccd099151576f2116df2d2be392b90d6ada9fe6825a8b46a7fc9e60248eda75b4bedb2c04aaccbf6b70d4604961700aa4632d168490e97a791
+  languageName: node
+  linkType: hard
+
+"@types/jest@npm:^26.0.14":
+  version: 26.0.14
+  resolution: "@types/jest@npm:26.0.14"
+  dependencies:
+    jest-diff: ^25.2.1
+    pretty-format: ^25.2.1
+  checksum: 6064f2380c8d2d9e973ab7b319d931ac503586679b033551a81fed389e3dc74b69be7578e0016de9cb484d1cfa0d93344fed0fe2cb272fb429db890a8b23f42a
   languageName: node
   linkType: hard
 
@@ -1059,7 +1069,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^14.10.0":
+"@types/node@npm:*":
   version: 14.10.0
   resolution: "@types/node@npm:14.10.0"
   checksum: ea33551c16895bc4becaaeb15eada950b1b250f47e49d516f5a7c6909e0f21546f2bd07fba0519cfde1e6825460b44a1ffd8e81eae509eebf8d94d035a5e852c
@@ -1070,6 +1080,13 @@ __metadata:
   version: 13.13.18
   resolution: "@types/node@npm:13.13.18"
   checksum: 63369ecf2e8bb9307670b1fbcd25c84e3f353d0166b5cc2a75fa925688ec28d1d36e7014689ce328ea856e1b676d869d37529c62cf5bfc1e6b6a94f30f3916c0
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^14.10.2":
+  version: 14.10.2
+  resolution: "@types/node@npm:14.10.2"
+  checksum: f8831804574d4faeb454242246409dcd600ce43fbd772b3110f6f3a5350bc7d376bfa026755c0fee33ba1438910b763e21c6b6bd05b21ccfdedfad716c3a94e5
   languageName: node
   linkType: hard
 
@@ -1762,7 +1779,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bl@npm:^2.2.0":
+"bl@npm:^2.2.1":
   version: 2.2.1
   resolution: "bl@npm:2.2.1"
   dependencies:
@@ -3594,7 +3611,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"ioredis@npm:^4.14.1, ioredis@npm:^4.17.3":
+"ioredis@npm:^4.14.1, ioredis@npm:^4.18.0":
   version: 4.18.0
   resolution: "ioredis@npm:4.18.0"
   dependencies:
@@ -5070,11 +5087,11 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"mongodb@npm:3.6.1":
-  version: 3.6.1
-  resolution: "mongodb@npm:3.6.1"
+"mongodb@npm:3.6.2":
+  version: 3.6.2
+  resolution: "mongodb@npm:3.6.2"
   dependencies:
-    bl: ^2.2.0
+    bl: ^2.2.1
     bson: ^1.1.4
     denque: ^1.4.1
     require_optional: ^1.0.1
@@ -5083,7 +5100,7 @@ fsevents@^2.1.2:
   dependenciesMeta:
     saslprep:
       optional: true
-  checksum: bd33996d1882231ca27071cbde7d53b8002377b5d11b24fbe00843dd74d4ce187fdab5cf61a13223b47e2c004dba5cb8e15e84f7bdb263977fe919f803ee1515
+  checksum: b16090c29fa938782f7503c6659d5e88119d0190f4753078f44263ed24b27bb90f9d58f0dab53bf156eba7dd291bf7d26c3c8ec05da5b1bcd36c39481203f094
   languageName: node
   linkType: hard
 
@@ -5096,13 +5113,13 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"mongoose@npm:5.10.4, mongoose@npm:^5.10.4":
-  version: 5.10.4
-  resolution: "mongoose@npm:5.10.4"
+"mongoose@npm:5.10.5, mongoose@npm:^5.10.5":
+  version: 5.10.5
+  resolution: "mongoose@npm:5.10.5"
   dependencies:
     bson: ^1.1.4
     kareem: 2.3.1
-    mongodb: 3.6.1
+    mongodb: 3.6.2
     mongoose-legacy-pluralize: 1.0.2
     mpath: 0.7.0
     mquery: 3.2.2
@@ -5111,7 +5128,7 @@ fsevents@^2.1.2:
     safe-buffer: 5.2.1
     sift: 7.0.1
     sliced: 1.0.1
-  checksum: 2dff0960c63c18479c3a91082770863d8d6634ffc8881bfe492e380a90baa1e34533da7a82cf16b1868ee03ec3273861ba9cf0a0648dd6ca8a983072989109c8
+  checksum: 8f6de04c2c40365d047a79d4f042dadaa43458effa36882cab3a7cc4750d086c4c26edf10048bd2ca122c9c87f6bc60c3950e0840e9a6512850194440b154195
   languageName: node
   linkType: hard
 
@@ -5194,10 +5211,10 @@ fsevents@^2.1.2:
     "@types/express-session": ^1.17.0
     "@types/express-socket.io-session": ^1.3.2
     "@types/ioredis": ^4.17.4
-    "@types/jest": ^26.0.13
+    "@types/jest": ^26.0.14
     "@types/mongodb": ^3.5.27
     "@types/mongoose": ^5.7.36
-    "@types/node": ^14.10.0
+    "@types/node": ^14.10.2
     "@types/node-fetch": ^2.5.7
     "@types/p-queue": ^3.2.1
     "@types/p-retry": ^3.0.1
@@ -5213,9 +5230,9 @@ fsevents@^2.1.2:
     concat-stream: ^2.0.0
     deepmerge: ^4.2.2
     elasticsearch: ^16.7.1
-    ioredis: ^4.17.3
+    ioredis: ^4.18.0
     jest: ^26.4.2
-    mongoose: ^5.10.4
+    mongoose: ^5.10.5
     node-fetch: ^2.6.1
     p-map: ^4.0.0
     p-queue: ^6.6.1
