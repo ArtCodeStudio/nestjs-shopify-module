@@ -6,9 +6,9 @@ import { ProductsService } from '../../../../src/api/products/products.service';
 import { ShopifyConnectService } from '../../../../src/auth/connect.service';
 import { IShopifyConnect } from '../../../../src/auth/interfaces';
 
-import { ShopifyModule } from '../../../../src/shopify.module';
-import { config, mongooseConnectionPromise } from '../../../../test/config.test';
-import * as passport from 'passport';
+// import { ShopifyModule } from '../../../../src/shopify.module';
+// import { config, mongooseConnectionPromise } from '../../../../test/config.test';
+// import * as passport from 'passport';
 
 describe('Products Controller', () => {
   let app: INestApplication;

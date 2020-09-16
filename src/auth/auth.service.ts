@@ -175,6 +175,9 @@ export class ShopifyAuthService {
     }
     return this.shopifyConnectService.findByDomain(anyDomain)
     .then((shopifyConnect) => {
+      if (!shopifyConnect || !shopifyConnect.myshopify_domain) {
+        throw new Error('Shop not found! ' + anyDomain);
+      }
       this.logger.debug('getMyShopifyDomain', shopifyConnect.myshopify_domain);
       return shopifyConnect.myshopify_domain;
     });
