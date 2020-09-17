@@ -4,6 +4,7 @@ import * as redisStore from 'cache-manager-ioredis';
 import { Redis } from 'ioredis';
 
 export interface ConfigApp {
+  root: string;
   protocol: 'https' | 'http';
   host: string;
   port: number;
