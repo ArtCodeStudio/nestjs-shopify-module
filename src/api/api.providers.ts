@@ -12,10 +12,10 @@ import { CustomCollectionSchema, CustomCollectionDocument } from './interfaces/m
 import { SmartCollectionSchema, SmartCollectionDocument } from './interfaces/mongoose/smart-collection.schema';
 import { CollectSchema, CollectDocument } from './interfaces/mongoose/collect.schema';
 
-import { underscoreCase } from '../helpers';
+import { underscoreCase, getSubdomain } from '../helpers';
 
 function getDbModel<DocumentType extends Document>(connection: Mongoose, myShopifyDomain: string, resourceName: string, schema: Schema) {
-  const shopName = myShopifyDomain.replace('.myshopify.com', '');
+  const shopName = getSubdomain(myShopifyDomain);
 
   const modelName = `shopify_${shopName}:${underscoreCase(resourceName)}`;
   try {

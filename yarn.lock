@@ -3176,7 +3176,7 @@ fsevents@^2.1.2:
   resolution: "fsevents@patch:fsevents@npm%3A2.1.3#builtin<compat/fsevents>::version=2.1.3&hash=e8cd9e"
   dependencies:
     node-gyp: latest
-  checksum: e8e06b3e0a5837e7be62b820f790371c0e0961b68ef6a1959c825533cce92d1d4559dead9a63dbf5c8baa288552c3fb76a36fe58fc9b4466a08479f52f3832e4
+  checksum: 84919a1ed067df4bbd1b70958ce43fc55129202fba00ef4f6d3f4a6e40761340de4ec76df53c75ff2ae6cbcd35fa498285282832119d0b51c4938ebf481b051d
   languageName: node
   linkType: hard
 
@@ -5249,7 +5249,7 @@ fsevents@^2.1.2:
     ts-jest: ^26.3.0
     ts-node: ^9.0.0
     tslint: ^6.1.3
-    typescript: ^4.0.2
+    typescript: ^3.7.4
   languageName: unknown
   linkType: soft
 
@@ -6287,7 +6287,7 @@ fsevents@^2.1.2:
   resolution: "resolve@patch:resolve@npm%3A1.17.0#builtin<compat/resolve>::version=1.17.0&hash=8fccd0"
   dependencies:
     path-parse: ^1.0.6
-  checksum: 886952612a0e5f5a7e13ebff688e898ba8afd6b27e82a92db9bcf11f69d88c30d054e0728dfc566c202907345f2f3f1e64d5adce33c1e9891c8b217bc87a4a2b
+  checksum: 88c57a90be3c6fdf578cbc49f867a53351fbf7ad1d5e3cc8923a731faaf17699925bff6a1c9b68d8cd1259a2dcb79cb55ae77703cee6d6b0ba10a8c7b7890000
   languageName: node
   linkType: hard
 
@@ -7403,23 +7403,23 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-typescript@^4.0.2:
-  version: 4.0.2
-  resolution: "typescript@npm:4.0.2"
+typescript@^3.7.4:
+  version: 3.9.7
+  resolution: "typescript@npm:3.9.7"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 536a0c0d59268f79fb11d70c58699db7629331d0229cd8f9884c9a7690470ec80940897de11d0f066457d721ab87198a5b78d3552b152f4d60594e9bb8ad4a71
+  checksum: ebbb7512d05816cdb48ab396cf0c69444857d7e84e4fe28caadd2c9407f0c7df696992a02f6cbc24732680f4b8d0a67d6122a2136415bb925eca844fbf23e297
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.0.2#builtin<compat/typescript>":
-  version: 4.0.2
-  resolution: "typescript@patch:typescript@npm%3A4.0.2#builtin<compat/typescript>::version=4.0.2&hash=226bd1"
+"typescript@patch:typescript@^3.7.4#builtin<compat/typescript>":
+  version: 3.9.7
+  resolution: "typescript@patch:typescript@npm%3A3.9.7#builtin<compat/typescript>::version=3.9.7&hash=226bd1"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 7008ea4a188762d10f646e53d2db430e51f992cc72b61a1eb4bba2d0e33071a17d3fef7e0e85cbe659b6692d21a1cb03b5d2951ce16b86717420505fad54d41b
+  checksum: 798fd394cfe71c7fb0287cc335d753b4938b204453e884d6686b68b621f44c79564ca7839ac10453ca10b42242ed2b4c23e1a84a9fa72d78ef10a4a765adcc4f
   languageName: node
   linkType: hard
 

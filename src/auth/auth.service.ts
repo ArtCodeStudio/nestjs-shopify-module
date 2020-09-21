@@ -1,16 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Request } from 'express';
 
 import { IUserRequest } from '../interfaces/user-request';
-import { IShopifyConnect } from './interfaces/connect';
 import { DebugService } from '../debug.service';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 import { IShopifyAuthProfile } from './interfaces/profile';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 import { ShopifyConnectService } from './connect.service';
 import * as ShopifyToken from 'shopify-token'; // https://github.com/lpinca/shopify-token
-import { Shops, Options } from 'shopify-admin-api';
+import { Shops } from 'shopify-admin-api';
 import { Session } from '../interfaces/session';
+import { getSubdomain } from '../helpers';
 
 @Injectable()
 export class ShopifyAuthService {
@@ -47,7 +46,8 @@ export class ShopifyAuthService {
     });
 
     const nonce = shopifyToken.generateNonce();
-    const authUrl = shopifyToken.generateAuthUrl(myshopify_domain);
+    const shopName = getSubdomain(myshopify_domain);
+    const authUrl = shopifyToken.generateAuthUrl(shopName);
     return {
       nonce,
       authUrl,
@@ -200,6 +200,7 @@ export class ShopifyAuthService {
    * @param request
    */
   protected getClientHost(request: IUserRequest) {
+    // this.logger.debug('getClientHost, headers: ', request.headers);
     let host: string;
     if (request.headers.origin) {
       // request comes from shopify theme

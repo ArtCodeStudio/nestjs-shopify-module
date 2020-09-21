@@ -1,5 +1,8 @@
 import { Logger } from '@nestjs/common';
 
+/**
+ * TODO use https://github.com/winstonjs/winston / https://github.com/felixge/node-stack-trace?
+ */
 export class DebugService {
 
   private context: string;
