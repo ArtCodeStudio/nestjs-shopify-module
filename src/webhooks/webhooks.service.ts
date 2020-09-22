@@ -8,7 +8,7 @@ import { EventService } from '../event.service';
 import { ShopifyConnectService } from '../auth/connect.service';
 import { DebugService } from '../debug.service';
 import { SessionSocket } from '../interfaces/session-socket';
-import { Topic } from '../interfaces/webhook';
+import { Topic, WebhookError } from '../interfaces/webhook';
 import { WsResponse } from '@nestjs/websockets';
 import { Observable, Observer, timer, MonoTypeOperatorFunction } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -34,8 +34,8 @@ export class WebhooksService {
         .then((result) => {
           this.logger.debug(result);
         })
-        .catch((error: Error) => {
-          this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`);
+        .catch((error: WebhookError) => {
+          this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`, error.errors);
         });
       }
     });
@@ -50,10 +50,12 @@ export class WebhooksService {
           .then((result) => {
             this.logger.debug(result);
           })
-          .catch((error: Error) => {
-            // Ignore 422 error
-            if (error.message !== '[Shopify Prime] 422 Unprocessable Entity. ') {
-              this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`);
+          .catch((error: WebhookError) => {
+            // Ignore if the webhook is already subscribed
+            if (error.statusCode === 422 && error.errors.address && error.errors.address[0].toLocaleLowerCase().includes("for this topic has already been taken")) {
+              // this.logger.debug(error);
+            } else {
+              this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`, error.errors);
             }
           });
         }
@@ -63,9 +65,12 @@ export class WebhooksService {
 
   public create(shopifyConnect: IShopifyConnect, topic: Topic) {
     const webhooks = new Webhooks(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
+    const address = `https://${this.shopifyModuleOptions.app.host}/webhooks/${topic}`;
+    this.logger.debug("create with address: " + address);
     return webhooks.create({
-      address: `https://${this.shopifyModuleOptions.app.host}/webhooks/${topic}`,
+      address,
       topic,
+      format: "json",
     });
   }
 
