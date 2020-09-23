@@ -84,7 +84,7 @@ export class SyncController {
     };
     // this.logger.debug('startSync body', body)
     this.logger.debug(`startSync`, options);
-    return this.syncService.startSync(req[`shopify-connect-${req.shop}`], options)
+    return this.syncService.startSync(req.session[`shopify-connect-${req.shop}`], options)
     .then((progress) => {
       res.jsonp(progress);
     })
@@ -122,7 +122,7 @@ export class SyncController {
     @Query('resync') resync?: boolean,
     @Query('cancel_existing') cancelExisting?: boolean,
   ) {
-    return this.syncService.startSync(req[`shopify-connect-${req.shop}`], {
+    return this.syncService.startSync(req.session[`shopify-connect-${req.shop}`], {
       syncToDb,
       includeOrders,
       includeTransactions,
@@ -158,7 +158,7 @@ export class SyncController {
     @Res() res: Response,
     @Query('id') id: string,
   ) {
-    return this.syncService.cancelShopSync(req[`shopify-connect-${req.shop}`], id)
+    return this.syncService.cancelShopSync(req.session[`shopify-connect-${req.shop}`], id)
     .then((result) => {
       res.jsonp(result);
     })

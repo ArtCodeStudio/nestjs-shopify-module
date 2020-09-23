@@ -2,7 +2,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { ShopifyAuthService } from '../auth/auth.service';
 import { ShopifyConnectService } from '../auth/connect.service';
 import { DebugService } from '../debug.service';
-import { IUserRequest } from '../interfaces/user-request';
+import { IUserRequest, IShopifyConnect } from '../interfaces/user-request';
 import { Session } from '../interfaces/session';
 import { Response, NextFunction } from 'express';
 
@@ -71,12 +71,11 @@ export class GetUserMiddleware implements NestMiddleware {
     // get user from session
     if (req.session) {
       if (req.session[`user-${shop}`]) {
-        const user = req.session[`user-${shop}`];
+        const user = req.session[`user-${shop}`] as IShopifyConnect;
         // set to session (for websockets)
         req.session.user = user;
         // set to request (for passport and co)
-        req.user = user; // DEPRECATED
-        req[`user-${shop}`] = user;
+        req.user = user;
 
         req.session.isLoggedInToAppBackend = true;
         return next();
@@ -84,12 +83,13 @@ export class GetUserMiddleware implements NestMiddleware {
     }
 
     // Get user from req
-    if (req[`user-${shop}`]) {
-      const user = req[`user-${shop}`];
+    if (req.user) {
+      const user = req.user;
       // set to request (for passport and co)
-      req.user = user; // DEPRECATED
+      req.user = user;
       // set to session (for websockets)
       req.session.user = user;
+      req.session[`user-${shop}`] = user;
       req.session.isLoggedInToAppBackend = true;
       return next();
     }
@@ -100,10 +100,10 @@ export class GetUserMiddleware implements NestMiddleware {
       .then((user) => {
         if (user) {
           // set to request (for passport and co)
-          req.user = user; // // DEPRECATED
-          req[`user-${shop}`] = user;
+          req.user = user;
           // set to session (for websockets)
           req.session.user = req.user;
+          req.session[`user-${shop}`] = user;
 
           req.session.isLoggedInToAppBackend = true;
 

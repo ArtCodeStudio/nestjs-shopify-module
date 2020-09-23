@@ -53,7 +53,7 @@ export class RolesGuard implements CanActivate {
     return hasRoule;
   }
 
-  validateRequest(request: IUserRequest, roles?: TRoles) {
+  validateRequest(req: IUserRequest, roles?: TRoles) {
 
     // if no roles are passtthis route do not need any role so activate this with true
     if (!roles || roles.length === 0) {
@@ -61,12 +61,12 @@ export class RolesGuard implements CanActivate {
     }
 
     // Only logged in users can have any role
-    if (!request.session.isLoggedInToAppBackend) {
+    if (!req.session.isLoggedInToAppBackend) {
       return false;
     }
 
-    // DO NOT USE reqiest[`shopify-connect-${request.shop}`] because this can always be set on theme-client requests
-    if (!this.hasRole(request.session.user, roles)) {
+    // DO NOT USE req.session[`shopify-connect-${req.shop}`] because this can always be set on theme-client requests
+    if (!this.hasRole(req.session[`user-${req.shop}`], roles)) {
       return false;
     }
     return true;

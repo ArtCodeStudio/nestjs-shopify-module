@@ -99,7 +99,7 @@ export class CustomCollectionsController {
     };
 
     try {
-      return res.jsonp(await this.customCollectionsService.listFromShopify(req[`shopify-connect-${req.shop}`], options));
+      return res.jsonp(await this.customCollectionsService.listFromShopify(req.session[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -113,7 +113,7 @@ export class CustomCollectionsController {
   @Get('db')
   async listFromDb(@Req() req: IUserRequest, @Res() res: Response) {
     try {
-      return res.jsonp(await this.customCollectionsService.listFromDb(req[`shopify-connect-${req.shop}`], {}, {}));
+      return res.jsonp(await this.customCollectionsService.listFromDb(req.session[`shopify-connect-${req.shop}`], {}, {}));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -127,7 +127,7 @@ export class CustomCollectionsController {
   @Get('all')
   @Header('Content-type', 'application/json')
   listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Query() options: IShopifySyncCustomCollectionListOptions) {
-    this.customCollectionsService.listAllFromShopifyStream(req[`shopify-connect-${req.shop}`], options).pipe(res);
+    this.customCollectionsService.listAllFromShopifyStream(req.session[`shopify-connect-${req.shop}`], options).pipe(res);
   }
 
   @UseGuards(ShopifyApiGuard)
@@ -135,7 +135,7 @@ export class CustomCollectionsController {
   @Get('db/count')
   async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncCustomCollectionCountOptions) {
     try {
-      return res.jsonp(await this.customCollectionsService.countFromDb(req[`shopify-connect-${req.shop}`], options));
+      return res.jsonp(await this.customCollectionsService.countFromDb(req.session[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -149,7 +149,7 @@ export class CustomCollectionsController {
   @Get('db/diff')
   async diffSynced(@Req() req: IUserRequest, @Res() res: Response) {
     try {
-      return res.jsonp(await this.customCollectionsService.diffSynced(req[`shopify-connect-${req.shop}`]));
+      return res.jsonp(await this.customCollectionsService.diffSynced(req.session[`shopify-connect-${req.shop}`]));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -203,7 +203,7 @@ export class CustomCollectionsController {
       published_status,
     };
     try {
-      return res.jsonp(await this.customCollectionsService.countFromShopify(req[`shopify-connect-${req.shop}`], options));
+      return res.jsonp(await this.customCollectionsService.countFromShopify(req.session[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -217,7 +217,7 @@ export class CustomCollectionsController {
   @Get(':id/db')
   async getFromDb(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
     try {
-      return res.jsonp(await this.customCollectionsService.getFromDb(req[`shopify-connect-${req.shop}`], id));
+      return res.jsonp(await this.customCollectionsService.getFromDb(req.session[`shopify-connect-${req.shop}`], id));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -239,7 +239,7 @@ export class CustomCollectionsController {
       fields,
     };
     try {
-      return res.jsonp(await this.customCollectionsService.getFromShopify(req[`shopify-connect-${req.shop}`], id, options));
+      return res.jsonp(await this.customCollectionsService.getFromShopify(req.session[`shopify-connect-${req.shop}`], id, options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({

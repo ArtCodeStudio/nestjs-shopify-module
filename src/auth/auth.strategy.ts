@@ -5,7 +5,6 @@ import { ShopifyConnectService } from './connect.service';
 import { DebugService } from '../debug.service';
 import { ShopifyAuthController } from './auth.controller';
 import { IShopifyAuthProfile } from './interfaces/profile';
-import { IShopifyConnect } from '../interfaces/user-request';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 import { PassportStatic } from 'passport';
 
@@ -19,7 +18,7 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
     shop: string,
     private shopifyConnectService: ShopifyConnectService,
     private readonly shopifyModuleOptions: ShopifyModuleOptions,
-    private readonly passport: PassportStatic,
+    private readonly passport: PassportStatic
   ) {
     super (
       {
@@ -29,9 +28,6 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
         shop,
       },
     );
-
-    this.passport.serializeUser(this.serializeUser.bind(this));
-    this.passport.deserializeUser(this.deserializeUser.bind(this));
   }
 
   /**
@@ -46,50 +42,35 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
    * @param verifiedDone
    */
   async validate(accessToken: string, refreshToken: string, profile: IShopifyAuthProfile, verifiedDone: (error?: Error | null, user?: any) => void) {
-    // this.logger.debug(`accessToken`, accessToken);
-    // this.logger.debug(`refreshToken`, refreshToken);
-    // this.logger.debug(`profile.displayName`, profile.displayName);
+    this.logger.debug(`accessToken`, accessToken);
+    this.logger.debug(`refreshToken`, refreshToken);
+    this.logger.debug(`profile.displayName`, profile.displayName);
 
     return this.shopifyConnectService.connectOrUpdate(profile, accessToken)
     .then((user) => {
       if (!user) {
         throw new Error('Error on connect or update user');
       }
-      // this.logger.debug(`validate user, user.myshopify_domain: `, user.myshopify_domain);
+      this.logger.debug(`validate user, user.myshopify_domain: `, user.myshopify_domain);
+      // return verifiedDone(null, user);
       return user; // see AuthStrategy -> serializeUser
     })
     .catch((err) => {
       this.logger.error(err);
+      // return verifiedDone(err)
       throw err;
     });
   }
 
-  public serializeUser(user: IShopifyConnect, done) {
-    this.logger.debug(`serializeUser user id`, user.shopifyID);
-    return done(null, user.shopifyID);
-  }
-
-  public deserializeUser(id: number, done) {
-    this.logger.debug(`deserializeUser`, id);
-    if (!id) {
-      return done(new Error("Id not found!"));
-    }
-    this.shopifyConnectService.findByShopifyId(id)
-    .then((user) => {
-      this.logger.debug(`deserializeUser`, user);
-      if (!user) {
-        return done(new Error("User not found!"));
-      }
-      return done(null, user);
-    })
-    .catch((error: Error) => {
-      this.logger.error(error);
-      done(error);
-    });
-  }
 
   public authenticate(req, options) {
-    return super.authenticate(req, options);
+    try {
+      return super.authenticate(req, options);
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+    
   }
 
 }

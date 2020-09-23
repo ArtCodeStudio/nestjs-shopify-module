@@ -42,9 +42,9 @@ class ShopifyApiGuard implements CanActivate {
   /**
    * @param request Validate http request
    */
-  validateRequest(request: IUserRequest) {
+  validateRequest(req: IUserRequest) {
     // See get-shopify-connect.middleware.ts
-    if (request[`shopify-connect-${request.shop}`]) {
+    if (req.session[`shopify-connect-${req.shop}`]) {
       return true;
     }
     return false;

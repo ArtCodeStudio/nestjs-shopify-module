@@ -67,13 +67,13 @@ export class ShopifyAuthController {
     this.logger.debug('auth called', `AuthController:${shop}`);
 
     const shopifyAuthStrategy = new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions, this.passport);
-
     this.passport.use(`shopify-${shop}`, shopifyAuthStrategy);
 
     return this.passport.authenticate(`shopify-${shop}`, {
       failureRedirect: `/shopify/auth/failure/${shop}`,
       scope: this.shopifyModuleOptions.shopify.scope,
       shop,
+      failureFlash: true, // optional, see text as well
     } as any)(req, res, next);
   }
 
@@ -165,8 +165,8 @@ export class ShopifyAuthController {
     return this.passport.authenticate(`shopify-${shop}`, {
       failureRedirect: `/shopify/auth/failure/${shop}`,
       successRedirect: `/shopify/auth/success/${shop}`,
-      session: true,
-      userProperty: `user-${shop}`,
+      failureFlash: true, // optional, see text as well
+      session: true
     })(req, res, next);
   }
 
@@ -216,13 +216,15 @@ export class ShopifyAuthController {
 
   /**
    * Get connected shopify account by current user
+   * TODO return multiple accounts if req.session.shops has multiple shops?
    * @param res
    * @param req
    */
   @Get('/connected/current')
   @Roles('shopify-staff-member')
   async connectCurrent(@Req() req: IUserRequest, @Res() res: Response) {
-    return this.shopifyConnectService.findByDomain(req.user.shop.domain)
+    const shop = req.shop || req.session.lastShop;
+    return this.shopifyConnectService.findByDomain(shop)
     .then((connect) => {
       return res.json(connect);
     })
@@ -275,7 +277,8 @@ export class ShopifyAuthController {
    */
   @Get('/loggedIn')
   loggedIn(@Res() res: Response, @Req() req: IUserRequest) {
-    if (req.user) {
+    const shop = req.shop || req.session.lastShop;
+    if (req.session[`user-${shop}`]) {
       return res.json(true);
     }
     return res.json(false);

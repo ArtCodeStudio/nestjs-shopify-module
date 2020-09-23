@@ -115,7 +115,7 @@ export class ProductsController {
     // fields = fields.replace(/("|')/g, '');
 
     this.logger.debug('[listFromShopify] ShopifySyncProductListOptions', options);
-    return this.productsService.listFromShopify(req[`shopify-connect-${req.shop}`], options)
+    return this.productsService.listFromShopify(req.session[`shopify-connect-${req.shop}`], options)
     .then((products) => {
       this.logger.debug('[listFromShopify] products.length', products.length);
       return res.jsonp(products);
@@ -201,7 +201,7 @@ export class ProductsController {
         sort_by,
         sort_dir,
       };
-      return res.jsonp(await this.productsService.listFromDb(req[`shopify-connect-${req.shop}`], options));
+      return res.jsonp(await this.productsService.listFromDb(req.session[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -248,7 +248,7 @@ export class ProductsController {
     @Query('updated_at_min') updated_at_min?: string,
     @Query('vendor') vendor?: string,
   ) {
-    this.productsService.listAllFromShopifyStream(req[`shopify-connect-${req.shop}`], {
+    this.productsService.listAllFromShopifyStream(req.session[`shopify-connect-${req.shop}`], {
       collection_id,
       created_at_max,
       created_at_min,
@@ -302,7 +302,7 @@ export class ProductsController {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
       }
-      return res.jsonp(await this.productsService.countFromDb(req[`shopify-connect-${req.shop}`], {
+      return res.jsonp(await this.productsService.countFromDb(req.session[`shopify-connect-${req.shop}`], {
         collection_id,
         created_at_max,
         created_at_min,
@@ -360,7 +360,7 @@ export class ProductsController {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
       }
-      return res.jsonp(await this.productsService.countFromShopify(req[`shopify-connect-${req.shop}`], options));
+      return res.jsonp(await this.productsService.countFromShopify(req.session[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -381,7 +381,7 @@ export class ProductsController {
     @Res() res: Response,
   ) {
     try {
-      return res.jsonp(await this.productsService.diffSynced(req[`shopify-connect-${req.shop}`]));
+      return res.jsonp(await this.productsService.diffSynced(req.session[`shopify-connect-${req.shop}`]));
     } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -407,7 +407,7 @@ export class ProductsController {
   ) {
     this.logger.debug('update product', id, product);
     try {
-      return res.jsonp(await this.productsService.updateInShopify(req[`shopify-connect-${req.shop}`], id, product));
+      return res.jsonp(await this.productsService.updateInShopify(req.session[`shopify-connect-${req.shop}`], id, product));
     } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -432,7 +432,7 @@ export class ProductsController {
   ) {
     this.logger.debug('create product', product);
     try {
-      return this.productsService.createInShopify(req[`shopify-connect-${req.shop}`], product)
+      return this.productsService.createInShopify(req.session[`shopify-connect-${req.shop}`], product)
       .then((result) => {
         return res.jsonp(result);
       })
@@ -458,7 +458,7 @@ export class ProductsController {
   @Get('sync-progress/all')
   async listSyncProgress(@Req() req: IUserRequest, @Res() res: Response) {
     try {
-      return res.jsonp(await this.productsService.listSyncProgress(req[`shopify-connect-${req.shop}`]));
+      return res.jsonp(await this.productsService.listSyncProgress(req.session[`shopify-connect-${req.shop}`]));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -477,7 +477,7 @@ export class ProductsController {
   @Get('sync-progress')
   async getLastSyncProgress(@Req() req: IUserRequest, @Res() res: Response) {
     try {
-      return res.jsonp(await this.productsService.getLastSyncProgress(req[`shopify-connect-${req.shop}`]));
+      return res.jsonp(await this.productsService.getLastSyncProgress(req.session[`shopify-connect-${req.shop}`]));
     } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -500,7 +500,7 @@ export class ProductsController {
     @Param('product_id') id: number,
   ) {
     try {
-      return res.jsonp(await this.productsService.deleteInShopify(req[`shopify-connect-${req.shop}`], id));
+      return res.jsonp(await this.productsService.deleteInShopify(req.session[`shopify-connect-${req.shop}`], id));
     } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -521,7 +521,7 @@ export class ProductsController {
   @Get(':id/db')
   async getFromDb(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
     try {
-      return res.jsonp(await this.productsService.getFromDb(req[`shopify-connect-${req.shop}`], id));
+      return res.jsonp(await this.productsService.getFromDb(req.session[`shopify-connect-${req.shop}`], id));
     } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -550,7 +550,7 @@ export class ProductsController {
       fields,
     };
     try {
-      return res.jsonp(await this.productsService.getFromShopify(req[`shopify-connect-${req.shop}`], id, options));
+      return res.jsonp(await this.productsService.getFromShopify(req.session[`shopify-connect-${req.shop}`], id, options));
     } catch (error) {
       this.logger.error(error);
       const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;

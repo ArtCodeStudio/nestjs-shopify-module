@@ -111,7 +111,7 @@ export class SmartCollectionsController {
     };
 
     try {
-      return res.jsonp(await this.smartCollectionsService.listFromShopify(req[`shopify-connect-${req.shop}`], options));
+      return res.jsonp(await this.smartCollectionsService.listFromShopify(req.session[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -179,7 +179,7 @@ export class SmartCollectionsController {
         sort_dir,
         ids,
       };
-      return res.jsonp(await this.smartCollectionsService.listFromDb(req[`shopify-connect-${req.shop}`], options, {}));
+      return res.jsonp(await this.smartCollectionsService.listFromDb(req.session[`shopify-connect-${req.shop}`], options, {}));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -199,7 +199,7 @@ export class SmartCollectionsController {
   @Get('all')
   @Header('Content-type', 'application/json')
   listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Query() options: IShopifySyncSmartCollectionListOptions) {
-    this.smartCollectionsService.listAllFromShopifyStream(req[`shopify-connect-${req.shop}`], options).pipe(res);
+    this.smartCollectionsService.listAllFromShopifyStream(req.session[`shopify-connect-${req.shop}`], options).pipe(res);
   }
 
   @UseGuards(ShopifyApiGuard)
@@ -207,7 +207,7 @@ export class SmartCollectionsController {
   @Get('db/count')
   async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncSmartCollectionCountOptions) {
     try {
-      return res.jsonp(await this.smartCollectionsService.countFromDb(req[`shopify-connect-${req.shop}`], options));
+      return res.jsonp(await this.smartCollectionsService.countFromDb(req.session[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -221,7 +221,7 @@ export class SmartCollectionsController {
   @Get('db/diff')
   async diffSynced(@Req() req: IUserRequest, @Res() res: Response) {
     try {
-      return res.jsonp(await this.smartCollectionsService.diffSynced(req[`shopify-connect-${req.shop}`]));
+      return res.jsonp(await this.smartCollectionsService.diffSynced(req.session[`shopify-connect-${req.shop}`]));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -281,7 +281,7 @@ export class SmartCollectionsController {
       published_status,
     };
     try {
-      return res.jsonp(await this.smartCollectionsService.countFromShopify(req[`shopify-connect-${req.shop}`], options));
+      return res.jsonp(await this.smartCollectionsService.countFromShopify(req.session[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -295,7 +295,7 @@ export class SmartCollectionsController {
   @Get(':id/db')
   async getFromDb(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
     try {
-      return res.jsonp(await this.smartCollectionsService.getFromDb(req[`shopify-connect-${req.shop}`], id));
+      return res.jsonp(await this.smartCollectionsService.getFromDb(req.session[`shopify-connect-${req.shop}`], id));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -323,7 +323,7 @@ export class SmartCollectionsController {
       fields,
     };
     try {
-      return res.jsonp(await this.smartCollectionsService.getFromShopify(req[`shopify-connect-${req.shop}`], id, options));
+      return res.jsonp(await this.smartCollectionsService.getFromShopify(req.session[`shopify-connect-${req.shop}`], id, options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({

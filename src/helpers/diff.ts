@@ -84,5 +84,5 @@ export function getDiff(a: any, b: any): Array<Change> {
   } else {
     return a === b ? [] : [{path: '', operation: 'update', value: b}];
   }
-  // console.log(`This should not be happening...`);
+  // console.error(`This should not be happening...`);
 }

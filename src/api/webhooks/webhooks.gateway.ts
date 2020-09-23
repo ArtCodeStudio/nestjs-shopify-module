@@ -300,7 +300,7 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   }
 
   handleConnection(client: SessionSocket) {
-    this.logger.debug('connect', client.id, client.handshake.session);
+    this.logger.debug('connect', client.id);
     // Join the room for app backend users to receive broadcast events
     if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
 

@@ -2,8 +2,10 @@ import { Module, DynamicModule, NestModule, MiddlewareConsumer, RequestMethod } 
 import { APP_GUARD } from '@nestjs/core';
 import { ShopifyAuthController } from './auth/auth.controller';
 import { shopifyConnectProviders } from './auth/connect.providers';
-import { shopifyApiProviders } from './api/api.providers';
 import { ShopifyConnectService } from './auth/connect.service';
+import { ShopifyAuthService } from './auth/auth.service';
+import { PassportService } from './auth/passport.service';
+import { shopifyApiProviders } from './api/api.providers';
 import { ChargeController } from './charge/charge.controller';
 import { ChargeService } from './charge/charge.service';
 import { ShopController } from './shop/shop.controller';
@@ -12,7 +14,6 @@ import { RolesGuard } from './guards/roles.guard';
 import { ShopifyApiGuard } from './guards/shopify-api.guard';
 import { ThemesService } from './api/themes/themes.service';
 import { ThemesController } from './api/themes/themes.controller';
-import { ShopifyAuthService } from './auth/auth.service';
 import { AssetsService } from './api/themes/assets/assets.service';
 import { LocalesService } from './api/themes/locales/locales.service';
 import { AssetsController } from './api/themes/assets/assets.controller';
@@ -86,6 +87,7 @@ export { RequestGuard } from './guards/request.guard';
     ShopifyConnectService,
     ShopService,
     ShopifyAuthService,
+    PassportService,
     SyncService,
     OrdersService,
     PagesService,
