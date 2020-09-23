@@ -13,18 +13,24 @@ export class GetShopifyConnectMiddleware implements NestMiddleware {
 
   }
   async use(req: IUserRequest, res: Response, next: NextFunction) {
-    return this.shopifyConnectService.findByDomain(req.session.shop)
+    const shop = req.shop;
+    return this.shopifyConnectService.findByDomain(shop)
     .then((shopifyConnect) => {
       // this.logger.debug('shopifyConnect', shopifyConnect);
       if (!shopifyConnect) {
         return next();
-      }
-      
+      }     
+
       // set to session
-      req.session.shopifyConnect = shopifyConnect;
+      req.session[`shopify-connect-${shop}`] = shopifyConnect;
+      req.session.shopifyConnect = shopifyConnect; // DEPRECATED
 
       // set to request
-      req.shopifyConnect = req.session.shopifyConnect;
+      req[`shopify-connect-${shop}`] = shopifyConnect;
+      req.shopifyConnect = shopifyConnect; // DEPRECATED
+
+      
+
       return next();
     });
   }

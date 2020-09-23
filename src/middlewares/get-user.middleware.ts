@@ -3,6 +3,7 @@ import { ShopifyAuthService } from '../auth/auth.service';
 import { ShopifyConnectService } from '../auth/connect.service';
 import { DebugService } from '../debug.service';
 import { IUserRequest } from '../interfaces/user-request';
+import { Session } from '../interfaces/session';
 import { Response, NextFunction } from 'express';
 
 @Injectable()
@@ -15,6 +16,8 @@ export class GetUserMiddleware implements NestMiddleware {
 
   }
   async use(req: IUserRequest, res: Response, next: NextFunction) {
+
+    let shop: string;
 
     const requestType = await this.shopifyAuthService.getRequestType(req)
     .catch((error: Error) => {
@@ -29,14 +32,19 @@ export class GetUserMiddleware implements NestMiddleware {
     req.session.isLoggedInToAppBackend = false;
 
     if (requestType) {
+      shop = requestType.myshopifyDomain
       req.session.isAppBackendRequest = requestType.isAppBackendRequest;
       req.session.isThemeClientRequest = requestType.isThemeClientRequest;
       req.session.isUnknownClientRequest = requestType.isUnknownClientRequest;
-      req.session.shop = requestType.myshopifyDomain;
+      this.setShop(req, shop);
       // this.logger.debug('requestType', requestType);
     }
 
     // this.logger.debug('req.session', req.session);
+
+    if (!shop) {
+      shop = req.session.lastShop;
+    }
 
     /**
      * If shop is not set you need to add the shop to your header on your shopify app client code like this:
@@ -55,18 +63,20 @@ export class GetUserMiddleware implements NestMiddleware {
      *   Utils.setRequestHeaderEachRequest('shop', shop);
      * ```
      */
-    if (!req.session.shop) {
-      this.logger.warn('Shop not found)');
+    if (!shop) {
+      this.logger.warn('Shop not found!');
       return next();
     }
 
     // get user from session
     if (req.session) {
-      if (req.session[`user-${req.session.shop}`]) {
+      if (req.session[`user-${shop}`]) {
+        const user = req.session[`user-${shop}`];
         // set to session (for websockets)
-        req.session.user = req.session[`user-${req.session.shop}`];
+        req.session.user = user;
         // set to request (for passport and co)
-        req.user = req.session.user;
+        req.user = user; // DEPRECATED
+        req[`user-${shop}`] = user;
 
         req.session.isLoggedInToAppBackend = true;
         return next();
@@ -74,11 +84,12 @@ export class GetUserMiddleware implements NestMiddleware {
     }
 
     // Get user from req
-    if (req[`user-${req.session.shop}`]) {
+    if (req[`user-${shop}`]) {
+      const user = req[`user-${shop}`];
       // set to request (for passport and co)
-      req.user = req[`user-${req.session.shop}`];
+      req.user = user; // DEPRECATED
       // set to session (for websockets)
-      req.session.user = req.user;
+      req.session.user = user;
       req.session.isLoggedInToAppBackend = true;
       return next();
     }
@@ -89,7 +100,8 @@ export class GetUserMiddleware implements NestMiddleware {
       .then((user) => {
         if (user) {
           // set to request (for passport and co)
-          req.user = user;
+          req.user = user; // // DEPRECATED
+          req[`user-${shop}`] = user;
           // set to session (for websockets)
           req.session.user = req.user;
 
@@ -104,5 +116,15 @@ export class GetUserMiddleware implements NestMiddleware {
     }
 
     return next();
+  }
+
+  protected setShop(req: IUserRequest, shop: string) {
+    req.session.shops = req.session.shops || [];
+    if(!req.session.shops.includes(shop)) {
+      req.session.shops.push(shop);
+    }
+    req.session.shop = shop; // depricated
+    req.session.lastShop = shop;
+    req.shop = shop;
   }
 }

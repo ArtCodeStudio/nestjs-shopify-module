@@ -65,7 +65,7 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    // DO NOT USE request.shopifyConnect because this can always be set on theme-client requests
+    // DO NOT USE reqiest[`shopify-connect-${request.shop}`] because this can always be set on theme-client requests
     if (!this.hasRole(request.session.user, roles)) {
       return false;
     }

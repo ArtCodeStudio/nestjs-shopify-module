@@ -34,7 +34,7 @@ export class TransactionsController {
     @Param('order_id') orderId: number,
     @Query() options: IShopifySyncTransactionListOptions,
   ) {
-    return this.transactionsService.listFromShopify(req.shopifyConnect, orderId, {
+    return this.transactionsService.listFromShopify(req[`shopify-connect-${req.shop}`], orderId, {
       ...options,
     })
     .then((transactions) => {
@@ -57,7 +57,7 @@ export class TransactionsController {
     @Param('order_id') orderId: number,
   ) {
     try {
-      return res.jsonp(await this.transactionsService.listFromDb(req.shopifyConnect, orderId));
+      return res.jsonp(await this.transactionsService.listFromDb(req[`shopify-connect-${req.shop}`], orderId));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -74,7 +74,7 @@ export class TransactionsController {
     @Res() res: Response,
     @Param('order_id') orderId: number,
   ) {
-    return this.transactionsService.countFromShopify(req.shopifyConnect, orderId)
+    return this.transactionsService.countFromShopify(req[`shopify-connect-${req.shop}`], orderId)
     .then((count) => {
       return res.jsonp(count);
     })
@@ -94,7 +94,7 @@ export class TransactionsController {
     @Res() res: Response,
     @Param('order_id') orderId: number,
   ) {
-    return this.transactionsService.countFromDb(req.shopifyConnect, orderId)
+    return this.transactionsService.countFromDb(req[`shopify-connect-${req.shop}`], orderId)
     .then((count) => {
       return res.jsonp(count);
     })
@@ -115,7 +115,7 @@ export class TransactionsController {
     @Param('id') id: number,
   ) {
     try {
-      return res.jsonp(await this.transactionsService.getFromDb(req.shopifyConnect, id));
+      return res.jsonp(await this.transactionsService.getFromDb(req[`shopify-connect-${req.shop}`], id));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -134,7 +134,7 @@ export class TransactionsController {
     @Param('id') id: number,
     @Query() options: IShopifySyncTransactionGetOptions,
   ) {
-    return this.transactionsService.getFromShopify(req.shopifyConnect, orderId, id, options)
+    return this.transactionsService.getFromShopify(req[`shopify-connect-${req.shop}`], orderId, id, options)
     .then((transaction) => {
       return res.jsonp(transaction);
     })

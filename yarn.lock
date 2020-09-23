@@ -1097,10 +1097,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^14.10.2":
-  version: 14.10.2
-  resolution: "@types/node@npm:14.10.2"
-  checksum: f8831804574d4faeb454242246409dcd600ce43fbd772b3110f6f3a5350bc7d376bfa026755c0fee33ba1438910b763e21c6b6bd05b21ccfdedfad716c3a94e5
+"@types/node@npm:^14.11.2":
+  version: 14.11.2
+  resolution: "@types/node@npm:14.11.2"
+  checksum: 0d4837c560492bcc40b20945e9dda627fb03cc16fed18da2662623a42ca1665f64364c67f625273b41f4948858425c8097871be05919a96e87a6c1839cf1281e
   languageName: node
   linkType: hard
 
@@ -4567,7 +4567,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"jest-util@npm:26.x, jest-util@npm:^26.3.0":
+"jest-util@npm:^26.1.0, jest-util@npm:^26.3.0":
   version: 26.3.0
   resolution: "jest-util@npm:26.3.0"
   dependencies:
@@ -5315,9 +5315,9 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"mongoose@npm:5.10.5, mongoose@npm:^5.10.5":
-  version: 5.10.5
-  resolution: "mongoose@npm:5.10.5"
+"mongoose@npm:5.10.6, mongoose@npm:^5.10.6":
+  version: 5.10.6
+  resolution: "mongoose@npm:5.10.6"
   dependencies:
     bson: ^1.1.4
     kareem: 2.3.1
@@ -5330,7 +5330,7 @@ fsevents@^2.1.2:
     safe-buffer: 5.2.1
     sift: 7.0.1
     sliced: 1.0.1
-  checksum: 8f6de04c2c40365d047a79d4f042dadaa43458effa36882cab3a7cc4750d086c4c26edf10048bd2ca122c9c87f6bc60c3950e0840e9a6512850194440b154195
+  checksum: 51b2b2a4208e4f81aaa151f8d1a54f4f90f70d755887a9723ce3f733de046b5d6c1b81418755bd40de6297ca5d8b1df4245881429802addb2e2fe83560d32995
   languageName: node
   linkType: hard
 
@@ -5424,7 +5424,7 @@ fsevents@^2.1.2:
     "@types/jest": ^26.0.14
     "@types/mongodb": ^3.5.27
     "@types/mongoose": ^5.7.36
-    "@types/node": ^14.10.2
+    "@types/node": ^14.11.2
     "@types/node-fetch": ^2.5.7
     "@types/p-queue": ^3.2.1
     "@types/p-retry": ^3.0.1
@@ -5443,7 +5443,7 @@ fsevents@^2.1.2:
     elasticsearch: ^16.7.1
     ioredis: ^4.18.0
     jest: ^26.4.2
-    mongoose: ^5.10.5
+    mongoose: ^5.10.6
     node-fetch: ^2.6.1
     p-map: ^4.0.0
     p-queue: ^6.6.1
@@ -5452,15 +5452,15 @@ fsevents@^2.1.2:
     passport-shopify: ^0.1.2
     reflect-metadata: ^0.1.13
     rxjs: ^6.6.3
-    shopify-admin-api: ^2.15.0-alpha.4
+    shopify-admin-api: ^2.15.0-alpha.5
     shopify-token: ^4.0.0
     socket.io-redis: ^5.4.0
     supertest: ^4.0.2
     swiftype-app-search-node: ^0.6.0
-    ts-jest: ^26.3.0
+    ts-jest: ^26.4.0
     ts-node: ^9.0.0
     tslint: ^6.1.3
-    typescript: ^3.7.4
+    typescript: ^3.9.7
   languageName: unknown
   linkType: soft
 
@@ -6761,7 +6761,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"shopify-admin-api@npm:^2.15.0-alpha.4":
+"shopify-admin-api@npm:^2.15.0-alpha.5":
   version: 2.15.0-alpha.5
   resolution: "shopify-admin-api@npm:2.15.0-alpha.5"
   dependencies:
@@ -7510,27 +7510,27 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^26.3.0":
-  version: 26.3.0
-  resolution: "ts-jest@npm:26.3.0"
+"ts-jest@npm:^26.4.0":
+  version: 26.4.0
+  resolution: "ts-jest@npm:26.4.0"
   dependencies:
     "@types/jest": 26.x
     bs-logger: 0.x
     buffer-from: 1.x
     fast-json-stable-stringify: 2.x
-    jest-util: 26.x
+    jest-util: ^26.1.0
     json5: 2.x
     lodash.memoize: 4.x
     make-error: 1.x
     mkdirp: 1.x
     semver: 7.x
-    yargs-parser: 18.x
+    yargs-parser: 20.x
   peerDependencies:
     jest: ">=26 <27"
     typescript: ">=3.8 <5.0"
   bin:
     ts-jest: cli.js
-  checksum: 24cbac1f484535e2987303fcb4684c6ba778cf7a43880d7c533dd48aa495c869f337afa7f9b02ad1c8935d29dc6927b22a851edca3c09890f943a10bc7243319
+  checksum: b66447c98be98cf832d6b27c73422a34c8fda9a7169759e1321cddbcef746962db2ca390b50d7b6ae34126a1e264e869191ebf88f996abcb2cfc4021763d6112
   languageName: node
   linkType: hard
 
@@ -7704,7 +7704,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-typescript@^3.7.4:
+typescript@^3.9.7:
   version: 3.9.7
   resolution: "typescript@npm:3.9.7"
   bin:
@@ -7714,7 +7714,7 @@ typescript@^3.7.4:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^3.7.4#builtin<compat/typescript>":
+"typescript@patch:typescript@^3.9.7#builtin<compat/typescript>":
   version: 3.9.7
   resolution: "typescript@patch:typescript@npm%3A3.9.7#builtin<compat/typescript>::version=3.9.7&hash=226bd1"
   bin:
@@ -8070,7 +8070,14 @@ typescript@^3.7.4:
   languageName: node
   linkType: hard
 
-"yargs-parser@npm:18.x, yargs-parser@npm:^18.1.2":
+"yargs-parser@npm:20.x":
+  version: 20.2.0
+  resolution: "yargs-parser@npm:20.2.0"
+  checksum: d2f4f2a8638b3ddfaf48297b5bff25d6720df9e5b7cb0181f514ce0321987d7bb02b93506c5e628dfaf5f0bdc18a38f6ea6cb387e9406d7571f8496fbb062385
+  languageName: node
+  linkType: hard
+
+"yargs-parser@npm:^18.1.2":
   version: 18.1.3
   resolution: "yargs-parser@npm:18.1.3"
   dependencies:

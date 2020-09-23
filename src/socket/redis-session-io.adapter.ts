@@ -18,11 +18,11 @@ export class RedisSessionIoAdapter extends IoAdapter {
 
   protected redisAdapter: redisIoAdapter.RedisAdapter;
 
-  constructor(session: express.RequestHandler, redisUrl: string, appOrHttpServer: INestApplicationContext | Server) {
+  constructor(session: express.RequestHandler, redisUrl: string, host: string, appOrHttpServer: INestApplicationContext | Server) {
     super(appOrHttpServer);
 
-    const pub = new Redis(redisUrl);
-    const sub = new Redis(redisUrl);
+    const pub = new Redis(redisUrl, { keyPrefix: host });
+    const sub = new Redis(redisUrl, { keyPrefix: host });
 
     /**
      * Use socket.io with redis

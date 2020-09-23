@@ -62,7 +62,7 @@ export class ShopifyAuthController {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
     }
 
-    session.shop = shop;
+    session.lastShop = shop;
 
     this.logger.debug('auth called', `AuthController:${shop}`);
 
@@ -158,7 +158,7 @@ export class ShopifyAuthController {
       });
     }
 
-    session.shop = shop;
+    session.lastShop = shop;
 
     this.logger.debug('callback called', `AuthController:${shop}`);
 

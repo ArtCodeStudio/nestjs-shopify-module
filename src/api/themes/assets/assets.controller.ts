@@ -30,7 +30,7 @@ export class AssetsController {
     @Res() res: Response,
     @Param('theme_id') themeId: number,
   ) {
-    return this.assetsService.list(req.shopifyConnect, themeId)
+    return this.assetsService.list(req[`shopify-connect-${req.shop}`], themeId)
     .then((assets) => {
       // this.logger.debug(`themes`, assets);
       return res.jsonp(assets);
@@ -61,7 +61,7 @@ export class AssetsController {
     @Param('filename') filename: string,
   ) {
     const key = 'assets/' + filename;
-    return this.assetsService.get(req.shopifyConnect, themeId, key)
+    return this.assetsService.get(req[`shopify-connect-${req.shop}`], themeId, key)
     .then((asset) => {
       // this.logger.debug(`asset assets`, asset);
       return res.jsonp(asset);
@@ -93,7 +93,7 @@ export class AssetsController {
     @Param('filename') filename: string,
   ) {
     const key = 'templates/' + filename;
-    return this.assetsService.get(req.shopifyConnect, themeId, key)
+    return this.assetsService.get(req[`shopify-connect-${req.shop}`], themeId, key)
     .then((asset) => {
       // this.logger.debug(`asset templates`, asset);
       return res.jsonp(asset);
@@ -125,7 +125,7 @@ export class AssetsController {
     @Param('filename') filename: string,
   ) {
     const key = 'snippets/' + filename;
-    return this.assetsService.get(req.shopifyConnect, themeId, key)
+    return this.assetsService.get(req[`shopify-connect-${req.shop}`], themeId, key)
     .then((asset) => {
       // this.logger.debug(`asset snippets`, asset);
       return res.jsonp(asset);
@@ -161,7 +161,7 @@ export class AssetsController {
     const path = url.parse(req.url).pathname;
     key = path.substring(path.lastIndexOf(key));
 
-    return this.assetsService.get(req.shopifyConnect, themeId, key)
+    return this.assetsService.get(req[`shopify-connect-${req.shop}`], themeId, key)
     .then((asset) => {
       // this.logger.debug(`asset`, asset);
       return res.jsonp(asset);

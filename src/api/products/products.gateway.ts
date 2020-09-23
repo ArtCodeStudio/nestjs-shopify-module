@@ -8,12 +8,11 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Observable } from 'rxjs';
-import { SessionSocket } from '../../interfaces/session-socket';
-import { IShopifySyncProductListOptions, IShopifySyncProductCountOptions } from '../interfaces';
+import { IShopifySyncProductListOptions } from '../interfaces';
 import { ProductsService } from './products.service';
-import { Product, ProductUpdateCreate } from 'shopify-admin-api/dist/models';
+import { Product } from 'shopify-admin-api/dist/models';
 import { DebugService } from '../../debug.service';
-import { Server } from 'socket.io';
+import { IShopifyConnect, SessionSocket } from 'interfaces';
 
 @WebSocketGateway({namespace: '/socket.io/shopify/api/products'})
 export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -28,7 +27,15 @@ export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
   @SubscribeMessage('all')
   onAll(client: SessionSocket, options: IShopifySyncProductListOptions = {}): Observable<WsResponse<Partial<Product>>> {
-    return this.productsService.listAllFromShopifyObservable(client.handshake.session.shopifyConnect, 'all', options);
+    const shop = client.handshake.session.lastShop; // TODO
+    let shopifyConnect: IShopifyConnect;
+    if (shop) {
+      shopifyConnect = client.handshake.session[`shopify-connect-${shop}`];
+    }
+    if (!shopifyConnect) {
+      shopifyConnect = client.handshake.session.shopifyConnect; // DEPRECATED
+    }
+    return this.productsService.listAllFromShopifyObservable(shopifyConnect, 'all', options);
   }
 
   afterInit(nsp: SocketIO.Namespace) {

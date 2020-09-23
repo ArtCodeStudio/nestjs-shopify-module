@@ -59,7 +59,7 @@ export class ArticlesController {
   ) {
     this.logger.debug('create article', article);
     try {
-      return this.articlesService.create(req.shopifyConnect, blogId, article)
+      return this.articlesService.create(req[`shopify-connect-${req.shop}`], blogId, article)
       .then((result) => {
         this.logger.debug('result', result);
         return res.jsonp(result);
@@ -133,7 +133,7 @@ export class ArticlesController {
       };
 
       this.logger.debug('ArticleListOptions', options);
-      return res.jsonp(await this.articlesService.list(req.shopifyConnect, blogId, options));
+      return res.jsonp(await this.articlesService.list(req[`shopify-connect-${req.shop}`], blogId, options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
@@ -165,7 +165,7 @@ export class ArticlesController {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public articles if the request comes not from a logged in user
       }
-      return res.jsonp(await this.articlesService.count(req.shopifyConnect, blogId, {
+      return res.jsonp(await this.articlesService.count(req[`shopify-connect-${req.shop}`], blogId, {
         created_at_max,
         created_at_min,
         published_at_max,
@@ -196,7 +196,7 @@ export class ArticlesController {
     @Param('id') id: number,
   ) {
     try {
-      return res.jsonp(await this.articlesService.get(req.shopifyConnect, blogId, id));
+      return res.jsonp(await this.articlesService.get(req[`shopify-connect-${req.shop}`], blogId, id));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
@@ -219,7 +219,7 @@ export class ArticlesController {
     @Param('article_id') id: number,
   ) {
     try {
-      return res.jsonp(await this.articlesService.delete(req.shopifyConnect, blogId, id));
+      return res.jsonp(await this.articlesService.delete(req[`shopify-connect-${req.shop}`], blogId, id));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
@@ -245,7 +245,7 @@ export class ArticlesController {
   ) {
     this.logger.debug('update article', id, article);
     try {
-      return res.jsonp(await this.articlesService.update(req.shopifyConnect, blogId, id, article));
+      return res.jsonp(await this.articlesService.update(req[`shopify-connect-${req.shop}`], blogId, id, article));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);

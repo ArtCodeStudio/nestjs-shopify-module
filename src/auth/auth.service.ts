@@ -112,7 +112,7 @@ export class ShopifyAuthService {
           // Passport stores the user in req.user
           session[`user-${user.myshopify_domain}`] = user;
           // For fallback if no shop is set in request.headers
-          session.shop = user.myshopify_domain;
+          session.lastShop = user.myshopify_domain;
           return user;
         })
         .catch((err) => {
@@ -165,7 +165,7 @@ export class ShopifyAuthService {
    *
    * @param request
    */
-  async getMyShopifyDomainSecureForThemeClients(request: IUserRequest) {
+  public async getMyShopifyDomainSecureForThemeClients(request: IUserRequest) {
     const anyDomain = this.getShopSecureForThemeClients(request);
     if (!anyDomain) {
       throw new Error('Shop not found! ' + anyDomain);
@@ -318,8 +318,8 @@ export class ShopifyAuthService {
     }
 
     // Fallback
-    if (request.session.shop) {
-      shop = request.session.shop;
+    if (request.session.lastShop) {
+      shop = request.session.lastShop;
       if (shop.endsWith('.myshopify.com')) {
         return shop;
       }

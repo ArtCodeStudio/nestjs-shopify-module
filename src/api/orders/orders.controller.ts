@@ -76,7 +76,7 @@ export class OrdersController {
         updated_at_max,
         updated_at_min,
       };
-      return res.jsonp(await this.ordersService.listFromShopify(req.shopifyConnect, options));
+      return res.jsonp(await this.ordersService.listFromShopify(req[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -97,7 +97,7 @@ export class OrdersController {
     @Query() options: IAppOrderListOptions,
   ) {
     try {
-      return res.jsonp(await this.ordersService.listFromDb(req.shopifyConnect, options, {}));
+      return res.jsonp(await this.ordersService.listFromDb(req[`shopify-connect-${req.shop}`], options, {}));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -111,7 +111,7 @@ export class OrdersController {
   @Get('all')
   @Header('Content-type', 'application/json')
   listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Query() options: IShopifySyncOrderListOptions) {
-    this.ordersService.listAllFromShopifyStream(req.shopifyConnect, {...options, status: 'any'}).pipe(res);
+    this.ordersService.listAllFromShopifyStream(req[`shopify-connect-${req.shop}`], {...options, status: 'any'}).pipe(res);
   }
 
   @UseGuards(ShopifyApiGuard)
@@ -119,7 +119,7 @@ export class OrdersController {
   @Get('db/count')
   async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncOrderCountOptions) {
     try {
-      return res.jsonp(await this.ordersService.countFromDb(req.shopifyConnect, options));
+      return res.jsonp(await this.ordersService.countFromDb(req[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -133,7 +133,7 @@ export class OrdersController {
   @Get('db/diff')
   async diffSynced(@Req() req: IUserRequest, @Res() res: Response) {
     try {
-      return res.jsonp(await this.ordersService.diffSynced(req.shopifyConnect));
+      return res.jsonp(await this.ordersService.diffSynced(req[`shopify-connect-${req.shop}`]));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -151,7 +151,7 @@ export class OrdersController {
     @Query() options: IShopifySyncOrderCountOptions,
   ) {
     try {
-      return res.jsonp(await this.ordersService.countFromShopify(req.shopifyConnect, options));
+      return res.jsonp(await this.ordersService.countFromShopify(req[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -165,7 +165,7 @@ export class OrdersController {
   @Get(':id/db')
   async getFromDb(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
     try {
-      return res.jsonp(await this.ordersService.getFromDb(req.shopifyConnect, id));
+      return res.jsonp(await this.ordersService.getFromDb(req[`shopify-connect-${req.shop}`], id));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -179,7 +179,7 @@ export class OrdersController {
   @Get('sync-progress/all')
   async listSyncProgress(@Req() req: IUserRequest, @Res() res: Response) {
     try {
-      return res.jsonp(await this.ordersService.listSyncProgress(req.shopifyConnect));
+      return res.jsonp(await this.ordersService.listSyncProgress(req[`shopify-connect-${req.shop}`]));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -193,7 +193,7 @@ export class OrdersController {
   @Get('sync-progress')
   async getLastSyncProgress(@Req() req: IUserRequest, @Res() res: Response) {
     try {
-      return res.jsonp(await this.ordersService.getLastSyncProgress(req.shopifyConnect));
+      return res.jsonp(await this.ordersService.getLastSyncProgress(req[`shopify-connect-${req.shop}`]));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
@@ -207,7 +207,7 @@ export class OrdersController {
   @Get(':id')
   async getFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
     try {
-      return res.jsonp(await this.ordersService.getFromShopify(req.shopifyConnect, id));
+      return res.jsonp(await this.ordersService.getFromShopify(req[`shopify-connect-${req.shop}`], id));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({

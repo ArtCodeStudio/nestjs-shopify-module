@@ -58,7 +58,7 @@ export class PagesController {
   ) {
     this.logger.debug('create page', page);
     try {
-      return this.pagesService.create(req.shopifyConnect, page)
+      return this.pagesService.create(req[`shopify-connect-${req.shop}`], page)
       .then((result) => {
         this.logger.debug('result', result);
         return res.jsonp(result);
@@ -129,7 +129,7 @@ export class PagesController {
       };
 
       this.logger.debug('PageListOptions', options);
-      return res.jsonp(await this.pagesService.list(req.shopifyConnect, options));
+      return res.jsonp(await this.pagesService.list(req[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
@@ -161,7 +161,7 @@ export class PagesController {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public pages if the request comes not from a logged in user
       }
-      return res.jsonp(await this.pagesService.count(req.shopifyConnect, {
+      return res.jsonp(await this.pagesService.count(req[`shopify-connect-${req.shop}`], {
         created_at_max,
         created_at_min,
         published_at_max,
@@ -192,7 +192,7 @@ export class PagesController {
     @Param('id') id: number,
   ) {
     try {
-      return res.jsonp(await this.pagesService.get(req.shopifyConnect, id));
+      return res.jsonp(await this.pagesService.get(req[`shopify-connect-${req.shop}`], id));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
@@ -214,7 +214,7 @@ export class PagesController {
     @Param('page_id') id: number,
   ) {
     try {
-      return res.jsonp(await this.pagesService.delete(req.shopifyConnect, id));
+      return res.jsonp(await this.pagesService.delete(req[`shopify-connect-${req.shop}`], id));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
@@ -239,7 +239,7 @@ export class PagesController {
   ) {
     this.logger.debug('update page', id, page);
     try {
-      return res.jsonp(await this.pagesService.update(req.shopifyConnect, id, page));
+      return res.jsonp(await this.pagesService.update(req[`shopify-connect-${req.shop}`], id, page));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);

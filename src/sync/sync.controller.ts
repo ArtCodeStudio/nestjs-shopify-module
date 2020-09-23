@@ -84,7 +84,7 @@ export class SyncController {
     };
     // this.logger.debug('startSync body', body)
     this.logger.debug(`startSync`, options);
-    return this.syncService.startSync(req.shopifyConnect, options)
+    return this.syncService.startSync(req[`shopify-connect-${req.shop}`], options)
     .then((progress) => {
       res.jsonp(progress);
     })
@@ -122,7 +122,7 @@ export class SyncController {
     @Query('resync') resync?: boolean,
     @Query('cancel_existing') cancelExisting?: boolean,
   ) {
-    return this.syncService.startSync(req.shopifyConnect, {
+    return this.syncService.startSync(req[`shopify-connect-${req.shop}`], {
       syncToDb,
       includeOrders,
       includeTransactions,
@@ -158,7 +158,7 @@ export class SyncController {
     @Res() res: Response,
     @Query('id') id: string,
   ) {
-    return this.syncService.cancelShopSync(req.shopifyConnect, id)
+    return this.syncService.cancelShopSync(req[`shopify-connect-${req.shop}`], id)
     .then((result) => {
       res.jsonp(result);
     })
@@ -202,7 +202,7 @@ export class SyncController {
   ) {
 
     const query = {
-      shop: req.shopifyConnect.shop.myshopify_domain,
+      shop: req.shop, // req.shopifyConnect.shop.myshopify_domain,
     };
 
     return this.syncService.findOne(query, { sort: { createdAt: -1} })
@@ -231,7 +231,7 @@ export class SyncController {
   ) {
 
     const query = {
-      shop: req.shopifyConnect.shop.myshopify_domain,
+      shop: req.shop, // req.shopifyConnect.shop.myshopify_domain,
     };
 
     return this.syncService.find(query, { sort: { createdAt: -1} })

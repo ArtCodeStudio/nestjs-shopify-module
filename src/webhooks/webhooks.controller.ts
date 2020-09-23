@@ -19,7 +19,7 @@ export class WebhooksController {
   @Roles('admin')
   @Get('')
   async listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response) {
-    const webhooks = await this.webhooksService.list(req.shopifyConnect);
+    const webhooks = await this.webhooksService.list(req[`shopify-connect-${req.shop}`]);
     this.logger.debug(`webhooks`, webhooks);
     return res.jsonp(webhooks);
   }
@@ -37,7 +37,7 @@ export class WebhooksController {
     @Query('topic') topic,
   ) {
     try {
-      const result = await this.webhooksService.create(req.shopifyConnect, topic);
+      const result = await this.webhooksService.create(req[`shopify-connect-${req.shop}`], topic);
       this.logger.debug(`Create webhook result`, result);
       return res.jsonp(result);
     } catch (error) {

@@ -11,7 +11,9 @@ export interface Session extends Express.Session {
   isThemeClientRequest?: boolean;
   isUnknownClientRequest?: boolean;
   isLoggedInToAppBackend?: boolean;
+  /** @deprecated */
   shop?: string;
+  lastShop?: string;
   // See auth.controller.ts
   nonce?: string;
   // passport

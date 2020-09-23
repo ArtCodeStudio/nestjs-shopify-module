@@ -58,7 +58,7 @@ export class BlogsController {
   ) {
     this.logger.debug('create blog', blog);
     try {
-      return this.blogsService.create(req.shopifyConnect, blog)
+      return this.blogsService.create(req[`shopify-connect-${req.shop}`], blog)
       .then((result) => {
         this.logger.debug('result', result);
         return res.jsonp(result);
@@ -110,7 +110,7 @@ export class BlogsController {
       };
 
       this.logger.debug('BlogListOptions', options);
-      return res.jsonp(await this.blogsService.list(req.shopifyConnect, options));
+      return res.jsonp(await this.blogsService.list(req[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
@@ -131,7 +131,7 @@ export class BlogsController {
     @Res() res: Response,
   ) {
     try {
-      return res.jsonp(await this.blogsService.count(req.shopifyConnect, {}));
+      return res.jsonp(await this.blogsService.count(req[`shopify-connect-${req.shop}`], {}));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
@@ -153,7 +153,7 @@ export class BlogsController {
     @Param('id') id: number,
   ) {
     try {
-      return res.jsonp(await this.blogsService.get(req.shopifyConnect, id));
+      return res.jsonp(await this.blogsService.get(req[`shopify-connect-${req.shop}`], id));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
@@ -175,7 +175,7 @@ export class BlogsController {
     @Param('blog_id') id: number,
   ) {
     try {
-      return res.jsonp(await this.blogsService.delete(req.shopifyConnect, id));
+      return res.jsonp(await this.blogsService.delete(req[`shopify-connect-${req.shop}`], id));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
@@ -200,7 +200,7 @@ export class BlogsController {
   ) {
     this.logger.debug('update blog', id, blog);
     try {
-      return res.jsonp(await this.blogsService.update(req.shopifyConnect, id, blog));
+      return res.jsonp(await this.blogsService.update(req[`shopify-connect-${req.shop}`], id, blog));
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);

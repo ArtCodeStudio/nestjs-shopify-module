@@ -80,7 +80,7 @@ export class WebhooksService {
   }
 
   public createWebsocket(client: SessionSocket, topic: Topic): Observable<WsResponse<any>> {
-    const webhookEventName = `webhook:${client.handshake.session.shop}:${topic}`;
+    const webhookEventName = `webhook:${client.handshake.session.lastShop}:${topic}`;
     const unscripeEventName = `${webhookEventName}:unsubscribe`;
     // // Return cached Observable when available
     // if (WebhooksService.webhookObservables[webhookEventName]) {
@@ -111,7 +111,7 @@ export class WebhooksService {
   }
 
   public deleteWebsocket(client: SessionSocket, topic: Topic): void {
-    const webhookEventName = `webhook:${client.handshake.session.shop}:${topic}`;
+    const webhookEventName = `webhook:${client.handshake.session.lastShop}:${topic}`;
     const unscripeEventName = `${webhookEventName}:unsubscribe`;
     // Emit unscripe event to complete the oberservable
     this.eventService.emit(unscripeEventName);
