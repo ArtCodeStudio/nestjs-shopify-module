@@ -71,9 +71,15 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
 
   public deserializeUser(id: number, done) {
     this.logger.debug(`deserializeUser`, id);
+    if (!id) {
+      return done(new Error("Id not found!"));
+    }
     this.shopifyConnectService.findByShopifyId(id)
     .then((user) => {
       this.logger.debug(`deserializeUser`, user);
+      if (!user) {
+        return done(new Error("User not found!"));
+      }
       return done(null, user);
     })
     .catch((error: Error) => {

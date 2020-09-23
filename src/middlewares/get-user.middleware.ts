@@ -17,9 +17,13 @@ export class GetUserMiddleware implements NestMiddleware {
   async use(req: IUserRequest, res: Response, next: NextFunction) {
 
     const requestType = await this.shopifyAuthService.getRequestType(req)
-    .catch((error) => {
-      // DO nothing
-      this.logger.error('error', error);
+    .catch((error: Error) => {
+      if (error && typeof error.message === 'string' && error.message.toLowerCase().includes('shop not found')) {
+        // DO nothing
+        this.logger.debug(error.message);
+      } else {
+        this.logger.error(error);
+      }
     });
 
     req.session.isLoggedInToAppBackend = false;

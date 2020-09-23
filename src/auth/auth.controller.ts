@@ -26,6 +26,10 @@ import { ShopifyModuleOptions} from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 import { IShopifyConnect } from './interfaces/connect';
 
+/**
+ * TODO also use time link in this example? https://github.com/danteata/passport-shopify/blob/master/example/dynamic/app.jsy
+ */
+
 import { Roles } from '../guards/roles.decorator';
 @Controller('shopify/auth')
 export class ShopifyAuthController {
@@ -67,6 +71,7 @@ export class ShopifyAuthController {
     this.passport.use(`shopify-${shop}`, shopifyAuthStrategy);
 
     return this.passport.authenticate(`shopify-${shop}`, {
+      failureRedirect: `/shopify/auth/failure/${shop}`,
       scope: this.shopifyModuleOptions.shopify.scope,
       shop,
     } as any)(req, res, next);
