@@ -59,18 +59,32 @@ import {
   GetUserMiddleware,
   VerifyWebhookMiddleware,
 } from './middlewares';
+
 export {
+  ShopifyConnectService,
+  ShopService,
+  ShopifyApiGuard,
+  ShopifyAuthService,
+  ChargeService,
+  EventService,
+  WebhooksService,
+  ProductsGateway,
+  SyncGateway,
+  WebhooksGateway,
+  SyncService,
   OrdersService,
-  ProductsService,
   TransactionsService,
-  ThemesService,
-  AssetsService,
+  ProductsService,
   PagesService,
   BlogsService,
   ArticlesService,
+  ThemesService,
+  AssetsService,
+  LocalesService,
   SmartCollectionsService,
   CustomCollectionsService,
 };
+
 export { RequestGuard } from './guards/request.guard';
 
 @Module({
@@ -143,7 +157,6 @@ export { RequestGuard } from './guards/request.guard';
     OrdersService,
     TransactionsService,
     ProductsService,
-    TransactionsService,
     PagesService,
     BlogsService,
     ArticlesService,
@@ -293,5 +306,3 @@ export class ShopifyModule implements NestModule {
       .forRoutes(SyncController);
   }
 }
-
-export { ShopifyAuthService };
