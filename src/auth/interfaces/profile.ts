@@ -1,4 +1,4 @@
-import { Models as ShopifyModels} from 'shopify-admin-api'; // https://github.com/nozzlegear/Shopify-Prime
+import { Interfaces as ShopifyInterfaces} from 'shopify-admin-api'; // https://github.com/ArtCodeStudio/shopify-admin-api
 import { Profile } from 'passport'
 
 /**
@@ -8,6 +8,6 @@ export interface IShopifyAuthProfile extends Profile {
   provider: 'shopify';
   _raw: string;
   _json: {
-    shop: ShopifyModels.Shop
+    shop: ShopifyInterfaces.Shop
   }
 }

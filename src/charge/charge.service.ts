@@ -1,5 +1,5 @@
 import { Inject } from '@nestjs/common';
-import { RecurringCharges, Models } from 'shopify-admin-api';
+import { RecurringCharges, Interfaces } from 'shopify-admin-api';
 import { DebugService } from '../debug.service';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
@@ -8,7 +8,7 @@ import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 import { IAvailableCharge } from './interfaces/availableCharge';
 
 /**
- * @see https://github.com/nozzlegear/Shopify-Prime#create-a-recurring-charge
+ * @see https://github.com/ArtCodeStudio/shopify-admin-api#create-a-recurring-charge
  */
 export class ChargeService {
 
@@ -116,7 +116,7 @@ export class ChargeService {
   /**
    * Get the current active charge or null if no active charge is found.
    */
-  async active(user: IShopifyConnect): Promise<Models.RecurringCharge | null> {
+  async active(user: IShopifyConnect): Promise<Interfaces.RecurringCharge | null> {
     const charges = new RecurringCharges(user.myshopify_domain, user.accessToken);
     return charges.list()
     .then(async (chargesList) => {

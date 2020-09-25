@@ -1,7 +1,7 @@
 import { Schema, Document } from 'mongoose';
-import { Product } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 
-export type ProductDocument = Product & Document;
+export type ProductDocument = Interfaces.Product & Document;
 
 export const ProductOptionSchema = new Schema({
   id: {type: Number, index: {unique: true}},

@@ -4,8 +4,7 @@ import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.se
 
 // Interfaces
 import { Model } from 'mongoose';
-import { Collect } from 'shopify-admin-api/dist/models';
-import { Collects } from 'shopify-admin-api';
+import { Collects, Interfaces } from 'shopify-admin-api';
 import {
   CollectDocument,
   IShopifySyncCollectCountOptions,
@@ -25,7 +24,7 @@ import { mongooseParallelRetry } from '../../helpers';
 
 @Injectable()
 export class CollectsService extends ShopifyApiRootCountableService<
-  Collect, // ShopifyObjectType
+  Interfaces.Collect, // ShopifyObjectType
   Collects, // ShopifyModelClass
   IShopifySyncCollectCountOptions, // CountOptions
   IShopifySyncCollectGetOptions, // GetOptions

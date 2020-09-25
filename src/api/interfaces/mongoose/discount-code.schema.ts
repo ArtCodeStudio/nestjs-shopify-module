@@ -1,7 +1,7 @@
 import { Schema, Document } from 'mongoose';
-import { DiscountCode } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 
-export type DiscountCodeDocument = DiscountCode & Document;
+export type DiscountCodeDocument = Interfaces.DiscountCode & Document;
 
 export const DiscountCodeSchema = new Schema({
   amount: String,

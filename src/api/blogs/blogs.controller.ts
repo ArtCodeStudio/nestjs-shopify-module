@@ -21,7 +21,7 @@ import { Roles } from '../../guards/roles.decorator';
 import { Readable } from 'stream';
 
 // Interfaces
-import { Blog } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import { IUserRequest } from '../../interfaces/user-request';
 import { Response } from 'express';
 import {
@@ -54,7 +54,7 @@ export class BlogsController {
   async createInShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Body() blog: Blog,
+    @Body() blog: Interfaces.Blog,
   ) {
     this.logger.debug('create blog', blog);
     try {
@@ -196,7 +196,7 @@ export class BlogsController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Param('blog_id') id: number,
-    @Body() blog: Partial<Blog>,
+    @Body() blog: Partial<Interfaces.Blog>,
   ) {
     this.logger.debug('update blog', id, blog);
     try {

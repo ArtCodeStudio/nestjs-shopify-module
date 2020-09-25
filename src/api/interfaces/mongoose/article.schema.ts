@@ -1,8 +1,8 @@
 import { Schema, Document } from 'mongoose';
-import { Article, MetaField } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import { MetafieldSchema } from './metafield.schema';
 
-export type ArticleDocument = Article & Document;
+export type ArticleDocument = Interfaces.Article & Document;
 
 export const ArticleSchema = new Schema({
   id: {type: Number, index: {unique: true}},

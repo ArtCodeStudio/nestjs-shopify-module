@@ -1,6 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Webhooks } from 'shopify-admin-api';
-import { Webhook } from 'shopify-admin-api/dist/models';
+import { Webhooks, Enums, Interfaces } from 'shopify-admin-api';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
@@ -8,7 +7,7 @@ import { EventService } from '../event.service';
 import { ShopifyConnectService } from '../auth/connect.service';
 import { DebugService } from '../debug.service';
 import { SessionSocket } from '../interfaces/session-socket';
-import { Topic, WebhookError } from '../interfaces/webhook';
+import { WebhookError } from '../interfaces/webhook';
 import { WsResponse } from '@nestjs/websockets';
 import { Observable, Observer, timer, MonoTypeOperatorFunction } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -63,7 +62,7 @@ export class WebhooksService {
     });
   }
 
-  public create(shopifyConnect: IShopifyConnect, topic: Topic) {
+  public create(shopifyConnect: IShopifyConnect, topic: Enums.WebhookTopic) {
     const webhooks = new Webhooks(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     const address = `https://${this.shopifyModuleOptions.app.host}/webhooks/${topic}`;
     this.logger.debug("create with address: " + address);
@@ -74,12 +73,12 @@ export class WebhooksService {
     });
   }
 
-  public async list(user: IShopifyConnect): Promise<Webhook[]> {
+  public async list(user: IShopifyConnect): Promise<Interfaces.Webhook[]> {
     const webhooks = new Webhooks(user.myshopify_domain, user.accessToken);
     return webhooks.list();
   }
 
-  public createWebsocket(client: SessionSocket, topic: Topic): Observable<WsResponse<any>> {
+  public createWebsocket(client: SessionSocket, topic: Enums.WebhookTopic): Observable<WsResponse<any>> {
     const webhookEventName = `webhook:${client.handshake.session.lastShop}:${topic}`;
     const unscripeEventName = `${webhookEventName}:unsubscribe`;
     // // Return cached Observable when available
@@ -110,7 +109,7 @@ export class WebhooksService {
     // return WebhooksService.webhookObservables[webhookEventName];
   }
 
-  public deleteWebsocket(client: SessionSocket, topic: Topic): void {
+  public deleteWebsocket(client: SessionSocket, topic: Enums.WebhookTopic): void {
     const webhookEventName = `webhook:${client.handshake.session.lastShop}:${topic}`;
     const unscripeEventName = `${webhookEventName}:unsubscribe`;
     // Emit unscripe event to complete the oberservable

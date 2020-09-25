@@ -21,7 +21,7 @@ import { Roles } from '../../../guards/roles.decorator';
 import { Readable } from 'stream';
 
 // Interfaces
-import { Article } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import { IUserRequest } from '../../../interfaces/user-request';
 import { Response } from 'express';
 import {
@@ -55,7 +55,7 @@ export class ArticlesController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Param('blog_id') blogId: number,
-    @Body() article: Article,
+    @Body() article: Interfaces.Article,
   ) {
     this.logger.debug('create article', article);
     try {
@@ -241,7 +241,7 @@ export class ArticlesController {
     @Res() res: Response,
     @Param('blog_id') blogId: number,
     @Param('article_id') id: number,
-    @Body() article: Partial<Article>,
+    @Body() article: Partial<Interfaces.Article>,
   ) {
     this.logger.debug('update article', id, article);
     try {

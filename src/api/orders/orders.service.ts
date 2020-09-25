@@ -5,7 +5,7 @@ import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.se
 
 // Interfaces
 import { Model } from 'mongoose';
-import { Order } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import { Orders } from 'shopify-admin-api';
 import {
   OrderDocument,
@@ -27,7 +27,7 @@ import { mongooseParallelRetry } from '../../helpers';
 
 @Injectable()
 export class OrdersService extends ShopifyApiRootCountableService<
-  Order, // ShopifyObjectType
+  Interfaces.Order, // ShopifyObjectType
   Orders, // ShopifyModelClass
   IShopifySyncOrderCountOptions, // CountOptions
   IShopifySyncOrderGetOptions, // GetOptions
@@ -63,7 +63,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
     progress: SyncProgressDocument,
     subProgress: OrderSyncProgressDocument,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Order>,
+    data: IListAllCallbackData<Interfaces.Order>,
   ): Promise<void> {
     const orders = data.data;
     const lastOrder = orders[orders.length - 1];

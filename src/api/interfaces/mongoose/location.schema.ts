@@ -1,7 +1,7 @@
 import { Schema, Document } from 'mongoose';
-import { Location } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 
-export type LocationDocument = Location & Document;
+export type LocationDocument = Interfaces.Location & Document;
 
 export const LocationSchema = new Schema({
   id: {type: Number, index: {unique: true}},

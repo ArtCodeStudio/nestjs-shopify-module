@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { SmartCollections, Options } from 'shopify-admin-api'; // https://github.com/nozzlegear/Shopify-Prime
-import { SmartCollection } from 'shopify-admin-api/dist/models';
+import { SmartCollections, Interfaces } from 'shopify-admin-api'; // https://github.com/ArtCodeStudio/shopify-admin-api
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import {
   SmartCollectionDocument,
@@ -16,7 +15,7 @@ import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.se
 
 @Injectable()
 export class SmartCollectionsService extends ShopifyApiRootCountableService<
-SmartCollection, // ShopifyObjectType
+Interfaces.SmartCollection, // ShopifyObjectType
 SmartCollections, // ShopifyModelClass
 IShopifySyncSmartCollectionCountOptions, // CountOptions
 IShopifySyncSmartCollectionGetOptions, // GetOptions
@@ -49,7 +48,7 @@ SmartCollectionDocument // DatabaseDocumentType
     progress: SyncProgressDocument,
     subProgress: SubSyncProgressDocument,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<SmartCollection>,
+    data: IListAllCallbackData<Interfaces.SmartCollection>,
   ) {
     const products = data.data;
     subProgress.syncedCount += products.length;

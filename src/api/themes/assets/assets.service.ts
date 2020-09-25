@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Options, Models, Assets } from 'shopify-admin-api';
+import { Options, Interfaces, Assets } from 'shopify-admin-api';
 import { AssetDocument, IAppAsset, IAppAssetListOptions } from '../../interfaces';
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
 import { Model, Types } from 'mongoose';
@@ -62,7 +62,7 @@ export class AssetsService {
     }
   }
 
-  async list(user: IShopifyConnect, id: number, options: IAppAssetListOptions = {}): Promise<Models.Asset[]> {
+  async list(user: IShopifyConnect, id: number, options: IAppAssetListOptions = {}): Promise<Interfaces.Asset[]> {
     const assets = new Assets(user.myshopify_domain, user.accessToken);
     return assets.list(id, options)
     .then((assetData) => {

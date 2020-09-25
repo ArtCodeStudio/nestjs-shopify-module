@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CustomCollections, Options } from 'shopify-admin-api'; // https://github.com/nozzlegear/Shopify-Prime
-import { CustomCollection } from 'shopify-admin-api/dist/models';
+import { CustomCollections, Options, Interfaces } from 'shopify-admin-api'; // https://github.com/ArtCodeStudio/shopify-admin-api
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { SyncProgressDocument } from '../../interfaces';
 import { Model } from 'mongoose';
@@ -16,7 +15,7 @@ import {
 
 @Injectable()
 export class CustomCollectionsService extends ShopifyApiRootCountableService<
-CustomCollection, // ShopifyObjectType
+Interfaces.CustomCollection, // ShopifyObjectType
 CustomCollections, // ShopifyModelClass
 IShopifySyncCustomCollectionCountOptions, // CountOptions
 IShopifySyncCustomCollectionGetOptions, // GetOptions

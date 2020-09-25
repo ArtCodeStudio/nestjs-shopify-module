@@ -1,7 +1,7 @@
 import { Schema, Document } from 'mongoose';
-import { NoteAttribute } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 
-export type NoteAttributeDocument = NoteAttribute & Document;
+export type NoteAttributeDocument = Interfaces.NoteAttribute & Document;
 
 export const NoteAttributeSchema = new Schema({
   name: String,

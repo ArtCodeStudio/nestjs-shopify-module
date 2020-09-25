@@ -1,8 +1,8 @@
 import { Schema, Document } from 'mongoose';
-import { DiscountAllocation } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import { PriceSetSchema } from './price-set.schema';
 
-export type DiscountAllocationDocument = DiscountAllocation & Document;
+export type DiscountAllocationDocument = Interfaces.DiscountAllocation & Document;
 
 export const DiscountAllocationSchema = new Schema({
   amount: Number,

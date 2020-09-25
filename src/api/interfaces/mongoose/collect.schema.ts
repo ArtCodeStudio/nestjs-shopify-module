@@ -1,7 +1,7 @@
 import { Schema, Document } from 'mongoose';
-import { Collect } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 
-export type CollectDocument = Collect & Document;
+export type CollectDocument = Interfaces.Collect & Document;
 
 export const CollectSchema = new Schema({
   id: {type: Number, index: {unique: true}},

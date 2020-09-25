@@ -1,5 +1,5 @@
 import { Schema, Document } from 'mongoose';
-import { Order } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 
 import { AddressSchema } from './address.schema';
 import { ClientDetailsSchema } from './client-details.schema';
@@ -15,7 +15,7 @@ import { PriceSetSchema } from './price-set.schema';
 import { ShippingLineSchema } from './shipping-line.schema';
 import { TaxLineSchema } from './tax-line.schema';
 
-export type OrderDocument = Order & Document;
+export type OrderDocument = Interfaces.Order & Document;
 
 export const OrderSchema = new Schema({
   id: {type: Number, index: {unique: true}},

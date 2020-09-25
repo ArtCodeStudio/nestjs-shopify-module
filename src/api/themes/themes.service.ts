@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Themes, Options } from 'shopify-admin-api'; // https://github.com/nozzlegear/Shopify-Prime
+import { Themes, Options } from 'shopify-admin-api'; // https://github.com/ArtCodeStudio/shopify-admin-api
 import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Theme } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import { ThemeDocument } from '../interfaces/mongoose/theme.schema';
 import { Model } from 'mongoose';
 import { ShopifyApiRootService } from '../shopify-api-root.service';
@@ -21,7 +21,7 @@ import {
 
 @Injectable()
 export class ThemesService extends ShopifyApiRootService<
-Theme, // ShopifyObjectType
+Interfaces.Theme, // ShopifyObjectType
 Themes, // ShopifyModelClass
 IShopifySyncThemeGetOptions, // GetOptions
 IShopifySyncThemeListOptions, // ListOptions
@@ -53,7 +53,7 @@ ThemeDocument // DatabaseDocumentType
     shopifyConnect: IShopifyConnect,
     options?: IAppThemeListOptions,
     filter?: IAppThemeListFilter,
-  ): Promise<Partial<Theme>[]> {
+  ): Promise<Partial<Interfaces.Theme>[]> {
     return super.listFromShopify(shopifyConnect, options)
     .then((themes) => {
       if (!filter) {
@@ -78,7 +78,7 @@ ThemeDocument // DatabaseDocumentType
    * @param id theme id
    * @see https://help.shopify.com/en/api/reference/online-store/theme#show
    */
-  public async getActive(user: IShopifyConnect): Promise<Partial<Theme> | null> {
+  public async getActive(user: IShopifyConnect): Promise<Partial<Interfaces.Theme> | null> {
     return this.listFromShopify(user, {}, { role: 'main' })
     .then((themes) => {
       if (themes.length) {

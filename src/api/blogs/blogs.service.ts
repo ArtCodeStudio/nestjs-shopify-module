@@ -7,7 +7,7 @@ import { mongooseParallelRetry } from '../../helpers';
 // Interfaces
 import { Model } from 'mongoose';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Blog } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import { Blogs, Options } from 'shopify-admin-api';
 import { ArticlesService } from './articles/articles.service';
 import {
@@ -30,7 +30,7 @@ import {
 
 @Injectable()
 export class BlogsService extends ShopifyApiRootCountableService<
-Blog, // ShopifyObjectType
+Interfaces.Blog, // ShopifyObjectType
 Blogs, // ShopifyModelClass
 IShopifySyncBlogCountOptions, // CountOptions
 IShopifySyncBlogGetOptions, // GetOptions
@@ -57,7 +57,7 @@ BlogDocument // DatabaseDocumentType
    * @param user
    * @param blog The blog being created.
    */
-  public async create(user: IShopifyConnect, blog: Partial<Blog>): Promise<Blog> {
+  public async create(user: IShopifyConnect, blog: Partial<Interfaces.Blog>): Promise<Interfaces.Blog> {
     const blogs = new Blogs(user.myshopify_domain, user.accessToken);
     return blogs.create(blog)
     .then((blogObj) => {
@@ -71,7 +71,7 @@ BlogDocument // DatabaseDocumentType
    * @param id Id of the blog to retrieve.
    * @param options Options for filtering the result.
    */
-  public async get(user: IShopifyConnect, id: number, options?: Options.FieldOptions): Promise<Partial<Blog>> {
+  public async get(user: IShopifyConnect, id: number, options?: Options.FieldOptions): Promise<Partial<Interfaces.Blog>> {
     const blogs = new Blogs(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
     return blogs.get(id, options)
@@ -86,7 +86,7 @@ BlogDocument // DatabaseDocumentType
    * @param id Id of the blog being updated.
    * @param blog The updated blog.
    */
-  public async update(user: IShopifyConnect, id: number, blog: Partial<Blog>): Promise<Blog> {
+  public async update(user: IShopifyConnect, id: number, blog: Partial<Interfaces.Blog>): Promise<Interfaces.Blog> {
     const blogs = new Blogs(user.myshopify_domain, user.accessToken);
     return blogs.update(id, blog)
     .then((blogObj) => {
@@ -99,7 +99,7 @@ BlogDocument // DatabaseDocumentType
    * @param user
    * @param options Options for filtering the results.
    */
-  public async list(user: IShopifyConnect, options?: Options.FieldOptions): Promise<Partial<Blog>[]> {
+  public async list(user: IShopifyConnect, options?: Options.FieldOptions): Promise<Partial<Interfaces.Blog>[]> {
     const blogs = new Blogs(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
     return blogs.list(options)
@@ -150,7 +150,7 @@ BlogDocument // DatabaseDocumentType
     progress: SyncProgressDocument,
     subProgress: BlogSyncProgressDocument,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Blog>,
+    data: IListAllCallbackData<Interfaces.Blog>,
   ): Promise<void> {
     const blogs = data.data;
     const lastBlog = blogs[blogs.length - 1];

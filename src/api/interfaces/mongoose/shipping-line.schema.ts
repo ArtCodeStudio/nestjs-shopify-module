@@ -1,10 +1,10 @@
 import { Schema, Document } from 'mongoose';
-import { ShippingLine } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import { TaxLineSchema } from './tax-line.schema';
 import { PriceSetSchema } from './price-set.schema';
 import { DiscountAllocationSchema } from './discount-allocation.schema';
 
-export type ShippingLineDocument = ShippingLine & Document;
+export type ShippingLineDocument = Interfaces.ShippingLine & Document;
 
 export const ShippingLineSchema = new Schema({
   id: {type: Number, index: {unique: true}},

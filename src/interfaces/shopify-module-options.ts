@@ -1,5 +1,5 @@
 import { IPlan } from '../charge/interfaces/plan';
-import { Topic } from '../interfaces/webhook';
+import { Enums } from 'shopify-admin-api';
 import * as redisStore from 'cache-manager-ioredis';
 import { Redis } from 'ioredis';
 
@@ -25,7 +25,7 @@ export interface ConfigShopify {
   // failureRedirectURL?: string;
   scope: string[];
   webhooks: {
-    autoSubscribe: Topic[];
+    autoSubscribe: Enums.WebhookTopic[];
   };
 }
 

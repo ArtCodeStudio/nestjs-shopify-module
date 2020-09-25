@@ -3,7 +3,7 @@ import { DebugService } from '../debug.service';
 
 import { ShopifyModuleOptions} from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS} from '../shopify.constants';
-import { isAuthenticWebhook } from 'shopify-admin-api/dist/auth';
+import { Auth } from 'shopify-admin-api';
 import concat = require('concat-stream');
 import { IUserRequest } from '../interfaces/user-request';
 import { Response, NextFunction } from 'express';
@@ -36,7 +36,7 @@ export class VerifyWebhookMiddleware implements NestMiddleware {
         return res.status(e.statusCode || 415).send({ error: 'INVALID JSON'});
       }
       if (hmac) {
-        if (isAuthenticWebhook(req.headers, rawBody, this.shopifyModuleOptions.shopify.clientSecret)) {
+        if (Auth.isAuthenticWebhook(req.headers, rawBody, this.shopifyModuleOptions.shopify.clientSecret)) {
           return next();
         } else {
           this.logger.error(`invalid webhook hmac: ${hmac}`);

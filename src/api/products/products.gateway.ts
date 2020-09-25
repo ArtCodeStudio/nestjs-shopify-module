@@ -8,11 +8,11 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Observable } from 'rxjs';
-import { IShopifySyncProductListOptions } from '../interfaces';
+import { IShopifySyncProductListOptions,  } from '../interfaces';
 import { ProductsService } from './products.service';
-import { Product } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import { DebugService } from '../../debug.service';
-import { IShopifyConnect, SessionSocket } from 'interfaces';
+import { IShopifyConnect, SessionSocket } from '../../interfaces';
 
 @WebSocketGateway({namespace: '/socket.io/shopify/api/products'})
 export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -26,7 +26,7 @@ export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   ){}
 
   @SubscribeMessage('all')
-  onAll(client: SessionSocket, options: IShopifySyncProductListOptions = {}): Observable<WsResponse<Partial<Product>>> {
+  onAll(client: SessionSocket, options: IShopifySyncProductListOptions = {}): Observable<WsResponse<Partial<Interfaces.Product>>> {
     const shop = client.handshake.session.lastShop; // TODO
     let shopifyConnect: IShopifyConnect;
     if (shop) {

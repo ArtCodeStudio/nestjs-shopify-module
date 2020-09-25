@@ -5,7 +5,7 @@ import { ChargeService } from './charge.service';
 import { DebugService } from '../debug.service';
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { Roles } from '../guards/roles.decorator';
-import { Models } from 'shopify-admin-api';
+import { Interfaces } from 'shopify-admin-api';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 
@@ -47,7 +47,7 @@ export class ChargeController {
   async active(@Req() req: IUserRequest, @Res() res: Response, @Session() session ) {
     const user = req.user as IShopifyConnect;
     return this.chargeService.active(user)
-    .then((charge: Models.RecurringCharge | null) => {
+    .then((charge: Interfaces.RecurringCharge | null) => {
       this.logger.debug('charge', charge);
       return res.jsonp(charge);
     })
@@ -86,7 +86,7 @@ export class ChargeController {
     this.logger.debug('activate', chargeId);
     const user = req.user as IShopifyConnect;
     return this.chargeService.getChargeById(user, chargeId)
-    .then(async (charge: Models.RecurringCharge) => {
+    .then(async (charge: Interfaces.RecurringCharge) => {
       if (charge.status === 'accepted') {
         return this.chargeService.activate(user, charge.id)
         .then((result) => {

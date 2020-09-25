@@ -1,21 +1,16 @@
 import {
-  SubscribeMessage,
   WebSocketGateway,
-  WsResponse,
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Observable } from 'rxjs';
 import { SessionSocket } from '../interfaces/session-socket';
 import { SyncService } from './sync.service';
-import { Product, ProductUpdateCreate } from 'shopify-admin-api/dist/models';
 import { DebugService } from '../debug.service';
-import { Server } from 'socket.io';
 import { EventService } from '../event.service';
 import {
-  SyncProgressSchema, SyncProgressDocument,
+  SyncProgressDocument,
 } from '../interfaces';
 
 @WebSocketGateway({namespace: '/socket.io/shopify/sync'})

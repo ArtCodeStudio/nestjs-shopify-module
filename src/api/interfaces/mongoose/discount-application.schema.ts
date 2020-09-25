@@ -1,7 +1,7 @@
 import { Schema, Document } from 'mongoose';
-import { DiscountApplication } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 
-export type DiscountApplicationDocument = DiscountApplication & Document;
+export type DiscountApplicationDocument = Interfaces.DiscountApplication & Document;
 
 export const DiscountApplicationSchema = new Schema({
   allocation_method: String,

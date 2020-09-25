@@ -21,7 +21,7 @@ import { Roles } from '../../guards/roles.decorator';
 import { Readable } from 'stream';
 
 // Interfaces
-import { Page } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import { IUserRequest } from '../../interfaces/user-request';
 import { Response } from 'express';
 import {
@@ -54,7 +54,7 @@ export class PagesController {
   async createInShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Body() page: Page,
+    @Body() page: Interfaces.Page,
   ) {
     this.logger.debug('create page', page);
     try {
@@ -235,7 +235,7 @@ export class PagesController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Param('page_id') id: number,
-    @Body() page: Partial<Page>,
+    @Body() page: Partial<Interfaces.Page>,
   ) {
     this.logger.debug('update page', id, page);
     try {

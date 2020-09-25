@@ -29,7 +29,7 @@ import {
   IAppProductListOptions,
 } from '../interfaces';
 import { Response } from 'express';
-import { ProductUpdateCreate } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 
 @Controller('shopify/api/products')
 export class ProductsController {
@@ -403,7 +403,7 @@ export class ProductsController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Param('product_id') id: number,
-    @Body() product: ProductUpdateCreate,
+    @Body() product: Interfaces.ProductUpdateCreate,
   ) {
     this.logger.debug('update product', id, product);
     try {
@@ -428,7 +428,7 @@ export class ProductsController {
   async createInShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Body() product: ProductUpdateCreate,
+    @Body() product: Interfaces.ProductUpdateCreate,
   ) {
     this.logger.debug('create product', product);
     try {

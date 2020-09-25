@@ -7,7 +7,7 @@ import { shopifyRetry } from '../../helpers';
 
 import { IShopifyConnect } from '../../auth/interfaces';
 import { Products, Options } from 'shopify-admin-api';
-import { Product, ProductUpdateCreate } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import { Model } from 'mongoose';
 import {
   ProductDocument,
@@ -27,7 +27,7 @@ import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.se
 
 @Injectable()
 export class ProductsService extends ShopifyApiRootCountableService<
-Product, // ShopifyObjectType
+Interfaces.Product, // ShopifyObjectType
 Products, // ShopifyModelClass
 IShopifySyncProductCountOptions, // CountOptions
 IShopifySyncProductGetOptions, // GetOptions
@@ -50,7 +50,7 @@ ProductDocument // DatabaseDocumentType
    * Retrieves a list of products from the app's mongodb database.
    * @param user
    */
-  public async listFromDb(user: IShopifyConnect, options: IAppProductListOptions = {}): Promise<Product[]> {
+  public async listFromDb(user: IShopifyConnect, options: IAppProductListOptions = {}): Promise<Interfaces.Product[]> {
 
     const query: any = {};
 
@@ -124,7 +124,7 @@ ProductDocument // DatabaseDocumentType
    * @param user
    * @param product
    */
-  public async createInShopify(user: IShopifyConnect, product: ProductUpdateCreate): Promise<Product> {
+  public async createInShopify(user: IShopifyConnect, product: Interfaces.ProductUpdateCreate): Promise<Interfaces.Product> {
     const products = new Products(user.myshopify_domain, user.accessToken);
     return shopifyRetry(() => products.create(product));
   }
@@ -135,7 +135,7 @@ ProductDocument // DatabaseDocumentType
    * @param id
    * @param product
    */
-  public async updateInShopify(user: IShopifyConnect, id: number, product: ProductUpdateCreate): Promise<Product> {
+  public async updateInShopify(user: IShopifyConnect, id: number, product: Interfaces.ProductUpdateCreate): Promise<Interfaces.Product> {
     const products = new Products(user.myshopify_domain, user.accessToken);
     return shopifyRetry(() => products.update(id, product));
   }
@@ -163,7 +163,7 @@ ProductDocument // DatabaseDocumentType
     progress: SyncProgressDocument,
     subProgress: SubSyncProgressDocument,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Product>,
+    data: IListAllCallbackData<Interfaces.Product>,
   ): Promise<void> {
     const products = data.data;
     subProgress.syncedCount += products.length;

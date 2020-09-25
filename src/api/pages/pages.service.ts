@@ -6,8 +6,7 @@ import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.se
 // Interfaces
 import { Model } from 'mongoose';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Page } from 'shopify-admin-api/dist/models';
-import { Pages, Options } from 'shopify-admin-api';
+import { Pages, Options, Interfaces } from 'shopify-admin-api';
 import {
   PageDocument,
   IListAllCallbackData,
@@ -27,7 +26,7 @@ import {
 
 @Injectable()
 export class PagesService extends ShopifyApiRootCountableService<
-Page, // ShopifyObjectType
+Interfaces.Page, // ShopifyObjectType
 Pages, // ShopifyModelClass
 IShopifySyncPageCountOptions, // CountOptions
 IShopifySyncPageGetOptions, // GetOptions
@@ -53,7 +52,7 @@ PageDocument // DatabaseDocumentType
    * @param user
    * @param page The page being created.
    */
-  public async create(user: IShopifyConnect, page: Partial<Page>): Promise<Page> {
+  public async create(user: IShopifyConnect, page: Partial<Interfaces.Page>): Promise<Interfaces.Page> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     return pages.create(page)
     .then((pageObj) => {
@@ -67,7 +66,7 @@ PageDocument // DatabaseDocumentType
    * @param id Id of the page to retrieve.
    * @param options Options for filtering the result.
    */
-  public async get(user: IShopifyConnect, id: number, options?: Options.FieldOptions): Promise<Partial<Page>> {
+  public async get(user: IShopifyConnect, id: number, options?: Options.FieldOptions): Promise<Partial<Interfaces.Page>> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
     return pages.get(id, options)
@@ -82,7 +81,7 @@ PageDocument // DatabaseDocumentType
    * @param id Id of the page being updated.
    * @param page The updated page.
    */
-  public async update(user: IShopifyConnect, id: number, page: Partial<Page>): Promise<Page> {
+  public async update(user: IShopifyConnect, id: number, page: Partial<Interfaces.Page>): Promise<Interfaces.Page> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     return pages.update(id, page)
     .then((pageObj) => {
@@ -95,7 +94,7 @@ PageDocument // DatabaseDocumentType
    * @param user
    * @param options Options for filtering the results.
    */
-  public async list(user: IShopifyConnect, options?: Options.FieldOptions): Promise<Partial<Page>[]> {
+  public async list(user: IShopifyConnect, options?: Options.FieldOptions): Promise<Partial<Interfaces.Page>[]> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
     return pages.list(options)
@@ -144,7 +143,7 @@ PageDocument // DatabaseDocumentType
     progress: SyncProgressDocument,
     subProgress: ISubSyncProgress,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Page>,
+    data: IListAllCallbackData<Interfaces.Page>,
   ): Promise<void> {
     const pages = data.data;
     subProgress.syncedCount += pages.length;

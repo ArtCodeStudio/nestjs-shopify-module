@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Transactions, Options } from 'shopify-admin-api';
 import { IShopifyConnect } from '../../../auth/interfaces';
-import { Transaction } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import {
   TransactionDocument,
   IAppTransactionCountOptions,
@@ -19,7 +19,7 @@ import { EventService } from '../../../event.service';
 
 @Injectable()
 export class TransactionsService extends ShopifyApiChildCountableService<
-Transaction,
+Interfaces.Transaction,
 Transactions,
 IShopifySyncTransactionCountOptions,
 IShopifySyncTransactionGetOptions,
@@ -43,7 +43,7 @@ IShopifySyncTransactionListOptions
     order_id: number,
     id: number,
     options: IShopifySyncTransactionGetOptions = {},
-  ): Promise<Transaction|null> {
+  ): Promise<Interfaces.Transaction|null> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
     const syncToDb = options && options.syncToDb;
     return transactions.get(order_id, id)

@@ -6,7 +6,7 @@ import { ShopifyApiChildCountableService } from '../../shopify-api-child-countab
 // Interfaces
 import { Model } from 'mongoose';
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
-import { Article } from 'shopify-admin-api/dist/models';
+import { Interfaces } from 'shopify-admin-api';
 import { Articles, Options } from 'shopify-admin-api';
 import {
   ArticleDocument,
@@ -27,7 +27,7 @@ import {
 
 @Injectable()
 export class ArticlesService extends ShopifyApiChildCountableService<
-Article, // ShopifyObjectType
+Interfaces.Article, // ShopifyObjectType
 Articles, // ShopifyModelClass
 IShopifySyncArticleCountOptions, // CountOptions
 IShopifySyncArticleGetOptions, // GetOptions
@@ -54,7 +54,7 @@ ArticleDocument // DatabaseDocumentType
    * @param blogId The ID of the blog containing the article.
    * @param article The article being created.
    */
-  public async create(user: IShopifyConnect, blogId: number, article: Partial<Article>): Promise<Article> {
+  public async create(user: IShopifyConnect, blogId: number, article: Partial<Interfaces.Article>): Promise<Interfaces.Article> {
     const articles = new Articles(user.myshopify_domain, user.accessToken);
     return articles.create(blogId, article)
     .then((articleObj) => {
@@ -69,7 +69,7 @@ ArticleDocument // DatabaseDocumentType
    * @param id Id of the article to retrieve.
    * @param options Options for filtering the result.
    */
-  public async get(user: IShopifyConnect, blogId: number, id: number, options?: Options.FieldOptions): Promise<Partial<Article>> {
+  public async get(user: IShopifyConnect, blogId: number, id: number, options?: Options.FieldOptions): Promise<Partial<Interfaces.Article>> {
     const articles = new Articles(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
     return articles.get(blogId, id, options)
@@ -85,7 +85,7 @@ ArticleDocument // DatabaseDocumentType
    * @param id Id of the article being updated.
    * @param article The updated article.
    */
-  public async update(user: IShopifyConnect, blogId: number, id: number, article: Partial<Article>): Promise<Article> {
+  public async update(user: IShopifyConnect, blogId: number, id: number, article: Partial<Interfaces.Article>): Promise<Interfaces.Article> {
     const articles = new Articles(user.myshopify_domain, user.accessToken);
     return articles.update(blogId, id, article)
     .then((articleObj) => {
@@ -99,7 +99,7 @@ ArticleDocument // DatabaseDocumentType
    * @param blogId The ID of the blog containing the article.
    * @param options Options for filtering the results.
    */
-  public async list(user: IShopifyConnect, blogId: number, options?: Options.ArticleListOptions): Promise<Partial<Article>[]> {
+  public async list(user: IShopifyConnect, blogId: number, options?: Options.ArticleListOptions): Promise<Partial<Interfaces.Article>[]> {
     const articles = new Articles(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
     return articles.list(blogId, options)
@@ -150,7 +150,7 @@ ArticleDocument // DatabaseDocumentType
     progress: SyncProgressDocument,
     subProgress: ISubSyncProgress,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Article>,
+    data: IListAllCallbackData<Interfaces.Article>,
   ): Promise<void> {
     const articles = data.data;
     subProgress.syncedCount += articles.length;
