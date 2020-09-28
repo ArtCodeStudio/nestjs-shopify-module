@@ -62,7 +62,7 @@ export class ShopifyAuthController {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
     }
 
-    session.lastShop = shop;
+    session.currentShop = shop;
 
     this.logger.debug('auth called', `AuthController:${shop}`);
 
@@ -158,7 +158,7 @@ export class ShopifyAuthController {
       });
     }
 
-    session.lastShop = shop;
+    session.currentShop = shop;
 
     this.logger.debug('callback called', `AuthController:${shop}`);
 
@@ -223,7 +223,7 @@ export class ShopifyAuthController {
   @Get('/connected/current')
   @Roles('shopify-staff-member')
   async connectCurrent(@Req() req: IUserRequest, @Res() res: Response) {
-    const shop = req.shop || req.session.lastShop;
+    const shop = req.session.currentShop || req.shop;
     return this.shopifyConnectService.findByDomain(shop)
     .then((connect) => {
       return res.json(connect);
@@ -277,7 +277,7 @@ export class ShopifyAuthController {
    */
   @Get('/loggedIn')
   loggedIn(@Res() res: Response, @Req() req: IUserRequest) {
-    const shop = req.shop || req.session.lastShop;
+    const shop = req.session.currentShop || req.shop;
     if (req.session[`user-${shop}`]) {
       return res.json(true);
     }

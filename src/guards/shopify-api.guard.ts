@@ -55,7 +55,7 @@ class ShopifyApiGuard implements CanActivate {
    * @param client Validate websocket request
    */
   validateClient(client: SessionSocket) {
-    const shop = client.handshake.session.lastShop;
+    const shop = client.handshake.session.currentShop;
     let shopifyConnect: IShopifyConnect;
     if (shop) {
       shopifyConnect = client.handshake.session[`shopify-connect-${shop}`];

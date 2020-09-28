@@ -23,7 +23,7 @@ export class ThemesController {
     @Req() req: IUserRequest,
     @Res() res: Response,
   ) {
-    const shop = req.shop || req.session.lastShop;
+    const shop = req.session.currentShop || req.shop;
     this.themesService.listFromShopify(req.session[`user-${shop}`])
     .then((themes) => {
       // this.logger.debug(`themes`, themes);
@@ -44,7 +44,7 @@ export class ThemesController {
     @Req() req,
     @Res() res: Response,
   ) {
-    const shop = req.shop || req.session.lastShop;
+    const shop = req.session.currentShop || req.shop;
     this.themesService.getActive(req.session[`user-${shop}`])
     .then((theme) => {
       // this.logger.debug(`theme`, theme);
@@ -66,7 +66,7 @@ export class ThemesController {
     @Req() req,
     @Res() res: Response,
   ) {
-    const shop = req.shop || req.session.lastShop;
+    const shop = req.session.currentShop || req.shop;
     this.themesService.getFromShopify(req.session[`user-${shop}`], themeId)
     .then((theme) => {
       // this.logger.debug(`theme`, theme);

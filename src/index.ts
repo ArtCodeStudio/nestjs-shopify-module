@@ -1,3 +1,5 @@
+export * from 'shopify-admin-api';
+
 export * from './shopify.module';
 
 export { SHOPIFY_MODULE_OPTIONS } from './shopify.constants';
@@ -13,3 +15,5 @@ export * from './guards';
 export * from './socket/redis-session-io.adapter';
 
 export { ShopifyShopSchema } from './shop/shop.schema';
+
+export { DebugService } from './debug.service';

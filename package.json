@@ -64,8 +64,8 @@
     "concat-stream": "^2.0.0",
     "deepmerge": "^4.2.2",
     "elasticsearch": "^16.7.1",
-    "ioredis": "^4.18.0",
-    "mongoose": "^5.10.6",
+    "ioredis": "^4.17.3",
+    "mongoose": "^5.10.7",
     "node-fetch": "^2.6.1",
     "p-map": "^4.0.0",
     "p-queue": "^6.6.1",
@@ -78,7 +78,7 @@
     "shopify-token": "^4.0.0",
     "socket.io-redis": "^5.4.0",
     "swiftype-app-search-node": "^0.6.0",
-    "typescript": "^3.9.7"
+    "typescript": "^4.0.3"
   },
   "devDependencies": {
     "@nestjs/testing": "^7.4.4",

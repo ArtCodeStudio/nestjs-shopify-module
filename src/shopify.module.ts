@@ -51,7 +51,8 @@ import { CollectsService } from './api/collects/collects.service';
 import { CollectsController } from './api/collects/collects.controller';
 import { SearchController } from './api/search/search.controller';
 import { SearchService } from './api/search/search.service';
-import { Model } from 'mongoose';
+
+
 import {
   BodyParserJsonMiddleware,
   BodyParserUrlencodedMiddleware,
@@ -61,6 +62,8 @@ import {
 } from './middlewares';
 
 export {
+  BodyParserJsonMiddleware,
+  BodyParserUrlencodedMiddleware,
   ShopifyConnectService,
   ShopService,
   ShopifyApiGuard,
@@ -212,6 +215,7 @@ export class ShopifyModule implements NestModule {
       ],
     };
   }
+
   configure(consumer: MiddlewareConsumer) {
     consumer
 

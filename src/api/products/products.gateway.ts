@@ -27,7 +27,7 @@ export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
   @SubscribeMessage('all')
   onAll(client: SessionSocket, options: IShopifySyncProductListOptions = {}): Observable<WsResponse<Partial<Interfaces.Product>>> {
-    const shop = client.handshake.session.lastShop; // TODO
+    const shop = client.handshake.session.currentShop; // TODO
     let shopifyConnect: IShopifyConnect;
     if (shop) {
       shopifyConnect = client.handshake.session[`shopify-connect-${shop}`];

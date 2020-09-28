@@ -27,7 +27,7 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   // @SubscribeMessage('start')
   // onAll(client: SessionSocket, options: ProductListOptions = {}): Observable<WsResponse<Product>> {
-  //   // return this.syncService.startSync(client.handshake.session[`shopify-connect-${session.lastShop}`], 'start', options);
+  //   // return this.syncService.startSync(client.handshake.session[`shopify-connect-${session.currentShop}`], 'start', options);
   // }
 
   afterInit(nsp: SocketIO.Namespace) {
@@ -62,11 +62,11 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     // this.logger.debug('connect', client.id, client.handshake.session);
     // Join the room for app backend users to receive broadcast events
     if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
-      client.join(`${client.handshake.session.lastShop}-app-backend`);
+      client.join(`${client.handshake.session.currentShop}-app-backend`);
     }
     // Join the room for theme client visitors to receive broadcast events
     if (client.handshake.session && client.handshake.session.isThemeClientRequest) {
-      client.join(`${client.handshake.session.lastShop}-client-theme`);
+      client.join(`${client.handshake.session.currentShop}-client-theme`);
     }
   }
 

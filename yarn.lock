@@ -1104,7 +1104,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:>=0.0.2, @types/node@npm:>=4.0.0, @types/node@npm:^14.0.23, @types/node@npm:^14.11.2":
+"@types/node@npm:>=0.0.2, @types/node@npm:>=4.0.0, @types/node@npm:^14.11.2":
   version: 14.11.2
   resolution: "@types/node@npm:14.11.2"
   checksum: 0d4837c560492bcc40b20945e9dda627fb03cc16fed18da2662623a42ca1665f64364c67f625273b41f4948858425c8097871be05919a96e87a6c1839cf1281e
@@ -1370,7 +1370,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@yarnpkg/pnpify@npm:^2.1.0, @yarnpkg/pnpify@npm:^2.2.1":
+"@yarnpkg/pnpify@npm:^2.2.1":
   version: 2.2.1
   resolution: "@yarnpkg/pnpify@npm:2.2.1"
   dependencies:
@@ -2583,7 +2583,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"concurrently@npm:^5.2.0":
+"concurrently@npm:^5.3.0":
   version: 5.3.0
   resolution: "concurrently@npm:5.3.0"
   dependencies:
@@ -4069,7 +4069,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"ioredis@npm:^4.14.1, ioredis@npm:^4.18.0":
+"ioredis@npm:^4.14.1, ioredis@npm:^4.17.3":
   version: 4.18.0
   resolution: "ioredis@npm:4.18.0"
   dependencies:
@@ -5647,9 +5647,9 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"mongoose@npm:5.10.6, mongoose@npm:^5.10.6":
-  version: 5.10.6
-  resolution: "mongoose@npm:5.10.6"
+"mongoose@npm:5.10.7, mongoose@npm:^5.10.7":
+  version: 5.10.7
+  resolution: "mongoose@npm:5.10.7"
   dependencies:
     bson: ^1.1.4
     kareem: 2.3.1
@@ -5662,7 +5662,7 @@ fsevents@^2.1.2:
     safe-buffer: 5.2.1
     sift: 7.0.1
     sliced: 1.0.1
-  checksum: 51b2b2a4208e4f81aaa151f8d1a54f4f90f70d755887a9723ce3f733de046b5d6c1b81418755bd40de6297ca5d8b1df4245881429802addb2e2fe83560d32995
+  checksum: 586bf67edfc2ac8e12ab9c00d10279307443c7923844bfa0dadff65886dd8c5014663119bbc75ec4819bd793008e4abc5d73e441a61fc17edfaafdcb014129be
   languageName: node
   linkType: hard
 
@@ -5780,9 +5780,9 @@ fsevents@^2.1.2:
     concat-stream: ^2.0.0
     deepmerge: ^4.2.2
     elasticsearch: ^16.7.1
-    ioredis: ^4.18.0
+    ioredis: ^4.17.3
     jest: ^26.4.2
-    mongoose: ^5.10.6
+    mongoose: ^5.10.7
     node-fetch: ^2.6.1
     p-map: ^4.0.0
     p-queue: ^6.6.1
@@ -5799,7 +5799,7 @@ fsevents@^2.1.2:
     ts-jest: ^26.4.0
     ts-node: ^9.0.0
     tslint: ^6.1.3
-    typescript: ^3.9.7
+    typescript: ^4.0.3
   languageName: unknown
   linkType: soft
 
@@ -5824,7 +5824,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^2.3.0, node-fetch@npm:^2.6.0, node-fetch@npm:^2.6.1":
+"node-fetch@npm:^2.3.0, node-fetch@npm:^2.6.1":
   version: 2.6.1
   resolution: "node-fetch@npm:2.6.1"
   checksum: 72bc2cc1d4c2e987e11459b34bcc95c8cf9f673498ee25d43039abe0c39b036f273b29721fa3845a15588d6a0b75417a862511a5b31c750bc3e4b1ab53969d7c
@@ -6224,7 +6224,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"p-queue@npm:^6.6.0, p-queue@npm:^6.6.1":
+"p-queue@npm:^6.6.1":
   version: 6.6.1
   resolution: "p-queue@npm:6.6.1"
   dependencies:
@@ -7279,26 +7279,26 @@ fsevents@^2.1.2:
   dependencies:
     "@types/crypto-js": ^3.1.47
     "@types/jsuri": ^1.3.30
-    "@types/node": ^14.0.23
+    "@types/node": ^14.11.2
     "@types/node-fetch": ^2.5.7
     "@types/url-join": ^4.0.0
-    "@yarnpkg/pnpify": ^2.1.0
+    "@yarnpkg/pnpify": ^2.2.1
     alsatian: ^3.2.1
     barrelsby: ^2.2.0
-    concurrently: ^5.2.0
+    concurrently: ^5.3.0
     crypto-js: ^4.0.0
     glob: ^7.1.6
     jsuri: ^1.3.1
     logspect: ^1.3.1
     mkdirp: ^1.0.4
-    node-fetch: ^2.6.0
-    p-queue: ^6.6.0
+    node-fetch: ^2.6.1
+    p-queue: ^6.6.1
     rimraf: ^3.0.2
     tap-bail: ^1.0.0
     tap-spec: ^5.0.0
-    ts-node: ^8.10.2
-    tslint: ^6.1.2
-    typescript: ^3.9.7
+    ts-node: ^9.0.0
+    tslint: ^6.1.3
+    typescript: ^4.0.3
     url-join: ^4.0.1
   languageName: node
   linkType: soft
@@ -8250,7 +8250,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^8.10.2, ts-node@npm:^8.3.0":
+"ts-node@npm:^8.3.0":
   version: 8.10.2
   resolution: "ts-node@npm:8.10.2"
   dependencies:
@@ -8304,7 +8304,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"tslint@npm:^6.1.2, tslint@npm:^6.1.3":
+"tslint@npm:^6.1.3":
   version: 6.1.3
   resolution: "tslint@npm:6.1.3"
   dependencies:
@@ -8440,23 +8440,23 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-typescript@^3.9.7:
-  version: 3.9.7
-  resolution: "typescript@npm:3.9.7"
+typescript@^4.0.3:
+  version: 4.0.3
+  resolution: "typescript@npm:4.0.3"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: ebbb7512d05816cdb48ab396cf0c69444857d7e84e4fe28caadd2c9407f0c7df696992a02f6cbc24732680f4b8d0a67d6122a2136415bb925eca844fbf23e297
+  checksum: e65dd65d34f4f980118c81e9d4225b89c11b6ca88288ade029b0e87d9cfc10abda3cecdd767751e467df7c6855b601011d38b87c09f03e1fe26fc72fb1b9b776
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^3.9.7#builtin<compat/typescript>":
-  version: 3.9.7
-  resolution: "typescript@patch:typescript@npm%3A3.9.7#builtin<compat/typescript>::version=3.9.7&hash=226bd1"
+"typescript@patch:typescript@^4.0.3#builtin<compat/typescript>":
+  version: 4.0.3
+  resolution: "typescript@patch:typescript@npm%3A4.0.3#builtin<compat/typescript>::version=4.0.3&hash=226bd1"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 798fd394cfe71c7fb0287cc335d753b4938b204453e884d6686b68b621f44c79564ca7839ac10453ca10b42242ed2b4c23e1a84a9fa72d78ef10a4a765adcc4f
+  checksum: 504f939474e9408b5c5786e3755b471bb8328a92aee202eb999f95a814c16621e2d1c6085a1c1e49d24a20fe2e16958f6671d379c3db213a5e6c9e3b9445c99b
   languageName: node
   linkType: hard
 

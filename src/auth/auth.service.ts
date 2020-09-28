@@ -112,7 +112,7 @@ export class ShopifyAuthService {
           // Passport stores the user in req.user
           session[`user-${user.myshopify_domain}`] = user;
           // For fallback if no shop is set in request.headers
-          session.lastShop = user.myshopify_domain;
+          session.currentShop = user.myshopify_domain;
           return user;
         })
         .catch((err) => {
@@ -188,7 +188,7 @@ export class ShopifyAuthService {
    * @param req
    */
   protected isLoggedIn(req: IUserRequest) {
-    const shop = req.shop || req.session.lastShop;
+    const shop = req.session.currentShop || req.shop;
     this.logger.debug('isLoggedIn in ' + shop);
     if (req.session[`user-${shop}`] !== null && typeof req.session[`user-${shop}`] === 'object') {
       return true;
@@ -266,7 +266,6 @@ export class ShopifyAuthService {
 
     // Get shop from header
     if (req.headers) {
-      console.log("headers", req.headers);
       if (req.headers.shop || req.headers['x-shopify-shop-domain']) {
         /**
          * Note: You Can set the shop header in the client for each jquery req by:
@@ -308,8 +307,8 @@ export class ShopifyAuthService {
     }
 
     // Fallback
-    if (req.session.lastShop) {
-      shop = req.session.lastShop;
+    if (req.session.currentShop) {
+      shop = req.session.currentShop;
       if (shop.endsWith('.myshopify.com')) {
         return shop;
       }

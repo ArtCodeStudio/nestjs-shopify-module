@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import { EventEmitter } from 'events';
 import { DebugService } from './debug.service';
+
 export class EventService extends EventEmitter {
 
   logger = new DebugService(`shopify:${this.constructor.name}`);

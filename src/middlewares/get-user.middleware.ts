@@ -15,6 +15,17 @@ export class GetUserMiddleware implements NestMiddleware {
   ) {
 
   }
+
+  protected setShop(req: IUserRequest, shop: string) {
+    req.session.shops = req.session.shops || [];
+    if(!req.session.shops.includes(shop)) {
+      req.session.shops.push(shop);
+    }
+    req.session.shop = shop; // depricated
+    req.session.currentShop = shop;
+    req.shop = shop;
+  }
+
   async use(req: IUserRequest, res: Response, next: NextFunction) {
 
     let shop: string;
@@ -43,7 +54,7 @@ export class GetUserMiddleware implements NestMiddleware {
     // this.logger.debug('req.session', req.session);
 
     if (!shop) {
-      shop = req.session.lastShop;
+      shop = req.session.currentShop;
     }
 
     /**
@@ -116,15 +127,5 @@ export class GetUserMiddleware implements NestMiddleware {
     }
 
     return next();
-  }
-
-  protected setShop(req: IUserRequest, shop: string) {
-    req.session.shops = req.session.shops || [];
-    if(!req.session.shops.includes(shop)) {
-      req.session.shops.push(shop);
-    }
-    req.session.shop = shop; // depricated
-    req.session.lastShop = shop;
-    req.shop = shop;
   }
 }

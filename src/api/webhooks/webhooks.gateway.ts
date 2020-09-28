@@ -303,11 +303,11 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     // Join the room for app backend users to receive broadcast events
     if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
 
-      client.join(`${client.handshake.session.lastShop}-app-backend`);
+      client.join(`${client.handshake.session.currentShop}-app-backend`);
     }
     // Join the room for theme client visitors to receive broadcast events
     if (client.handshake.session && client.handshake.session.isThemeClientRequest) {
-      client.join(`${client.handshake.session.lastShop}-client-theme`);
+      client.join(`${client.handshake.session.currentShop}-client-theme`);
     }
   }
 
