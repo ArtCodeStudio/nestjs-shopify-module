@@ -6,8 +6,7 @@ import { ShopifyApiChildCountableService } from '../../shopify-api-child-countab
 // Interfaces
 import { Model } from 'mongoose';
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
-import { Interfaces } from 'shopify-admin-api';
-import { Articles, Options } from 'shopify-admin-api';
+import { Interfaces, Articles, Options } from 'shopify-admin-api';
 import {
   ArticleDocument,
   IListAllCallbackData,

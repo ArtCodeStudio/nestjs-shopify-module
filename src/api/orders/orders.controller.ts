@@ -6,8 +6,9 @@ import { DebugService } from '../../debug.service';
 
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
-
 import { Readable } from 'stream';
+
+import { Interfaces } from 'shopify-admin-api';
 
 // Interfaces
 import { IUserRequest } from '../../interfaces/user-request';
@@ -40,8 +41,8 @@ export class OrdersController {
     @Query('created_at_max') created_at_max?: string,
     @Query('created_at_min') created_at_min?: string,
     @Query('fields') fields?: string,
-    @Query('financial_status') financial_status?: string,
-    @Query('fulfillment_status') fulfillment_status?: string,
+    @Query('financial_status') financial_status?: Interfaces.Order['financial_status'],
+    @Query('fulfillment_status') fulfillment_status?: Interfaces.Order['fulfillment_status'],
     @Query('limit') limit?: number,
     @Query('page') page?: number,
     @Query('processed_at_max') processed_at_max?: string,
@@ -65,7 +66,7 @@ export class OrdersController {
         failOnSyncError,
         fields,
         financial_status,
-        fulfillment_status,
+        fulfillment_status: fulfillment_status as any, // TODO
         limit,
         page,
         processed_at_max,

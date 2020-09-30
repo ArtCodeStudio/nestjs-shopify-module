@@ -1,6 +1,7 @@
 import { Connection, Document, Model, Mongoose, Schema } from 'mongoose';
 import { OrderSchema, OrderDocument } from './interfaces/mongoose/order.schema';
 import { ProductSchema, ProductDocument } from './interfaces/mongoose/product.schema';
+import { ProductVariantSchema, ProductVariantDocument } from './interfaces/mongoose/product-variant.schema';
 import { CustomerSchema, CustomerDocument } from './interfaces/mongoose/customer.schema';
 import { TransactionSchema, TransactionDocument } from './interfaces/mongoose/transaction.schema';
 import { ThemeSchema, ThemeDocument } from './interfaces/mongoose/theme.schema';
@@ -37,6 +38,12 @@ export const shopifyApiProviders = (connection: Mongoose) => {
       provide: 'ProductModelToken',
       useValue: (myshopifyDomain: string) => {
         return getDbModel<ProductDocument>(connection, myshopifyDomain, 'product', ProductSchema);
+      },
+    },
+    {
+      provide: 'ProductVariantModelToken',
+      useValue: (myshopifyDomain: string) => {
+        return getDbModel<ProductVariantDocument>(connection, myshopifyDomain, 'product_variant', ProductVariantSchema);
       },
     },
     {

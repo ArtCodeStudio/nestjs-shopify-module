@@ -7,6 +7,7 @@ export * from './custom-collection';
 export * from './locale';
 export * from './order';
 export * from './page';
+export * from './product-variants';
 export * from './product';
 export * from './smart-collection';
 export * from './sync';

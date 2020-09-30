@@ -4069,7 +4069,7 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"ioredis@npm:^4.14.1, ioredis@npm:^4.17.3":
+"ioredis@npm:^4.14.1, ioredis@npm:^4.18.0":
   version: 4.18.0
   resolution: "ioredis@npm:4.18.0"
   dependencies:
@@ -5780,7 +5780,7 @@ fsevents@^2.1.2:
     concat-stream: ^2.0.0
     deepmerge: ^4.2.2
     elasticsearch: ^16.7.1
-    ioredis: ^4.17.3
+    ioredis: ^4.18.0
     jest: ^26.4.2
     mongoose: ^5.10.7
     node-fetch: ^2.6.1
@@ -5796,7 +5796,7 @@ fsevents@^2.1.2:
     socket.io-redis: ^5.4.0
     supertest: ^4.0.2
     swiftype-app-search-node: ^0.6.0
-    ts-jest: ^26.4.0
+    ts-jest: ^26.4.1
     ts-node: ^9.0.0
     tslint: ^6.1.3
     typescript: ^4.0.3
@@ -8226,9 +8226,9 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^26.4.0":
-  version: 26.4.0
-  resolution: "ts-jest@npm:26.4.0"
+"ts-jest@npm:^26.4.1":
+  version: 26.4.1
+  resolution: "ts-jest@npm:26.4.1"
   dependencies:
     "@types/jest": 26.x
     bs-logger: 0.x
@@ -8246,7 +8246,7 @@ fsevents@^2.1.2:
     typescript: ">=3.8 <5.0"
   bin:
     ts-jest: cli.js
-  checksum: b66447c98be98cf832d6b27c73422a34c8fda9a7169759e1321cddbcef746962db2ca390b50d7b6ae34126a1e264e869191ebf88f996abcb2cfc4021763d6112
+  checksum: 5a156b7a93100a670a741eebe0ede412fc7fb38da6675888b9b9a441dc3d064afb0054669078b46d0535a8ad0f66c4747c5d91e9ac9142728cff600210d186a0
   languageName: node
   linkType: hard
 

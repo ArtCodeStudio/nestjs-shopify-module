@@ -55,6 +55,7 @@ export class GetUserMiddleware implements NestMiddleware {
 
     if (!shop) {
       shop = req.session.currentShop;
+      this.setShop(req, shop);
     }
 
     /**

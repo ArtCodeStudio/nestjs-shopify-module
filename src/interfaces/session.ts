@@ -2,7 +2,7 @@ import { IShopifyConnect } from '../auth/interfaces/connect';
 import { Express } from 'express';
 
 export interface Session extends Express.Session {
-  // see get-user.middleware.ts
+  /**  @deprecated use session[`user-${user.myshopify_domain}`] instead  */
   user?: IShopifyConnect;
   /**
    * This is used to get access to any shopify api, also if the user is not logged in.

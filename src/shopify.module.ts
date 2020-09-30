@@ -1,48 +1,37 @@
 import { Module, DynamicModule, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { PassportStatic } from 'passport';
+import { Mongoose } from 'mongoose';
+
+// Auth
 import { ShopifyAuthController } from './auth/auth.controller';
 import { shopifyConnectProviders } from './auth/connect.providers';
 import { ShopifyConnectService } from './auth/connect.service';
 import { ShopifyAuthService } from './auth/auth.service';
 import { PassportService } from './auth/passport.service';
-import { shopifyApiProviders } from './api/api.providers';
-import { ChargeController } from './charge/charge.controller';
-import { ChargeService } from './charge/charge.service';
-import { ShopController } from './shop/shop.controller';
-import { ShopService } from './shop/shop.service';
-import { RolesGuard } from './guards/roles.guard';
-import { ShopifyApiGuard } from './guards/shopify-api.guard';
+
+// API
 import { ThemesService } from './api/themes/themes.service';
 import { ThemesController } from './api/themes/themes.controller';
 import { AssetsService } from './api/themes/assets/assets.service';
 import { LocalesService } from './api/themes/locales/locales.service';
 import { AssetsController } from './api/themes/assets/assets.controller';
 import { LocalesController } from './api/themes/locales/locales.controller';
-import { SyncService } from './sync/sync.service';
 import { OrdersService } from './api/orders/orders.service';
+import { ProductVariantsService } from './api/product-variants/product-variants.service';
 import { ProductsService } from './api/products/products.service';
 import { OrdersController } from './api/orders/orders.controller';
 import { ProductsController } from './api/products/products.controller';
-import { SHOPIFY_MODULE_OPTIONS } from './shopify.constants';
-import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
-import { PassportStatic } from 'passport';
-import { Mongoose } from 'mongoose';
 import { TransactionsController } from './api/orders/transactions/transactions.controller';
 import { TransactionsService } from './api/orders/transactions/transactions.service';
-import { EventService } from './event.service';
-import { WebhooksController } from './webhooks/webhooks.controller';
-import { WebhooksService } from './webhooks/webhooks.service';
 import { WebhooksGateway } from './api/webhooks/webhooks.gateway';
 import { ProductsGateway } from './api/products/products.gateway';
-import { SyncGateway } from './sync/sync.gateway';
-import { syncProviders } from './sync/sync-providers';
 import { PagesController } from './api/pages/pages.controller';
 import { PagesService } from './api/pages/pages.service';
 import { BlogsController } from './api/blogs/blogs.controller';
 import { BlogsService } from './api/blogs/blogs.service';
 import { ArticlesController } from './api/blogs/articles/articles.controller';
 import { ArticlesService } from './api/blogs/articles/articles.service';
-import { SyncController } from './sync/sync.controller';
 import { SmartCollectionsService } from './api/smart-collections/smart-collections.service';
 import { CustomCollectionsService } from './api/custom-collections/custom-collections.service';
 import { SmartCollectionsController } from './api/smart-collections/smart-collections.controller';
@@ -51,7 +40,32 @@ import { CollectsService } from './api/collects/collects.service';
 import { CollectsController } from './api/collects/collects.controller';
 import { SearchController } from './api/search/search.controller';
 import { SearchService } from './api/search/search.service';
+import { shopifyApiProviders } from './api/api.providers';
 
+// Charge
+import { ChargeController } from './charge/charge.controller';
+import { ChargeService } from './charge/charge.service';
+
+// Shop
+import { ShopController } from './shop/shop.controller';
+import { ShopService } from './shop/shop.service';
+
+// Sync
+import { SyncService } from './sync/sync.service';
+import { SyncGateway } from './sync/sync.gateway';
+import { syncProviders } from './sync/sync-providers';
+import { SyncController } from './sync/sync.controller';
+
+// Webhooks
+import { WebhooksController } from './webhooks/webhooks.controller';
+import { WebhooksService } from './webhooks/webhooks.service';
+
+// Other
+import { SHOPIFY_MODULE_OPTIONS } from './shopify.constants';
+import { ShopifyModuleOptions } from './interfaces/shopify-module-options';
+import { EventService } from './event.service';
+import { RolesGuard } from './guards/roles.guard';
+import { ShopifyApiGuard } from './guards/shopify-api.guard';
 
 import {
   BodyParserJsonMiddleware,
@@ -77,6 +91,7 @@ export {
   SyncService,
   OrdersService,
   TransactionsService,
+  ProductVariantsService,
   ProductsService,
   PagesService,
   BlogsService,
@@ -110,6 +125,7 @@ export { RequestGuard } from './guards/request.guard';
     PagesService,
     BlogsService,
     ArticlesService,
+    ProductVariantsService,
     ProductsService,
     ThemesService,
     AssetsService,
@@ -159,6 +175,7 @@ export { RequestGuard } from './guards/request.guard';
     SyncService,
     OrdersService,
     TransactionsService,
+    ProductVariantsService,
     ProductsService,
     PagesService,
     BlogsService,

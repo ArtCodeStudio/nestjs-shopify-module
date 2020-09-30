@@ -113,6 +113,7 @@ export class ShopifyAuthService {
           session[`user-${user.myshopify_domain}`] = user;
           // For fallback if no shop is set in request.headers
           session.currentShop = user.myshopify_domain;
+          
           return user;
         })
         .catch((err) => {

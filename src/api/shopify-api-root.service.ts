@@ -47,7 +47,10 @@ export abstract class ShopifyApiRootService<
   public async getFromShopify(user: IShopifyConnect, id: number, options?: GetOptions): Promise<Partial<ShopifyObjectType> | null> {
     const shopifyModel = new this.ShopifyModel(user.myshopify_domain, user.accessToken);
     const syncToDb = options && options.syncToDb;
-    delete options.syncToDb;
+    if (options) {
+      delete options.syncToDb;
+    }
+
     return shopifyRetry(() => {
       return shopifyModel.get(id, options);
     })

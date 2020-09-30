@@ -17,6 +17,7 @@ export * from './order.schema';
 export * from './page.schema';
 export * from './payment-details.schema';
 export * from './price-set.schema';
+export * from './product-variant.schema';
 export * from './product.schema';
 export * from './refund.schema';
 export * from './shipping-line.schema';
