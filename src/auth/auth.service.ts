@@ -65,7 +65,7 @@ export class ShopifyAuthService {
    * @param timestamp
    * @param session
    */
-  async oAuthCallback(hmac: string, signature: string, state: string, code: string, shop: string, timestamp: string, session) {
+  async oAuthCallback(hmac: string, signature: string, state: string, code: string, shop: string, timestamp: string, session: Session) {
     const shopifyToken = new ShopifyToken({
       sharedSecret: this.shopifyModuleOptions.shopify.clientSecret,
       apiKey: this.shopifyModuleOptions.shopify.clientID,
@@ -111,6 +111,9 @@ export class ShopifyAuthService {
           this.logger.debug(`validate user, user.myshopify_domain: `, user.myshopify_domain);
           // Passport stores the user in req.user
           session[`user-${user.myshopify_domain}`] = user;
+
+          session.user = user;
+
           // For fallback if no shop is set in request.headers
           session.currentShop = user.myshopify_domain;
           
@@ -267,7 +270,7 @@ export class ShopifyAuthService {
 
     // Get shop from header
     if (req.headers) {
-      if (req.headers.shop || req.headers['x-shopify-shop-domain']) {
+      if (req.headers.shop || req.headers['x-shopify-shop-domain'] || req.headers['X-Shopify-Shop-Domain']) {
         /**
          * Note: You Can set the shop header in the client for each jquery req by:
          *
@@ -285,7 +288,7 @@ export class ShopifyAuthService {
          *   Utils.setRequestHeaderEachRequest('shop', shop);
          * ```
          */
-        shop = (req.headers.shop as string) || (req.headers['x-shopify-shop-domain'] as string);
+        shop = req.headers.shop as string || req.headers['x-shopify-shop-domain'] as string || req.headers['X-Shopify-Shop-Domain'] as string;
         if (shop.endsWith('.myshopify.com')) {
           return shop;
         }

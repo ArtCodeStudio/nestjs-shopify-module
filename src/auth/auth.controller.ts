@@ -8,6 +8,7 @@ import {
   Session,
   Query,
   Param,
+  Body,
   HttpStatus,
 } from '@nestjs/common';
 
@@ -53,16 +54,22 @@ export class ShopifyAuthController {
   @Get()
   oAuthConnect(
     @Query('shop') shop,
+    @Param('shop') shopParam: string,
+    @Body('shop') shopBody: string,
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Next() next,
     @Session() session: IUserSession,
   ) {
+    shop = shop || shopParam || shopBody || req.headers['x-shopify-shop-domain'] || req.headers['X-Shopify-Shop-Domain'];
     if (typeof shop !== 'string') {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
     }
 
     session.currentShop = shop;
+    session.shop = shop;
+    req.shop = shop;
+
 
     this.logger.debug('auth called', `AuthController:${shop}`);
 
@@ -88,15 +95,21 @@ export class ShopifyAuthController {
    */
   @Get('/iframe')
   oAuthConnectIframe(
-    @Query('shop') shop,
+    @Query('shop') shop: string,
+    @Param('shop') shopParam: string,
+    @Body('shop') shopBody: string,
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Next() next,
     @Session() session: IUserSession,
   ) {
+    shop = shop || shopParam || shopBody || req.headers.shop as string || req.headers['x-shopify-shop-domain'] as string || req.headers['X-Shopify-Shop-Domain'] as string;
     if (typeof shop !== 'string') {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
     }
+
+    session.currentShop = shop;
+    req.shop = shop;
 
     const oAuthConnect = this.shopifyAuthService.oAuthConnect(req, shop);
     session.nonce = oAuthConnect.nonce;
@@ -119,7 +132,9 @@ export class ShopifyAuthController {
    */
   @Get('callback/iframe')
   oAuthConnectIframeCallback(
-    @Query('shop') shop,
+    @Query('shop') shop: string,
+    @Param('shop') shopParam: string,
+    @Body('shop') shopBody: string,
     @Query('code') code,
     @Query('hmac') hmac,
     @Query('state') state,
@@ -129,9 +144,13 @@ export class ShopifyAuthController {
     @Next() next,
     @Session() session: IUserSession,
   ) {
+    shop = shop || shopParam || shopBody || req.headers['x-shopify-shop-domain'] as string || req.headers['X-Shopify-Shop-Domain'] as string;
     if (typeof shop !== 'string') {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
     }
+
+    session.currentShop = shop;
+    req.shop = shop;
 
     session.nonce = undefined;
 
@@ -151,7 +170,15 @@ export class ShopifyAuthController {
    * @param req
    */
   @Get('/callback')
-  callback(@Query('shop') shop, @Req() req, @Res() res, @Next() next, @Session() session: IUserSession) {
+  callback(
+    @Query('shop') shop: string,
+    @Param('shop') shopParam: string,
+    @Req() req,
+    @Res() res,
+    @Next() next,
+    @Session() session: IUserSession
+  ) {
+    shop = shop || shopParam;
     if (typeof shop !== 'string') {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         message: 'shop query param not found',
@@ -159,6 +186,7 @@ export class ShopifyAuthController {
     }
 
     session.currentShop = shop;
+    req.shop = shop;
 
     this.logger.debug('callback called', `AuthController:${shop}`);
 
@@ -176,7 +204,12 @@ export class ShopifyAuthController {
    * @param req
    */
   @Get('/success/:shop')
-  success(@Param('shop') shop, @Res() res: Response, @Req() req: IUserRequest, @Session() session: IUserSession) {
+  success(
+    @Param('shop') shop,
+    @Res() res: Response,
+    @Req() req: IUserRequest,
+    @Session() session: IUserSession
+  ) {
     // For fallback if no shop is set in request.headers
     this.passport.unuse(`shopify-${shop}`);
     // Redirect to view TODO get this from config
@@ -277,7 +310,7 @@ export class ShopifyAuthController {
    */
   @Get('/loggedIn')
   loggedIn(@Res() res: Response, @Req() req: IUserRequest) {
-    const shop = req.session.currentShop || req.shop;
+    const shop = req.session.currentShop || req.shop || req.headers.shop || req.headers['x-shopify-shop-domain'] || req.headers['X-Shopify-Shop-Domain'];
     if (req.session[`user-${shop}`]) {
       return res.json(true);
     }
