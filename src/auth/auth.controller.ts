@@ -66,10 +66,11 @@ export class ShopifyAuthController {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
     }
 
-    session.currentShop = shop;
-    session.shop = shop;
-    req.shop = shop;
+    // Logout if the user is logged in another shop
+    req.logout();
 
+    session.currentShop = shop;
+    req.shop = shop;
 
     this.logger.debug('auth called', `AuthController:${shop}`);
 
@@ -300,7 +301,10 @@ export class ShopifyAuthController {
   @Roles('shopify-staff-member')
   logout(@Res() res: Response, @Req() req: IUserRequest) {
     req.logout();
-    return res.redirect('/view/settings'); // TODO change url and store them in config
+    for (const shop of req.session.shops) {
+      delete req.session[`user-${shop}`];
+    }
+    return res.redirect('/view'); // TODO change url and store them in config
   }
 
   /**

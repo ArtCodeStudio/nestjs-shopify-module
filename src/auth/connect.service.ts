@@ -19,6 +19,9 @@ export class ShopifyConnectService {
   async connectOrUpdate(userProfile: IShopifyAuthProfile, accessToken: string) {
     this.logger.debug('connectOrUpdate', userProfile.username);
     const now = new Date();
+    if (userProfile.id.toString() !== userProfile._json.shop.id.toString()) {
+      throw new Error('Invalid shopify id! ' + userProfile.id);
+    }
     const newShopifyConnect = new this.shopifyConnectModel({
       // _id: Types.ObjectId(userProfile.id),
       shopifyID: Number(userProfile.id),

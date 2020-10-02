@@ -9,6 +9,7 @@ export interface ConfigApp {
   host: string;
   port: number;
   debug: boolean;
+  test: boolean;
   environment: 'production' | 'development' | 'test';
 }
 
