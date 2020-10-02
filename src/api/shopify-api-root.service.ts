@@ -71,7 +71,7 @@ export abstract class ShopifyApiRootService<
     // Delete undefined options
     deleteUndefinedProperties(options);
 
-    this.logger.debug('[listFromShopify]', options);
+    this.logger.debug('[listFromShopify] %O', options);
     const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     const syncToDb = options && options.syncToDb;
     options = Object.assign({}, options);
@@ -80,7 +80,7 @@ export abstract class ShopifyApiRootService<
     delete options.failOnSyncError;
     delete options.cancelSignal; // TODO?
     return shopifyRetry(async (count) => {
-      this.logger.debug('[listFromShopify] retry count: ' + count);
+      this.logger.debug('[listFromShopify] retry count: %d' + count);
       return shopifyModel.list(options)
       .catch((error) => {
         this.logger.error(error);
@@ -88,7 +88,7 @@ export abstract class ShopifyApiRootService<
       });
     })
     .then(async (shopifyObjects: ShopifyObjectType[]) => {
-      this.logger.debug('[listFromShopify] result length', shopifyObjects.length);
+      this.logger.debug('[listFromShopify] result length %d', shopifyObjects.length);
       this.logger.debug('[listFromShopify] updateOrCreateManyInApp');
       return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyObjects, syncToDb)
       .then((syncResult) => {
@@ -124,7 +124,7 @@ export abstract class ShopifyApiRootService<
   ): Promise<Partial<ShopifyObjectType>[]|void> {
     // Delete undefined options
     deleteUndefinedProperties(options);
-    this.logger.debug('[listAllFromShopify]', options);
+    this.logger.debug('[listAllFromShopify] %O', options);
 
     return this.listFromShopify(shopifyConnect, options)
     .then((objects) => {

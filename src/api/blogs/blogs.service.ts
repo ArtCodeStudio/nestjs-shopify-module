@@ -116,7 +116,7 @@ BlogDocument // DatabaseDocumentType
   public async count(user: IShopifyConnect, options?: Options.BlogCountOptions): Promise<number> {
     const blogs = new Blogs(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
-    this.logger.debug('count options', options);
+    this.logger.debug('count options: %O', options);
     return blogs.count(options)
     .then((count) => {
       return count;

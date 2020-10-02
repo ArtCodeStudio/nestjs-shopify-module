@@ -58,7 +58,7 @@ export class LocalesController {
       return this.localesService.get(req.session[`shopify-connect-${req.shop}`], themeId);
     })
     .then((locale) => {
-      // this.logger.debug(`assets`, locale);
+      // this.logger.debug(`assets: %O`, locale);
       return res.jsonp(locale);
     })
     .catch((error: Infrastructure.ShopifyError) => {
@@ -137,7 +137,7 @@ export class LocalesController {
     filename = path.substring(path.lastIndexOf('/'));
     return this.localesService.getLocalFile(req.session[`shopify-connect-${req.shop}`], themeId, filename)
     .then((locale) => {
-      // this.logger.debug(`assets`, locale);
+      // this.logger.debug(`assets: %O`, locale);
       return res.jsonp(locale);
     })
     .catch((error: Infrastructure.ShopifyError) => {
@@ -181,7 +181,7 @@ export class LocalesController {
 
     return this.localesService.getSectionFile(req.session[`shopify-connect-${req.shop}`], themeId, filename)
     .then((locale) => {
-      // this.logger.debug(`assets`, locale);
+      // this.logger.debug(`assets: %O`, locale);
       return res.jsonp(locale);
     })
     .catch((error: Infrastructure.ShopifyError) => {
@@ -236,7 +236,7 @@ export class LocalesController {
       return this.localesService.get(req.session[`shopify-connect-${req.shop}`], themeId, properties);
     })
     .then((locale) => {
-      // this.logger.debug(`assets`, locale);
+      // this.logger.debug(`assets: %O`, locale);
       if (locale) {
         return res.jsonp(locale);
       }

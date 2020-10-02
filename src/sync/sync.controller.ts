@@ -60,7 +60,7 @@ export class SyncController {
     @Body('resync') resync?: boolean | string,
     @Body('cancelExisting') cancelExisting?: boolean | string,
   ) {
-    this.logger.debug({
+    this.logger.debug('syncToDb: %O; includeOrders: %O; includeTransactions: %O; includeProducts: %O; includePages: %O; includeSmartCollections: %O; includeCustomCollections: %O; resync: %O; cancelExisting: %O;', {
       syncToDb,
       includeOrders,
       includeTransactions,

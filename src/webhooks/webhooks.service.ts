@@ -31,7 +31,7 @@ export class WebhooksService {
         this.logger.debug(`[${shopifyConnect.myshopify_domain}] Auto subscribe webhook ${topic}`);
         this.create(shopifyConnect, topic)
         .then((result) => {
-          this.logger.debug(result);
+          this.logger.debug('app/installed result: %O', result);
         })
         .catch((error: WebhookError) => {
           this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`, error.errors);
@@ -47,7 +47,7 @@ export class WebhooksService {
           this.logger.debug(`[${shopifyConnect.myshopify_domain}] Auto subscribe webhook ${topic}`);
           this.create(shopifyConnect, topic)
           .then((result) => {
-            this.logger.debug(result);
+            this.logger.debug('result: %O', result);
           })
           .catch((error: WebhookError) => {
             // Ignore if the webhook is already subscribed

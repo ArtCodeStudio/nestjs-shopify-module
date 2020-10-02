@@ -32,7 +32,7 @@ export class AssetsController {
   ) {
     return this.assetsService.list(req.session[`shopify-connect-${req.shop}`], themeId)
     .then((assets) => {
-      // this.logger.debug(`themes`, assets);
+      // this.logger.debug(`assets: %O`, assets);
       return res.jsonp(assets);
     })
     .catch((error: Error) => {
@@ -63,7 +63,7 @@ export class AssetsController {
     const key = 'assets/' + filename;
     return this.assetsService.get(req.session[`shopify-connect-${req.shop}`], themeId, key)
     .then((asset) => {
-      // this.logger.debug(`asset assets`, asset);
+      // this.logger.debug(`asset assets: %O`, asset);
       return res.jsonp(asset);
     })
     .catch((error: Error) => {
@@ -95,7 +95,7 @@ export class AssetsController {
     const key = 'templates/' + filename;
     return this.assetsService.get(req.session[`shopify-connect-${req.shop}`], themeId, key)
     .then((asset) => {
-      // this.logger.debug(`asset templates`, asset);
+      // this.logger.debug(`asset templates: %O`, asset);
       return res.jsonp(asset);
     })
     .catch((error: Error) => {
@@ -127,7 +127,7 @@ export class AssetsController {
     const key = 'snippets/' + filename;
     return this.assetsService.get(req.session[`shopify-connect-${req.shop}`], themeId, key)
     .then((asset) => {
-      // this.logger.debug(`asset snippets`, asset);
+      // this.logger.debug(`asset snippets: %O`, asset);
       return res.jsonp(asset);
     })
     .catch((error: Error) => {
@@ -163,7 +163,7 @@ export class AssetsController {
 
     return this.assetsService.get(req.session[`shopify-connect-${req.shop}`], themeId, key)
     .then((asset) => {
-      // this.logger.debug(`asset`, asset);
+      // this.logger.debug(`asset: %O`, asset);
       return res.jsonp(asset);
     })
     .catch((error: Error) => {

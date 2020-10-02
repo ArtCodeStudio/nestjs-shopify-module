@@ -56,11 +56,11 @@ export class PagesController {
     @Res() res: Response,
     @Body() page: Interfaces.Page,
   ) {
-    this.logger.debug('create page', page);
+    this.logger.debug('create page: %O', page);
     try {
       return this.pagesService.create(req.session[`shopify-connect-${req.shop}`], page)
       .then((result) => {
-        this.logger.debug('result', result);
+        this.logger.debug('result: %O', result);
         return res.jsonp(result);
       });
     } catch (error) {
@@ -128,7 +128,7 @@ export class PagesController {
         failOnSyncError,
       };
 
-      this.logger.debug('PageListOptions', options);
+      this.logger.debug('PageListOptions: %O', options);
       return res.jsonp(await this.pagesService.list(req.session[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
@@ -237,7 +237,7 @@ export class PagesController {
     @Param('page_id') id: number,
     @Body() page: Partial<Interfaces.Page>,
   ) {
-    this.logger.debug('update page', id, page);
+    this.logger.debug('update page id: %d, page: %O', id, page);
     try {
       return res.jsonp(await this.pagesService.update(req.session[`shopify-connect-${req.shop}`], id, page));
     } catch (error) {

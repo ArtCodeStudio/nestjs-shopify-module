@@ -27,7 +27,7 @@ export class LocalesService {
    */
   async getLocalFile(user: IShopifyConnect, id: number, filename: string, options: Options.FieldOptions = {}): Promise<IAppLocaleFile> {
     const key = `locales/${filename}`;
-    // this.logger.debug('getLocalFile', filename);
+    // this.logger.debug('getLocalFile: %s', filename);
     return this.assetsService.get(user, id, key, options)
     .then((asset) => {
       const locale: IAppLocaleFile = this.parseLangCode(asset);
@@ -47,7 +47,7 @@ export class LocalesService {
     options.key_starts_with = 'sections/';
     return this.assetsService.list(user, id, options)
     .then((assets) => {
-      // this.logger.debug('assets', assets);
+      // this.logger.debug('assets: %O', assets);
       const locales: IAppLocaleFile[] = assets;
       locales.forEach((locale) => {
         locale = this.parseLangCode(locale);
@@ -182,20 +182,20 @@ export class LocalesService {
     .then(async (mergedLocales: IAppLocales) => {
       return this.getSectionAll(user, id, options)
       .then(async (mergedSectionLocales) => {
-        // this.logger.debug('merge section', mergedSectionLocales.en.sections, mergedLocales.en.sections);
+        // this.logger.debug('merge section: %O : %O', mergedSectionLocales.en.sections, mergedLocales.en.sections);
         return merge(mergedSectionLocales, mergedLocales);
       });
     })
     // applay filter
     .then((mergedLocales) => {
       if (properties && properties.length) {
-        // this.logger.debug('properties', properties);
+        // this.logger.debug('properties : %O', properties);
         for (const property of properties) {
-          // this.logger.debug('property', property);
+          // this.logger.debug('property : %O', property);
           if (mergedLocales[property]) {
             mergedLocales = mergedLocales[property];
           } else {
-            // this.logger.debug('null on', property);
+            // this.logger.debug('null on : %O', property);
             return null;
           }
         }

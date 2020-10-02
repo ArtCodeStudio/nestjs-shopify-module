@@ -57,11 +57,11 @@ export class ArticlesController {
     @Param('blog_id') blogId: number,
     @Body() article: Interfaces.Article,
   ) {
-    this.logger.debug('create article', article);
+    this.logger.debug('create article: %O', article);
     try {
       return this.articlesService.create(req.session[`shopify-connect-${req.shop}`], blogId, article)
       .then((result) => {
-        this.logger.debug('result', result);
+        this.logger.debug('result: %O', result);
         return res.jsonp(result);
       });
     } catch (error) {

@@ -889,6 +889,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/debug@npm:^4.1.5":
+  version: 4.1.5
+  resolution: "@types/debug@npm:4.1.5"
+  checksum: 07828461ade8646d3278ae05b1a10f1c9c9644aee20e93edbf658f0b91ed754f0ca30dc58ca4cbd018a7e9870596ffdd01265364ad7119057ad9e47dd9cb9c30
+  languageName: node
+  linkType: hard
+
 "@types/deepmerge@npm:^2.2.0":
   version: 2.2.0
   resolution: "@types/deepmerge@npm:2.2.0"
@@ -2784,6 +2791,20 @@ __metadata:
   dependencies:
     ms: ^2.1.1
   checksum: e3bfa1544ced80ac5764aa313530150af442e5ce53f91090f00e3aff33a8b535ce60a7502d1451b3cbc2b9cd6994b3a08a38fbd3ff7a2ec801ad79d8b457b8e8
+  languageName: node
+  linkType: hard
+
+"debug@npm:^4.2.0":
+  version: 4.3.0
+  resolution: "debug@npm:4.3.0"
+  dependencies:
+    ms: 2.1.2
+  peerDependencies:
+    supports-color: "*"
+  peerDependenciesMeta:
+    supports-color:
+      optional: true
+  checksum: 62a268071ebf34c8fdf9e7ab8592bb6990758efe642c312852c337f248209b1cca062202f756f3515e1d86d67677eed238da7d409038b4f32c1f3052c4e39147
   languageName: node
   linkType: hard
 
@@ -5754,6 +5775,7 @@ fsevents@^2.1.2:
     "@types/cache-manager": ^2.10.3
     "@types/cache-manager-ioredis": ^2.0.1
     "@types/concat-stream": ^1.6.0
+    "@types/debug": ^4.1.5
     "@types/deepmerge": ^2.2.0
     "@types/elasticsearch": ^5.0.36
     "@types/express": ^4.17.8
@@ -5778,6 +5800,7 @@ fsevents@^2.1.2:
     cache-manager-ioredis: ^2.1.0
     cache-manager-redis: ^0.6.0
     concat-stream: ^2.0.0
+    debug: ^4.2.0
     deepmerge: ^4.2.2
     elasticsearch: ^16.7.1
     ioredis: ^4.18.0

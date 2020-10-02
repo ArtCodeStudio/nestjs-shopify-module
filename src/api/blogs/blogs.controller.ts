@@ -56,11 +56,11 @@ export class BlogsController {
     @Res() res: Response,
     @Body() blog: Interfaces.Blog,
   ) {
-    this.logger.debug('create blog', blog);
+    this.logger.debug('create blog %O', blog);
     try {
       return this.blogsService.create(req.session[`shopify-connect-${req.shop}`], blog)
       .then((result) => {
-        this.logger.debug('result', result);
+        this.logger.debug('result %O', result);
         return res.jsonp(result);
       });
     } catch (error) {
@@ -109,7 +109,7 @@ export class BlogsController {
         failOnSyncError,
       };
 
-      this.logger.debug('BlogListOptions', options);
+      this.logger.debug('BlogListOptions %O', options);
       return res.jsonp(await this.blogsService.list(req.session[`shopify-connect-${req.shop}`], options));
     } catch (error) {
       this.logger.error(error);
@@ -198,7 +198,7 @@ export class BlogsController {
     @Param('blog_id') id: number,
     @Body() blog: Partial<Interfaces.Blog>,
   ) {
-    this.logger.debug('update blog', id, blog);
+    this.logger.debug('update blog id: $d blog: %O', id, blog);
     try {
       return res.jsonp(await this.blogsService.update(req.session[`shopify-connect-${req.shop}`], id, blog));
     } catch (error) {

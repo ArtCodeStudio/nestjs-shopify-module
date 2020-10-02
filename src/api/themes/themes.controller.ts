@@ -26,7 +26,7 @@ export class ThemesController {
     const shop = req.session.currentShop || req.shop;
     this.themesService.listFromShopify(req.session[`user-${shop}`])
     .then((themes) => {
-      // this.logger.debug(`themes`, themes);
+      // this.logger.debug(`themes: %O`, themes);
       return res.jsonp(themes);
     })
     .catch((error: Error) => {
@@ -47,7 +47,7 @@ export class ThemesController {
     const shop = req.session.currentShop || req.shop;
     this.themesService.getActive(req.session[`user-${shop}`])
     .then((theme) => {
-      // this.logger.debug(`theme`, theme);
+      // this.logger.debug(`theme: %O`, theme);
       return res.jsonp(theme);
     })
     .catch((error: Error) => {
@@ -69,7 +69,7 @@ export class ThemesController {
     const shop = req.session.currentShop || req.shop;
     this.themesService.getFromShopify(req.session[`user-${shop}`], themeId)
     .then((theme) => {
-      // this.logger.debug(`theme`, theme);
+      // this.logger.debug(`theme: %O`, theme);
       return res.jsonp(theme);
     })
     .catch((error: Error) => {

@@ -1,13 +1,15 @@
 import { Logger } from '@nestjs/common';
+import { debug, Debugger } from 'debug';
 
 /**
  * TODO use https://github.com/winstonjs/winston / https://github.com/felixge/node-stack-trace?
  */
 export class DebugService {
-
-  private context: string;
-  constructor(name: string) {
-    this.context = name;
+  private namespace: string;
+  private debugger:Debugger;
+  constructor(namespace: string) {
+    this.namespace = namespace;
+    this.debugger = debug(this.namespace);
   }
 
   public log(...args: any[]) {
@@ -20,12 +22,13 @@ export class DebugService {
         return arg;
       })
       .join(' '),
-      this.context,
+      this.namespace,
     );
   }
 
-  public debug(...args: any[]) {
-    this.log(...args);
+  public debug(formatter: string, ...args: any[]) {
+    // this.log(...args);
+    this.debugger(formatter, ...args);
   }
 
   public warn(...args: any[]) {
@@ -38,7 +41,7 @@ export class DebugService {
         return arg;
       })
       .join('\n'),
-      this.context,
+      this.namespace,
     );
   }
 
@@ -63,6 +66,6 @@ export class DebugService {
     } else if (traces.length > 1) {
       trace = traces.map((t, i) => `[${i+1}] ${t}`).join('\n');
     }
-    Logger.error(msgs.join('\n'), trace, this.context);
+    Logger.error(msgs.join('\n'), trace, this.namespace);
   }
 }

@@ -111,7 +111,7 @@ PageDocument // DatabaseDocumentType
   public async count(user: IShopifyConnect, options?: Options.PageCountOptions): Promise<number> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
-    this.logger.debug('count options', options);
+    this.logger.debug('count options: %O', options);
     return pages.count(options)
     .then((count) => {
       return count;

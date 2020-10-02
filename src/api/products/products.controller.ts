@@ -114,10 +114,10 @@ export class ProductsController {
     // ids = ids.replace(/("|')/g, '');
     // fields = fields.replace(/("|')/g, '');
 
-    this.logger.debug('[listFromShopify] ShopifySyncProductListOptions', options);
+    this.logger.debug('[listFromShopify] ShopifySyncProductListOptions: %O', options);
     return this.productsService.listFromShopify(req.session[`shopify-connect-${req.shop}`], options)
     .then((products) => {
-      this.logger.debug('[listFromShopify] products.length', products.length);
+      this.logger.debug('[listFromShopify] products.length: %d', products.length);
       return res.jsonp(products);
     })
     .catch((error) => {
@@ -405,7 +405,7 @@ export class ProductsController {
     @Param('product_id') id: number,
     @Body() product: Interfaces.ProductUpdateCreate,
   ) {
-    this.logger.debug('update product', id, product);
+    this.logger.debug('update product id: %d, product: %O', id, product);
     try {
       return res.jsonp(await this.productsService.updateInShopify(req.session[`shopify-connect-${req.shop}`], id, product));
     } catch (error) {
@@ -430,7 +430,7 @@ export class ProductsController {
     @Res() res: Response,
     @Body() product: Interfaces.ProductUpdateCreate,
   ) {
-    this.logger.debug('create product', product);
+    this.logger.debug('create product: %O', product);
     try {
       return this.productsService.createInShopify(req.session[`shopify-connect-${req.shop}`], product)
       .then((result) => {

@@ -31,7 +31,7 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   ) {}
 
   afterInit(nsp: SocketIO.Namespace) {
-    this.logger.debug('afterInit', nsp.name);
+    this.logger.debug('afterInit: %s', nsp.name);
 
     this.eventService.on(`webhook:carts/create`, (myshopifyDomain: string, data: any) => {
       nsp.to(`${myshopifyDomain}-app-backend`).emit('webhook:carts/create', data);
@@ -90,42 +90,42 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     });
 
     this.eventService.on(`webhook:customers/update`, (myshopifyDomain: string, data: any) => {
-      this.logger.debug('webhook:customers/update', data);
+      this.logger.debug('webhook:customers/update: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('customers/update', data);
     });
 
     this.eventService.on(`webhook:customers/delete`, (myshopifyDomain: string, data: any) => {
-      this.logger.debug('webhook:customers/delete', data);
+      this.logger.debug('webhook:customers/delete: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('customers/delete', data);
     });
 
     this.eventService.on(`webhook:customer_groups/create`, (myshopifyDomain: string, data: any) => {
-      this.logger.debug('webhook:customer_groups/create', data);
+      this.logger.debug('webhook:customer_groups/create: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('customer_groups/create', data);
     });
 
     this.eventService.on(`webhook:customer_groups/update`, (myshopifyDomain: string, data: any) => {
-      this.logger.debug('webhook:customer_groups/update', data);
+      this.logger.debug('webhook:customer_groups/update: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('customer_groups/update', data);
     });
 
     this.eventService.on(`webhook:customer_groups/delete`, (myshopifyDomain: string, data: any) => {
-      this.logger.debug('webhook:customer_groups/delete', data);
+      this.logger.debug('webhook:customer_groups/delete: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('customer_groups/delete', data);
     });
 
     this.eventService.on(`webhook:draft_orders/create`, (myshopifyDomain: string, data: Interfaces.WebhooksReponse.WebhookDraftOrderCreate) => {
-      this.logger.debug('webhook:draft_orders/create', data);
+      this.logger.debug('webhook:draft_orders/create: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('draft_orders/create', data);
     });
 
     this.eventService.on(`webhook:draft_orders/delete`, (myshopifyDomain: string, data: Interfaces.WebhooksReponse.WebhookDraftOrderDelete) => {
-      this.logger.debug('webhook:draft_orders/delete', data);
+      this.logger.debug('webhook:draft_orders/delete: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('draft_orders/delete', data);
     });
 
     this.eventService.on(`webhook:draft_orders/update`, (myshopifyDomain: string, data: Interfaces.WebhooksReponse.WebhookDraftOrderUpdate) => {
-      this.logger.debug('webhook:draft_orders/update', data);
+      this.logger.debug('webhook:draft_orders/update: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('draft_orders/update', data);
     });
 
@@ -182,47 +182,47 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     });
 
     this.eventService.on(`webhook:orders/cancelled`, (myshopifyDomain: string, data: Interfaces.WebhooksReponse.WebhookOrdersCancelled) => {
-      this.logger.debug('webhook:orders/cancelled', data);
+      this.logger.debug('webhook:orders/cancelled: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/cancelled', data);
     });
 
     this.eventService.on(`webhook:orders/create`, (myshopifyDomain: string, data: Interfaces.WebhooksReponse.WebhookOrdersCreate) => {
-      this.logger.debug('webhook:orders/create', data);
+      this.logger.debug('webhook:orders/create: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/create', data);
     });
 
     this.eventService.on(`webhook:orders/fulfilled`, (myshopifyDomain: string, data: Interfaces.WebhooksReponse.WebhookOrdersFulfilled) => {
-      this.logger.debug('webhook:orders/fulfilled', data);
+      this.logger.debug('webhook:orders/fulfilled: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/fulfilled', data);
     });
 
     this.eventService.on(`webhook:orders/paid`, (myshopifyDomain: string, data: Interfaces.WebhooksReponse.WebhookOrdersPaid) => {
-      this.logger.debug('webhook:orders/paid', data);
+      this.logger.debug('webhook:orders/paid: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/paid', data);
     });
 
     this.eventService.on(`webhook:orders/partially_fulfilled`, (myshopifyDomain: string, data: Interfaces.WebhooksReponse.WebhookOrdersPartiallyFulfilled) => {
-      this.logger.debug('webhook:orders/partially_fulfilled', data);
+      this.logger.debug('webhook:orders/partially_fulfilled: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/partially_fulfilled', data);
     });
 
     this.eventService.on(`webhook:orders/updated`, (myshopifyDomain: string, data: Interfaces.WebhooksReponse.WebhookOrdersUpdated) => {
-      this.logger.debug('webhook:orders/updated', data);
+      this.logger.debug('webhook:orders/updated: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/updated', data);
     });
 
     this.eventService.on(`webhook:orders/delete`, (myshopifyDomain: string, data: Interfaces.WebhooksReponse.WebhookOrdersDelete) => {
-      this.logger.debug('webhook:orders/delete', data);
+      this.logger.debug('webhook:orders/delete: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/delete', data);
     });
 
     this.eventService.on(`webhook:orders/edited`, (myshopifyDomain: string, data: Interfaces.WebhooksReponse.WebhookOrdersEdited) => {
-      this.logger.debug('webhook:orders/edited', data);
+      this.logger.debug('webhook:orders/edited: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/edited', data);
     });
 
     this.eventService.on(`webhook:order_transactions/create`, (myshopifyDomain: string, data: Interfaces.WebhooksReponse.WebhookOrderTransactionCreate) => {
-      this.logger.debug('webhook:order_transactions/create', data);
+      this.logger.debug('webhook:order_transactions/create: %O', data);
       nsp.to(`${myshopifyDomain}-app-backend`).emit('order_transactions/create', data);
     });
 
@@ -299,7 +299,7 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   }
 
   handleConnection(client: SessionSocket) {
-    this.logger.debug('connect', client.id);
+    this.logger.debug('connect: %d', client.id);
     // Join the room for app backend users to receive broadcast events
     if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
 
@@ -312,7 +312,7 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   }
 
   handleDisconnect(client: SessionSocket) {
-    this.logger.debug('disconnect', client.id);
+    this.logger.debug('disconnect: %d', client.id);
   }
 
 }

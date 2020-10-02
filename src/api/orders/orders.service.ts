@@ -92,8 +92,8 @@ export class OrdersService extends ShopifyApiRootCountableService<
    * @param syncOptions
    */
   protected getSyncCountOptions(syncOptions: IStartSyncOptions): IShopifySyncOrderCountOptions {
-    this.logger.debug(`getSyncCountOptions`, syncOptions);
-    this.logger.debug({status: 'any'});
+    this.logger.debug(`getSyncCountOptions: %O`, syncOptions);
+    this.logger.debug('status %o:', { status: 'any' });
     return { status: 'any'};
   }
 }

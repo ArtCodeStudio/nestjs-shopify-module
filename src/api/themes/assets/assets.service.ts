@@ -66,7 +66,7 @@ export class AssetsService {
     const assets = new Assets(user.myshopify_domain, user.accessToken);
     return assets.list(id, options)
     .then((assetData) => {
-      // this.logger.debug('assetData', assetData);
+      // this.logger.debug('assetData: %O', assetData);
       assetData = assetData.filter((asset) => {
         let matches = true;
         if (options.content_type && options.content_type !== asset.content_type) {
@@ -86,7 +86,7 @@ export class AssetsService {
     const assets = new Assets(user.myshopify_domain, user.accessToken);
     return assets.get(id, key, options)
     .then((assetData: IAppAsset) => {
-      // this.logger.debug(`assetData`, assetData);
+      // this.logger.debug(`assetData: %O`, assetData);
       if (assetData.content_type === 'application/json') {
         assetData.json = JSON.parse(assetData.value);
       }

@@ -144,7 +144,7 @@ export abstract class ShopifyApiRootCountableService<
   }
 
   protected getSyncCountOptions(options: IStartSyncOptions): CountOptions {
-    this.logger.debug(`getSyncCountOptions`, options);
+    this.logger.debug(`getSyncCountOptions %O`, options);
     return {} as CountOptions;
   }
 
@@ -156,7 +156,7 @@ export abstract class ShopifyApiRootCountableService<
     const shop = shopifyConnect.myshopify_domain;
     const countOptions = this.getSyncCountOptions(options);
 
-    this.logger.debug(`seedSyncProgress[${this.resourceName}] options:`, options);
+    this.logger.debug(`seedSyncProgress[${this.resourceName}] options: %O`, options);
     const includedSubResourceNames = this.upperCaseSubResourceNames.filter((subResourceName: string) => {
       const string = `include${subResourceName}`;
       const result = options[`include${subResourceName}`];
@@ -179,7 +179,7 @@ export abstract class ShopifyApiRootCountableService<
       seedSubProgress[`synced${subResourceName}Count`] = 0;
     });
 
-    this.logger.debug(`includedSubResourceNames`, includedSubResourceNames);
+    this.logger.debug(`includedSubResourceNames %O`, includedSubResourceNames);
     if (!options.resync && lastProgress) {
       let lastSubProgress: SubSyncProgressDocument | null;
       let lastProgressWithTheseOptions: SyncProgressDocument | null;
@@ -220,7 +220,7 @@ export abstract class ShopifyApiRootCountableService<
       }
     }
 
-    // this.logger.debug(`seed sub-progress`, seedSubProgress);
+    // this.logger.debug(`seed sub-progress %O`, seedSubProgress);
     return seedSubProgress;
   }
 
@@ -241,11 +241,11 @@ export abstract class ShopifyApiRootCountableService<
     lastProgress: SyncProgressDocument | null,
     finishedCallback?: ISubSyncProgressFinishedCallback,
   ) {
-    this.logger.debug(`[startSync] start`, options);
+    this.logger.debug(`[startSync] start %O`, options);
 
     const shop: string = shopifyConnect.myshopify_domain;
 
-    // this.logger.debug('SyncProgress:', progress);
+    // this.logger.debug('SyncProgress: %O', progress);
 
     progress[this.resourceName] = await this.seedSyncProgress(shopifyConnect, options, lastProgress);
 
@@ -334,8 +334,8 @@ export abstract class ShopifyApiRootCountableService<
   public async diffSynced(user: IShopifyConnect): Promise<any> {
     const fromDb = await this.listFromDb(user);
     const fromShopify = await this.listAllFromShopify(user);
-    this.logger.debug('from DB', fromDb.length);
-    this.logger.debug('from Shopify', fromShopify.length);
+    this.logger.debug('from DB %d', fromDb.length);
+    this.logger.debug('from Shopify %d', fromShopify.length);
     let dbObj: ShopifyObjectType;
     return fromShopify.map(obj =>
       (dbObj = fromDb.find(x =>
