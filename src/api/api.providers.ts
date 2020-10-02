@@ -1,21 +1,38 @@
 import { Connection, Document, Model, Mongoose, Schema } from 'mongoose';
-import { OrderSchema, OrderDocument } from './interfaces/mongoose/order.schema';
-import { ProductSchema, ProductDocument } from './interfaces/mongoose/product.schema';
-import { ProductVariantSchema, ProductVariantDocument } from './interfaces/mongoose/product-variant.schema';
-import { CustomerSchema, CustomerDocument } from './interfaces/mongoose/customer.schema';
-import { TransactionSchema, TransactionDocument } from './interfaces/mongoose/transaction.schema';
-import { ThemeSchema, ThemeDocument } from './interfaces/mongoose/theme.schema';
-import { AssetSchema, AssetDocument } from './interfaces/mongoose/asset.schema';
-import { PageSchema, PageDocument } from './interfaces/mongoose/page.schema';
-import { BlogSchema, BlogDocument } from './interfaces/mongoose/blog.schema';
-import { ArticleSchema, ArticleDocument } from './interfaces/mongoose/article.schema';
-import { CustomCollectionSchema, CustomCollectionDocument } from './interfaces/mongoose/custom-collection.schema';
-import { SmartCollectionSchema, SmartCollectionDocument } from './interfaces/mongoose/smart-collection.schema';
-import { CollectSchema, CollectDocument } from './interfaces/mongoose/collect.schema';
+import {
+  OrderSchema,
+  OrderDocument,
+  ProductSchema,
+  ProductDocument,
+  ProductVariantSchema,
+  ProductVariantDocument,
+  CustomerSchema,
+  CustomerDocument,
+  TransactionSchema,
+  TransactionDocument,
+  ThemeSchema,
+  ThemeDocument,
+  AssetSchema,
+  AssetDocument,
+  PageSchema,
+  PageDocument,
+  BlogSchema,
+  BlogDocument,
+  ArticleSchema,
+  ArticleDocument,
+  CustomCollectionSchema,
+  CustomCollectionDocument,
+  SmartCollectionSchema,
+  SmartCollectionDocument,
+  CollectSchema,
+  CollectDocument,
+} from './interfaces';
+
+import { ResourceSignular } from '../interfaces';
 
 import { underscoreCase, getSubdomain } from '../helpers';
 
-function getDbModel<DocumentType extends Document>(connection: Mongoose, myShopifyDomain: string, resourceName: string, schema: Schema) {
+function getDbModel<DocumentType extends Document>(connection: Mongoose, myShopifyDomain: string, resourceName: ResourceSignular, schema: Schema) {
   const shopName = getSubdomain(myShopifyDomain);
 
   const modelName = `shopify_${shopName}:${underscoreCase(resourceName)}`;

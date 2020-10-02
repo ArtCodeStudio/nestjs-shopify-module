@@ -22,7 +22,9 @@ import {
   ISubSyncProgress,
   IStartSyncOptions,
   ShopifyModuleOptions,
+  Resource,
 } from '../../../interfaces';
+import { SHOPIFY_MODULE_OPTIONS } from '../../../shopify.constants';
 
 @Injectable()
 export class ArticlesService extends ShopifyApiChildCountableService<
@@ -34,8 +36,8 @@ IShopifySyncArticleListOptions, // ListOptions
 ArticleDocument // DatabaseDocumentType
 > {
 
-  resourceName = 'articles';
-  subResourceNames = [];
+  resourceName: Resource = 'articles';
+  subResourceNames: Resource[] = [];
 
   constructor(
     @Inject('ArticleModelToken')
@@ -43,8 +45,9 @@ ArticleDocument // DatabaseDocumentType
     private readonly eventService: EventService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
+    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(articleModel, Articles, eventService);
+    super(articleModel, Articles, eventService, shopifyModuleOptions);
   }
 
   /**

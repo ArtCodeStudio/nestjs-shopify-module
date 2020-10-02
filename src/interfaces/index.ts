@@ -1,4 +1,5 @@
 export * from './mongoose/sync-progress.schema';
+export * from './resource';
 export * from './session';
 export * from './session-socket';
 export * from './shopify-module-options';

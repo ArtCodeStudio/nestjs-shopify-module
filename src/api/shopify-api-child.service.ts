@@ -36,15 +36,16 @@ export abstract class ShopifyApiChildService<
     const shopifyModel = new this.ShopifyModel(user.myshopify_domain, user.accessToken);
     const syncToDb = options && options.syncToDb;
     delete options.syncToDb;
-    return shopifyRetry(() => {
+
+    const shopifyObj = await shopifyRetry(() => {
       return shopifyModel.get(parentId, id, options);
-    })
-    .then(async (shopifyObjectType) => {
-      return this.updateOrCreateInApp(user, 'id', shopifyObjectType, syncToDb)
-      .then((_) => {
-        return shopifyObjectType;
-      });
     });
+
+    if (this.shopifyModuleOptions.sync.enabled && this.shopifyModuleOptions.sync.autoSyncResources.includes(this.resourceName)) {
+      await this.updateOrCreateInApp(user, 'id', shopifyObj, syncToDb)
+    }
+    
+    return shopifyObj;
   }
 
   /**

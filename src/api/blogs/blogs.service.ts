@@ -26,7 +26,9 @@ import {
   IStartSyncOptions,
   ShopifyModuleOptions,
   BlogSyncProgressDocument,
+  Resource,
 } from '../../interfaces';
+import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
 
 @Injectable()
 export class BlogsService extends ShopifyApiRootCountableService<
@@ -38,8 +40,8 @@ IShopifySyncBlogListOptions, // ListOptions
 BlogDocument // DatabaseDocumentType
 > {
 
-  resourceName = 'blogs';
-  subResourceNames = [];
+  resourceName: Resource = 'blogs';
+  subResourceNames: Resource[] = [];
 
   constructor(
     @Inject('BlogModelToken')
@@ -48,8 +50,9 @@ BlogDocument // DatabaseDocumentType
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     private readonly articlesService: ArticlesService,
+    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(blogModel, Blogs, eventService, syncProgressModel);
+    super(blogModel, Blogs, eventService, syncProgressModel, shopifyModuleOptions);
   }
 
   /**

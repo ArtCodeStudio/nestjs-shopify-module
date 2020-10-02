@@ -23,7 +23,7 @@ import { ShopifyAuthStrategy } from './auth.strategy';
 import { ShopifyConnectService} from './connect.service';
 import { ShopifyAuthService} from './auth.service';
 import { DebugService } from '../debug.service';
-import { ShopifyModuleOptions} from '../interfaces/shopify-module-options';
+import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 import { IShopifyConnect } from './interfaces/connect';
 

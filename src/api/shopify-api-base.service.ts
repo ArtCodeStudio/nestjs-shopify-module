@@ -4,7 +4,9 @@ import { Model, Document, Mongoose, Query as MongooseQuery, DocumentQuery} from 
 import { Infrastructure, Options } from 'shopify-admin-api';
 
 import { IShopifyConnect } from '../auth/interfaces';
-import { ShopifyModuleOptions } from '../interfaces';
+import { ShopifyModuleOptions, Resource } from '../interfaces';
+import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
+
 import {
   IAppBasicListOptions,
 } from './interfaces';
@@ -19,7 +21,7 @@ export abstract class ShopifyApiBaseService<
   > {
 
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
-  abstract resourceName: string; // resource name: 'orders', 'products', etc.
+  abstract resourceName: Resource; // resource name: 'orders', 'products', etc.
 
   /**
    * E.g. converts `products` to `Products`
@@ -48,6 +50,7 @@ export abstract class ShopifyApiBaseService<
     protected readonly dbModel: (shopName: string) => Model<DatabaseDocumentType>,
     protected readonly ShopifyModel: new (shopDomain: string, accessToken: string) => ShopifyModelClass,
     protected readonly events: EventService,
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
   }
 
@@ -280,7 +283,7 @@ export abstract class ShopifyApiBaseService<
    * @param user
    * @param objects The objects to create / update
    */
-  public async updateOrCreateManyInDb(
+  protected async updateOrCreateManyInDb(
     user: IShopifyConnect,
     selectBy: string,
     objects: Partial<ShopifyObjectType>[],

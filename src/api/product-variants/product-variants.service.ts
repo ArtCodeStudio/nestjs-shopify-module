@@ -21,13 +21,13 @@ import {
 } from '../interfaces';
 
 import { EventService } from '../../event.service';
-import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions } from '../../interfaces';
+import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions, Resource } from '../../interfaces';
 
 @Injectable()
 export class ProductVariantsService {
 
-  resourceName = 'products';
-  subResourceNames = [];
+  resourceName: Resource = 'products';
+  subResourceNames: Resource[] = [];
 
   constructor(
     @Inject('ProductVariantModelToken') protected readonly productVariantModel: (shopName: string) => Model<ProductVariantDocument>,

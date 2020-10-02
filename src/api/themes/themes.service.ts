@@ -10,6 +10,7 @@ import { EventService } from '../../event.service';
 import {
   SyncProgressDocument,
   ShopifyModuleOptions,
+  Resource,
 } from '../../interfaces';
 import {
   IShopifySyncThemeGetOptions,
@@ -18,6 +19,7 @@ import {
   IAppThemeListOptions,
   IAppThemeListFilter,
 } from '../interfaces';
+import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
 
 @Injectable()
 export class ThemesService extends ShopifyApiRootService<
@@ -28,8 +30,8 @@ IShopifySyncThemeListOptions, // ListOptions
 ThemeDocument // DatabaseDocumentType
 > {
 
-  resourceName = 'themes';
-  subResourceNames = ['assets'];
+  resourceName: Resource = 'themes';
+  subResourceNames: Resource[] = ['assets'];
 
   constructor(
     @Inject('ThemeModelToken')
@@ -37,8 +39,9 @@ ThemeDocument // DatabaseDocumentType
     private readonly eventService: EventService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
+    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(themeModel, Themes, eventService, syncProgressModel);
+    super(themeModel, Themes, eventService, syncProgressModel, shopifyModuleOptions);
   }
 
   /**

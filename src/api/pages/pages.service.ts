@@ -22,7 +22,9 @@ import {
   ISubSyncProgress,
   IStartSyncOptions,
   ShopifyModuleOptions,
+  Resource,
 } from '../../interfaces';
+import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
 
 @Injectable()
 export class PagesService extends ShopifyApiRootCountableService<
@@ -34,8 +36,8 @@ IShopifySyncPageListOptions, // ListOptions
 PageDocument // DatabaseDocumentType
 > {
 
-  resourceName = 'pages';
-  subResourceNames = [];
+  resourceName: Resource = 'pages';
+  subResourceNames: Resource[] = [];
 
   constructor(
     @Inject('PageModelToken')
@@ -43,8 +45,9 @@ PageDocument // DatabaseDocumentType
     private readonly eventService: EventService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
+    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(pageModel, Pages, eventService, syncProgressModel);
+    super(pageModel, Pages, eventService, syncProgressModel, shopifyModuleOptions);
   }
 
   /**

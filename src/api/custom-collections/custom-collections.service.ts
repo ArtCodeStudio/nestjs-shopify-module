@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CustomCollections, Options, Interfaces } from 'shopify-admin-api'; // https://github.com/ArtCodeStudio/shopify-admin-api
 import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { SyncProgressDocument } from '../../interfaces';
+import { SyncProgressDocument, Resource, ShopifyModuleOptions } from '../../interfaces';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
+import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
 
 import {
   CustomCollectionDocument,
@@ -23,8 +24,8 @@ IShopifySyncCustomCollectionListOptions, // ListOptions
 CustomCollectionDocument // DatabaseDocumentType
 > {
 
-  resourceName = 'customCollections';
-  subResourceNames = [];
+  resourceName: Resource = 'customCollections';
+  subResourceNames: Resource[] = [];
 
   constructor(
     @Inject('CustomCollectionModelToken')
@@ -33,7 +34,8 @@ CustomCollectionDocument // DatabaseDocumentType
     private readonly eventService: EventService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
+    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(customCollectionModel, CustomCollections, eventService, syncProgressModel);
+    super(customCollectionModel, CustomCollections, eventService, syncProgressModel, shopifyModuleOptions);
   }
 }

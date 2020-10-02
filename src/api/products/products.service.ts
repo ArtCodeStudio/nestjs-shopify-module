@@ -21,8 +21,15 @@ import {
 } from '../interfaces';
 
 import { EventService } from '../../event.service';
-import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions } from '../../interfaces';
+import {
+  SyncProgressDocument,
+  SubSyncProgressDocument,
+  IStartSyncOptions,
+  Resource,
+  ShopifyModuleOptions
+} from '../../interfaces';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
+import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
 
 @Injectable()
 export class ProductsService extends ShopifyApiRootCountableService<
@@ -34,15 +41,16 @@ IShopifySyncProductListOptions, // ListOptions
 ProductDocument // DatabaseDocumentType
 > {
 
-  resourceName = 'products';
-  subResourceNames = [];
+  resourceName: Resource = 'products';
+  subResourceNames: Resource[] = [];
 
   constructor(
     @Inject('ProductModelToken') protected readonly productModel: (shopName: string) => Model<ProductDocument>,
     @Inject('SyncProgressModelToken') protected readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
+    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(productModel, Products, eventService, syncProgressModel);
+    super(productModel, Products, eventService, syncProgressModel, shopifyModuleOptions);
   }
 
   /**

@@ -10,7 +10,7 @@ import { Observable, Observer } from 'rxjs';
 import { Model, Document } from 'mongoose';
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
-import { SyncProgressDocument } from '../interfaces';
+import { SyncProgressDocument, ShopifyModuleOptions } from '../interfaces';
 import { listAllCallback, ISyncOptions, ShopifyBaseObjectType, RootGet, RootList } from './interfaces';
 import { deleteUndefinedProperties } from '../helpers';
 import { EventService } from '../event.service';
@@ -33,8 +33,9 @@ export abstract class ShopifyApiRootService<
     protected readonly ShopifyModel: new (shopDomain: string, accessToken: string) => ShopifyModelClass,
     protected readonly events: EventService,
     protected readonly syncprogressModel: Model<SyncProgressDocument>,
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(dbModel, ShopifyModel, events);
+    super(dbModel, ShopifyModel, events, shopifyModuleOptions);
   }
 
   /**
@@ -51,15 +52,16 @@ export abstract class ShopifyApiRootService<
       delete options.syncToDb;
     }
 
-    return shopifyRetry(() => {
+    const shopifyObj = await shopifyRetry(() => {
       return shopifyModel.get(id, options);
-    })
-    .then(async (shopifyObj) => {
-      return this.updateOrCreateInApp(user, 'id', shopifyObj, syncToDb)
-      .then((_) => {
-        return shopifyObj;
-      });
     });
+
+    if (this.shopifyModuleOptions.sync.enabled && this.shopifyModuleOptions.sync.autoSyncResources.includes(this.resourceName)) {
+      await this.updateOrCreateInApp(user, 'id', shopifyObj, syncToDb)
+    }
+
+    return shopifyObj;
+
   }
 
   /**

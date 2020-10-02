@@ -1,7 +1,8 @@
 import { IPlan } from '../charge/interfaces/plan';
 import { Enums } from 'shopify-admin-api';
 import * as redisStore from 'cache-manager-ioredis';
-import { Redis } from 'ioredis';
+import { Resource } from './resource'
+
 
 export interface ConfigApp {
   root: string;
@@ -11,6 +12,14 @@ export interface ConfigApp {
   debug: boolean;
   test: boolean;
   environment: 'production' | 'development' | 'test';
+}
+
+export interface ConfigSync {
+  enabled: boolean;
+  /**
+   * Resources wich should be auto synced to the app's database, e.g. ['orders', 'blogs']
+   */
+  autoSyncResources: Resource[];
 }
 
 export interface ConfigShopify {
@@ -62,6 +71,8 @@ export interface ConfigMongoDB {
 export interface ShopifyModuleOptions {
 
   app: ConfigApp;
+
+  sync: ConfigSync;
 
   shopify: ConfigShopify;
 

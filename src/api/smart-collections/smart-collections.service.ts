@@ -8,10 +8,11 @@ import {
   IShopifySyncSmartCollectionCountOptions,
   IShopifySyncSmartCollectionGetOptions,
 } from '../interfaces';
-import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions, ShopifyModuleOptions } from '../../interfaces';
+import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions, ShopifyModuleOptions, Resource } from '../../interfaces';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';
 import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
+import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
 
 @Injectable()
 export class SmartCollectionsService extends ShopifyApiRootCountableService<
@@ -23,8 +24,8 @@ IShopifySyncSmartCollectionListOptions, // ListOptions
 SmartCollectionDocument // DatabaseDocumentType
 > {
 
-  resourceName = 'smartCollections';
-  subResourceNames = [];
+  resourceName: Resource = 'smartCollections';
+  subResourceNames: Resource[] = [];
 
   constructor(
     @Inject('SmartCollectionModelToken')
@@ -32,8 +33,9 @@ SmartCollectionDocument // DatabaseDocumentType
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     private readonly eventService: EventService,
+    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(smartCollectionModel, SmartCollections, eventService, syncProgressModel);
+    super(smartCollectionModel, SmartCollections, eventService, syncProgressModel, shopifyModuleOptions);
   }
 
   /**

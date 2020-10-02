@@ -20,10 +20,13 @@ import {
   SyncProgressDocument,
   IStartSyncOptions,
   OrderSyncProgressDocument,
+  Resource,
+  ShopifyModuleOptions,
 } from '../../interfaces';
 import { IListAllCallbackData } from '../../api/interfaces';
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { mongooseParallelRetry } from '../../helpers';
+import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
 
 @Injectable()
 export class OrdersService extends ShopifyApiRootCountableService<
@@ -35,8 +38,8 @@ export class OrdersService extends ShopifyApiRootCountableService<
   OrderDocument // DatabaseDocumentType
   > {
 
-  resourceName = 'orders';
-  subResourceNames = ['transactions'];
+  resourceName: Resource = 'orders';
+  subResourceNames: Resource[] = ['transactions'];
 
   constructor(
     @Inject('OrderModelToken')
@@ -45,8 +48,9 @@ export class OrdersService extends ShopifyApiRootCountableService<
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
     private readonly transactionsService: TransactionsService,
+    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(orderModel, Orders, eventService, syncProgressModel);
+    super(orderModel, Orders, eventService, syncProgressModel, shopifyModuleOptions);
   }
 
   /**

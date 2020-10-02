@@ -11,9 +11,10 @@ import {
   IShopifySyncTransactionGetOptions,
   IShopifySyncTransactionListOptions,
 } from '../../interfaces';
-import { ShopifyModuleOptions } from '../../../interfaces';
+import { ShopifyModuleOptions, Resource } from '../../../interfaces';
+import { SHOPIFY_MODULE_OPTIONS } from '../../../shopify.constants';
 import { Model } from 'mongoose';
-import { getDiff } from '../../../helpers/diff';
+import { getDiff, shopifyRetry } from '../../../helpers';
 import { ShopifyApiChildCountableService } from '../../shopify-api-child-countable.service';
 import { EventService } from '../../../event.service';
 
@@ -27,15 +28,16 @@ IShopifySyncTransactionListOptions
 >
 {
 
-  resourceName = 'transactions';
-  subResourceNames = [];
+  resourceName: Resource = 'transactions';
+  subResourceNames: Resource[] = [];
 
   constructor(
     @Inject('TransactionModelToken')
     private readonly transactionModel: (shopName: string) => Model<TransactionDocument>,
     private readonly eventService: EventService,
+    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(transactionModel, Transactions, eventService);
+    super(transactionModel, Transactions, eventService, shopifyModuleOptions);
   }
 
   public async getFromShopify(
@@ -46,13 +48,16 @@ IShopifySyncTransactionListOptions
   ): Promise<Interfaces.Transaction|null> {
     const transactions = new Transactions(user.myshopify_domain, user.accessToken);
     const syncToDb = options && options.syncToDb;
-    return transactions.get(order_id, id)
-    .then(async (transaction) => {
-      return this.updateOrCreateInApp(user, 'id', transaction, syncToDb)
-      .then((_) => {
-        return transaction;
-      });
+
+    const transaction = await shopifyRetry(() => {
+      return transactions.get(order_id, id);
     });
+
+    if (this.shopifyModuleOptions.sync.enabled && this.shopifyModuleOptions.sync.autoSyncResources.includes(this.resourceName)) {
+      await this.updateOrCreateInApp(user, 'id', transaction, syncToDb)
+    }
+
+    return transaction;
   }
 
   public async countFromShopify(user: IShopifyConnect, orderId: number): Promise<number> {
