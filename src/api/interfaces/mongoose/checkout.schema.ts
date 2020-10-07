@@ -1,15 +1,13 @@
 import { Schema, Document } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 
-import {
-  AddressSchema,
-  CustomerSchema,
-  DiscountCodeSchema,
-  LineItemSchema,
-  ShippingLineSchema,
-  NoteAttributeSchema,
-  TaxLineSchema
-} from './index';
+import { AddressSchema } from './address.schema';
+import { CustomerSchema } from './customer.schema';
+import { DiscountCodeSchema } from './discount-code.schema';
+import { LineItemSchema } from './line-item.schema';
+import { ShippingLineSchema } from './shipping-line.schema';
+import { NoteAttributeSchema } from './note-attribute.schema';
+import { TaxLineSchema } from './tax-line.schema';
 
 export type CheckoutDocument = Interfaces.Checkout & Document;
 
