@@ -1,6 +1,6 @@
 {
   "name": "nest-shopify",
-  "version": "7.2.1",
+  "version": "7.2.2",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "source": "src/index.ts",
@@ -76,7 +76,7 @@
     "passport-shopify": "^0.1.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.6.3",
-    "shopify-admin-api": "^2.16.1",
+    "shopify-admin-api": "^2.16.2",
     "shopify-token": "^4.0.0",
     "socket.io-redis": "^5.4.0",
     "swiftype-app-search-node": "^0.6.0",
