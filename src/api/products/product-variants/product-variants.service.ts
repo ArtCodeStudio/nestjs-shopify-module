@@ -2,9 +2,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 // Third party
-import { shopifyRetry } from '../../helpers';
+import { shopifyRetry } from '../../../helpers';
 
-import { IShopifyConnect } from '../../auth/interfaces';
+import { IShopifyConnect } from '../../../auth/interfaces';
 import { ProductVariants, Options } from 'shopify-admin-api';
 import { Interfaces } from 'shopify-admin-api';
 import { Model } from 'mongoose';
@@ -18,10 +18,10 @@ import {
   IAppProductVariantCountOptions,
   IAppProductVariantGetOptions,
   IAppProductVariantListOptions,
-} from '../interfaces';
+} from '../../interfaces';
 
-import { EventService } from '../../event.service';
-import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions, Resource } from '../../interfaces';
+import { EventService } from '../../../event.service';
+import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions, Resource } from '../../../interfaces';
 
 @Injectable()
 export class ProductVariantsService {

@@ -2,6 +2,7 @@ export * from './article';
 export * from './asset';
 export * from './basic';
 export * from './blog';
+export * from './checkout';
 export * from './collect';
 export * from './custom-collection';
 export * from './locale';

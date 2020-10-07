@@ -11,6 +11,8 @@ import { ShopifyAuthService } from './auth/auth.service';
 import { PassportService } from './auth/passport.service';
 
 // API
+import { BlogsController } from './api/blogs/blogs.controller';
+import { BlogsService } from './api/blogs/blogs.service';
 import { ThemesService } from './api/themes/themes.service';
 import { ThemesController } from './api/themes/themes.controller';
 import { AssetsService } from './api/themes/assets/assets.service';
@@ -18,7 +20,7 @@ import { LocalesService } from './api/themes/locales/locales.service';
 import { AssetsController } from './api/themes/assets/assets.controller';
 import { LocalesController } from './api/themes/locales/locales.controller';
 import { OrdersService } from './api/orders/orders.service';
-import { ProductVariantsService } from './api/product-variants/product-variants.service';
+import { ProductVariantsService } from './api/products/product-variants/product-variants.service';
 import { ProductsService } from './api/products/products.service';
 import { OrdersController } from './api/orders/orders.controller';
 import { ProductsController } from './api/products/products.controller';
@@ -28,8 +30,7 @@ import { WebhooksGateway } from './api/webhooks/webhooks.gateway';
 import { ProductsGateway } from './api/products/products.gateway';
 import { PagesController } from './api/pages/pages.controller';
 import { PagesService } from './api/pages/pages.service';
-import { BlogsController } from './api/blogs/blogs.controller';
-import { BlogsService } from './api/blogs/blogs.service';
+import { CheckoutsService } from './api/checkouts/checkouts.service';
 import { ArticlesController } from './api/blogs/articles/articles.controller';
 import { ArticlesService } from './api/blogs/articles/articles.service';
 import { SmartCollectionsService } from './api/smart-collections/smart-collections.service';
@@ -76,6 +77,8 @@ import {
 } from './middlewares';
 
 export {
+  BlogsService,
+  CheckoutsService,
   BodyParserJsonMiddleware,
   BodyParserUrlencodedMiddleware,
   ShopifyConnectService,
@@ -94,7 +97,6 @@ export {
   ProductVariantsService,
   ProductsService,
   PagesService,
-  BlogsService,
   ArticlesService,
   ThemesService,
   AssetsService,
@@ -115,6 +117,8 @@ export { RequestGuard } from './guards/request.guard';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
+    BlogsService,
+    CheckoutsService,
     ChargeService,
     ShopifyConnectService,
     ShopService,
@@ -123,7 +127,6 @@ export { RequestGuard } from './guards/request.guard';
     SyncService,
     OrdersService,
     PagesService,
-    BlogsService,
     ArticlesService,
     ProductVariantsService,
     ProductsService,
@@ -162,6 +165,8 @@ export { RequestGuard } from './guards/request.guard';
     CollectsController,
   ],
   exports: [
+    BlogsService,
+    CheckoutsService,
     ShopifyConnectService,
     ShopService,
     ShopifyApiGuard,
@@ -178,7 +183,6 @@ export { RequestGuard } from './guards/request.guard';
     ProductVariantsService,
     ProductsService,
     PagesService,
-    BlogsService,
     ArticlesService,
     ThemesService,
     AssetsService,

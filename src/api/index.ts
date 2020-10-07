@@ -5,7 +5,7 @@ export { CollectsService } from './collects/collects.service';
 export { CustomCollectionsService } from './custom-collections/custom-collections.service';
 export { OrdersService } from './orders/orders.service';
 export { PagesService } from './pages/pages.service';
-export { ProductVariantsService } from './product-variants/product-variants.service';
+export { ProductVariantsService } from './products/product-variants/product-variants.service';
 export { ProductsService } from './products/products.service';
 export { SearchService } from './search/search.service';
 export { SmartCollectionsService } from './smart-collections/smart-collections.service';

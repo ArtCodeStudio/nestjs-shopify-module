@@ -6,6 +6,8 @@ import {
   ProductDocument,
   ProductVariantSchema,
   ProductVariantDocument,
+  CheckoutSchema,
+  CheckoutDocument,
   CustomerSchema,
   CustomerDocument,
   TransactionSchema,
@@ -61,6 +63,12 @@ export const shopifyApiProviders = (connection: Mongoose) => {
       provide: 'ProductVariantModelToken',
       useValue: (myshopifyDomain: string) => {
         return getDbModel<ProductVariantDocument>(connection, myshopifyDomain, 'product_variant', ProductVariantSchema);
+      },
+    },
+    {
+      provide: 'CheckoutModelToken',
+      useValue: (myshopifyDomain: string) => {
+        return getDbModel<CheckoutDocument>(connection, myshopifyDomain, 'checkout', CheckoutSchema);
       },
     },
     {
