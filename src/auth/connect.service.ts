@@ -14,7 +14,20 @@ export class ShopifyConnectService {
     @Inject('ShopifyConnectModelToken')
     private readonly shopifyConnectModel: Model<IShopifyConnectDocument>,
     private readonly eventService: EventService,
-  ) {}
+  ) {
+
+    // Delete connected shop on app uninstall
+    this.eventService.on('app/uninstalled', async (shopifyConnect: IShopifyConnect) => {
+      this.logger.debug('app/uninstalled:', shopifyConnect.myshopify_domain);
+      this.deleteByShopifyId(shopifyConnect.shopifyID)
+      .then((result) => {
+        this.logger.debug('Delete connected shop result:', result);
+      })
+      .catch((error: Error) => {
+        this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on delete connected shop: ${error.message}`, error);
+      });
+    });
+  }
 
   async connectOrUpdate(userProfile: IShopifyAuthProfile, accessToken: string) {
     this.logger.debug('connectOrUpdate', userProfile.username);
@@ -80,12 +93,24 @@ export class ShopifyConnectService {
     }
   }
 
-  async findByShopifyId(id: number) {
-    return this.shopifyConnectModel.findOne({shopifyID: id}).exec()
+  /**
+   * Find connected user by shopify id
+   * @param id
+   */
+  async findByShopifyId(shopifyID: number) {
+    return this.shopifyConnectModel.findOne({shopifyID}).exec()
     .then((user: IShopifyConnect) => {
       // (`findByShopifyId user.myshopify_domain:`, user.myshopify_domain);
       return user;
     });
+  }
+
+  /**
+   * Delete connected shop by shopify id
+   * @param domain
+   */
+  async deleteByShopifyId(shopifyID: number) {
+    return this.shopifyConnectModel.deleteOne({shopifyID}).exec()
   }
 
 }

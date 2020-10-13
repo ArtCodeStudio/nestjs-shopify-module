@@ -39,6 +39,17 @@ export class WebhooksService {
       }
     });
 
+    // Auto unsubscripe webhooks from config on app uninstall
+    eventService.on('app/uninstalled', async (shopifyConnect: IShopifyConnect) => {
+      this.deleteAll(shopifyConnect)
+      .then((result) => {
+        this.logger.debug('unsubscribed webhooks', result);
+      })
+      .catch((error: WebhookError) => {
+        this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on unsubscribe webhooks: ${error.message}`, error.errors);
+      });
+    });
+
     // Recreate all auto subscripe webhooks from config on app start
     shopifyConnectService.findAll()
     .then((shopifyConnects: IShopifyConnect[]) => {
@@ -62,7 +73,7 @@ export class WebhooksService {
     });
   }
 
-  public create(shopifyConnect: IShopifyConnect, topic: Enums.WebhookTopic) {
+  public async create(shopifyConnect: IShopifyConnect, topic: Enums.WebhookTopic) {
     const webhooks = new Webhooks(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     const address = `https://${this.shopifyModuleOptions.app.host}/webhooks/${topic}`;
     this.logger.debug("create with address: " + address);
@@ -72,6 +83,26 @@ export class WebhooksService {
       format: "json",
     });
   }
+
+  public async delete(shopifyConnect: IShopifyConnect, id: number) {
+    const webhooks = new Webhooks(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
+    return webhooks.delete(id);
+  }
+
+  public async deleteAll(shopifyConnect: IShopifyConnect) {
+    const subscribedWebhooks = await this.list(shopifyConnect);
+    for (const webhook of subscribedWebhooks) {
+      this.logger.debug(`[${shopifyConnect.myshopify_domain}] Auto unsubscribe webhook ${webhook.topic}`);
+      this.delete(shopifyConnect, webhook.id)
+      .then((result) => {
+        this.logger.debug('unsubscribed webhook', result);
+      })
+      .catch((error: WebhookError) => {
+        this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on unsubscribe webhook ${webhook.topic} with id: ${webhook.id}: ${error.message}`, error.errors);
+      });
+    }
+  }
+
 
   public async list(user: IShopifyConnect): Promise<Interfaces.Webhook[]> {
     const webhooks = new Webhooks(user.myshopify_domain, user.accessToken);
@@ -86,7 +117,7 @@ export class WebhooksService {
     //   return WebhooksService.webhookObservables[webhookEventName];
     // }
     try {
-      return Observable.create((observer: Observer<WsResponse<any>>) => {
+      return new Observable<WsResponse<any>>((observer) => {
         this.eventService.on(webhookEventName, (data: any) => {
           this.logger.debug(webhookEventName, data);
           observer.next({
@@ -99,7 +130,7 @@ export class WebhooksService {
           observer.complete();
         });
       })
-      .pipe(this.takeUntilOneDay()); // Stop after 24 hours
+      .pipe<WsResponse<any>>(this.takeUntilOneDay()); // Stop after 24 hours
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -292,8 +323,8 @@ export class WebhooksService {
     ];
   }
 
-  protected takeUntilOneDay(): MonoTypeOperatorFunction<unknown> {
-    return takeUntil<unknown>(timer(1000 * 60 * 60 * 24));
+  protected takeUntilOneDay(): MonoTypeOperatorFunction<WsResponse<any>> {
+    return takeUntil<WsResponse<any>>(timer(1000 * 60 * 60 * 24));
   }
 
 }
