@@ -17,14 +17,14 @@ export class ShopifyConnectService {
   ) {
 
     // Delete connected shop on app uninstall
-    this.eventService.on('webhook:app/uninstalled', async (shopifyConnect: IShopifyConnect) => {
-      this.logger.warn('webhook:app/uninstalled:', shopifyConnect.myshopify_domain);
-      this.deleteByShopifyId(shopifyConnect.shopifyID)
+    this.eventService.on('webhook:app/uninstalled', async (shop: IShopifyConnect['shop']) => {
+      this.logger.warn('webhook:app/uninstalled:', shop.myshopify_domain);
+      this.deleteByShopifyId(shop.id)
       .then((result) => {
         this.logger.debug('Delete connected shop result:', result);
       })
       .catch((error: Error) => {
-        this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on delete connected shop: ${error.message}`, error);
+        this.logger.error(`[${shop.myshopify_domain}] Error on delete connected shop: ${error.message}`, error);
       });
     });
   }
