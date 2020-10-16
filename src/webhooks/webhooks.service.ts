@@ -25,6 +25,33 @@ export class WebhooksService {
     protected readonly shopifyConnectService: ShopifyConnectService,
   ) {
 
+    // always subscribe app/uninstalled
+    if (!this.shopifyModuleOptions.shopify.webhooks.autoSubscribe.includes('app/uninstalled')) {
+      this.shopifyModuleOptions.shopify.webhooks.autoSubscribe.push('app/uninstalled');
+    }
+
+    // Recreate all auto subscripe webhooks from config on app start
+    shopifyConnectService.findAll()
+    .then((shopifyConnects: IShopifyConnect[]) => {
+      for (const shopifyConnect of shopifyConnects) {
+        for (const topic of this.shopifyModuleOptions.shopify.webhooks.autoSubscribe) {
+          this.logger.debug(`[${shopifyConnect.myshopify_domain}] Auto subscribe webhook ${topic}`);
+          this.create(shopifyConnect, topic)
+          .then((result) => {
+            this.logger.debug('result: %O', result);
+          })
+          .catch((error: WebhookError) => {
+            // Ignore if the webhook is already subscribed
+            if (error.statusCode === 422 && error.errors.address && error.errors.address[0].toLocaleLowerCase().includes("for this topic has already been taken")) {
+              // this.logger.debug(error);
+            } else {
+              this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`, error.errors);
+            }
+          });
+        }
+      }
+    });
+
     // Auto subscripe webhooks from config on app install
     eventService.on('app/installed', (shopifyConnect: IShopifyConnect) => {
       for (const topic of this.shopifyModuleOptions.shopify.webhooks.autoSubscribe) {
@@ -50,27 +77,6 @@ export class WebhooksService {
       });
     });
 
-    // Recreate all auto subscripe webhooks from config on app start
-    shopifyConnectService.findAll()
-    .then((shopifyConnects: IShopifyConnect[]) => {
-      for (const shopifyConnect of shopifyConnects) {
-        for (const topic of this.shopifyModuleOptions.shopify.webhooks.autoSubscribe) {
-          this.logger.debug(`[${shopifyConnect.myshopify_domain}] Auto subscribe webhook ${topic}`);
-          this.create(shopifyConnect, topic)
-          .then((result) => {
-            this.logger.debug('result: %O', result);
-          })
-          .catch((error: WebhookError) => {
-            // Ignore if the webhook is already subscribed
-            if (error.statusCode === 422 && error.errors.address && error.errors.address[0].toLocaleLowerCase().includes("for this topic has already been taken")) {
-              // this.logger.debug(error);
-            } else {
-              this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`, error.errors);
-            }
-          });
-        }
-      }
-    });
   }
 
   public async create(shopifyConnect: IShopifyConnect, topic: Enums.WebhookTopic) {
