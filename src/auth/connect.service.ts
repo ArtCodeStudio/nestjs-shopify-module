@@ -17,8 +17,8 @@ export class ShopifyConnectService {
   ) {
 
     // Delete connected shop on app uninstall
-    this.eventService.on('app/uninstalled', async (shopifyConnect: IShopifyConnect) => {
-      this.logger.debug('app/uninstalled:', shopifyConnect.myshopify_domain);
+    this.eventService.on('webhook:app/uninstalled', async (shopifyConnect: IShopifyConnect) => {
+      this.logger.warn('webhook:app/uninstalled:', shopifyConnect.myshopify_domain);
       this.deleteByShopifyId(shopifyConnect.shopifyID)
       .then((result) => {
         this.logger.debug('Delete connected shop result:', result);
