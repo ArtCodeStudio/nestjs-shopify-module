@@ -338,8 +338,11 @@ export class ShopifyAuthService {
 
     return this.shopifyConnectService.findByDomain(shop)
     .then((shopifyConnect) => {
-      this.logger.debug('getMyShopifyDomain: %s', shopifyConnect.myshopify_domain);
-      return shopifyConnect.myshopify_domain;
+      if(shopifyConnect && shopifyConnect.myshopify_domain) {
+        this.logger.debug('getMyShopifyDomain: %s', shopifyConnect.myshopify_domain);
+        return shopifyConnect.myshopify_domain || null;
+      }
+      return null;
     });
   }
 }
