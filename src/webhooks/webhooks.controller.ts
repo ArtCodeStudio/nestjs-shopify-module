@@ -62,7 +62,6 @@ export class WebhooksController {
   ) {
     try {
       // const topic = `${resource}/${event}`;
-      console.debug(`[${myShopifyDomain}] Webhook ${topic}`, body);
       this.logger.debug(`[${myShopifyDomain}] Webhook ${topic}`, body);
       this.eventService.emit(`webhook:${topic}`, myShopifyDomain, body);
       this.eventService.emit(`webhook:${myShopifyDomain}:${topic}`, body);
