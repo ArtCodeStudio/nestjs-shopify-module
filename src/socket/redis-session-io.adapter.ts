@@ -4,7 +4,7 @@ import * as express from 'express';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 // import * as Redis from 'redis';
 import Redis from 'ioredis';
-import { RedisAdapter } from 'socket.io-redis';
+import { RedisAdapter, createAdapter } from 'socket.io-redis';
 import * as sharedsession from 'express-socket.io-session';
 import { Socket } from 'socket.io';
 import { NextFunction } from 'express';
@@ -31,7 +31,7 @@ export class RedisSessionIoAdapter extends IoAdapter {
      * or servers that can all broadcast and emit events to and from each other.
      * @see https://github.com/socketio/socket.io-redis
      */
-    this.redisAdapter = new RedisAdapter(host, redisUrl, { pubClient: pub, subClient: sub });
+    this.redisAdapter = createAdapter({ pubClient: pub, subClient: sub });
 
     /**
      * Make session available on socket.io client socket object
