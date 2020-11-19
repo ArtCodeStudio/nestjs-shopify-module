@@ -1,6 +1,6 @@
 {
   "name": "nest-shopify",
-  "version": "7.5.2",
+  "version": "7.5.3",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "source": "src/index.ts",
@@ -44,8 +44,6 @@
     "concat-stream": "^2.0.0",
     "debug": "^4.3.1",
     "deepmerge": "^4.2.2",
-    "elasticsearch": "^16.7.1",
-    "fsevents": "2.1.2",
     "ioredis": "^4.19.2",
     "mongoose": "^5.10.15",
     "node-fetch": "^2.6.1",
@@ -59,7 +57,6 @@
     "shopify-admin-api": "^2.16.3",
     "shopify-token": "^4.0.0",
     "socket.io-redis": "^6.0.1",
-    "swiftype-app-search-node": "^0.6.0",
     "typescript": "^4.0.5"
   },
   "devDependencies": {

@@ -253,7 +253,7 @@ export abstract class ShopifyApiBaseService<
   }
 
   /**
-   * Internal method to update or create a single `ShopifyObjectType` in mongodb AND / OR elasticsearch.
+   * Internal method to update or create a single `ShopifyObjectType` in mongodb.
    * @param user
    * @param object The objects to create / update
    */
