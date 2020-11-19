@@ -2,7 +2,6 @@ import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '
 import { Response } from 'express';
 
 import { IUserRequest } from '../../../interfaces/user-request';
-import { IShopifyConnect } from '../../../auth/interfaces/connect';
 import { TransactionsService } from './transactions.service';
 import { DebugService } from '../../../debug.service';
 
@@ -10,10 +9,6 @@ import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
 import { Roles } from '../../../guards/roles.decorator';
 
 import {
-  IAppTransactionCountOptions,
-  IAppTransactionGetOptions,
-  IAppTransactionListOptions,
-  IShopifySyncTransactionCountOptions,
   IShopifySyncTransactionGetOptions,
   IShopifySyncTransactionListOptions,
 } from '../../interfaces';

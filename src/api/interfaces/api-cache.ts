@@ -20,7 +20,7 @@ export interface Cache {
   wrap<T>(key: string, wrapper: (callback: (error: any, result: T) => void) => void): Promise<any>;
 
   get<T>(key: string, callback: (error: any, result: T) => void): void;
-  get<T>(key: string): Promise<any>;
+  get<T = any>(key: string): Promise<T>;
 
   del(key: string, callback: (error: any) => void): void;
   del(key: string): Promise<any>;

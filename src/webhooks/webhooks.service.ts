@@ -9,7 +9,7 @@ import { DebugService } from '../debug.service';
 import { SessionSocket } from '../interfaces/session-socket';
 import { WebhookError } from '../interfaces/webhook';
 import { WsResponse } from '@nestjs/websockets';
-import { Observable, Observer, timer, MonoTypeOperatorFunction } from 'rxjs';
+import { Observable, timer, MonoTypeOperatorFunction } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Injectable()

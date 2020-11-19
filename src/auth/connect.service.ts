@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { IShopifyAuthProfile } from './interfaces/profile';
 import { DebugService } from '../debug.service';
 import { IShopifyConnect, IShopifyConnectDocument } from './interfaces/connect';

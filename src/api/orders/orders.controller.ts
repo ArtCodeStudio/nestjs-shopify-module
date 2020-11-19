@@ -6,19 +6,14 @@ import { DebugService } from '../../debug.service';
 
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
-import { Readable } from 'stream';
 
 import { Interfaces } from 'shopify-admin-api';
 
 // Interfaces
 import { IUserRequest } from '../../interfaces/user-request';
-import { IShopifyConnect } from '../../auth/interfaces/connect';
 import {
-  IAppOrderCountOptions,
-  IAppOrderGetOptions,
   IAppOrderListOptions,
   IShopifySyncOrderCountOptions,
-  IShopifySyncOrderGetOptions,
   IShopifySyncOrderListOptions,
 } from '../interfaces';
 
@@ -48,7 +43,7 @@ export class OrdersController {
     @Query('processed_at_max') processed_at_max?: string,
     @Query('processed_at_min') processed_at_min?: string,
     @Query('since_id') since_id?: number,
-    @Query('status') status: string = 'any',
+    @Query('status') status = 'any',
     @Query('updated_at_max') updated_at_max?: string,
     @Query('updated_at_min') updated_at_min?: string,
     /**

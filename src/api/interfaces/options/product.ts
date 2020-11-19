@@ -7,7 +7,7 @@ import { IAppListSortOptions, IAppListFilterOptions } from './basic';
  */
 export interface IShopifySyncProductListOptions extends Options.ProductListOptions, ISyncOptions {}
 export interface IShopifySyncProductGetOptions extends Options.ProductGetOptions, ISyncOptions {}
-export interface IShopifySyncProductCountOptions extends Options.ProductCountOptions {}
+export type IShopifySyncProductCountOptions = Options.ProductCountOptions
 
 /**
  * Product options to get a list of products from the app
@@ -16,5 +16,5 @@ export interface IAppProductListOptions extends Options.ProductListOptions, IApp
   price_max?: number;
   price_min?: number;
 }
-export interface IAppProductGetOptions extends Options.ProductGetOptions {}
-export interface IAppProductCountOptions extends Options.ProductCountOptions {}
+export type IAppProductGetOptions = Options.ProductGetOptions
+export type IAppProductCountOptions = Options.ProductCountOptions

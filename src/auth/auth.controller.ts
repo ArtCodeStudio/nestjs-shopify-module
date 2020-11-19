@@ -25,7 +25,6 @@ import { ShopifyAuthService} from './auth.service';
 import { DebugService } from '../debug.service';
 import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
-import { IShopifyConnect } from './interfaces/connect';
 
 /**
  * TODO also use time link in this example? https://github.com/danteata/passport-shopify/blob/master/example/dynamic/app.jsy
@@ -156,10 +155,11 @@ export class ShopifyAuthController {
     session.nonce = undefined;
 
     return this.shopifyAuthService.oAuthCallback(hmac, session.nonce, state, code, shop, timestamp, session)
-    .then(async (shopifyConnect) => {
+    .then(async (/*shopifyConnect*/) => {
       return res.redirect(`/view/settings?shop=${shop}`);
     })
     .catch((error: Error) => {
+      console.error(error);
       return res.redirect(`failure/${shop}`);
     });
 
@@ -207,9 +207,7 @@ export class ShopifyAuthController {
   @Get('/success/:shop')
   success(
     @Param('shop') shop,
-    @Res() res: Response,
-    @Req() req: IUserRequest,
-    @Session() session: IUserSession
+    @Res() res: Response
   ) {
     // For fallback if no shop is set in request.headers
     this.passport.unuse(`shopify-${shop}`);
@@ -223,7 +221,7 @@ export class ShopifyAuthController {
    * @param req
    */
   @Get('/failure/:shop')
-  failure(@Param('shop') shop, @Res() res: Response, @Req() req: IUserRequest, @Session() session: IUserSession) {
+  failure(@Param('shop') shop, @Res() res: Response) {
     this.passport.unuse(`shopify-${shop}`);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR)
     .json({ message: `Failure on oauth autentification`, shop });
@@ -236,7 +234,7 @@ export class ShopifyAuthController {
    */
   @Get('/connected')
   @Roles('admin')
-  async connects(@Res() res: Response, @Req() req: IUserRequest) {
+  async connects(@Res() res: Response) {
     return this.shopifyConnectService.findAll()
     .then((connects) => {
       return res.json(connects);
@@ -280,7 +278,7 @@ export class ShopifyAuthController {
    */
   @Get('/connected/:id')
   @Roles('admin')
-  async connect(@Param('id') id, @Res() res: Response, @Req() req: IUserRequest) {
+  async connect(@Param('id') id, @Res() res: Response) {
     return this.shopifyConnectService.findByShopifyId(Number(id))
     .then((connect) => {
       return res.json(connect);

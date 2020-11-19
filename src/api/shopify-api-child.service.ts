@@ -174,7 +174,7 @@ export abstract class ShopifyApiChildService<
           observer.error(error);
         } else {
           const products = data.data;
-          products.forEach((product, i) => {
+          products.forEach((product) => {
             observer.next({
               event: eventName,
               data: product,

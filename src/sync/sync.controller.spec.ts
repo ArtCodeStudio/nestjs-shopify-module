@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SyncController } from './sync.controller';
-import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 import { ShopifyModule } from '../shopify.module';
 import { config, mongooseConnectionPromise } from '../../test/config.test';
 import * as passport from 'passport';

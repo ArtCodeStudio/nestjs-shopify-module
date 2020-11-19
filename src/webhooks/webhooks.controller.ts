@@ -1,7 +1,7 @@
 import { UseGuards, Controller, Post, Get, Req, Res, Body, Query, Headers, Param, HttpStatus } from '@nestjs/common';
 import { ShopifyApiGuard } from '../guards/shopify-api.guard';
 import { Roles } from '../guards/roles.decorator';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { IUserRequest } from '../interfaces/user-request';
 import { WebhooksService } from './webhooks.service';
 import { EventService } from '../event.service';

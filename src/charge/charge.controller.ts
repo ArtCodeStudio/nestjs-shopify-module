@@ -1,4 +1,4 @@
-import { Inject, Controller, Param, Get, Req, Res, Session, HttpStatus, Query } from '@nestjs/common';
+import { Inject, Controller, Param, Get, Req, Res, HttpStatus, Query } from '@nestjs/common';
 import { Response } from 'express';
 import { IUserRequest } from '../interfaces/user-request';
 import { ChargeService } from './charge.service';
@@ -27,7 +27,7 @@ export class ChargeController {
    */
   @Get()
   @Roles('shopify-staff-member')
-  async list(@Req() req: IUserRequest, @Res() res: Response, @Session() session ) {
+  async list(@Req() req: IUserRequest, @Res() res: Response ) {
     const user = req.user as IShopifyConnect;
     return this.chargeService.listCharges(user)
     .then((charges) => {
@@ -44,7 +44,7 @@ export class ChargeController {
    */
   @Get('/active')
   @Roles('shopify-staff-member')
-  async active(@Req() req: IUserRequest, @Res() res: Response, @Session() session ) {
+  async active(@Req() req: IUserRequest, @Res() res: Response) {
     const user = req.user as IShopifyConnect;
     return this.chargeService.active(user)
     .then((charge: Interfaces.RecurringCharge | null) => {

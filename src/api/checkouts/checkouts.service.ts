@@ -5,23 +5,17 @@ import { Inject, Injectable } from '@nestjs/common';
 import { shopifyRetry } from '../../helpers';
 
 import { IShopifyConnect } from '../../auth/interfaces';
-import { Checkouts, Options } from 'shopify-admin-api';
+import { Checkouts } from 'shopify-admin-api';
 import { Interfaces } from 'shopify-admin-api';
 import { Model } from 'mongoose';
 import {
   CheckoutDocument,
-  IListAllCallbackData,
-  IAppBasicListOptions,
-  IShopifySyncCheckoutCountOptions,
   IShopifySyncCheckoutGetOptions,
   IShopifySyncCheckoutListOptions,
-  IAppCheckoutCountOptions,
-  IAppCheckoutGetOptions,
-  IAppCheckoutListOptions,
 } from '../interfaces';
 
 import { EventService } from '../../event.service';
-import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions, Resource } from '../../interfaces';
+import { Resource } from '../../interfaces';
 
 @Injectable()
 export class CheckoutsService {
@@ -45,7 +39,6 @@ export class CheckoutsService {
    */
   public async getFromShopify(user: IShopifyConnect, checkoutToken: string, options?: IShopifySyncCheckoutGetOptions): Promise<Partial<Interfaces.Checkout> | null> {
     const shopifyCheckoutModel = new Checkouts(user.myshopify_domain, user.accessToken);
-    const syncToDb = options && options.syncToDb;
     delete options.syncToDb;
     return shopifyRetry(() => {
       return shopifyCheckoutModel.get(checkoutToken, options);
@@ -60,8 +53,6 @@ export class CheckoutsService {
   public async listFromShopify(shopifyConnect: IShopifyConnect, options?: IShopifySyncCheckoutListOptions): Promise<Partial<Interfaces.Checkout>[]> {
     const shopifyCheckoutModel = new Checkouts(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     options = Object.assign({}, options);
-    const syncToDb = options && options.syncToDb;
-    const failOnSyncError = options && options.failOnSyncError;
     delete options.syncToDb;
     delete options.failOnSyncError;
     delete options.cancelSignal; // TODO?
@@ -75,13 +66,7 @@ export class CheckoutsService {
    * Retrieves a list of product variants from the app's mongodb database.
    * @param user
    */
-  public async listFromDb(user: IShopifyConnect, options: IAppCheckoutListOptions = {}): Promise<Interfaces.Checkout[]> {
-
-    const query: any = {};
-
-    // TODO
-    const basicOptions = {};
-
+  public async listFromDb(/*user: IShopifyConnect, options: IAppCheckoutListOptions = {}*/): Promise<Interfaces.Checkout[]> {
     return null; // super.listFromDb(user, query, basicOptions);
   }
 

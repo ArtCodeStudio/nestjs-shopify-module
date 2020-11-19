@@ -5,23 +5,17 @@ import { Inject, Injectable } from '@nestjs/common';
 import { shopifyRetry } from '../../../helpers';
 
 import { IShopifyConnect } from '../../../auth/interfaces';
-import { ProductVariants, Options } from 'shopify-admin-api';
+import { ProductVariants } from 'shopify-admin-api';
 import { Interfaces } from 'shopify-admin-api';
 import { Model } from 'mongoose';
 import {
   ProductVariantDocument,
-  IListAllCallbackData,
-  IAppBasicListOptions,
-  IShopifySyncProductVariantCountOptions,
   IShopifySyncProductVariantGetOptions,
   IShopifySyncProductVariantListOptions,
-  IAppProductVariantCountOptions,
-  IAppProductVariantGetOptions,
-  IAppProductVariantListOptions,
 } from '../../interfaces';
 
 import { EventService } from '../../../event.service';
-import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions, Resource } from '../../../interfaces';
+import { Resource } from '../../../interfaces';
 
 @Injectable()
 export class ProductVariantsService {
@@ -45,7 +39,6 @@ export class ProductVariantsService {
    */
   public async getFromShopify(user: IShopifyConnect, parentId: number, id: number, options?: IShopifySyncProductVariantGetOptions): Promise<Partial<Interfaces.ProductVariant> | null> {
     const shopifyModel = new ProductVariants(user.myshopify_domain, user.accessToken);
-    const syncToDb = options && options.syncToDb;
     delete options.syncToDb;
     return shopifyRetry(() => {
       return shopifyModel.get(parentId, options);
@@ -60,8 +53,6 @@ export class ProductVariantsService {
   public async listFromShopify(shopifyConnect: IShopifyConnect, parentId: number, options?: IShopifySyncProductVariantListOptions): Promise<Partial<Interfaces.ProductVariant>[]> {
     const shopifyModel = new ProductVariants(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
     options = Object.assign({}, options);
-    const syncToDb = options && options.syncToDb;
-    const failOnSyncError = options && options.failOnSyncError;
     delete options.syncToDb;
     delete options.failOnSyncError;
     delete options.cancelSignal; // TODO?
@@ -75,13 +66,7 @@ export class ProductVariantsService {
    * Retrieves a list of product variants from the app's mongodb database.
    * @param user
    */
-  public async listFromDb(user: IShopifyConnect, options: IAppProductVariantListOptions = {}): Promise<Interfaces.ProductVariant[]> {
-
-    const query: any = {};
-
-    // TODO
-    const basicOptions = {};
-
+  public async listFromDb(/*user: IShopifyConnect, options: IAppProductVariantListOptions = {}*/): Promise<Interfaces.ProductVariant[]> {
     return null; // super.listFromDb(user, query, basicOptions);
   }
 

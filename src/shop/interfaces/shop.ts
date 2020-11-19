@@ -1,6 +1,4 @@
 import { Document } from 'mongoose';
-import { Interfaces } from 'shopify-admin-api';
-
 export interface IShopifyShop {
   id: number;
 

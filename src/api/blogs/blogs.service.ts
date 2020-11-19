@@ -16,13 +16,9 @@ import {
   IShopifySyncBlogCountOptions,
   IShopifySyncBlogGetOptions,
   IShopifySyncBlogListOptions,
-  IAppBlogCountOptions,
-  IAppBlogGetOptions,
-  IAppBlogListOptions,
 } from '../interfaces';
 import {
   SyncProgressDocument,
-  ISubSyncProgress,
   IStartSyncOptions,
   ShopifyModuleOptions,
   BlogSyncProgressDocument,

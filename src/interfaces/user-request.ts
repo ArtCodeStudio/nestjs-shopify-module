@@ -10,7 +10,7 @@ interface IUserRequest extends Request {
   shops?: string[];
   /** @deprecated Use req.session[`shopify-connect-${shop}`] instead */
   shopifyConnect?: IShopifyConnect;
-  session: Session;
+  session: Session & Request['session'];
 }
 
 export { IShopifyConnect, IUserRequest };

@@ -1,11 +1,10 @@
 // Third party
 import { BulkWriteOpResultObject } from 'mongodb';
-import { Model, Document, Mongoose, Query as MongooseQuery, DocumentQuery} from 'mongoose';
-import { Infrastructure, Options } from 'shopify-admin-api';
+import { Model, Document, DocumentQuery} from 'mongoose';
+import { Infrastructure } from 'shopify-admin-api';
 
 import { IShopifyConnect } from '../auth/interfaces';
 import { ShopifyModuleOptions, Resource } from '../interfaces';
-import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 
 import {
   IAppBasicListOptions,
@@ -248,7 +247,7 @@ export abstract class ShopifyApiBaseService<
    * @param user
    * @param object The objects to create / update
    */
-  public async updateOrCreateInDb(user: IShopifyConnect, conditions = {}, update: Partial<ShopifyObjectType>): Promise<DocumentQuery<DatabaseDocumentType, DatabaseDocumentType, {}>> {
+  public async updateOrCreateInDb(user: IShopifyConnect, conditions = {}, update: Partial<ShopifyObjectType>): Promise<DocumentQuery<DatabaseDocumentType, DatabaseDocumentType, any>> {
     const model = this.dbModel(user.shop.myshopify_domain);
     return model.findOneAndUpdate(conditions, update as any, {upsert: true}); // TODO NEST7 CHECKME
   }
@@ -260,9 +259,9 @@ export abstract class ShopifyApiBaseService<
    */
   public async updateOrCreateInApp(
     user: IShopifyConnect,
-    selectBy: string = 'id',
+    selectBy = 'id',
     update: Partial<ShopifyObjectType>,
-    inDb: boolean =  true,
+    inDb =  true,
   ) {
     this.logger.debug(`[updateOrCreateInApp:${this.resourceName}] start`);
     const promises = new Array<Promise<any>>();
@@ -287,7 +286,7 @@ export abstract class ShopifyApiBaseService<
     user: IShopifyConnect,
     selectBy: string,
     objects: Partial<ShopifyObjectType>[],
-  ): Promise<BulkWriteOpResultObject | {}> {
+  ): Promise<BulkWriteOpResultObject> {
     this.logger.debug(`[updateOrCreateManyInDb:${this.resourceName}] start selectBy: ${selectBy} objects.length: ${objects.length}`);
     // An empty bulkwrite is not allowed. Just return an empty object if the passed array is empty.
     if (objects.length === 0) {
@@ -321,10 +320,10 @@ export abstract class ShopifyApiBaseService<
    */
   public async updateOrCreateManyInApp(
     user: IShopifyConnect,
-    selectBy: string = 'id',
+    selectBy = 'id',
     objects: ShopifyObjectType[],
-    inDb: boolean = false,
-  ): Promise<BulkWriteOpResultObject | {}> {
+    inDb = false,
+  ): Promise<Partial<BulkWriteOpResultObject[]>> {
     this.logger.debug(
       `[updateOrCreateManyInApp:${this.resourceName}] start inDb: ${inDb} objects.length: ${objects.length}`,
     );

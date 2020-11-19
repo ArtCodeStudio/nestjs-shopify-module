@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { SyncService } from './sync.service';
 import { EventService } from '../event.service';
 
@@ -9,11 +9,9 @@ import * as passport from 'passport';
 import { ShopifyConnectService } from '../auth/connect.service';
 import { IShopifyConnect } from '../auth/interfaces';
 
-import { IStartSyncOptions, ISyncProgress, SyncProgressSchema, SyncProgressDocument, SubSyncProgressDocument, ISubSyncProgress } from '../interfaces';
+import { IStartSyncOptions, ISyncProgress, SyncProgressSchema, SyncProgressDocument } from '../interfaces';
 
-import { MongooseDocument, Model } from 'mongoose';
-import { ShopifyApiRootCountableService } from '../api/shopify-api-root-countable.service';
-import { resolve } from 'dns';
+import { Model } from 'mongoose';
 
 
 describe('SyncService', () => {
@@ -105,7 +103,7 @@ describe('SyncService', () => {
     });
 
     it('should increase the object counts with each event and not fail', async () => {
-      let finalProgressPromise: Promise<ISyncProgress> = new Promise((resolve, reject) => {
+      const finalProgressPromise: Promise<ISyncProgress> = new Promise((resolve, reject) => {
         eventService.on(`sync:${progress.shop}:${progress._id}`, (nextProgress) => {
           expect(nextProgress.state).not.toBe('failed');
           if (nextProgress.state === 'failed') {

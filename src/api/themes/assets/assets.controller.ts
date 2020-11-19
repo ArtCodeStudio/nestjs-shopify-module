@@ -1,10 +1,9 @@
-import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
+import { Controller, Param, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { Roles } from '../../../guards/roles.decorator';
 import { DebugService } from '../../../debug.service';
 import { AssetsService } from './assets.service';
 import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
-import { IShopifyConnect } from '../../../auth/interfaces/connect';
 import { IUserRequest } from '../../../interfaces/user-request';
 import * as url from 'url';
 

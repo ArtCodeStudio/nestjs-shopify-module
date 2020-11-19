@@ -1,6 +1,5 @@
 import {
   Controller,
-  Param,
   Query,
   Body,
   UseGuards,
@@ -10,7 +9,6 @@ import {
   Delete,
   Post,
   HttpStatus,
-  Options,
 } from '@nestjs/common';
 
 import { Response } from 'express';

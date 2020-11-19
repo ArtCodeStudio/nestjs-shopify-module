@@ -16,7 +16,7 @@ export abstract class ShopifyApiChildCountableService<
     & ChildCount<CountOptions>
     & ChildGet<ShopifyObjectType, GetOptions>
     & ChildList<ShopifyObjectType, ListOptions>,
-  CountOptions extends object = {},
+  CountOptions,
   GetOptions extends ISyncOptions = ISyncOptions,
   ListOptions extends
     CountOptions

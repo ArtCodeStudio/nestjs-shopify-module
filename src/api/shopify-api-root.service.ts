@@ -3,7 +3,6 @@ import { WsResponse } from '@nestjs/websockets';
 
 // Third party
 import { Infrastructure, Options } from 'shopify-admin-api';
-// import * as pRetry from 'p-retry';
 import { shopifyRetry } from '../helpers';
 import { Readable } from 'stream';
 import { Observable, Observer } from 'rxjs';
@@ -93,7 +92,7 @@ export abstract class ShopifyApiRootService<
       this.logger.debug('[listFromShopify] result length %d', shopifyObjects.length);
       this.logger.debug('[listFromShopify] updateOrCreateManyInApp');
       return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyObjects, syncToDb)
-      .then((syncResult) => {
+      .then((/*syncResult*/) => {
         return shopifyObjects;
       })
       .catch((error) => {
@@ -197,7 +196,7 @@ export abstract class ShopifyApiRootService<
           observer.error(error);
         } else {
           const shopifyObjectTypes = data.data;
-          shopifyObjectTypes.forEach((shopifyObjectType, i) => {
+          shopifyObjectTypes.forEach((shopifyObjectType) => {
             observer.next({
               event: eventName,
               data: shopifyObjectType,

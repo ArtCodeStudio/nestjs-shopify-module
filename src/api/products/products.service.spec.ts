@@ -4,7 +4,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsService } from './products.service';
 import { ShopifyConnectService } from '../../auth/connect.service';
 import { IShopifyConnect } from '../../auth/interfaces';
-import { Interfaces } from 'shopify-admin-api';
 
 import { ShopifyModule } from '../../shopify.module';
 import { config, mongooseConnectionPromise } from '../../../test/config.test';
@@ -71,7 +70,7 @@ describe('ProductsService', () => {
 
     it('should have the default limit of 50', async () => {
       const listFromShopify = await service.listFromShopify(user, {});
-      const listFromDb = await service.listFromDb(user, {});
+      // const listFromDb = await service.listFromDb(user, {});
       if (countFromShopify >= 50) {
         expect(listFromShopify).toHaveLength(50);
       } else {

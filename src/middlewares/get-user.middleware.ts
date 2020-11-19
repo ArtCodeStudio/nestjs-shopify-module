@@ -3,7 +3,6 @@ import { ShopifyAuthService } from '../auth/auth.service';
 import { ShopifyConnectService } from '../auth/connect.service';
 import { DebugService } from '../debug.service';
 import { IUserRequest, IShopifyConnect } from '../interfaces/user-request';
-import { Session } from '../interfaces/session';
 import { Response, NextFunction } from 'express';
 
 @Injectable()

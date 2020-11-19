@@ -4,7 +4,6 @@ import { IUserRequest } from '../../interfaces/user-request';
 
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { Roles } from '../../guards/roles.decorator';
-import { Readable } from 'stream';
 import { DebugService } from '../../debug.service';
 
 import {
@@ -31,11 +30,11 @@ export class CustomCollectionsController {
     /**
      * The number of results to show.
      */
-    @Query('limit') limit: number = 50,
+    @Query('limit') limit = 50,
     /**
      * The page of results to show.
      */
-    @Query('page') page: number = 1,
+    @Query('page') page = 1,
     /**
      * Show only the results specified in this comma-separated list of IDs.
      */

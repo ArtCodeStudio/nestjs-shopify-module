@@ -1,12 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Transactions, Options } from 'shopify-admin-api';
+import { Transactions } from 'shopify-admin-api';
 import { IShopifyConnect } from '../../../auth/interfaces';
 import { Interfaces } from 'shopify-admin-api';
 import {
   TransactionDocument,
-  IAppTransactionCountOptions,
-  IAppTransactionGetOptions,
-  IAppTransactionListOptions,
   IShopifySyncTransactionCountOptions,
   IShopifySyncTransactionGetOptions,
   IShopifySyncTransactionListOptions,

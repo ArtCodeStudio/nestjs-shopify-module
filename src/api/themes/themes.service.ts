@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Themes, Options } from 'shopify-admin-api'; // https://github.com/ArtCodeStudio/shopify-admin-api
+import { Themes } from 'shopify-admin-api'; // https://github.com/ArtCodeStudio/shopify-admin-api
 import { IShopifyConnect } from '../../auth/interfaces/connect';
 import { Interfaces } from 'shopify-admin-api';
 import { ThemeDocument } from '../interfaces/mongoose/theme.schema';
@@ -15,7 +15,6 @@ import {
 import {
   IShopifySyncThemeGetOptions,
   IShopifySyncThemeListOptions,
-  IAppThemeGetOptions,
   IAppThemeListOptions,
   IAppThemeListFilter,
 } from '../interfaces';

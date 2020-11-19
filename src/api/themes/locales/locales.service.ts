@@ -1,11 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AssetsService } from '../assets/assets.service';
 import { IAppAssetListOptions, IAppAsset, IAppLocaleFile, IAppLocaleListOptions, IAppLocales } from '../../interfaces';
 import { IShopifyConnect } from '../../../auth/interfaces';
-import { Options, Interfaces } from 'shopify-admin-api';
+import { Options } from 'shopify-admin-api';
 import { DebugService } from './../../../debug.service';
 
-import pMap from 'p-map';
+import * as pMap from 'p-map';
 import * as path from 'path';
 import * as merge from 'deepmerge';
 
@@ -49,9 +49,9 @@ export class LocalesService {
     .then((assets) => {
       // this.logger.debug('assets: %O', assets);
       const locales: IAppLocaleFile[] = assets;
-      locales.forEach((locale) => {
+      for (let locale of locales) {
         locale = this.parseLangCode(locale);
-      });
+      }
       return assets;
     });
   }
@@ -215,9 +215,9 @@ export class LocalesService {
     return this.assetsService.list(user, id, options)
     .then((_assets: IAppAsset[]) => {
       const assets: IAppLocaleFile[] = _assets;
-      assets.forEach((locale) => {
+      for (let locale of assets) {
         locale = this.parseLangCode(locale);
-      });
+      }
       return assets;
     })
     // applay filter

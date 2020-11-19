@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CustomCollections, Options, Interfaces } from 'shopify-admin-api'; // https://github.com/ArtCodeStudio/shopify-admin-api
-import { IShopifyConnect } from '../../auth/interfaces/connect';
+import { CustomCollections, Interfaces } from 'shopify-admin-api'; // https://github.com/ArtCodeStudio/shopify-admin-api
 import { SyncProgressDocument, Resource, ShopifyModuleOptions } from '../../interfaces';
 import { Model } from 'mongoose';
 import { EventService } from '../../event.service';

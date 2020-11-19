@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-interface */
 import { Options } from 'shopify-admin-api';
 import { ISyncOptions } from './sync';
 import { IAppListSortOptions, IAppListFilterOptions } from './basic';

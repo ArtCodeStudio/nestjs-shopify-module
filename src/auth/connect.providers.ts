@@ -1,4 +1,4 @@
-import { Connection, Document, Model, Mongoose } from 'mongoose';
+import { Model, Mongoose } from 'mongoose';
 import { ShopifyConnectSchema } from './connect.schema';
 import { IShopifyConnectDocument } from './interfaces/connect';
 

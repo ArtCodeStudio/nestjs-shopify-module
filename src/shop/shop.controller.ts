@@ -1,4 +1,4 @@
-import { Controller, Get, Res, Req, HttpStatus, Param } from '@nestjs/common';
+import { Controller, Get, Res, HttpStatus, Param } from '@nestjs/common';
 
 import { Roles } from '../guards/roles.decorator'; // '../../app.module';
 
@@ -23,7 +23,7 @@ export class ShopController {
    */
   @Get()
   @Roles('admin')
-  connects(@Res() res, @Req() req) {
+  connects(@Res() res) {
     return this.shopService.findAll()
     .then((connects: IShopifyShop[]) => {
       return res.json(connects);
@@ -43,7 +43,7 @@ export class ShopController {
    */
   @Get('/:id')
   @Roles('admin')
-  connect(@Param('id') id, @Res() res, @Req() req) {
+  connect(@Param('id') id, @Res() res) {
     return this.shopService.findByShopifyID(Number(id))
     .then((connect: IShopifyShop) => {
       return res.json(connect);

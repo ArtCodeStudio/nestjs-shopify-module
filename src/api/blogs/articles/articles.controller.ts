@@ -10,7 +10,6 @@ import {
   Post,
   Delete,
   HttpStatus,
-  Header,
   Body,
 } from '@nestjs/common';
 
@@ -18,18 +17,12 @@ import { ArticlesService } from './articles.service';
 import { DebugService } from '../../../debug.service';
 import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
 import { Roles } from '../../../guards/roles.decorator';
-import { Readable } from 'stream';
 
 // Interfaces
 import { Interfaces } from 'shopify-admin-api';
 import { IUserRequest } from '../../../interfaces/user-request';
 import { Response } from 'express';
 import {
-  IAppArticleCountOptions,
-  IAppArticleGetOptions,
-  IAppArticleListOptions,
-  IShopifySyncArticleCountOptions,
-  IShopifySyncArticleGetOptions,
   IShopifySyncArticleListOptions,
 } from '../../interfaces';
 

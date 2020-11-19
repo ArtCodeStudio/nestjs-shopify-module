@@ -7,5 +7,5 @@ export interface IShopifySyncCustomCollectionGetOptions extends Options.Collecti
 export interface IShopifySyncCustomCollectionCountOptions extends Options.CollectionListOptions, ISyncOptions {}
 
 export interface IAppCustomCollectionListOptions extends Options.CollectionListOptions, IAppListSortOptions, IAppListFilterOptions {}
-export interface IAppCustomCollectionGetOptions extends Options.CollectionGetOptions {}
-export interface IAppCustomCollectionCountOptions extends Options.CollectionListOptions {}
+export type IAppCustomCollectionGetOptions = Options.CollectionGetOptions
+export type IAppCustomCollectionCountOptions = Options.CollectionListOptions

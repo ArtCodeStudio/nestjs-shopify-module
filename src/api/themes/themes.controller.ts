@@ -1,11 +1,10 @@
-import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
+import { Controller, Param, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import { Roles } from '../../guards/roles.decorator';
 import { DebugService } from './../../debug.service';
 import { ThemesService } from './themes.service';
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { IUserRequest } from '../../interfaces/user-request';
-import { IShopifyConnect } from '../../auth/interfaces/connect';
 
 @Controller('shopify/api/themes')
 export class ThemesController {

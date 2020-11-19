@@ -6,7 +6,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { shopifyRetry } from '../../helpers';
 
 import { IShopifyConnect } from '../../auth/interfaces';
-import { Interfaces, Products, Options } from 'shopify-admin-api';
+import { Interfaces, Products } from 'shopify-admin-api';
 import { Model } from 'mongoose';
 import {
   ProductDocument,
@@ -15,8 +15,6 @@ import {
   IShopifySyncProductCountOptions,
   IShopifySyncProductGetOptions,
   IShopifySyncProductListOptions,
-  IAppProductCountOptions,
-  IAppProductGetOptions,
   IAppProductListOptions,
 } from '../interfaces';
 

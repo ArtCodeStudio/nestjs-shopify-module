@@ -13,9 +13,6 @@ import {
   IShopifySyncPageCountOptions,
   IShopifySyncPageGetOptions,
   IShopifySyncPageListOptions,
-  IAppPageCountOptions,
-  IAppPageGetOptions,
-  IAppPageListOptions,
 } from '../interfaces';
 import {
   SyncProgressDocument,

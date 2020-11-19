@@ -1,4 +1,4 @@
-export function deleteUndefinedProperties(object: object) {
+export function deleteUndefinedProperties(object: any) {
   // Delete undefined properties
   if (object) {
     for (const key in object) {

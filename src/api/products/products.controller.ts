@@ -24,8 +24,6 @@ import {
   IShopifySyncProductCountOptions,
   IShopifySyncProductGetOptions,
   IShopifySyncProductListOptions,
-  IAppProductCountOptions,
-  IAppProductGetOptions,
   IAppProductListOptions,
 } from '../interfaces';
 import { Response } from 'express';

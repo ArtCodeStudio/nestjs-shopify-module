@@ -17,7 +17,7 @@ export abstract class ShopifyApiRootCountableService<
   & RootCount<CountOptions>
   & RootGet<ShopifyObjectType, GetOptions>
   & RootList<ShopifyObjectType, ListOptions>,
-  CountOptions extends object = {},
+  CountOptions,
   GetOptions extends ISyncOptions = ISyncOptions,
   ListOptions extends CountOptions & ISyncOptions & Options.ListOptions = CountOptions & ISyncOptions & Options.ListOptions,
   DatabaseDocumentType extends Document = ShopifyObjectType & Document,
@@ -316,7 +316,7 @@ export abstract class ShopifyApiRootCountableService<
         return progress.save();
       });
     })
-    .then((_) => {
+    .then(() => {
       this.logger.debug(`[startSync] ${this.resourceName} done: ${progress[this.resourceName].state}`);
       if (typeof finishedCallback === 'function') {
         finishedCallback(progress[this.resourceName]);

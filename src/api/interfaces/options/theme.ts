@@ -16,5 +16,5 @@ export interface IAppThemeListFilter {
 export interface IShopifySyncThemeListOptions extends Options.ThemeListOptions, ISyncOptions {}
 export interface IShopifySyncThemeGetOptions extends Options.ThemeGetOptions, ISyncOptions {}
 
-export interface IAppThemeListOptions extends Options.ThemeListOptions {}
-export interface IAppThemeGetOptions extends Options.ThemeGetOptions {}
+export type IAppThemeListOptions = Options.ThemeListOptions
+export type IAppThemeGetOptions = Options.ThemeGetOptions

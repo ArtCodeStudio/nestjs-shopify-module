@@ -5,7 +5,7 @@ import { TRoles } from '../auth/interfaces/role';
  * @param roles
  */
 export const Roles = (...roles: TRoles): MethodDecorator => {
-    return (target: object) => {
+    return (target: any) => {
         return Reflect.defineMetadata('roles', roles, target); // TODO NEST7 CHECKME
     }
 }

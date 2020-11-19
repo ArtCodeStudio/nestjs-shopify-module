@@ -12,9 +12,6 @@ import {
   IShopifySyncOrderCountOptions,
   IShopifySyncOrderGetOptions,
   IShopifySyncOrderListOptions,
-  IAppOrderCountOptions,
-  IAppOrderGetOptions,
-  IAppOrderListOptions,
 } from '../interfaces';
 import {
   SyncProgressDocument,

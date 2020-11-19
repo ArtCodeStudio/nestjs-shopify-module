@@ -63,7 +63,7 @@ export class ChargeService {
    * Create a new charge by plan name, if plan was allready accepted just activate this charge
    * @param plan
    */
-  async createByName(user: IShopifyConnect, planName: string = 'Default') {
+  async createByName(user: IShopifyConnect, planName = 'Default') {
     const plan = this.getPlanByName(planName);
 
     if (!plan) {
@@ -133,7 +133,7 @@ export class ChargeService {
    * Get available plans for this app (found in config)
    * @param all If true also hidden plans returned
    */
-  async available(user: IShopifyConnect, all: boolean = false) {
+  async available(user: IShopifyConnect, all = false) {
     return this.active(user)
     .then((activePlan) => {
       const plans: IAvailableCharge[] = [];

@@ -7,11 +7,11 @@ import { IAppListSortOptions, IAppListFilterOptions } from './basic';
  */
 export interface IShopifySyncOrderListOptions extends Options.OrderListOptions, ISyncOptions {}
 export interface IShopifySyncOrderGetOptions extends Options.OrderGetOptions, ISyncOptions {}
-export interface IShopifySyncOrderCountOptions extends Options.OrderCountOptions {}
+export type IShopifySyncOrderCountOptions = Options.OrderCountOptions
 
 /**
  * Order options to get a list of orders from the app
  */
 export interface IAppOrderListOptions extends Options.OrderListOptions, IAppListSortOptions, IAppListFilterOptions {}
-export interface IAppOrderGetOptions extends Options.OrderGetOptions {}
-export interface IAppOrderCountOptions extends Options.OrderCountOptions {}
+export type IAppOrderGetOptions = Options.OrderGetOptions
+export type IAppOrderCountOptions = Options.OrderCountOptions

@@ -1,6 +1,5 @@
 import { Schema, Document } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
-import { MetafieldSchema } from './metafield.schema';
 
 export type ArticleDocument = Interfaces.Article & Document;
 

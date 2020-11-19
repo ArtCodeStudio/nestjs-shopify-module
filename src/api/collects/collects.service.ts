@@ -10,19 +10,11 @@ import {
   IShopifySyncCollectCountOptions,
   IShopifySyncCollectGetOptions,
   IShopifySyncCollectListOptions,
-  IAppCollectCountOptions,
-  IAppCollectGetOptions,
-  IAppCollectListOptions,
 } from '../interfaces';
 import { SyncProgressDocument,
-  IStartSyncOptions,
-  OrderSyncProgressDocument,
   Resource,
   ShopifyModuleOptions,
 } from '../../interfaces';
-import { IListAllCallbackData } from '../../api/interfaces';
-import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { mongooseParallelRetry } from '../../helpers';
 import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
 
 @Injectable()

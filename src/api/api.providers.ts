@@ -1,4 +1,4 @@
-import { Connection, Document, Model, Mongoose, Schema } from 'mongoose';
+import { Document, Model, Mongoose, Schema } from 'mongoose';
 import {
   OrderSchema,
   OrderDocument,

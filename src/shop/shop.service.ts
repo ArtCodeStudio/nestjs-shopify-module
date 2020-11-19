@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 
 import { IShopifyConnectDocument } from '../auth/interfaces/connect';
 import { IShopifyShop } from './interfaces/shop';
@@ -32,7 +32,7 @@ export class ShopService {
       let shop;
       if (fields) {
         shop = {};
-        fields.forEach((property, index) => {
+        fields.forEach((property) => {
           if (shop.hasOwnProperty(property)) {
             shop[property] = connect.shop[property];
           }

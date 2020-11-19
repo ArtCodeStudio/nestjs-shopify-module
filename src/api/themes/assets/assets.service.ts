@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Options, Interfaces, Assets } from 'shopify-admin-api';
 import { AssetDocument, IAppAsset, IAppAssetListOptions } from '../../interfaces';
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { DebugService } from '../../../debug.service';
 
 @Injectable()
@@ -50,16 +50,6 @@ export class AssetsService {
       asset.value = sectionLiquidString;
     }
     return asset;
-  }
-
-  private parseLocale(asset: IAppAsset) {
-    let sectionSchema;
-    try {
-      sectionSchema = JSON.parse(asset.value);
-    } catch (error) {
-      // if parse json fails return normal asset file
-      return asset;
-    }
   }
 
   async list(user: IShopifyConnect, id: number, options: IAppAssetListOptions = {}): Promise<Interfaces.Asset[]> {

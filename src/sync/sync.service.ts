@@ -13,7 +13,7 @@ import { CustomCollectionsService } from '../api/custom-collections/custom-colle
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { DebugService } from '../debug.service';
-import { IStartSyncOptions, SyncProgressDocument, SubSyncProgressDocument, ISubSyncProgress } from '../interfaces';
+import { IStartSyncOptions, SyncProgressDocument, SubSyncProgressDocument } from '../interfaces';
 // import * as pRetry from 'p-retry';
 import { mongooseParallelRetry } from '../helpers';
 
@@ -83,7 +83,7 @@ export class SyncService {
    * @param shop
    * @param projection
    */
-  async getLastShopSync(shop: string, projection: {} = {}): Promise<Partial<SyncProgressDocument>> {
+  async getLastShopSync(shop: string, projection: any = {}): Promise<Partial<SyncProgressDocument>> {
     return this.syncProgressModel.findOne(
       { shop },
       projection,
@@ -95,7 +95,7 @@ export class SyncService {
    * @param shop
    * @param projection
    */
-  async listShopSync(shop: string, projection: {} = {}): Promise<Partial<SyncProgressDocument>[]> {
+  async listShopSync(shop: string, projection: any = {}): Promise<Partial<SyncProgressDocument>[]> {
     return this.syncProgressModel.find(
       { shop },
       projection,
@@ -103,15 +103,15 @@ export class SyncService {
     ).lean();
   }
 
-  async find(query: Partial<SyncProgressDocument>, options?: {}): Promise<SyncProgressDocument[]|null> {
+  async find(query: Partial<SyncProgressDocument>, options?: any): Promise<SyncProgressDocument[]|null> {
     return this.syncProgressModel.find(query, {}, options).lean();
   }
 
-  async update(conditions: Partial<SyncProgressDocument>, progress: Partial<SyncProgressDocument>, options?: {}): Promise<SyncProgressDocument> {
+  async update(conditions: Partial<SyncProgressDocument>, progress: Partial<SyncProgressDocument>, options?: any): Promise<SyncProgressDocument> {
     return this.syncProgressModel.findOneAndUpdate(conditions, progress, options);
   }
 
-  async findOne(query: Partial<SyncProgressDocument>, options?: {}): Promise<SyncProgressDocument|null> {
+  async findOne(query: Partial<SyncProgressDocument>, options?: any): Promise<SyncProgressDocument|null> {
     return this.syncProgressModel.findOne(query, {}, options).lean();
   }
 
@@ -310,7 +310,7 @@ export class SyncService {
       Promise.all(subSyncFinishedPromises).then((subProgresses) => {
         this.logger.debug('[startSync] All syncs done');
         let cancelled = false;
-        const failed = subProgresses.some((subProgress, i) => {
+        const failed = subProgresses.some((subProgress) => {
           if (subProgress.state === 'failed') {
             return true;
           }
