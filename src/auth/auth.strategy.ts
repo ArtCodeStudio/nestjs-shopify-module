@@ -41,6 +41,7 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
    * @param verifiedDone
    */
   async validate(accessToken: string, refreshToken: string, profile: IShopifyAuthProfile/*, verifiedDone: (error?: Error | null, user?: any) => void*/) {
+    this.logger.debug(`validate`);
     this.logger.debug(`accessToken: %s`, accessToken);
     this.logger.debug(`refreshToken: %s`, refreshToken);
     this.logger.debug(`profile.displayName: %s`, profile.displayName);
@@ -63,6 +64,7 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
 
 
   public authenticate(req, options) {
+    this.logger.debug(`authenticate`);
     try {
       return super.authenticate(req, options);
     } catch (error) {

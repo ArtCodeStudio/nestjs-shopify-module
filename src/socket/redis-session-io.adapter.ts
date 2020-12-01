@@ -8,18 +8,19 @@ import { RedisAdapter, createAdapter } from 'socket.io-redis';
 import * as sharedsession from 'express-socket.io-session';
 import { Socket } from 'socket.io';
 import { NextFunction } from 'express';
+import { SessionIoAdapter } from './session-io.adapter';
 
 /**
  * @see https://github.com/nestjs/nest/blob/master/packages/websockets/adapters/io-adapter.ts
  */
-export class RedisSessionIoAdapter extends IoAdapter {
+export class RedisSessionIoAdapter extends SessionIoAdapter {
 
   protected socketSessionMiddleware: (socket: Socket, next: NextFunction) => void;
 
   protected redisAdapter: RedisAdapter;
 
   constructor(session: express.RequestHandler, redisUrl: string, host: string, appOrHttpServer: INestApplicationContext | Server) {
-    super(appOrHttpServer);
+    super(session, host, appOrHttpServer);
 
     const pub = new Redis(redisUrl, { keyPrefix: host });
     const sub = new Redis(redisUrl, { keyPrefix: host });
@@ -45,16 +46,6 @@ export class RedisSessionIoAdapter extends IoAdapter {
   createIOServer(port: number, options?: any): any {
     const server = super.createIOServer(port, options);
     server.adapter(this.redisAdapter);
-
-    // Sharing session data with a namespaced socket // TODO NEST7 CHECKME
-    server.of('/socket.io/shopify/api/products').use(this.socketSessionMiddleware);
-    server.of('/socket.io/shopify/api/webhooks').use(this.socketSessionMiddleware);
-    server.of('/socket.io/shopify/sync').use(this.socketSessionMiddleware);
-
-    // TODO move to Gateway and nest-shopify?
-    // this.bindMiddleware(server.of('/socket.io/shopify/api/products'), this.socketSessionMiddleware);
-    // this.bindMiddleware(server.of('/socket.io/shopify/api/webhooks'), this.socketSessionMiddleware);
-    // this.bindMiddleware(server.of('/socket.io/shopify/sync'), this.socketSessionMiddleware);
     return server;
   }
 }

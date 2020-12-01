@@ -84,7 +84,7 @@ export class RolesGuard implements CanActivate {
     }
 
     // DO NOT USE request.session.user because this can always be set on theme requests
-    if (!this.hasRole(client.handshake.session.user, roles)) {
+    if (!this.hasRole(client.handshake.session[`user-${client.handshake.session.currentShop}`], roles)) {
       return false;
     }
 

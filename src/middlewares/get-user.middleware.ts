@@ -20,7 +20,6 @@ export class GetUserMiddleware implements NestMiddleware {
     if(!req.session.shops.includes(shop)) {
       req.session.shops.push(shop);
     }
-    req.session.shop = shop; // depricated
     req.session.currentShop = shop;
     req.shop = shop;
   }
@@ -75,7 +74,7 @@ export class GetUserMiddleware implements NestMiddleware {
      * ```
      */
     if (!shop) {
-      this.logger.warn('Shop not found!');
+      this.logger.warn('[GetUserMiddleware] Shop not found!');
       return next();
     }
 
@@ -83,8 +82,6 @@ export class GetUserMiddleware implements NestMiddleware {
     if (req.session) {
       if (req.session[`user-${shop}`]) {
         const user = req.session[`user-${shop}`] as IShopifyConnect;
-        // set to session (for websockets)
-        req.session.user = user;
         // set to request (for passport and co)
         req.user = user;
 
@@ -96,10 +93,8 @@ export class GetUserMiddleware implements NestMiddleware {
     // Get user from req
     if (req.user) {
       const user = req.user;
-      // set to request (for passport and co)
-      req.user = user;
       // set to session (for websockets)
-      req.session.user = user;
+      this.logger.debug('\n\nSet user: ',user);
       req.session[`user-${shop}`] = user;
       req.session.isLoggedInToAppBackend = true;
       return next();
@@ -113,11 +108,9 @@ export class GetUserMiddleware implements NestMiddleware {
           // set to request (for passport and co)
           req.user = user;
           // set to session (for websockets)
-          req.session.user = req.user;
+          this.logger.debug('\n\nSet user: ',user);
           req.session[`user-${shop}`] = user;
-
           req.session.isLoggedInToAppBackend = true;
-
           return next();
         }
       })

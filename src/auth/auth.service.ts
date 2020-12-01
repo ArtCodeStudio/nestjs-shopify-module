@@ -30,6 +30,8 @@ export class ShopifyAuthService {
    */
   oAuthConnect(req: IUserRequest, myshopify_domain?: string) {
 
+    this.logger.debug(`oAuthConnect for shop ${myshopify_domain}`);
+
     if (!myshopify_domain) {
       myshopify_domain = this.getShopSecureForThemeClients(req);
     }
@@ -66,6 +68,7 @@ export class ShopifyAuthService {
    * @param session
    */
   async oAuthCallback(hmac: string, signature: string, state: string, code: string, shop: string, timestamp: string, session: Session) {
+    this.logger.debug(`oAuthCallback for shop ${shop}`);
     const shopifyToken = new ShopifyToken({
       sharedSecret: this.shopifyModuleOptions.shopify.clientSecret,
       apiKey: this.shopifyModuleOptions.shopify.clientID,
@@ -108,11 +111,12 @@ export class ShopifyAuthService {
           if (!user) {
             throw new Error('Error on connect or update user');
           }
-          this.logger.debug(`validate user, user.myshopify_domain: %s`, user.myshopify_domain);
+          this.logger.debug(`validate user, user.myshopify_domain: "%s"`, user.myshopify_domain);
           // Passport stores the user in req.user
+          this.logger.debug('\n\nSet user: ',user);
           session[`user-${user.myshopify_domain}`] = user;
 
-          session.user = user;
+          this.logger.debug(`session "user-${user.myshopify_domain}"`, session[`user-${user.myshopify_domain}`]);
 
           // For fallback if no shop is set in request.headers
           session.currentShop = user.myshopify_domain;
@@ -172,7 +176,7 @@ export class ShopifyAuthService {
   public async getMyShopifyDomainSecureForThemeClients(req: IUserRequest) {
     const anyDomain = this.getShopSecureForThemeClients(req);
     if (!anyDomain) {
-      throw new Error('Shop not found! ' + anyDomain);
+      throw new Error('[getMyShopifyDomainSecureForThemeClients] Domain not found! ' + anyDomain);
     }
     if (anyDomain.endsWith('.myshopify.com')) {
       return anyDomain;
@@ -180,23 +184,47 @@ export class ShopifyAuthService {
     return this.shopifyConnectService.findByDomain(anyDomain)
     .then((shopifyConnect) => {
       if (!shopifyConnect || !shopifyConnect.myshopify_domain) {
-        throw new Error('Shop not found! ' + anyDomain);
+        throw new Error('[getMyShopifyDomainSecureForThemeClients] Shop not found! ' + anyDomain);
       }
       this.logger.debug('getMyShopifyDomain: %s', shopifyConnect.myshopify_domain);
       return shopifyConnect.myshopify_domain;
     });
   }
 
+  public getShopFromRequest(req: IUserRequest) {
+    let shop;
+    if (req.headers) {
+      shop = req.headers['x-shopify-shop-domain'] || req.headers['X-Shopify-Shop-Domain'] || req.headers?.shop || req.headers?.origin?.split('://')[1]
+    }
+
+    if (shop?.toString().endsWith('.myshopify.com')) {
+      return shop;
+    }
+
+    shop = (req.shop || req.query?.shop || req.session?.currentShop).toString()
+
+    if (shop?.toString().endsWith('.myshopify.com')) {
+      return shop;
+    }
+
+    this.logger.debug("Shop not found in request")
+    this.logger.debug("headers", req.headers)
+    this.logger.debug("session", req.session)
+    
+
+    return null;
+  }
+
   /**
    * Check if user is logged in on request
    * @param req
    */
-  protected isLoggedIn(req: IUserRequest) {
-    const shop = req.session.currentShop || req.shop;
-    this.logger.debug('isLoggedIn in ' + shop);
-    if (req.session[`user-${shop}`] !== null && typeof req.session[`user-${shop}`] === 'object') {
+  public isLoggedIn(req: IUserRequest) {
+    const shop = this.getShopFromRequest(req);
+    if (req.user || req.session[`user-${shop}`]) {
       return true;
     }
+    this.logger.debug(`is not logged in "${shop}"`, req.session[`user-${shop}`], req.session);
     return false;
   }
 
@@ -230,7 +258,7 @@ export class ShopifyAuthService {
     let shop: string;
     const host = this.getClientHost(req);
 
-    this.logger.debug('getShopSecureForThemeClients: %s', host);
+    this.logger.debug('getShopSecureForThemeClients host: %s', host);
 
     if (!host) {
       this.logger.debug(`no host!`);
@@ -250,6 +278,7 @@ export class ShopifyAuthService {
     }
 
     // if the host is the host of the app backend the user needs to be logged in
+    this.logger.debug(`compare "${host}" with "${this.shopifyModuleOptions.app.host}"`)
     if (host === this.shopifyModuleOptions.app.host) {
       if (!this.isLoggedIn(req)) {
         return null;
@@ -266,61 +295,13 @@ export class ShopifyAuthService {
   }
 
   protected _getMyShopifyDomainUnsecure(req: IUserRequest) {
-    let shop: string;
-
-    // Get shop from header
-    if (req.headers) {
-      if (req.headers.shop || req.headers['x-shopify-shop-domain'] || req.headers['X-Shopify-Shop-Domain']) {
-        /**
-         * Note: You Can set the shop header in the client for each jquery req by:
-         *
-         * ```
-         *  JQuery.ajaxSetup({
-         *    beforeSend: (xhr: JQueryXHR) => {
-         *      xhr.setRequestHeader('shop', shop);
-         *    },
-         *  });
-         * ```
-         *
-         * Or on riba with:
-         *
-         * ```
-         *   Utils.setRequestHeaderEachRequest('shop', shop);
-         * ```
-         */
-        shop = req.headers.shop as string || req.headers['x-shopify-shop-domain'] as string || req.headers['X-Shopify-Shop-Domain'] as string;
-        if (shop.endsWith('.myshopify.com')) {
-          return shop;
-        }
-      }
-      // From shopify theme
-      if (req.headers.origin) {
-        shop = (req.headers as any).origin.split('://')[1];
-        if (shop.endsWith('.myshopify.com')) {
-          return shop;
-        }
-      }
-    }
-
-    // Get shop from query param
-    if (typeof req.query.shop === 'string') {
-      shop = req.query.shop;
-      if (shop.endsWith('.myshopify.com')) {
-        return shop;
-      }
-    }
-
-    // Fallback
-    if (req.session.currentShop) {
-      shop = req.session.currentShop;
-      if (shop.endsWith('.myshopify.com')) {
-        return shop;
-      }
-    }
+    let shop = this.getShopFromRequest(req);
 
     if (!shop) {
-      throw new Error('Shop not found! ' + shop);
+      throw new Error('[_getMyShopifyDomainUnsecure] Shop not found! ' + shop);
     }
+
+    return shop;
   }
 
   /**

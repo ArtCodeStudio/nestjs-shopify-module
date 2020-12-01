@@ -51,7 +51,7 @@ export class LocalesController {
     @Res() res: Response,
     @Param('theme_id') themeId: number,
   ) {
-    const shopifyConnect = req.session[`shopify-connect-${req.shop}`]; // req.shopifyConnect;
+    const shopifyConnect = req.session[`shopify-connect-${req.shop}`];
     // WORKAROUND for https://github.com/nestjs/nest/issues/1016
     const key = JSON.stringify({name: `shopify/api/themes/${themeId}`, myshopify_domain: shopifyConnect.shop.myshopify_domain});
     return this.cache.wrap<any>(key, () => {

@@ -12,7 +12,7 @@ export * from './charge/interfaces';
 
 export * from './middlewares';
 export * from './guards';
-export * from './socket/redis-session-io.adapter';
+export * from './socket';
 
 export { ShopifyShopSchema } from './shop/shop.schema';
 

@@ -23,11 +23,9 @@ export class GetShopifyConnectMiddleware implements NestMiddleware {
 
       // set to session
       req.session[`shopify-connect-${shop}`] = shopifyConnect;
-      req.session.shopifyConnect = shopifyConnect; // DEPRECATED
 
       // set to request
       req[`shopify-connect-${shop}`] = shopifyConnect;
-      req.shopifyConnect = shopifyConnect; // DEPRECATED
 
       return next();
     });

@@ -60,7 +60,7 @@ export class ShopifyAuthController {
     @Next() next,
     @Session() session: IUserSession,
   ) {
-    shop = shop || shopParam || shopBody || req.headers['x-shopify-shop-domain'] || req.headers['X-Shopify-Shop-Domain'];
+    shop =  shop || shopParam || shopBody || this.shopifyAuthService.getShopFromRequest(req);
     if (typeof shop !== 'string') {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
     }
@@ -78,6 +78,7 @@ export class ShopifyAuthController {
 
     return this.passport.authenticate(`shopify-${shop}`, {
       failureRedirect: `/shopify/auth/failure/${shop}`,
+      successRedirect: `/shopify/auth/success/${shop}`,
       scope: this.shopifyModuleOptions.shopify.scope,
       shop,
       failureFlash: true, // optional, see text as well
@@ -156,11 +157,12 @@ export class ShopifyAuthController {
 
     return this.shopifyAuthService.oAuthCallback(hmac, session.nonce, state, code, shop, timestamp, session)
     .then(async (/*shopifyConnect*/) => {
+      this.logger.debug(`Redirect to /view/settings?shop=${shop}`);
       return res.redirect(`/view/settings?shop=${shop}`);
     })
     .catch((error: Error) => {
       console.error(error);
-      return res.redirect(`failure/${shop}`);
+      return res.redirect(`/shopify/auth/failure/${shop}`);
     });
 
   }
@@ -207,10 +209,15 @@ export class ShopifyAuthController {
   @Get('/success/:shop')
   success(
     @Param('shop') shop,
-    @Res() res: Response
+    @Res() res: Response,
+    @Session() session: IUserSession
   ) {
+
+    this.logger.debug(`success for shop "${shop}", is logged in: ${!!session['user-' + shop]}`);
+
     // For fallback if no shop is set in request.headers
     this.passport.unuse(`shopify-${shop}`);
+
     // Redirect to view TODO get this from config
     return res.redirect('/view/settings');
   }
@@ -298,7 +305,9 @@ export class ShopifyAuthController {
   @Get('/logout')
   @Roles('shopify-staff-member')
   logout(@Res() res: Response, @Req() req: IUserRequest) {
-    req.logout();
+    if (typeof req.logout === 'function') {
+      req.logout();
+    }
     for (const shop of req.session.shops) {
       delete req.session[`user-${shop}`];
     }
@@ -312,8 +321,7 @@ export class ShopifyAuthController {
    */
   @Get('/loggedIn')
   loggedIn(@Res() res: Response, @Req() req: IUserRequest) {
-    const shop = req.session.currentShop || req.shop || req.headers.shop || req.headers['x-shopify-shop-domain'] || req.headers['X-Shopify-Shop-Domain'];
-    if (req.session[`user-${shop}`]) {
+    if (this.shopifyAuthService.isLoggedIn(req)) {
       return res.json(true);
     }
     return res.json(false);
