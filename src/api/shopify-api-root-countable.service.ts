@@ -1,7 +1,6 @@
 // Third party
 import { Infrastructure, Options } from 'shopify-admin-api';
-import { Document } from 'mongoose';
-// import * as pRetry from 'p-retry';
+import { Document, Types } from 'mongoose';
 import { shopifyRetry, mongooseParallelRetry } from '../helpers';
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
@@ -112,14 +111,14 @@ export abstract class ShopifyApiRootCountableService<
     }
   }
 
-  public async listSyncProgress(shopifyConnect: IShopifyConnect): Promise<ISyncProgress[]> {
+  public async listSyncProgress(shopifyConnect: IShopifyConnect) {
     return this.syncprogressModel.find({
       shop: shopifyConnect.myshopify_domain,
       [`options.include${this.upperCaseResourceName}`]: true,
     }).lean();
   }
 
-  public async getLastSyncProgress(shopifyConnect: IShopifyConnect): Promise<ISyncProgress | null> {
+  public async getLastSyncProgress(shopifyConnect: IShopifyConnect) {
     return await this.syncprogressModel.findOne(
       {
         shop: shopifyConnect.myshopify_domain,
@@ -216,7 +215,7 @@ export abstract class ShopifyApiRootCountableService<
         includedSubResourceNames.forEach((subResourceName: string) => {
           seedSubProgress[`synced${subResourceName}Count`] = lastSubProgress[`synced${subResourceName}Count`];
         });
-        seedSubProgress.continuedFromPrevious = lastProgressWithTheseOptions._id;
+        seedSubProgress.continuedFromPrevious = new Types.ObjectId(lastProgressWithTheseOptions._id);
       }
     }
 
@@ -331,15 +330,15 @@ export abstract class ShopifyApiRootCountableService<
    * Internal method used for tests to compare the shopify products with the products in the app's own database
    * @param user
    */
-  public async diffSynced(user: IShopifyConnect): Promise<any> {
+  public async diffSynced(user: IShopifyConnect) {
     const fromDb = await this.listFromDb(user);
     const fromShopify = await this.listAllFromShopify(user);
     this.logger.debug('from DB %d', fromDb.length);
     this.logger.debug('from Shopify %d', fromShopify.length);
-    let dbObj: ShopifyObjectType;
+    let dbObj: any; // TODO@Moritz
     return fromShopify.map(obj =>
       (dbObj = fromDb.find(x =>
-        x.id === obj.id,
+        x.id.toString() === obj.id.toString(),
       )) && {[obj.id]: getDiff(obj, dbObj).filter(x =>
         x.operation !== 'update' && !x.path.endsWith('._id'),
       )},

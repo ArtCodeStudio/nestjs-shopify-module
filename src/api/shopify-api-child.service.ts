@@ -60,7 +60,7 @@ export abstract class ShopifyApiChildService<
     const failOnSyncError = options && options.failOnSyncError;
     delete options.syncToDb;
     delete options.failOnSyncError;
-    delete options.cancelSignal; // TODO?
+    delete options.cancelSignal; // TODO@Moritz?
     return shopifyRetry(() => {
       return shopifyModel.list(parentId, options);
     })

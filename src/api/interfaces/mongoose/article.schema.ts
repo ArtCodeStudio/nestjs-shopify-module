@@ -3,6 +3,23 @@ import { Interfaces } from 'shopify-admin-api';
 
 export type ArticleDocument = Interfaces.Article & Document;
 
+export const ImageSchema = new Schema({
+  /**
+   * A base64 image string only used when creating an image. It will be converted to the src property.
+   */
+  attachment: String,
+
+  /**
+   * The date and time the image was created.
+   */
+  created_at: String,
+
+  /**
+   * The image's src URL.
+   */
+  src: String,
+})
+
 export const ArticleSchema = new Schema({
   id: {type: Number, index: {unique: true}},
   /**
@@ -33,22 +50,7 @@ export const ArticleSchema = new Schema({
   /**
    * The article image.
    */
-  image: {
-    /**
-     * A base64 image string only used when creating an image. It will be converted to the src property.
-     */
-    attachment: String,
-
-    /**
-     * The date and time the image was created.
-     */
-    created_at: String,
-
-    /**
-     * The image's src URL.
-     */
-    src: String,
-  },
+  image: ImageSchema,
 
   /**
    * States whether or not the article is visible.

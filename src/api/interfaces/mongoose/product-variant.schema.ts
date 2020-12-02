@@ -9,7 +9,7 @@ export type ProductVariantDocument = Interfaces.ProductVariant & Document;
 export const ProductVariantOptionSchema = new Schema({
   id: {type: Number, index: {unique: true}},
   product_id: Number,
-  values: [String],
+  values: [], // TODO  [String],
 });
 
 export const ProductVariantSchema = new Schema({

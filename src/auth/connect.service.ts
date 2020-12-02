@@ -110,7 +110,7 @@ export class ShopifyConnectService {
    * @param domain
    */
   async deleteByShopifyId(shopifyID: number) {
-    return this.shopifyConnectModel.deleteOne({shopifyID}).exec()
+    return this.shopifyConnectModel.findOneAndDelete({shopifyID}).exec()
   }
 
 }

@@ -55,7 +55,7 @@ ProductDocument // DatabaseDocumentType
    * Retrieves a list of products from the app's mongodb database.
    * @param user
    */
-  public async listFromDb(user: IShopifyConnect, options: IAppProductListOptions = {}): Promise<Interfaces.Product[]> {
+  public async listFromDb(user: IShopifyConnect, options: IAppProductListOptions = {}) {
 
     const query: any = {};
 

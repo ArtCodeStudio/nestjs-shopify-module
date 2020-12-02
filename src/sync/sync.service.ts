@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { Model, FilterQuery, QueryOptions, Types } from 'mongoose';
 import { Injectable, Inject } from '@nestjs/common';
 import { EventService } from '../event.service';
 
@@ -41,6 +41,7 @@ export class SyncService {
       // Cancel running progresses
       this.logger.debug('Cancel running progresses', progresses);
       const promises = new Array<Promise<SyncProgressDocument>>();
+
       progresses.forEach((progress: SyncProgressDocument) => {
         promises.push(this.update({_id: progress._id}, {state: 'cancelled'}));
       });
@@ -63,7 +64,7 @@ export class SyncService {
    * @param waitMilliseconds
    * @event sync:[shop]:[id]
    */
-  async isSyncRunning(shop: string, id: string, waitMilliseconds?: number): Promise<boolean> {
+  async isSyncRunning(shop: string, id: Types.ObjectId, waitMilliseconds?: number): Promise<boolean> {
     return new Promise(resolve => {
       const callback = () => {
         this.logger.debug(`isRunning: received sync:${shop}:${id}:`);
@@ -83,7 +84,7 @@ export class SyncService {
    * @param shop
    * @param projection
    */
-  async getLastShopSync(shop: string, projection: any = {}): Promise<Partial<SyncProgressDocument>> {
+  async getLastShopSync(shop: string, projection: any = {}) {
     return this.syncProgressModel.findOne(
       { shop },
       projection,
@@ -95,7 +96,7 @@ export class SyncService {
    * @param shop
    * @param projection
    */
-  async listShopSync(shop: string, projection: any = {}): Promise<Partial<SyncProgressDocument>[]> {
+  async listShopSync(shop: string, projection: any = {}) {
     return this.syncProgressModel.find(
       { shop },
       projection,
@@ -103,15 +104,15 @@ export class SyncService {
     ).lean();
   }
 
-  async find(query: Partial<SyncProgressDocument>, options?: any): Promise<SyncProgressDocument[]|null> {
-    return this.syncProgressModel.find(query, {}, options).lean();
+  async find(query: FilterQuery<SyncProgressDocument>, options?: QueryOptions) {
+    return this.syncProgressModel.find(query, {}, options);
   }
 
-  async update(conditions: Partial<SyncProgressDocument>, progress: Partial<SyncProgressDocument>, options?: any): Promise<SyncProgressDocument> {
+  async update(conditions: FilterQuery<SyncProgressDocument>, progress: Partial<SyncProgressDocument>, options?: QueryOptions) {
     return this.syncProgressModel.findOneAndUpdate(conditions, progress, options);
   }
 
-  async findOne(query: Partial<SyncProgressDocument>, options?: any): Promise<SyncProgressDocument|null> {
+  async findOne(query: FilterQuery<SyncProgressDocument>, options?: QueryOptions) {
     return this.syncProgressModel.findOne(query, {}, options).lean();
   }
 
@@ -131,7 +132,7 @@ export class SyncService {
         { _id: true },
       ).lean();
       if (lastProgress) {
-        id = lastProgress._id;
+        id = lastProgress._id.toString();
       }
     }
     if (!id) {

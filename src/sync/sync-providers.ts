@@ -53,7 +53,7 @@ const syncProviders = (connection: Mongoose) => {
                 break;
             }
           }
-          next();
+          next(null);
         });
         return connection.model(`shopify_sync-progress`, SyncProgressSchema) as Model<SyncProgressDocument>;
       },

@@ -1,9 +1,8 @@
-import * as mongoose from 'mongoose';
 import { Schema, Document } from 'mongoose';
 import { ISyncProgress } from '../sync-progress';
 import { ISubSyncProgress, IOrderSyncProgress, IBlogSyncProgress } from '../sub-sync-progress';
 
-export const SyncOptionsSchema = new mongoose.Schema({
+export const SyncOptionsSchema = new Schema({
   includeOrders: Boolean,
   includeTransactions: Boolean,
   includeBlogs: Boolean,
@@ -16,7 +15,7 @@ export const SyncOptionsSchema = new mongoose.Schema({
   cancelExisting: Boolean,
 });
 
-export const SubSyncProgressSchema = new mongoose.Schema({
+export const SubSyncProgressSchema = new Schema({
   info: String,
   shop: String,
   shopifyCount: Number,
@@ -35,7 +34,7 @@ export const SubSyncProgressSchema = new mongoose.Schema({
 
 export type SubSyncProgressDocument = ISubSyncProgress & Document;
 
-export const OrderSyncProgressSchema = new mongoose.Schema({
+export const OrderSyncProgressSchema = new Schema({
   info: String,
   shop: String,
   shopifyCount: Number,
@@ -60,7 +59,7 @@ export type OrderSyncProgressDocument = IOrderSyncProgress & Document;
 
 export type BlogSyncProgressDocument = IBlogSyncProgress & Document;
 
-export const SyncProgressSchema = new mongoose.Schema({
+export const SyncProgressSchema = new Schema({
   shop: String,
   options: SyncOptionsSchema,
   orders: OrderSyncProgressSchema,

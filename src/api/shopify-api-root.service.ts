@@ -79,7 +79,7 @@ export abstract class ShopifyApiRootService<
     const failOnSyncError = options && options.failOnSyncError;
     delete options.syncToDb;
     delete options.failOnSyncError;
-    delete options.cancelSignal; // TODO?
+    delete options.cancelSignal; // TODO@Moritz?
     return shopifyRetry(async (count) => {
       this.logger.debug('[listFromShopify] retry count: %d' + count);
       return shopifyModel.list(options)

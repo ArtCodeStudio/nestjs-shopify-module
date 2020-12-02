@@ -3,15 +3,15 @@ import { Interfaces } from 'shopify-admin-api';
 
 export type PriceSetDocument = Interfaces.TaxLine & Document;
 
+export const MoneySchema = new Schema({
+  amount: String,
+  currency_code: String,
+});
+
+
 export const PriceSetSchema = new Schema({
-  shop_money: {
-    amount: String,
-    currency_code: String,
-  },
-  presentment_money: {
-    amount: String,
-    currency_code: String,
-  }
+  shop_money: MoneySchema,
+  presentment_money: MoneySchema
 }, {
   _id: false,
   minimize: false,

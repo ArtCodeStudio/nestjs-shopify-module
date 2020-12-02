@@ -55,7 +55,7 @@ export class CheckoutsService {
     options = Object.assign({}, options);
     delete options.syncToDb;
     delete options.failOnSyncError;
-    delete options.cancelSignal; // TODO?
+    delete options.cancelSignal; // TODO@Moritz?
     return shopifyRetry(() => {
       return shopifyCheckoutModel.list(options);
     });
