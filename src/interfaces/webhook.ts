@@ -1,4 +1,4 @@
-import { Error } from "mongoose";
+import type { Error } from "mongoose";
 
 export interface WebhookError extends Error {
     body: any;

@@ -1,4 +1,4 @@
-import { IShopifyConnect } from '../auth/interfaces/connect';
+import type { IShopifyConnect } from '../auth/interfaces/connect';
 
 export interface Session {
   /**  @deprecated use session[`user-${user.myshopify_domain}`] instead  */

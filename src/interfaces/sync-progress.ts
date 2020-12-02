@@ -1,6 +1,6 @@
-import { IStartSyncOptions } from './sync-options';
-import { ISubSyncProgress, IOrderSyncProgress } from './sub-sync-progress';
-import { Types } from 'mongoose';
+import type { IStartSyncOptions } from './sync-options';
+import type { ISubSyncProgress, IOrderSyncProgress } from './sub-sync-progress';
+import type { Types } from 'mongoose';
 
 export interface ISyncProgress {
   _id: Types.ObjectId;

@@ -1,6 +1,6 @@
 import { Schema, Document } from 'mongoose';
-import { ISyncProgress } from '../sync-progress';
-import { ISubSyncProgress, IOrderSyncProgress, IBlogSyncProgress } from '../sub-sync-progress';
+import type { ISyncProgress } from '../sync-progress';
+import type { ISubSyncProgress, IOrderSyncProgress, IBlogSyncProgress } from '../sub-sync-progress';
 
 export const SyncOptionsSchema = new Schema({
   includeOrders: Boolean,

@@ -14,7 +14,7 @@ import { Interfaces } from 'shopify-admin-api';
 import { DebugService } from '../../debug.service';
 import { IShopifyConnect, SessionSocket } from '../../interfaces';
 
-@WebSocketGateway({namespace: '/socket.io/shopify/api/products'})
+@WebSocketGateway({namespace: '/socket.io/shopify/api/products', transports: ['websocket', 'polling']})
 export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer() server: SocketIO.Namespace;
@@ -28,13 +28,12 @@ export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   @SubscribeMessage('all')
   onAll(client: SessionSocket, options: IShopifySyncProductListOptions = {}): Observable<WsResponse<Partial<Interfaces.Product>>> {
     const shop = client.handshake.session.currentShop; // TODO
-    let shopifyConnect: IShopifyConnect;
+    this.logger.debug('subscribe all for shop', shop);
+    let shopifyConnect: IShopifyConnect | null = null;
     if (shop) {
       shopifyConnect = client.handshake.session[`shopify-connect-${shop}`];
     }
-    if (!shopifyConnect) {
-      shopifyConnect = client.handshake.session.shopifyConnect; // DEPRECATED
-    }
+    this.logger.debug('subscribe all with shopifyConnect shop', shopifyConnect.myshopify_domain);
     return this.productsService.listAllFromShopifyObservable(shopifyConnect, 'all', options);
   }
 

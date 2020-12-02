@@ -1224,15 +1224,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/socket.io-redis@npm:^1.0.26":
-  version: 1.0.26
-  resolution: "@types/socket.io-redis@npm:1.0.26"
-  dependencies:
-    "@types/socket.io": "*"
-  checksum: 47b15c0d61f5f27539cab1a2ba8afa92956ff1bcc72f0a598ae84a0f2164ab75b0c1d5185ed699e3c2d5f1e7b4150a89fd2f01fa2d823ac3f390b6bacce70cc5
-  languageName: node
-  linkType: hard
-
 "@types/socket.io@npm:*, @types/socket.io@npm:^2.1.11":
   version: 2.1.11
   resolution: "@types/socket.io@npm:2.1.11"
@@ -2377,7 +2368,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.5.0":
+"buffer@npm:^5.1.0, buffer@npm:^5.5.0":
   version: 5.7.1
   resolution: "buffer@npm:5.7.1"
   dependencies:
@@ -2887,6 +2878,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cookie-parser@npm:~1.3.3":
+  version: 1.3.5
+  resolution: "cookie-parser@npm:1.3.5"
+  dependencies:
+    cookie: 0.1.3
+    cookie-signature: 1.0.6
+  checksum: 815388fc843dae7e208f652d49054196e31474761016d10f9245d2d1eb9edcf7ab61e7af08e208dd1e8ac38e8fb23ad563030b17509381d8d70319453725ff49
+  languageName: node
+  linkType: hard
+
+"cookie-signature@npm:1.0.6":
+  version: 1.0.6
+  resolution: "cookie-signature@npm:1.0.6"
+  checksum: ff2caf141b4e894ac0c48150b43a90582c6bcf27219a66f0da1cddfd751fe978a051343700a28a36f9801a944651227fc1e7baf15a7e1b3b92d6b68e0d951c0b
+  languageName: node
+  linkType: hard
+
+"cookie@npm:0.1.3":
+  version: 0.1.3
+  resolution: "cookie@npm:0.1.3"
+  checksum: 30c18acf71be9afdfd8785d1b19448b4b2e4a28bb86fa32886d92d8114d02b4edaf094120752efce6f4390d1426114e560911e592884948da1fcab9a9f5072f7
+  languageName: node
+  linkType: hard
+
 "cookie@npm:0.3.1":
   version: 0.3.1
   resolution: "cookie@npm:0.3.1"
@@ -2912,6 +2927,15 @@ __metadata:
   version: 1.0.2
   resolution: "core-util-is@npm:1.0.2"
   checksum: b2aeb723279455a85125383b7067e66d650187adee4151b6587bc28d8334c9d5ebbc6e4bd6c344355191865e1add46fdec83f2a7f4d83889cfe7e586d9fd50b6
+  languageName: node
+  linkType: hard
+
+"crc@npm:^3.3.0":
+  version: 3.8.0
+  resolution: "crc@npm:3.8.0"
+  dependencies:
+    buffer: ^5.1.0
+  checksum: d3ecf417e2fb472a185d195de3a4ba26397840791aa7eeddaa3e11b9a7ed263386b14c3a85cf7e5c8850521cdde1c428672632a8c7dbf4ec2cd34fcc86ebbfc7
   languageName: node
   linkType: hard
 
@@ -2996,7 +3020,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:2.6.9, debug@npm:^2.2.0, debug@npm:^2.3.3":
+"debug@npm:2.6.9, debug@npm:^2.2.0, debug@npm:^2.3.3, debug@npm:~2.6.0":
   version: 2.6.9
   resolution: "debug@npm:2.6.9"
   dependencies:
@@ -3626,6 +3650,17 @@ __metadata:
     jest-message-util: ^26.6.2
     jest-regex-util: ^26.0.0
   checksum: 9e39bfe8bc143bb60d0dd58ba8d935ec528abb02cadf50195147805fbd622dd46ed3012c77070965936560425acdc3ccebae772deecfd9e288c3133377d5a465
+  languageName: node
+  linkType: hard
+
+"express-socket.io-session@npm:^1.3.5":
+  version: 1.3.5
+  resolution: "express-socket.io-session@npm:1.3.5"
+  dependencies:
+    cookie-parser: ~1.3.3
+    crc: ^3.3.0
+    debug: ~2.6.0
+  checksum: 1fe77bee5c7f28728337c6afcddf188b423b5be720aad372a5cc66361f39af2ddb00d2be79ad2e6ef7fd376b5492cd8cd2c05141558896a6673a4f12f1745aa4
   languageName: node
   linkType: hard
 
@@ -6076,7 +6111,6 @@ fsevents@^2.1.2:
     "@types/passport": ^1.0.4
     "@types/retry": ^0.12.0
     "@types/socket.io": ^2.1.11
-    "@types/socket.io-redis": ^1.0.26
     "@types/supertest": ^2.0.10
     "@typescript-eslint/eslint-plugin": ^4.9.0
     "@typescript-eslint/parser": ^4.9.0
@@ -6091,6 +6125,7 @@ fsevents@^2.1.2:
     eslint: ^7.14.0
     eslint-config-prettier: ^6.15.0
     eslint-plugin-prettier: ^3.1.4
+    express-socket.io-session: ^1.3.5
     ioredis: ^4.19.2
     jest: ^26.6.3
     mongoose: ^5.11.1
@@ -6105,7 +6140,7 @@ fsevents@^2.1.2:
     rxjs: ^6.6.3
     shopify-admin-api: "portal:../shopify-admin-api::locator=nest-shopify%40workspace%3A."
     shopify-token: ^4.0.0
-    socket.io-redis: ^6.0.1
+    socket.io-redis: ^5.4.0
     supertest: ^6.0.1
     ts-jest: ^26.4.4
     ts-node: ^9.0.0
@@ -7761,13 +7796,6 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"socket.io-adapter@npm:~2.0.0":
-  version: 2.0.3
-  resolution: "socket.io-adapter@npm:2.0.3"
-  checksum: f0b8223761785b20676065bd52cd6837a5afe06ec2ab21d8871d7c638fe55cfd5b3530c58cd9f138cd19c85bfe7a21b739c8a731747a984c38b870fb064f1439
-  languageName: node
-  linkType: hard
-
 "socket.io-client@npm:2.3.0":
   version: 2.3.0
   resolution: "socket.io-client@npm:2.3.0"
@@ -7812,16 +7840,16 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"socket.io-redis@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "socket.io-redis@npm:6.0.1"
+"socket.io-redis@npm:^5.4.0":
+  version: 5.4.0
+  resolution: "socket.io-redis@npm:5.4.0"
   dependencies:
     debug: ~4.1.0
     notepack.io: ~2.2.0
     redis: ^3.0.0
-    socket.io-adapter: ~2.0.0
+    socket.io-adapter: ~1.1.0
     uid2: 0.0.3
-  checksum: 2f2ba4d724bd56353c95c7a5bf4c08a8263a49a3ea3910f140a8941ba163d347139934142965bd68c65b135f05a6a0df12d047c75e48a80c47e566f2a3d71e75
+  checksum: 1cb16097f12fa608eba26dd49c6337e18fed701d92da73d5c0e0b0858c4335f98abd79093e4e1441bc341a4823e17d9fb5ed99656f5913eb5f2cb9707339b798
   languageName: node
   linkType: hard
 

@@ -1,26 +1,28 @@
 import { INestApplicationContext } from '@nestjs/common';
-import { Server } from 'http';
+import { Server as HttpServer } from 'http';
 import * as express from 'express';
-import { IoAdapter } from '@nestjs/platform-socket.io';
-// import * as Redis from 'redis';
 import Redis from 'ioredis';
-import { RedisAdapter, createAdapter } from 'socket.io-redis';
+import redisAdapter = require('socket.io-redis');
 import * as sharedsession from 'express-socket.io-session';
-import { Socket } from 'socket.io';
+import { Socket, Server } from 'socket.io';
 import { NextFunction } from 'express';
 import { SessionIoAdapter } from './session-io.adapter';
+import { DebugService } from '../debug.service';
 
 /**
- * @see https://github.com/nestjs/nest/blob/master/packages/websockets/adapters/io-adapter.ts
+ * @see https://github.com/nestjs/nest/blob/master/packages/platform-socket.io/adapters/io-adapter.ts
+ * @see https://github.com/nestjs/nest/blob/master/packages/websockets/adapters/ws-adapter.ts
  */
 export class RedisSessionIoAdapter extends SessionIoAdapter {
 
+  protected logger = new DebugService('shopify:SessionIoAdapter');
+
   protected socketSessionMiddleware: (socket: Socket, next: NextFunction) => void;
 
-  protected redisAdapter: RedisAdapter;
+  protected redisAdapter: typeof redisAdapter;
 
-  constructor(session: express.RequestHandler, redisUrl: string, host: string, appOrHttpServer: INestApplicationContext | Server) {
-    super(session, host, appOrHttpServer);
+  constructor(session: express.RequestHandler, redisUrl: string, host: string, appOrHttpServer: INestApplicationContext | HttpServer) {
+    super(session, appOrHttpServer);
 
     const pub = new Redis(redisUrl, { keyPrefix: host });
     const sub = new Redis(redisUrl, { keyPrefix: host });
@@ -32,19 +34,11 @@ export class RedisSessionIoAdapter extends SessionIoAdapter {
      * or servers that can all broadcast and emit events to and from each other.
      * @see https://github.com/socketio/socket.io-redis
      */
-    this.redisAdapter = createAdapter({ pubClient: pub, subClient: sub });
-
-    /**
-     * Make session available on socket.io client socket object
-     * @see https://github.com/oskosk/express-socket.io-session
-     */
-    this.socketSessionMiddleware = sharedsession(session, {
-      autoSave: true,
-    });
+    this.redisAdapter = redisAdapter({ pubClient: pub, subClient: sub });
   }
 
-  createIOServer(port: number, options?: any): any {
-    const server = super.createIOServer(port, options);
+  createIOServer(port: number, options?: any) {
+    const server: Server = super.createIOServer(port, options);
     server.adapter(this.redisAdapter);
     return server;
   }

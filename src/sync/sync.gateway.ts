@@ -13,7 +13,7 @@ import {
   SyncProgressDocument,
 } from '../interfaces';
 
-@WebSocketGateway({namespace: '/socket.io/shopify/sync'})
+@WebSocketGateway({namespace: '/socket.io/shopify/sync', transports: ['websocket', 'polling']})
 export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer() server: SocketIO.Namespace;

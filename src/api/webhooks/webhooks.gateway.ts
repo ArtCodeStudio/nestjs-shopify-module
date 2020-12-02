@@ -1,12 +1,17 @@
 import {
   WebSocketGateway,
+  WebSocketServer,
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket
 } from '@nestjs/websockets';
 
 // Third party
 import { Interfaces } from 'shopify-admin-api';
+import { Server, Namespace } from 'socket.io';
 
 // Interfaces
 import { SessionSocket } from '../../interfaces/session-socket';
@@ -20,18 +25,26 @@ import { WebhooksService } from '../../webhooks/webhooks.service';
 /**
  * Rooms: `${myshopifyDomain}-app-backend`, `${myshopifyDomain}-client-theme`
  */
-@WebSocketGateway({namespace: '/socket.io/shopify/api/webhooks'})
+@WebSocketGateway({namespace: '/socket.io/shopify/api/webhooks', transports: ['websocket', 'polling'] })
 export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
+
+  @WebSocketServer()
+  nps: Namespace;
 
   constructor(
     protected readonly eventService: EventService,
     protected readonly shopifyConnectService: ShopifyConnectService,
     protected readonly webhooksService: WebhooksService,
-  ) {}
+  ) {
+  }
 
   afterInit(nsp: SocketIO.Namespace) {
-    this.logger.debug('afterInit: %s', nsp.name);
+    this.logger.debug('afterInit: %s', nsp.name, this.nps);
+
+    // WORKAROUND
+    this.nps.server.on('connection', this.handleConnection.bind(this))
+    this.nps.server.on('disconnect', this.handleDisconnect.bind(this))
 
     this.eventService.on(`webhook:carts/create`, (myshopifyDomain: string, data: any) => {
       nsp.to(`${myshopifyDomain}-app-backend`).emit('webhook:carts/create', data);
@@ -227,11 +240,13 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     });
 
     this.eventService.on(`webhook:products/create`, (myshopifyDomain: string, product: Interfaces.Product) => {
+      this.logger.debug(`Forward webhook:products/create to namespace "${myshopifyDomain}-app-backend"`)
       // For app backend users
       nsp.to(`${myshopifyDomain}-app-backend`).emit('products/create', product);
 
       // For theme clients (only if product is published for safety reasons)
       if (product.published_at !== null) {
+        this.logger.debug(`Forward webhook:products/create to namespace "${myshopifyDomain}-client-theme"`)
         nsp.to(`${myshopifyDomain}-client-theme`).emit('products/create', product);
       }
     });
@@ -302,17 +317,40 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     this.logger.debug('connect: %d', client.id);
     // Join the room for app backend users to receive broadcast events
     if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
-
       client.join(`${client.handshake.session.currentShop}-app-backend`);
+      this.logger.debug(`Joined ${client.handshake.session.currentShop}-app-backend`);
     }
     // Join the room for theme client visitors to receive broadcast events
     if (client.handshake.session && client.handshake.session.isThemeClientRequest) {
       client.join(`${client.handshake.session.currentShop}-client-theme`);
+      this.logger.debug(`Joined ${client.handshake.session.currentShop}-client-theme`);
     }
   }
 
   handleDisconnect(client: SessionSocket) {
     this.logger.debug('disconnect: %d', client.id);
+  }
+
+  // TODO unused
+  @SubscribeMessage('join-theme')
+  joinTheme(@MessageBody() data: any, @ConnectedSocket() client: SessionSocket) {
+    this.logger.debug('join-theme: %d', client.id, data);
+    // Join the room for theme client visitors to receive broadcast events
+    if (client.handshake.session && client.handshake.session.isThemeClientRequest) {
+      client.join(`${client.handshake.session.currentShop}-client-theme`);
+    }
+    return {}
+  }
+
+  // TODO unused
+  @SubscribeMessage('join-backend')
+  joinBackend(@MessageBody() data: any, @ConnectedSocket() client: SessionSocket) {
+    this.logger.debug('join-backend: %d', client.id, data);
+    // Join the room for app backend users to receive broadcast events
+    if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
+      client.join(`${client.handshake.session.currentShop}-app-backend`);
+    }
+    return {}
   }
 
 }

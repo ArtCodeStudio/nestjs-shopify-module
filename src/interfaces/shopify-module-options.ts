@@ -1,7 +1,7 @@
-import { IPlan } from '../charge/interfaces/plan';
-import { Enums } from 'shopify-admin-api';
-import * as redisStore from 'cache-manager-ioredis';
-import { Resource } from './resource'
+import type { IPlan } from '../charge/interfaces/plan';
+import type { Enums } from 'shopify-admin-api';
+import type * as redisStore from 'cache-manager-ioredis';
+import type { Resource } from './resource'
 
 
 export interface ConfigApp {
