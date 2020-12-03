@@ -53,6 +53,7 @@ export class ShopifyAuthController {
   @Get()
   oAuthConnect(
     @Query('shop') shop,
+    @Query('scope') scope,
     @Param('shop') shopParam: string,
     @Body('shop') shopBody: string,
     @Req() req: IUserRequest,
@@ -71,7 +72,7 @@ export class ShopifyAuthController {
     session.currentShop = shop;
     req.shop = shop;
 
-    this.logger.debug('auth called: %s', `AuthController:${shop}`);
+    this.logger.debug('auth called: %s', `AuthController:${shop}`, `Scope:${scope}`);
 
     const shopifyAuthStrategy = new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions, this.passport);
     this.passport.use(`shopify-${shop}`, shopifyAuthStrategy);
@@ -79,7 +80,7 @@ export class ShopifyAuthController {
     return this.passport.authenticate(`shopify-${shop}`, {
       failureRedirect: `/shopify/auth/failure/${shop}`,
       successRedirect: `/shopify/auth/success/${shop}`,
-      scope: this.shopifyModuleOptions.shopify.scope,
+      scope: scope || this.shopifyModuleOptions.shopify.scope,
       shop,
       failureFlash: true, // optional, see text as well
     } as any)(req, res, next);
