@@ -59,7 +59,7 @@ export const OrderSchema = new Schema({
   order_status_url: String,
   phone: String,
   payment_details: PaymentDetailsSchema,
-  payment_gateway_names: [], // TODO [String], https://github.com/Automattic/mongoose/issues/9617
+  payment_gateway_names: [String],
   presentment_currency: String,
   processed_at: String,
   processing_method: String,

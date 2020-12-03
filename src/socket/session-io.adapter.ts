@@ -29,9 +29,18 @@ export class SessionIoAdapter extends IoAdapter {
     });
   }
 
+  public create(
+    port: number,
+    options?: any & { namespace?: string; server?: any },
+  ) {
+    this.logger.debug('create')
+    const server: Server = super.create(port, options)
+    return server;
+  }
+
   createIOServer(port: number, options?: any) {
 
-    this.logger.debug('createIOServer', port, options)
+    this.logger.debug('createIOServer')
 
     const server: Server = super.createIOServer(port, options);
 

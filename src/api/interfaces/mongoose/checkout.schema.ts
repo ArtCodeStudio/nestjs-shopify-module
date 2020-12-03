@@ -11,10 +11,9 @@ import { TaxLineSchema } from './tax-line.schema';
 
 export type CheckoutDocument = Interfaces.Checkout & Document;
 
-// TODO
 export const CheckoutOptionSchema = new Schema({
   id: {type: Number, index: {unique: true}},
-  values: [], // TODO [String], https://github.com/Automattic/mongoose/issues/9617
+  values: [String],
 });
 
 export const CheckoutSchema = new Schema({

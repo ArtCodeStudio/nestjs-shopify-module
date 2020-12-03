@@ -13,7 +13,7 @@ import {
   SyncProgressDocument,
 } from '../interfaces';
 
-@WebSocketGateway({namespace: '/socket.io/shopify/sync', transports: ['websocket', 'polling']})
+@WebSocketGateway({namespace: '/shopify/sync/socket.io', transports: ['websocket', 'polling']})
 export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer() server: SocketIO.Namespace;
@@ -31,7 +31,7 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   // }
 
   afterInit(nsp: SocketIO.Namespace) {
-    // this.logger.debug('afterInit', nsp.name);
+    this.logger.debug('afterInit', nsp.name);
 
     this.eventService.on(`sync-exception`, (myshopifyDomain: string, error: any) => {
       nsp.to(`${myshopifyDomain}-app-backend`).emit('sync-exception', error);

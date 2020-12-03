@@ -19,9 +19,9 @@ export const FulfillmentSchema = new Schema({
   status: String,
   tracking_company: String,
   tracking_number: String,
-  tracking_numbers: [], // TODO [String], https://github.com/Automattic/mongoose/issues/9617
+  tracking_numbers: [String],
   tracking_url: String,
-  tracking_urls: [], // TODO [String], https://github.com/Automattic/mongoose/issues/9617
+  tracking_urls: [String],
   updated_at: String,
   variant_inventory_management: String,
 }, {

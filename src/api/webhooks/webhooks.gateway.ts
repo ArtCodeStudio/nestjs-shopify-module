@@ -40,7 +40,7 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   }
 
   afterInit(nsp: SocketIO.Namespace) {
-    this.logger.debug('afterInit: %s', nsp.name, this.nps);
+    this.logger.debug('afterInit: %s', nsp.name);
 
     // WORKAROUND
     this.nps.server.on('connection', this.handleConnection.bind(this))
@@ -314,39 +314,29 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   }
 
   handleConnection(client: SessionSocket) {
-    this.logger.debug('connect: %d', client.id);
-    // Join the room for app backend users to receive broadcast events
-    if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
-      client.join(`${client.handshake.session.currentShop}-app-backend`);
-      this.logger.debug(`Joined ${client.handshake.session.currentShop}-app-backend`);
-    }
-    // Join the room for theme client visitors to receive broadcast events
-    if (client.handshake.session && client.handshake.session.isThemeClientRequest) {
-      client.join(`${client.handshake.session.currentShop}-client-theme`);
-      this.logger.debug(`Joined ${client.handshake.session.currentShop}-client-theme`);
-    }
+    this.joinBackend(client);
+    this.joinTheme(client);
+    this.logger.debug('connect rooms: ', client.rooms);
   }
 
   handleDisconnect(client: SessionSocket) {
     this.logger.debug('disconnect: %d', client.id);
   }
 
-  // TODO unused
+  // Join the room for theme client visitors to receive broadcast events
   @SubscribeMessage('join-theme')
-  joinTheme(@MessageBody() data: any, @ConnectedSocket() client: SessionSocket) {
-    this.logger.debug('join-theme: %d', client.id, data);
-    // Join the room for theme client visitors to receive broadcast events
+  joinTheme(@ConnectedSocket() client: SessionSocket) {
+    this.logger.debug('join-theme: ', client.handshake.session.currentShop);
     if (client.handshake.session && client.handshake.session.isThemeClientRequest) {
       client.join(`${client.handshake.session.currentShop}-client-theme`);
     }
     return {}
   }
 
-  // TODO unused
+  // Join the room for app backend users to receive broadcast events
   @SubscribeMessage('join-backend')
-  joinBackend(@MessageBody() data: any, @ConnectedSocket() client: SessionSocket) {
-    this.logger.debug('join-backend: %d', client.id, data);
-    // Join the room for app backend users to receive broadcast events
+  joinBackend(@ConnectedSocket() client: SessionSocket) {
+    this.logger.debug('join-backend: ', client.handshake.session.currentShop);
     if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
       client.join(`${client.handshake.session.currentShop}-app-backend`);
     }

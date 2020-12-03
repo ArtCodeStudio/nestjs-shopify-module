@@ -14,4 +14,6 @@ export interface IShopifyConnect {
   shop: IShopifyShop;
 }
 
-export interface IShopifyConnectDocument extends IShopifyConnect, Document {}
+export interface IShopifyConnectDocument extends IShopifyConnect, Document {
+  _id: Types.ObjectId;
+}

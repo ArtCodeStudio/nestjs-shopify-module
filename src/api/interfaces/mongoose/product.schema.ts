@@ -9,7 +9,7 @@ export const ProductOptionSchema = new Schema({
   product_id: Number,
   name: String,
   position: Number,
-  values: [], // TODO [String],
+  values: [String],
 });
 
 
@@ -24,7 +24,7 @@ export const ProductImageSchema = new Schema({
   product_id: Number,
   src: String,
   updated_at: String,
-  variant_ids: [], // TODO [Number]
+  variant_ids: [Number],
   width: Number,
 });
 

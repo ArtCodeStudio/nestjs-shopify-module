@@ -929,10 +929,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/elasticsearch@npm:^5.0.36":
-  version: 5.0.36
-  resolution: "@types/elasticsearch@npm:5.0.36"
-  checksum: 451d905112ee3ff662dd38cfbcdba4d53f9303631fb4a990cb8dea73a8c6dc7bd770570807afbeb912c0ecf558d2b96a73d376f3646e86c530f6937d6e746723
+"@types/elasticsearch@npm:^5.0.37":
+  version: 5.0.37
+  resolution: "@types/elasticsearch@npm:5.0.37"
+  checksum: bc7aceb838726313af6e3e7bbcdce0f5d8eb500def80b4dc3946b131ba3ca7f1c9d86a51f282113d4ccd161d2ab3ede8002d0281adb0acf9ec5b8422011dcd84
   languageName: node
   linkType: hard
 
@@ -1095,13 +1095,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mongodb@npm:^3.5.27, @types/mongodb@npm:^3.5.34":
+"@types/mongodb@npm:^3.5.27":
   version: 3.5.34
   resolution: "@types/mongodb@npm:3.5.34"
   dependencies:
     "@types/bson": "*"
     "@types/node": "*"
   checksum: c1d3f3721f55f2bf5fde52985e7c2fbf806050350744cefa49298775448f615c64f208900d180999822190348c3594353c6d16265b1fd2fe882fafb8e1dcfa2e
+  languageName: node
+  linkType: hard
+
+"@types/mongodb@npm:^3.6.0":
+  version: 3.6.0
+  resolution: "@types/mongodb@npm:3.6.0"
+  dependencies:
+    "@types/bson": "*"
+    "@types/node": "*"
+  checksum: e155856354a2d5a93e541ae8800d7c2c18b249eb520415c25dbe6592b3591864b8ff74958cc22f3c2441492320bfb5063f581e743449cb2ccde26f7da8937b8d
   languageName: node
   linkType: hard
 
@@ -3412,15 +3422,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:^3.1.4":
-  version: 3.1.4
-  resolution: "eslint-plugin-prettier@npm:3.1.4"
+"eslint-plugin-prettier@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "eslint-plugin-prettier@npm:3.2.0"
   dependencies:
     prettier-linter-helpers: ^1.0.0
   peerDependencies:
     eslint: ">=5.0.0"
     prettier: ">=1.13.0"
-  checksum: 7db860d301c2ec8a307c2a1c84a945f7bf4ad592abc3638fef94047f4312f21bb6883e242accef9b84263c39a712dfacc280ec1048e99e92a331e04e4dc15cb1
+  checksum: d46bf26c1d8ceff32743fcecedd885c65b5dd6f714b58cde24903e83ecbfc372fdfa07d2e438494ddfde3661fb10383f34b47c9ad37021bf13fde0364dfa9669
   languageName: node
   linkType: hard
 
@@ -5986,9 +5996,9 @@ fsevents@^2.1.2:
   languageName: node
   linkType: hard
 
-"mongoose@npm:5.11.1, mongoose@npm:^5.11.1":
-  version: 5.11.1
-  resolution: "mongoose@npm:5.11.1"
+"mongoose@npm:5.11.3, mongoose@npm:^5.11.3":
+  version: 5.11.3
+  resolution: "mongoose@npm:5.11.3"
   dependencies:
     "@types/mongodb": ^3.5.27
     bson: ^1.1.4
@@ -6002,7 +6012,7 @@ fsevents@^2.1.2:
     safe-buffer: 5.2.1
     sift: 7.0.1
     sliced: 1.0.1
-  checksum: 57255b4c7466daf15e4ef9a59cb94a98514c54a287c3db3b15c38b9b4d34890f8cdc47d4671c1a07e1707bb9662370630e3592cf1134cd037a631c478316b1b4
+  checksum: 94bb38ccd48accd49e65a91e1b966f089664f36af3c4b5c1670021e7852b5eda04b47239c9aa29611f5a99ca6acf7a21d61f1793855c839c098aaa22db814267
   languageName: node
   linkType: hard
 
@@ -6097,13 +6107,13 @@ fsevents@^2.1.2:
     "@types/concat-stream": ^1.6.0
     "@types/debug": ^4.1.5
     "@types/deepmerge": ^2.2.0
-    "@types/elasticsearch": ^5.0.36
+    "@types/elasticsearch": ^5.0.37
     "@types/express": ^4.17.9
     "@types/express-session": ^1.17.3
     "@types/express-socket.io-session": ^1.3.4
     "@types/ioredis": ^4.17.8
     "@types/jest": ^26.0.16
-    "@types/mongodb": ^3.5.34
+    "@types/mongodb": ^3.6.0
     "@types/node": ^14.14.10
     "@types/node-fetch": ^2.5.7
     "@types/p-queue": ^3.2.1
@@ -6124,11 +6134,11 @@ fsevents@^2.1.2:
     deepmerge: ^4.2.2
     eslint: ^7.14.0
     eslint-config-prettier: ^6.15.0
-    eslint-plugin-prettier: ^3.1.4
+    eslint-plugin-prettier: ^3.2.0
     express-socket.io-session: ^1.3.5
     ioredis: ^4.19.2
     jest: ^26.6.3
-    mongoose: ^5.11.1
+    mongoose: ^5.11.3
     node-fetch: ^2.6.1
     p-map: ^4.0.0
     p-queue: ^6.6.2

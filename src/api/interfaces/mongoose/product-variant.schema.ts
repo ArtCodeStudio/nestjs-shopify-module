@@ -5,11 +5,10 @@ export {} from '.'
 
 export type ProductVariantDocument = Interfaces.ProductVariant & Document;
 
-// TODO
 export const ProductVariantOptionSchema = new Schema({
   id: {type: Number, index: {unique: true}},
   product_id: Number,
-  values: [], // TODO  [String],
+  values: [String],
 });
 
 export const ProductVariantSchema = new Schema({

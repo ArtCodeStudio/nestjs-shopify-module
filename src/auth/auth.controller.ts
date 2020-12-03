@@ -72,7 +72,7 @@ export class ShopifyAuthController {
     session.currentShop = shop;
     req.shop = shop;
 
-    this.logger.debug('auth called: %s', `AuthController:${shop}`, `Scope:${scope}`);
+    this.logger.debug('auth called: %s', `AuthController:${shop}`, `Scope:${scope}`, `Query:${JSON.stringify(req.query)}`);
 
     const shopifyAuthStrategy = new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions, this.passport);
     this.passport.use(`shopify-${shop}`, shopifyAuthStrategy);
