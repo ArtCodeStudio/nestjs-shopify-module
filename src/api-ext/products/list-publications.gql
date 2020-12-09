@@ -1,4 +1,5 @@
-products(first: $first) {
+query listPublications($first: Int!) {
+  products(first: $first) {
     edges {
       node {
         title

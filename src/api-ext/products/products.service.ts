@@ -13,10 +13,12 @@ export class ExtProductsService {
 
     constructor(@Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions) {}
 
-    listPublications(user: IShopifyConnect, options: any = {}) {
+    async listPublications(user: IShopifyConnect, options: any = {}) {
         const graphQLClient = new GraphQLClient(user.myshopify_domain, user.accessToken);
-        return graphQLClient.execute('src/api-ext/products/list-publications.gql', {
+        const result = await graphQLClient.execute('src/api-ext/products/list-publications.gql', {
             first: 50
-        })
+        });
+        this.logger.debug("listPublications result", result);
+        return result;
     }
 }
