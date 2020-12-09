@@ -1,8 +1,8 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 import { ProductVariantSchema } from './product-variant.schema'
 
-export type ProductDocument = Interfaces.Product & Document;
+export type ProductDocument = DocumentDefinition<Interfaces.Product> & Document;
 
 export const ProductOptionSchema = new Schema({
   id: {type: Number, index: {unique: true}},
@@ -11,8 +11,6 @@ export const ProductOptionSchema = new Schema({
   position: Number,
   values: [String],
 });
-
-
 
 export const ProductImageSchema = new Schema({
   id: {type: Number, index: {unique: true, sparse: true}},

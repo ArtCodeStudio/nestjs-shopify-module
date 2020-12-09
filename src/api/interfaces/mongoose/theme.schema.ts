@@ -1,7 +1,7 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 
-export type ThemeDocument = Interfaces.Theme & Document;
+export type ThemeDocument = DocumentDefinition<Interfaces.Theme> & Document;
 
 export const ThemeSchema = new Schema({
   name: String,

@@ -1,7 +1,7 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 
-export type AssetDocument = Interfaces.Asset & Document;
+export type AssetDocument = DocumentDefinition<Interfaces.Asset> & Document;
 
 export const AssetSchema = new Schema({
   attachment: String,

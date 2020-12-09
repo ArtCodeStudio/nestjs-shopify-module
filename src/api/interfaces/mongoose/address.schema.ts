@@ -1,7 +1,7 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 
-export type AddressDocument = Interfaces.Address & Document;
+export type AddressDocument = DocumentDefinition<Interfaces.Address> & Document;
 
 export const AddressSchema = new Schema({
   id: Number,

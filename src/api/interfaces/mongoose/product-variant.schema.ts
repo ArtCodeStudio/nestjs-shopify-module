@@ -1,9 +1,7 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 
-export {} from '.'
-
-export type ProductVariantDocument = Interfaces.ProductVariant & Document;
+export type ProductVariantDocument = DocumentDefinition<Interfaces.ProductVariant> & Document;
 
 export const ProductVariantOptionSchema = new Schema({
   id: {type: Number, index: {unique: true}},

@@ -2,7 +2,7 @@ import type { Socket, Handshake } from 'socket.io';
 import type { Session } from './session';
 
 export interface SessionHandshake extends Handshake {
-  session: Session & Handshake['session'];
+  session: Session;
   headers: any;
   time: string;
   address: string;

@@ -1,7 +1,7 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 
-export type ArticleDocument = Interfaces.Article & Document;
+export type ArticleDocument = DocumentDefinition<Interfaces.Article> & Document;
 
 export const ImageSchema = new Schema({
   /**

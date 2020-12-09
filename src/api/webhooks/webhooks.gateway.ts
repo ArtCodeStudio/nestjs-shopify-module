@@ -5,13 +5,12 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
-  MessageBody,
   ConnectedSocket
 } from '@nestjs/websockets';
 
 // Third party
 import { Interfaces } from 'shopify-admin-api';
-import { Server, Namespace } from 'socket.io';
+import { Namespace } from 'socket.io';
 
 // Interfaces
 import { SessionSocket } from '../../interfaces/session-socket';

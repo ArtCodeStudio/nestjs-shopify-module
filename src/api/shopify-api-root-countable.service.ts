@@ -4,7 +4,7 @@ import { Document, Types } from 'mongoose';
 import { shopifyRetry, mongooseParallelRetry } from '../helpers';
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
-import { SyncProgressDocument, SubSyncProgressDocument, ISyncProgress, IStartSyncOptions, ISubSyncProgressFinishedCallback } from '../interfaces';
+import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions, ISubSyncProgressFinishedCallback } from '../interfaces';
 import { listAllCallback, IListAllCallbackData, ISyncOptions, ShopifyBaseObjectType, RootCount, RootGet, RootList } from './interfaces';
 import { deleteUndefinedProperties, getDiff } from '../helpers';
 import { ShopifyApiRootService } from './shopify-api-root.service';

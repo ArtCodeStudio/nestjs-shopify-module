@@ -3,7 +3,6 @@ import { Server as HttpServer } from 'http';
 import * as express from 'express';
 import Redis from 'ioredis';
 import redisAdapter = require('socket.io-redis');
-import * as sharedsession from 'express-socket.io-session';
 import { Socket, Server } from 'socket.io';
 import { NextFunction } from 'express';
 import { SessionIoAdapter } from './session-io.adapter';

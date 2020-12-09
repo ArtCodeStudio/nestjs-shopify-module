@@ -1,8 +1,8 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 import { CollectionImageSchema } from './collection-image.schema';
 
-export type SmartCollectionDocument = Interfaces.SmartCollection & Document;
+export type SmartCollectionDocument = DocumentDefinition<Interfaces.SmartCollection> & Document;
 
 export const SmartCollectionRuleSchema = new Schema({
   column: String,

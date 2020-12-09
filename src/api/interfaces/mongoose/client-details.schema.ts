@@ -1,7 +1,7 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 
-export type ClientDetailsDocument = Interfaces.ClientDetails & Document;
+export type ClientDetailsDocument = DocumentDefinition<Interfaces.ClientDetails> & Document;
 
 export const ClientDetailsSchema = new Schema({
   accept_language: String,

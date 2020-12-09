@@ -295,7 +295,7 @@ export class ShopifyAuthService {
   }
 
   protected _getMyShopifyDomainUnsecure(req: IUserRequest) {
-    let shop = this.getShopFromRequest(req);
+    const shop = this.getShopFromRequest(req);
 
     if (!shop) {
       throw new Error('[_getMyShopifyDomainUnsecure] Shop not found! ' + shop);

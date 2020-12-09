@@ -1,6 +1,6 @@
 // Third party
 import { BulkWriteOpResultObject } from 'mongodb';
-import { Model, Document, Query} from 'mongoose';
+import { Model, Document } from 'mongoose';
 import { Infrastructure } from 'shopify-admin-api';
 
 import { IShopifyConnect } from '../auth/interfaces';

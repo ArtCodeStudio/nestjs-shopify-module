@@ -1,14 +1,14 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 import { TransactionSchema } from './transaction.schema';
 import { LineItemSchema } from './line-item.schema';
 import { PriceSetSchema } from './price-set.schema';
 
-export type OrderAdjustmentDocument = Interfaces.OrderAdjustment & Document;
+export type OrderAdjustmentDocument = DocumentDefinition<Interfaces.OrderAdjustment> & Document;
 
-export type RefundLineItemDocument = Interfaces.RefundLineItem & Document;
+export type RefundLineItemDocument = DocumentDefinition<Interfaces.RefundLineItem> & Document;
 
-export type RefundDocument = Interfaces.Refund & Document;
+export type RefundDocument = DocumentDefinition<Interfaces.Refund> & Document;
 
 export const OrderAdjustmentSchema = new Schema({
   id: {type: Number, index: {unique: true, sparse: true}},

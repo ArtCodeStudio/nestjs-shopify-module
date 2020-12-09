@@ -1,8 +1,8 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 import { PaymentDetailsSchema } from './payment-details.schema';
 
-export type TransactionDocument = Interfaces.Transaction & Document;
+export type TransactionDocument = DocumentDefinition<Interfaces.Transaction> & Document;
 
 export const TransactionSchema = new Schema({
   id: {type: Number, index: {unique: true}},

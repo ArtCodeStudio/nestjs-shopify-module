@@ -1,4 +1,4 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 
 import { AddressSchema } from './address.schema';
@@ -9,7 +9,7 @@ import { ShippingLineSchema } from './shipping-line.schema';
 import { NoteAttributeSchema } from './note-attribute.schema';
 import { TaxLineSchema } from './tax-line.schema';
 
-export type CheckoutDocument = Interfaces.Checkout & Document;
+export type CheckoutDocument = DocumentDefinition<Interfaces.Checkout> & Document;
 
 export const CheckoutOptionSchema = new Schema({
   id: {type: Number, index: {unique: true}},

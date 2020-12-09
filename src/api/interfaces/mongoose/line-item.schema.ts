@@ -1,13 +1,13 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 import { TaxLineSchema } from './tax-line.schema';
 import { PriceSetSchema } from './price-set.schema';
 import { LocationSchema } from './location.schema';
 import { DiscountAllocationSchema } from './discount-allocation.schema';
 
-export type LineItemPropertyDocument = Interfaces.LineItemProperty & Document;
+export type LineItemPropertyDocument = DocumentDefinition<Interfaces.LineItemProperty> & Document;
 
-export type LineItemDocument = Interfaces.LineItem & Document;
+export type LineItemDocument = DocumentDefinition<Interfaces.LineItem> & Document;
 
 export const LineItemPropertySchema = new Schema({
   name: String,

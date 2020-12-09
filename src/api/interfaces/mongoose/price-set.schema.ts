@@ -1,7 +1,7 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 
-export type PriceSetDocument = Interfaces.TaxLine & Document;
+export type PriceSetDocument = DocumentDefinition<Interfaces.TaxLine> & Document;
 
 export const MoneySchema = new Schema({
   amount: String,

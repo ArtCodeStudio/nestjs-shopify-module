@@ -1,8 +1,8 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
 import { LineItemSchema } from './line-item.schema';
 
-export type FulfillmentDocument = Interfaces.Fulfillment & Document;
+export type FulfillmentDocument = DocumentDefinition<Interfaces.Fulfillment> & Document;
 
 export const FulfillmentSchema = new Schema({
   id: {type: Number, index: {unique: true, sparse: true}},

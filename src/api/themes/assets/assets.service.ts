@@ -7,11 +7,13 @@ import { DebugService } from '../../../debug.service';
 
 @Injectable()
 export class AssetsService {
+
+  logger = new DebugService(`shopify:${this.constructor.name}`);
+
   constructor(
     @Inject('AssetModelToken')
     private readonly assetModel: Model<AssetDocument>,
   ) {}
-  logger = new DebugService(`shopify:${this.constructor.name}`);
 
   // https://stackoverflow.com/a/273810/1465919
   // https://stackoverflow.com/a/5440771/1465919
