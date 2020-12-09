@@ -43,6 +43,9 @@ import { SearchController } from './api/search/search.controller';
 import { SearchService } from './api/search/search.service';
 import { shopifyApiProviders } from './api/api.providers';
 
+// API Extended
+import { ExtProductsService, ExtProductsController } from './api-ext';
+
 // Charge
 import { ChargeController } from './charge/charge.controller';
 import { ChargeService } from './charge/charge.service';
@@ -76,6 +79,10 @@ import {
   VerifyWebhookMiddleware,
 } from './middlewares';
 
+// Direct exports
+export * from './graphql-client';
+
+// Indirect exports
 export {
   BlogsService,
   CheckoutsService,
@@ -103,6 +110,7 @@ export {
   LocalesService,
   SmartCollectionsService,
   CustomCollectionsService,
+  ExtProductsService,
 };
 
 export { RequestGuard } from './guards/request.guard';
@@ -143,6 +151,7 @@ export { RequestGuard } from './guards/request.guard';
     CustomCollectionsService,
     SearchService,
     CollectsService,
+    ExtProductsService,
   ],
   controllers: [
     ShopifyAuthController,
@@ -163,6 +172,7 @@ export { RequestGuard } from './guards/request.guard';
     CustomCollectionsController,
     SearchController,
     CollectsController,
+    ExtProductsController,
   ],
   exports: [
     BlogsService,
@@ -190,6 +200,7 @@ export { RequestGuard } from './guards/request.guard';
     SmartCollectionsService,
     CustomCollectionsService,
   ],
+  imports: [],
 })
 export class ShopifyModule implements NestModule {
   static forRoot(options: ShopifyModuleOptions, database: Mongoose, passport: PassportStatic): DynamicModule {
@@ -265,69 +276,59 @@ export class ShopifyModule implements NestModule {
       .apply(BodyParserUrlencodedMiddleware)
       .forRoutes(SyncController)
 
+      .apply(BodyParserJsonMiddleware)
+      .forRoutes(ExtProductsController)
+      .apply(BodyParserUrlencodedMiddleware)
+      .forRoutes(ExtProductsController)
+
       .apply(GetUserMiddleware)
       .forRoutes({
         path: '*', method: RequestMethod.ALL,
       })
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(ShopifyAuthController)
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(LocalesController)
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(OrdersController)
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(PagesController)
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(BlogsController)
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(ArticlesController)
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(SmartCollectionsController)
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(CustomCollectionsController)
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(ProductsController)
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(ThemesController)
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(AssetsController)
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(TransactionsController)
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(WebhooksController)
 
       .apply(VerifyWebhookMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes('webhooks/:resource/:event')
 
       .apply(GetShopifyConnectMiddleware)
-      // TODO NEST7 CHECKME .with('ShopifyModule')
       .forRoutes(SyncController);
   }
 }
