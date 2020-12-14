@@ -68,7 +68,8 @@ IShopifySyncTransactionListOptions
     let dbObj;
     return fromShopify.map((obj) =>
       dbObj = fromDb.find((x) => {
-        return x.id === obj.id;
+        // FIXME: should not be necessary to use "toString", as both should be integers. Something must be wrong in the transactionModel definition (Document, DocumentType)
+        return x.id.toString() === obj.id.toString();
       }) && {
         [obj.id]: getDiff(obj, dbObj)
         .filter((x) => {

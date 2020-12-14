@@ -2,7 +2,7 @@
 import { Infrastructure, Options } from 'shopify-admin-api';
 // import * as pRetry from 'p-retry';
 import { shopifyRetry } from '../helpers';
-import { Document } from 'mongoose';
+import { Document, DocumentDefinition } from 'mongoose';
 
 import { IShopifyConnect } from '../auth/interfaces';
 import { ISyncOptions, ShopifyBaseObjectType, ChildCount, ChildGet, ChildList } from './interfaces';
@@ -24,7 +24,7 @@ export abstract class ShopifyApiChildCountableService<
     & Options.BasicListOptions = CountOptions
     & ISyncOptions
     & Options.BasicListOptions,
-  DatabaseDocumentType extends Document = ShopifyObjectType & Document,
+  DatabaseDocumentType extends Document = DocumentDefinition<ShopifyObjectType> & Document,
 > extends ShopifyApiChildService<
   ShopifyObjectType,
   ShopifyModelClass,

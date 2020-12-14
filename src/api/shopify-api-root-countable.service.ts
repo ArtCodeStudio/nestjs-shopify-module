@@ -338,6 +338,7 @@ export abstract class ShopifyApiRootCountableService<
     let dbObj: any; // TODO@Moritz
     return fromShopify.map(obj =>
       (dbObj = fromDb.find(x =>
+        // FIXME: should not be necessary to use "toString", as both should be integers. Something must be wrong in the DatabaseDocumentType definition (Document, DocumentType)
         x.id.toString() === obj.id.toString(),
       )) && {[obj.id]: getDiff(obj, dbObj).filter(x =>
         x.operation !== 'update' && !x.path.endsWith('._id'),
