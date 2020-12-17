@@ -201,7 +201,7 @@ export class ShopifyAuthService {
       return shop;
     }
 
-    shop = (req.shop || req.query?.shop || req.session?.currentShop).toString()
+    shop = (req.shop || req.query?.shop || req.session?.currentShop || req?.params?.shop).toString()
 
     if (shop?.toString().endsWith('.myshopify.com')) {
       return shop;
@@ -209,6 +209,8 @@ export class ShopifyAuthService {
 
     this.logger.debug("Shop not found in request")
     this.logger.debug("headers", req.headers)
+    this.logger.debug("params", req.params)
+    this.logger.debug("query", req.query)
     this.logger.debug("session", req.session)
     
 

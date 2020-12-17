@@ -1,0 +1,11 @@
+query listScheduled($first: Int!, $query: String!) {
+  products(query:$query, first:$first) {
+    edges {
+      node {
+        title
+        publishedAt
+        handle
+      }
+    }
+  }
+}

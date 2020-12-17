@@ -77,6 +77,8 @@ export class ShopifyAuthController {
     const shopifyAuthStrategy = new ShopifyAuthStrategy(shop, this.shopifyConnectService, this.shopifyModuleOptions, this.passport);
     this.passport.use(`shopify-${shop}`, shopifyAuthStrategy);
 
+    this.logger.debug('this.passport.use', `shopify-${shop}`);
+
     return this.passport.authenticate(`shopify-${shop}`, {
       failureRedirect: `/shopify/auth/failure/${shop}`,
       successRedirect: `/shopify/auth/success/${shop}`,

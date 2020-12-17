@@ -1,4 +1,4 @@
-import { Controller, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
+import { Controller, UseGuards, Req, Res, Get, HttpStatus, Query } from '@nestjs/common';
 import { Response } from 'express';
 import { Roles } from '../../guards/roles.decorator';
 import { ExtProductsService } from './products.service';
@@ -22,13 +22,18 @@ export class ExtProductsController {
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Also allowed from shop frontend
-  @Get('publications')
-  async listPublications(
+  @Get('scheduled')
+  async listScheduled(
     @Req() req: IUserRequest,
     @Res() res: Response,
+    @Query("tag") tag: string,
+    @Query("limit") limit: number
   ) {
     try {
-      const products = await this.extProductsService.listPublications(req.session[`shopify-connect-${req.shop}`], {})
+      const products = await this.extProductsService.listScheduled(req.session[`shopify-connect-${req.shop}`], {
+        limit,
+        tag
+      });
       return res.jsonp(products);
     } catch (error) {
       this.logger.error(error);
