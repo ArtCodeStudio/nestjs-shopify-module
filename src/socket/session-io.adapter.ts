@@ -34,26 +34,36 @@ export class SessionIoAdapter extends IoAdapter {
     options?: any & { namespace?: string; server?: any },
   ) {
     this.logger.debug('create')
-    const server: Server = super.create(port, options)
-    return server;
+    try {
+      const server: Server = super.create(port, options)
+      return server;
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   createIOServer(port: number, options?: any) {
 
     this.logger.debug('createIOServer')
 
+
     const server: Server = super.createIOServer(port, options);
 
-    // Sharing session data with a namespaced socket // TODO NEST7 CHECKME
-    server.use(this.socketSessionMiddleware); 
-    // server.of('/socket.io/shopify/api/products').use(this.socketSessionMiddleware);
-    // server.of('/socket.io/shopify/api/webhooks').use(this.socketSessionMiddleware);
-    // server.of('/socket.io/shopify/sync').use(this.socketSessionMiddleware);
+    try {
+      // Sharing session data with a namespaced socket // TODO NEST7 CHECKME
+      server.use(this.socketSessionMiddleware); 
+      // server.of('/socket.io/shopify/api/products').use(this.socketSessionMiddleware);
+      // server.of('/socket.io/shopify/api/webhooks').use(this.socketSessionMiddleware);
+      // server.of('/socket.io/shopify/sync').use(this.socketSessionMiddleware);
 
-    // TODO move to Gateway and nest-shopify?
-    // this.bindMiddleware(server.of('/socket.io/shopify/api/products'), this.socketSessionMiddleware);
-    // this.bindMiddleware(server.of('/socket.io/shopify/api/webhooks'), this.socketSessionMiddleware);
-    // this.bindMiddleware(server.of('/socket.io/shopify/sync'), this.socketSessionMiddleware);
-    return server;
+      // TODO move to Gateway and nest-shopify?
+      // this.bindMiddleware(server.of('/socket.io/shopify/api/products'), this.socketSessionMiddleware);
+      // this.bindMiddleware(server.of('/socket.io/shopify/api/webhooks'), this.socketSessionMiddleware);
+      // this.bindMiddleware(server.of('/socket.io/shopify/sync'), this.socketSessionMiddleware);
+      return server;
+    } catch (error) {
+      console.error(error);
+    }
+
   }
 }
