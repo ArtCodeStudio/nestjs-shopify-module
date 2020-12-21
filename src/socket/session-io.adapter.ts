@@ -33,37 +33,24 @@ export class SessionIoAdapter extends IoAdapter {
     port: number,
     options?: any & { namespace?: string; server?: any },
   ) {
-    this.logger.debug('create')
-    try {
-      const server: Server = super.create(port, options)
-      return server;
-    } catch (error) {
-      console.error(error)
-    }
+    this.logger.debug('create', port, options);
+    return super.create(port, options);
   }
 
   createIOServer(port: number, options?: any) {
 
-    this.logger.debug('createIOServer')
+    this.logger.debug('createIOServer', port, options)
 
+    const server = super.createIOServer(port, options);
+    server.use(this.socketSessionMiddleware);
+    // server.of('/socket.io/shopify/api/products').use(this.socketSessionMiddleware);
+    // server.of('/socket.io/shopify/api/webhooks').use(this.socketSessionMiddleware);
+    // server.of('/socket.io/shopify/sync').use(this.socketSessionMiddleware);
 
-    const server: Server = super.createIOServer(port, options);
-
-    try {
-      // Sharing session data with a namespaced socket // TODO NEST7 CHECKME
-      server.use(this.socketSessionMiddleware); 
-      // server.of('/socket.io/shopify/api/products').use(this.socketSessionMiddleware);
-      // server.of('/socket.io/shopify/api/webhooks').use(this.socketSessionMiddleware);
-      // server.of('/socket.io/shopify/sync').use(this.socketSessionMiddleware);
-
-      // TODO move to Gateway and nest-shopify?
-      // this.bindMiddleware(server.of('/socket.io/shopify/api/products'), this.socketSessionMiddleware);
-      // this.bindMiddleware(server.of('/socket.io/shopify/api/webhooks'), this.socketSessionMiddleware);
-      // this.bindMiddleware(server.of('/socket.io/shopify/sync'), this.socketSessionMiddleware);
-      return server;
-    } catch (error) {
-      console.error(error);
-    }
-
+    // TODO move to Gateway and nest-shopify?
+    // this.bindMiddleware(server.of('/socket.io/shopify/api/products'), this.socketSessionMiddleware);
+    // this.bindMiddleware(server.of('/socket.io/shopify/api/webhooks'), this.socketSessionMiddleware);
+    // this.bindMiddleware(server.of('/socket.io/shopify/sync'), this.socketSessionMiddleware);
+    return server;
   }
 }
