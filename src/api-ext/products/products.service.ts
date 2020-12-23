@@ -17,13 +17,22 @@ export class ExtProductsService {
         limit: number;
         tag?: string;
     } = {limit: 50}) {
-        console.log("limit", options.limit)
         const graphQLClient = new GraphQLClient(user.myshopify_domain, user.accessToken);
         const result = await graphQLClient.execute('src/api-ext/products/list-scheduled.gql', {
             first: Number(options.limit),
             query: `tag:"${options.tag}" AND status:"ACTIVE" AND published_status:"online_store:hidden" AND publishedAt:NULL`
         });
-        this.logger.debug("listScheduled result", result);
+        return result;
+    }
+
+    async getPreview(user: IShopifyConnect, options: {
+        id: number;
+    }) {
+        const graphQLClient = new GraphQLClient(user.myshopify_domain, user.accessToken);
+        const result = await graphQLClient.execute('src/api-ext/products/product-by-id.gql', {
+            id: "gid://shopify/Product/" + options.id,
+        });
+        this.logger.debug("preview result", result);
         return result;
     }
 }

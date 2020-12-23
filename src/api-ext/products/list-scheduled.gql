@@ -2,9 +2,29 @@ query listScheduled($first: Int!, $query: String!) {
   products(query:$query, first:$first) {
     edges {
       node {
-        title
-        publishedAt
+        legacyResourceId
         handle
+        title
+        handle
+        priceRangeV2 {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        media(first: 2) {
+          edges {
+            node {
+              preview {
+                image {
+                  smallImage: transformedSrc(maxWidth: 370, maxHeight: 555, scale: 1)
+                  bigImage: transformedSrc(maxWidth: 740, maxHeight: 1110, scale: 1)
+                }
+              }
+              alt
+            }
+          }
+        }
       }
     }
   }

@@ -1,0 +1,6 @@
+query productById($id: ID!) {
+  product(id: $id) {
+    onlineStorePreviewUrl
+  }
+}
+

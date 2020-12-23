@@ -314,6 +314,9 @@ export class ShopifyModule implements NestModule {
       .forRoutes(ProductsController)
 
       .apply(GetShopifyConnectMiddleware)
+      .forRoutes(ExtProductsController)
+
+      .apply(GetShopifyConnectMiddleware)
       .forRoutes(ThemesController)
 
       .apply(GetShopifyConnectMiddleware)
