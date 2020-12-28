@@ -1,5 +1,5 @@
-query listScheduled($first: Int!, $query: String!) {
-  products(query:$query, first:$first) {
+query listScheduled($first: Int!, $query: String!, $reverse: Boolean!, $sortKey: ProductSortKeys!) {
+  products(query:$query, first:$first, reverse:$reverse, sortKey:$sortKey) {
     edges {
       node {
         legacyResourceId

@@ -6,6 +6,7 @@ import { DebugService } from '../../debug.service';
 import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { IUserRequest } from '../../interfaces/user-request';
 import { RolesGuard } from '../../guards/roles.guard';
+import { SortKey } from './products.service';
 
 @Controller('shopify/api-ext/products')
 export class ExtProductsController {
@@ -28,12 +29,16 @@ export class ExtProductsController {
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Query("tag") tag = "*",
-    @Query("limit") limit = 50
+    @Query("limit") limit = 50,
+    @Query("sortKey") sortKey = "ID",
+    @Query("reverse") reverse = false
   ) {
     try {
       const products = await this.extProductsService.listScheduled(req.session[`shopify-connect-${req.shop}`], {
         limit,
-        tag
+        tag,
+        sortKey: SortKey[sortKey as keyof typeof SortKey],
+        reverse
       });
       return res.jsonp(products);
     } catch (error) {
