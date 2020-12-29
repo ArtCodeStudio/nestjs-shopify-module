@@ -30,15 +30,17 @@ export class ExtProductsController {
     @Res() res: Response,
     @Query("tag") tag = "*",
     @Query("limit") limit = 50,
+    @Query("after") after,
     @Query("sortKey") sortKey = "ID",
     @Query("reverse") reverse = false
-  ) {
+  ) {console.log( SortKey[sortKey as keyof typeof SortKey])
     try {
       const products = await this.extProductsService.listScheduled(req.session[`shopify-connect-${req.shop}`], {
-        limit,
-        tag,
+        limit: limit,
+        tag: tag,
         sortKey: SortKey[sortKey as keyof typeof SortKey],
-        reverse
+        reverse: reverse,
+        after: after
       });
       return res.jsonp(products);
     } catch (error) {

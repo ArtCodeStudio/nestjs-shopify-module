@@ -28,16 +28,17 @@ export class ExtProductsService {
 
     async listScheduled(user: IShopifyConnect, options: {
         limit: number;
-        tag?: string;
+        tag: string;
         sortKey: SortKey;
         reverse: boolean;
-    } = {limit: 75, sortKey: SortKey.ID, reverse: false}) {
+        after?: string;
+    }) {
         const graphQLClient = new GraphQLClient(user.myshopify_domain, user.accessToken);
         const result = await graphQLClient.execute('src/api-ext/products/list-scheduled.gql', {
             first: Number(options.limit),
             query: `tag:"${options.tag}" AND status:"ACTIVE" AND published_status:"online_store:hidden" AND publishedAt:NULL`,
             sortKey: options.sortKey,
-            reverse: options.reverse,
+            reverse: JSON.parse(options.reverse as unknown as string),
         });
         return result;
     }
