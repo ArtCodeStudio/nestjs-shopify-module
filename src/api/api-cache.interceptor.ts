@@ -52,8 +52,10 @@ export class ApiCacheInterceptor implements NestInterceptor {
     try {
       const value = await this.cacheManager.get(key);
       if (!isNil(value)) {
+        this.logger.debug(`cache hit for ${key}`);
         return of(value);
       }
+      this.logger.debug(`cache miss for ${key}`);
       const ttl = typeof ttlValueOrFactory === 'function'
         ? await ttlValueOrFactory(context)
         : ttlValueOrFactory;
@@ -63,7 +65,8 @@ export class ApiCacheInterceptor implements NestInterceptor {
           this.cacheManager.set(...args);
         }),
       );
-    } catch {
+    } catch (error) {
+      this.logger.error(`cache error for ${key}`, error);
       return next.handle();
     }
   }
