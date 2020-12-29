@@ -1,4 +1,4 @@
-import { Controller, UseGuards, UseInterceptors, Req, Res, Get, HttpStatus, Query } from '@nestjs/common';
+import { Controller, UseGuards, UseInterceptors, CacheTTL, Req, Res, Get, HttpStatus, Query } from '@nestjs/common';
 import { Response } from 'express';
 import { Roles } from '../../guards/roles.decorator';
 import { ExtProductsService } from './products.service';
@@ -26,6 +26,7 @@ export class ExtProductsController {
    */
   @UseGuards(ShopifyApiGuard, RolesGuard)
   @Roles() // Also allowed from shop frontend
+  @CacheTTL(300)
   @Get('scheduled')
   async listScheduled(
     @Req() req: IUserRequest,
@@ -62,6 +63,7 @@ export class ExtProductsController {
   @UseGuards(ShopifyApiGuard, RolesGuard)
   @Roles() // Also allowed from shop frontend
   @Get('preview')
+  @CacheTTL(1800)
   async getPreview(
     @Req() req: IUserRequest,
     @Res() res: Response,
