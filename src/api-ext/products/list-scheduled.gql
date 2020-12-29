@@ -5,7 +5,7 @@ query listScheduled($first: Int!, $query: String!, $reverse: Boolean!, $sortKey:
         legacyResourceId
         handle
         title
-        handle
+        defaultCursor
         priceRangeV2 {
           minVariantPrice {
             amount
