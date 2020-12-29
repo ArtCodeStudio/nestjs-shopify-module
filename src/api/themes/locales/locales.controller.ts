@@ -1,5 +1,5 @@
 // nest
-import { Inject, Controller, Param, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
+import { Inject, Controller, Param, UseGuards, UseInterceptors, Req, Res, Get, HttpStatus } from '@nestjs/common';
 
 // Third party
 import { Response } from 'express';
@@ -9,18 +9,14 @@ import * as url from 'url';
 import { DebugService } from '../../../debug.service';
 import { LocalesService } from './locales.service';
 import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
+import { ApiCacheInterceptor } from '../../api-cache.interceptor';
 import { IShopifyConnect } from '../../../auth/interfaces/connect';
 import { IUserRequest } from '../../../interfaces/user-request';
 import { SHOPIFY_MODULE_OPTIONS } from '../../../shopify.constants';
 import { ShopifyModuleOptions } from '../../../interfaces/shopify-module-options';
 
-// WORKAROUND for https://github.com/nestjs/nest/issues/1016
-import * as cacheManager from 'cache-manager';
-import { Cache } from '../../interfaces/api-cache';
-
 @Controller('shopify/api/themes')
-// WAIT FOR FIX https://github.com/nestjs/nest/issues/1016
-// @UseInterceptors(ApiCacheInterceptor)
+@UseInterceptors(ApiCacheInterceptor)
 export class LocalesController {
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
@@ -29,13 +25,7 @@ export class LocalesController {
   constructor(
     protected readonly localesService: LocalesService,
     @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions,
-  ) {
-    // WORKAROUND for https://github.com/nestjs/nest/issues/1016
-    if (!this.shopifyModuleOptions.cache && this.shopifyModuleOptions.cache.store) {
-      throw new Error('You need a cache');
-    }
-    this.cache = cacheManager.caching(this.shopifyModuleOptions.cache) as Cache;
-  }
+  ) {}
 
   /**
    * Get all language codes by langcode
@@ -52,11 +42,7 @@ export class LocalesController {
     @Param('theme_id') themeId: number,
   ) {
     const shopifyConnect = req.session[`shopify-connect-${req.shop}`];
-    // WORKAROUND for https://github.com/nestjs/nest/issues/1016
-    const key = JSON.stringify({name: `shopify/api/themes/${themeId}`, myshopify_domain: shopifyConnect.shop.myshopify_domain});
-    return this.cache.wrap<any>(key, () => {
-      return this.localesService.get(req.session[`shopify-connect-${req.shop}`], themeId);
-    })
+    return this.localesService.get(req.session[`shopify-connect-${req.shop}`], themeId)
     .then((locale) => {
       // this.logger.debug(`assets: %O`, locale);
       return res.jsonp(locale);
@@ -222,19 +208,12 @@ export class LocalesController {
   ) {
 
     const path = url.parse(req.url).pathname;
-    const shopifyConnect = (req.session[`shopify-connect-${req.shop}`] as IShopifyConnect);
 
-    // WORKAROUND for https://github.com/nestjs/nest/issues/1016
-    const key = JSON.stringify({name: path, myshopify_domain: shopifyConnect.myshopify_domain});
+    const findStr = `${themeId}/locales/`;
+    propertyPath = path.substring(path.lastIndexOf(findStr) + findStr.length);
+    const properties = propertyPath.split('/');
 
-    return this.cache.wrap<any>(key, () => {
-      // WORKAROUND to get full filename param
-      const findStr = `${themeId}/locales/`;
-      propertyPath = path.substring(path.lastIndexOf(findStr) + findStr.length);
-      const properties = propertyPath.split('/');
-
-      return this.localesService.get(req.session[`shopify-connect-${req.shop}`], themeId, properties);
-    })
+    return this.localesService.get(req.session[`shopify-connect-${req.shop}`], themeId, properties)
     .then((locale) => {
       // this.logger.debug(`assets: %O`, locale);
       if (locale) {

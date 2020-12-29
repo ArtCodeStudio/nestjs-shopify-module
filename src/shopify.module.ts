@@ -1,4 +1,4 @@
-import { Module, DynamicModule, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { Module, DynamicModule, NestModule, CacheModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { PassportStatic } from 'passport';
 import { Mongoose } from 'mongoose';
@@ -219,8 +219,13 @@ export class ShopifyModule implements NestModule {
       useValue: passport,
     };
 
+    const cacheModule = CacheModule.register(options.cache);
+
     return {
       module: ShopifyModule,
+      imports: [
+        cacheModule,
+      ],
       providers: [
         passportProvider,
         shopifyModuleOptions,

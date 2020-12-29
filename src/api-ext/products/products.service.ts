@@ -39,6 +39,7 @@ export class ExtProductsService {
             query: `tag:"${options.tag}" AND status:"ACTIVE" AND published_status:"online_store:hidden" AND publishedAt:NULL`,
             sortKey: options.sortKey,
             reverse: JSON.parse(options.reverse as unknown as string),
+            after: options.after
         });
         return result;
     }

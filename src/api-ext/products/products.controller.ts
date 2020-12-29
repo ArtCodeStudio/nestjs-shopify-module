@@ -1,4 +1,4 @@
-import { Controller, UseGuards, Req, Res, Get, HttpStatus, Query } from '@nestjs/common';
+import { Controller, UseGuards, UseInterceptors, Req, Res, Get, HttpStatus, Query } from '@nestjs/common';
 import { Response } from 'express';
 import { Roles } from '../../guards/roles.decorator';
 import { ExtProductsService } from './products.service';
@@ -7,8 +7,10 @@ import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
 import { IUserRequest } from '../../interfaces/user-request';
 import { RolesGuard } from '../../guards/roles.guard';
 import { SortKey } from './products.service';
+import { ApiCacheInterceptor } from '../../api/api-cache.interceptor';
 
 @Controller('shopify/api-ext/products')
+@UseInterceptors(ApiCacheInterceptor)
 export class ExtProductsController {
   constructor(
     protected readonly extProductsService: ExtProductsService,
