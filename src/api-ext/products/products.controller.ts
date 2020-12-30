@@ -65,15 +65,18 @@ export class ExtProductsController {
         await this.cache.wrap<any>(
           key,
           () => this.extProductsService.listScheduled(
-            req.session[`shopify-connect-${req.shop}`], {
-            limit,
-            tag,
-            sortKey: SortKey[sortKey as keyof typeof SortKey],
-            reverse,
-            after
-          }),
-        { ttl: 300 }
-      ));
+            req.session[`shopify-connect-${req.shop}`],
+            {
+              limit,
+              tag,
+              sortKey: SortKey[sortKey as keyof typeof SortKey],
+              reverse,
+              after
+            }
+          ),
+          { ttl: 300 }
+        )
+      );
     } catch (error) {
       this.logger.error(error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
