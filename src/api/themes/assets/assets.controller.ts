@@ -1,4 +1,4 @@
-import { Controller, Param, UseGuards, Req, Res, Get, HttpStatus, HttpException } from '@nestjs/common';
+import { Controller, Param, UseGuards, Req, Get, HttpStatus, HttpException } from '@nestjs/common';
 import { Roles } from '../../../guards/roles.decorator';
 import { DebugService } from '../../../debug.service';
 import { AssetsService } from './assets.service';

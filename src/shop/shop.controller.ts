@@ -1,4 +1,4 @@
-import { Controller, Get, Res, HttpStatus, HttpException, Param } from '@nestjs/common';
+import { Controller, Get, HttpStatus, HttpException, Param } from '@nestjs/common';
 
 import { Roles } from '../guards/roles.decorator'; // '../../app.module';
 
@@ -31,12 +31,11 @@ export class ShopController {
 
   /**
    * Get a connected instagram account by shopify store id
-   * @param res
-   * @param req
+   * @param id
    */
   @Get('/:id')
   @Roles('admin')
-  connect(@Param('id') id, @Res() res) {
+  connect(@Param('id') id) {
     return this.shopService.findByShopifyID(Number(id))
     .catch((error: Error) => {
       this.logger.error(error);

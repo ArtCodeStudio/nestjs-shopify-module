@@ -21,7 +21,6 @@ import { Roles } from '../../guards/roles.decorator';
 // Interfaces
 import { Interfaces } from 'shopify-admin-api';
 import { IUserRequest } from '../../interfaces/user-request';
-import { Response } from 'express';
 import {
   IShopifySyncBlogListOptions,
 } from '../interfaces';
