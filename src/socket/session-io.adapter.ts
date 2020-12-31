@@ -3,7 +3,7 @@ import { Server as HttpServer } from 'http';
 import * as express from 'express';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as sharedsession from 'express-socket.io-session';
-import { Socket } from 'socket.io';
+import { Socket, Server } from 'socket.io';
 import { NextFunction } from 'express';
 import { DebugService } from '../debug.service';
 

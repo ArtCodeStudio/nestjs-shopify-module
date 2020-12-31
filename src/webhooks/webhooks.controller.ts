@@ -1,7 +1,6 @@
-import { UseGuards, Controller, Post, Get, Req, Res, Body, Query, Headers, Param, HttpStatus } from '@nestjs/common';
+import { UseGuards, Controller, Post, Get, Req, Body, Query, Headers, Param, HttpCode, HttpStatus, HttpException } from '@nestjs/common';
 import { ShopifyApiGuard } from '../guards/shopify-api.guard';
 import { Roles } from '../guards/roles.decorator';
-import { Response } from 'express';
 import { IUserRequest } from '../interfaces/user-request';
 import { WebhooksService } from './webhooks.service';
 import { EventService } from '../event.service';
@@ -18,10 +17,10 @@ export class WebhooksController {
   @UseGuards(ShopifyApiGuard)
   @Roles('admin')
   @Get('')
-  async listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response) {
+  async listAllFromShopify(@Req() req: IUserRequest) {
     const webhooks = await this.webhooksService.list(req.session[`shopify-connect-${req.shop}`]);
     this.logger.debug(`webhooks`, webhooks);
-    return res.jsonp(webhooks);
+    return webhooks;
   }
 
 
@@ -33,16 +32,15 @@ export class WebhooksController {
   @Get('create')
   async createWebhook(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Query('topic') topic,
   ) {
     try {
       const result = await this.webhooksService.create(req.session[`shopify-connect-${req.shop}`], topic);
       this.logger.debug(`Create webhook result`, result);
-      return res.jsonp(result);
+      return result;
     } catch (error) {
       this.logger.error(error);
-      return res.status(error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -50,8 +48,8 @@ export class WebhooksController {
    * Catch-all method for all webhooks of the form topic = :resource/:event, i.e. orders/updated
    */
   @Post('/:resource/:event')
+  @HttpCode(200)
   async catchWebhook(
-    @Res() res: Response,
     @Headers('X-Shopify-Shop-Domain') myShopifyDomain: string,
     @Headers('X-Shopify-Hmac-Sha256') hmac: string,
     @Headers('X-Shopify-API-Version') apiVersion: string,
@@ -65,10 +63,9 @@ export class WebhooksController {
       this.logger.debug(`[${myShopifyDomain}] Webhook ${topic}`, body);
       this.eventService.emit(`webhook:${topic}`, myShopifyDomain, body);
       this.eventService.emit(`webhook:${myShopifyDomain}:${topic}`, body);
-      return res.sendStatus(200);
     } catch (error) {
       this.logger.error(error);
-      return res.status(error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

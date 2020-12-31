@@ -1,4 +1,4 @@
-import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus, Header } from '@nestjs/common';
+import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus, HttpException, Header } from '@nestjs/common';
 import { Response } from 'express';
 import { IUserRequest } from '../../interfaces/user-request';
 
@@ -26,7 +26,6 @@ export class CustomCollectionsController {
   @Get()
   async list(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     /**
      * The number of results to show.
      */
@@ -98,26 +97,22 @@ export class CustomCollectionsController {
     };
 
     try {
-      return res.jsonp(await this.customCollectionsService.listFromShopify(req.session[`shopify-connect-${req.shop}`], options));
+      return await this.customCollectionsService.listFromShopify(req.session[`shopify-connect-${req.shop}`], options);
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('db')
-  async listFromDb(@Req() req: IUserRequest, @Res() res: Response) {
+  async listFromDb(@Req() req: IUserRequest) {
     try {
-      return res.jsonp(await this.customCollectionsService.listFromDb(req.session[`shopify-connect-${req.shop}`], {}, {}));
+      return await this.customCollectionsService.listFromDb(req.session[`shopify-connect-${req.shop}`], {}, {});
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -132,28 +127,24 @@ export class CustomCollectionsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('db/count')
-  async countFromDb(@Req() req: IUserRequest, @Res() res: Response,  @Query() options: IShopifySyncCustomCollectionCountOptions) {
+  async countFromDb(@Req() req: IUserRequest, @Query() options: IShopifySyncCustomCollectionCountOptions) {
     try {
-      return res.jsonp(await this.customCollectionsService.countFromDb(req.session[`shopify-connect-${req.shop}`], options));
+      return await this.customCollectionsService.countFromDb(req.session[`shopify-connect-${req.shop}`], options);
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('db/diff')
-  async diffSynced(@Req() req: IUserRequest, @Res() res: Response) {
+  async diffSynced(@Req() req: IUserRequest) {
     try {
-      return res.jsonp(await this.customCollectionsService.diffSynced(req.session[`shopify-connect-${req.shop}`]));
+      return await this.customCollectionsService.diffSynced(req.session[`shopify-connect-${req.shop}`]);
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -162,7 +153,6 @@ export class CustomCollectionsController {
   @Get('count')
   async countFromShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     /**
      * Show smart collections with the specified title.
      */
@@ -202,26 +192,22 @@ export class CustomCollectionsController {
       published_status,
     };
     try {
-      return res.jsonp(await this.customCollectionsService.countFromShopify(req.session[`shopify-connect-${req.shop}`], options));
+      return await this.customCollectionsService.countFromShopify(req.session[`shopify-connect-${req.shop}`], options);
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get(':id/db')
-  async getFromDb(@Req() req: IUserRequest, @Res() res: Response, @Param('id') id: number) {
+  async getFromDb(@Req() req: IUserRequest, @Param('id') id: number) {
     try {
-      return res.jsonp(await this.customCollectionsService.getFromDb(req.session[`shopify-connect-${req.shop}`], id));
+      return await this.customCollectionsService.getFromDb(req.session[`shopify-connect-${req.shop}`], id);
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -230,7 +216,6 @@ export class CustomCollectionsController {
   @Get(':id')
   async getFromShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Param('id') id: number,
     @Query('fields') fields?: string,
   ) {
@@ -238,12 +223,10 @@ export class CustomCollectionsController {
       fields,
     };
     try {
-      return res.jsonp(await this.customCollectionsService.getFromShopify(req.session[`shopify-connect-${req.shop}`], id, options));
+      return await this.customCollectionsService.getFromShopify(req.session[`shopify-connect-${req.shop}`], id, options);
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

@@ -4,14 +4,12 @@ import {
   Body,
   UseGuards,
   Req,
-  Res,
   Get,
   Delete,
   Post,
   HttpStatus,
+  HttpException,
 } from '@nestjs/common';
-
-import { Response } from 'express';
 
 import { IUserRequest } from '../interfaces/user-request';
 
@@ -46,7 +44,6 @@ export class SyncController {
   @Post()
   async start(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Body() body: any,
     @Body('syncToDb') syncToDb?: boolean | string,
     @Body('includeOrders') includeOrders?: boolean | string,
@@ -83,14 +80,9 @@ export class SyncController {
     // this.logger.debug('startSync body', body)
     this.logger.debug(`startSync`, options);
     return this.syncService.startSync(req.session[`shopify-connect-${req.shop}`], options)
-    .then((progress) => {
-      res.jsonp(progress);
-    })
     .catch((error) => {
       this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -109,7 +101,6 @@ export class SyncController {
   @Get('start')
   async startSync(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Query('sync_to_db') syncToDb?: boolean,
     @Query('include_orders') includeOrders?: boolean,
     @Query('include_transactions') includeTransactions?: boolean,
@@ -131,14 +122,9 @@ export class SyncController {
       resync,
       cancelExisting,
     })
-    .then((progress) => {
-      res.jsonp(progress);
-    })
     .catch((error) => {
       this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -153,18 +139,12 @@ export class SyncController {
   @Delete()
   async cancel(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Query('id') id: string,
   ) {
     return this.syncService.cancelShopSync(req.session[`shopify-connect-${req.shop}`], id)
-    .then((result) => {
-      res.jsonp(result);
-    })
     .catch((error) => {
       this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -179,10 +159,9 @@ export class SyncController {
   @Get('cancel')
   async cancelSync(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Query('id') id: string,
   ) {
-    return this.cancel(req, res, id);
+    return this.cancel(req, id);
   }
 
   /**
@@ -196,7 +175,6 @@ export class SyncController {
   @Get('latest')
   async latestFromShop(
     @Req() req: IUserRequest,
-    @Res() res: Response,
   ) {
 
     const query = {
@@ -204,14 +182,8 @@ export class SyncController {
     };
 
     return this.syncService.findOne(query, { sort: { createdAt: -1} })
-    .then((progress) => {
-      res.jsonp(progress);
-    })
     .catch((error) => {
-      this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -225,7 +197,6 @@ export class SyncController {
   @Get()
   async listFromShop(
     @Req() req: IUserRequest,
-    @Res() res: Response,
   ) {
 
     const query = {
@@ -233,34 +204,20 @@ export class SyncController {
     };
 
     return this.syncService.find(query, { sort: { createdAt: -1} })
-    .then((progress) => {
-      res.jsonp(progress);
-    })
     .catch((error) => {
       this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
   @UseGuards(ShopifyApiGuard)
   @Roles('admin')
   @Get('findOne')
-  async findOne(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Query() query,
-  ) {
+  async findOne(@Query() query) {
     return this.syncService.findOne(query)
-    .then((progress) => {
-      res.jsonp(progress);
-    })
     .catch((error) => {
       this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -268,19 +225,12 @@ export class SyncController {
   @Roles('admin')
   @Get('find')
   async find(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
     @Query() query,
   ) {
     return this.syncService.find(query)
-    .then((progress) => {
-      res.jsonp(progress);
-    })
     .catch((error) => {
       this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 

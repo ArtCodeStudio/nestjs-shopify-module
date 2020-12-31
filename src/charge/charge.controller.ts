@@ -1,4 +1,4 @@
-import { Inject, Controller, Param, Get, Req, Res, HttpStatus, Query } from '@nestjs/common';
+import { Inject, Controller, Param, Get, Req, Res, HttpStatus, HttpException, Query } from '@nestjs/common';
 import { Response } from 'express';
 import { IUserRequest } from '../interfaces/user-request';
 import { ChargeService } from './charge.service';
@@ -27,16 +27,9 @@ export class ChargeController {
    */
   @Get()
   @Roles('shopify-staff-member')
-  async list(@Req() req: IUserRequest, @Res() res: Response ) {
+  async list(@Req() req: IUserRequest ) {
     const user = req.user as IShopifyConnect;
-    return this.chargeService.listCharges(user)
-    .then((charges) => {
-      this.logger.debug('charges', charges);
-      return res.jsonp(charges);
-    })
-    .catch((error) => {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({message: error});
-    });
+    return this.chargeService.listCharges(user);
   }
 
   /**
@@ -44,16 +37,11 @@ export class ChargeController {
    */
   @Get('/active')
   @Roles('shopify-staff-member')
-  async active(@Req() req: IUserRequest, @Res() res: Response) {
+  async active(@Req() req: IUserRequest) {
     const user = req.user as IShopifyConnect;
-    return this.chargeService.active(user)
-    .then((charge: Interfaces.RecurringCharge | null) => {
-      this.logger.debug('charge', charge);
-      return res.jsonp(charge);
-    })
-    .catch((error) => {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({message: error});
-    });
+    const charge = await this.chargeService.active(user);
+    this.logger.debug('charge', charge);
+    return charge;
   }
 
   /**
@@ -61,17 +49,15 @@ export class ChargeController {
    */
   @Get('/available')
   @Roles('shopify-staff-member')
-  async available(@Req() req: IUserRequest, @Res() res: Response) {
+  async available(@Req() req: IUserRequest) {
     const user = req.user as IShopifyConnect;
     this.logger.debug('available');
-    return this.chargeService.available(user)
-    .then((plans) => {
+    try {
+      const plans = await this.chargeService.available(user);
       this.logger.debug('available plans', plans);
-      return res.jsonp(plans);
-    })
-    .catch((error) => {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({message: 'Error on available charges', error});
-    });
+    } catch(error) {
+      throw new HttpException({message: 'Error on available charges', error}, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**
@@ -92,16 +78,14 @@ export class ChargeController {
         .then((result) => {
           charge.status = 'active';
           this.logger.debug('result', result);
-          // return res.jsonp(charge);
           return res.redirect(this.shopifyModuleOptions.charges.frontend_return_url);
         });
       } else {
-        // return res.jsonp(charge);
         return res.redirect(this.shopifyModuleOptions.charges.frontend_return_url);
       }
     })
     .catch((error) => {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({message: 'Error on activate charge', error});
+      throw new HttpException({message: 'Error on activate charge', error}, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -122,11 +106,11 @@ export class ChargeController {
       if (charge) {
         return res.redirect(charge.confirmation_url);
       } else {
-        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({message: 'No charge returned!'});
+        throw new HttpException({message: 'No charge returned!'}, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     })
     .catch((error) => {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({message: 'Error on create charge', error});
+      throw new HttpException({message: 'Error on create charge', error}, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 

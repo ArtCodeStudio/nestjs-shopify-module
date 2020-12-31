@@ -1,5 +1,4 @@
-import { Controller, Param, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Param, UseGuards, Req, Res, Get, HttpStatus, HttpException } from '@nestjs/common';
 import { Roles } from '../../../guards/roles.decorator';
 import { DebugService } from '../../../debug.service';
 import { AssetsService } from './assets.service';
@@ -18,7 +17,6 @@ export class AssetsController {
   /**
    * Get a list of all assets
    * @param req
-   * @param res
    * @param themeId
    */
   @UseGuards(ShopifyApiGuard)
@@ -26,19 +24,12 @@ export class AssetsController {
   @Get(':theme_id/assets')
   async listThemeAssets(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Param('theme_id') themeId: number,
   ) {
     return this.assetsService.list(req.session[`shopify-connect-${req.shop}`], themeId)
-    .then((assets) => {
-      // this.logger.debug(`assets: %O`, assets);
-      return res.jsonp(assets);
-    })
     .catch((error: Error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -47,7 +38,6 @@ export class AssetsController {
    * @note This is allowed to be used from any user in the theme
    *
    * @param req
-   * @param res
    * @param themeId
    * @param key
    */
@@ -55,22 +45,14 @@ export class AssetsController {
   @Get(':theme_id/assets/assets/:filename')
   async getThemeAssetAsset(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Param('theme_id') themeId: number,
     @Param('filename') filename: string,
   ) {
     const key = 'assets/' + filename;
     return this.assetsService.get(req.session[`shopify-connect-${req.shop}`], themeId, key)
-    .then((asset) => {
-      // this.logger.debug(`asset assets: %O`, asset);
-      return res.jsonp(asset);
-    })
     .catch((error: Error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -79,7 +61,6 @@ export class AssetsController {
    * @note This is allowed to be used from any user in the theme
    *
    * @param req
-   * @param res
    * @param themeId
    * @param key
    */
@@ -87,22 +68,14 @@ export class AssetsController {
   @Get(':theme_id/assets/templates/:filename')
   async getThemeAssetTemplate(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Param('theme_id') themeId: number,
     @Param('filename') filename: string,
   ) {
     const key = 'templates/' + filename;
     return this.assetsService.get(req.session[`shopify-connect-${req.shop}`], themeId, key)
-    .then((asset) => {
-      // this.logger.debug(`asset templates: %O`, asset);
-      return res.jsonp(asset);
-    })
     .catch((error: Error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -111,7 +84,6 @@ export class AssetsController {
    * @note This is allowed to be used from any user in the theme
    *
    * @param req
-   * @param res
    * @param themeId
    * @param key
    */
@@ -119,22 +91,14 @@ export class AssetsController {
   @Get(':theme_id/assets/snippets/:filename')
   async getThemeAssetSnippets(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Param('theme_id') themeId: number,
     @Param('filename') filename: string,
   ) {
     const key = 'snippets/' + filename;
     return this.assetsService.get(req.session[`shopify-connect-${req.shop}`], themeId, key)
-    .then((asset) => {
-      // this.logger.debug(`asset snippets: %O`, asset);
-      return res.jsonp(asset);
-    })
     .catch((error: Error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -143,7 +107,6 @@ export class AssetsController {
    * @note For security reasons, this is only allowed from shopify backend (role: shopify-staff-member)
    *
    * @param req
-   * @param res
    * @param themeId
    * @param key
    */
@@ -152,7 +115,6 @@ export class AssetsController {
   @Get(':theme_id/assets/:key*')
   async getThemeAsset(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Param('theme_id') themeId: number,
     @Param('key') key: string,
   ) {
@@ -161,16 +123,9 @@ export class AssetsController {
     key = path.substring(path.lastIndexOf(key));
 
     return this.assetsService.get(req.session[`shopify-connect-${req.shop}`], themeId, key)
-    .then((asset) => {
-      // this.logger.debug(`asset: %O`, asset);
-      return res.jsonp(asset);
-    })
     .catch((error: Error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 }

@@ -1,8 +1,7 @@
-import { Controller, Get, Res, HttpStatus, Param } from '@nestjs/common';
+import { Controller, Get, Res, HttpStatus, HttpException, Param } from '@nestjs/common';
 
 import { Roles } from '../guards/roles.decorator'; // '../../app.module';
 
-import { IShopifyShop } from './interfaces/shop';
 import { ShopService } from './shop.service';
 
 import { DebugService } from '../debug.service';
@@ -18,21 +17,15 @@ export class ShopController {
 
   /**
    * Get a list of all connected shopify accounts
-   * @param res
    * @param req
    */
   @Get()
   @Roles('admin')
-  connects(@Res() res) {
+  connects() {
     return this.shopService.findAll()
-    .then((connects: IShopifyShop[]) => {
-      return res.json(connects);
-    })
     .catch((error: Error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: `Failure on get shops`,
-      });
+      throw new HttpException(`Failure on get shops`, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -45,15 +38,14 @@ export class ShopController {
   @Roles('admin')
   connect(@Param('id') id, @Res() res) {
     return this.shopService.findByShopifyID(Number(id))
-    .then((connect: IShopifyShop) => {
-      return res.json(connect);
-    })
     .catch((error: Error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: `Failure on get shop with id ${id}.`,
-        id,
-      });
+      throw new HttpException({
+          message: `Failure on get shop with id ${id}.`,
+          id,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     });
   }
 }

@@ -4,12 +4,12 @@ import {
   Query,
   UseGuards,
   Req,
-  Res,
   Get,
   Put,
   Post,
   Delete,
   HttpStatus,
+  HttpException,
   Body,
 } from '@nestjs/common';
 
@@ -21,7 +21,6 @@ import { Roles } from '../../../guards/roles.decorator';
 // Interfaces
 import { Interfaces } from 'shopify-admin-api';
 import { IUserRequest } from '../../../interfaces/user-request';
-import { Response } from 'express';
 import {
   IShopifySyncArticleListOptions,
 } from '../../interfaces';
@@ -37,7 +36,6 @@ export class ArticlesController {
   /**
    * Creates a new article in shopify.
    * @param req
-   * @param res
    * @param id
    * @param article
    */
@@ -46,7 +44,6 @@ export class ArticlesController {
   @Post(':blog_id/articles')
   async createInShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Param('blog_id') blogId: number,
     @Body() article: Interfaces.Article,
   ) {
@@ -55,18 +52,17 @@ export class ArticlesController {
       return this.articlesService.create(req.session[`shopify-connect-${req.shop}`], blogId, article)
       .then((result) => {
         this.logger.debug('result: %O', result);
-        return res.jsonp(result);
+        return result;
       });
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   /**
    * Retrieves a list of articles directly from shopify.
    * @param req
-   * @param res
    * @param options
    */
   @UseGuards(ShopifyApiGuard)
@@ -74,7 +70,6 @@ export class ArticlesController {
   @Get(':blog_id/articles')
   async listFromShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Param('blog_id') blogId: number,
     /*
      * Options from shopify
@@ -126,17 +121,16 @@ export class ArticlesController {
       };
 
       this.logger.debug('ArticleListOptions', options);
-      return res.jsonp(await this.articlesService.list(req.session[`shopify-connect-${req.shop}`], blogId, options));
+      return await this.articlesService.list(req.session[`shopify-connect-${req.shop}`], blogId, options);
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   /**
    * Retrieves a count of articles directly from shopify.
    * @param req
-   * @param res
    * @param options
    */
   @UseGuards(ShopifyApiGuard)
@@ -144,7 +138,6 @@ export class ArticlesController {
   @Get(':blog_id/articles/count')
   async countFromShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Param('blog_id') blogId: number,
     @Query('created_at_max') created_at_max: string,
     @Query('created_at_min') created_at_min: string,
@@ -158,7 +151,7 @@ export class ArticlesController {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public articles if the request comes not from a logged in user
       }
-      return res.jsonp(await this.articlesService.count(req.session[`shopify-connect-${req.shop}`], blogId, {
+      return await this.articlesService.count(req.session[`shopify-connect-${req.shop}`], blogId, {
         created_at_max,
         created_at_min,
         published_at_max,
@@ -166,17 +159,16 @@ export class ArticlesController {
         published_status,
         updated_at_max,
         updated_at_min,
-      }));
+      });
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   /**
    * Retrieves a single article directly from shopify.
    * @param req
-   * @param res
    * @param id article id
    */
   @UseGuards(ShopifyApiGuard)
@@ -184,22 +176,20 @@ export class ArticlesController {
   @Get(':blog_id/articles/:id')
   async getFromShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Param('blog_id') blogId: number,
     @Param('id') id: number,
   ) {
     try {
-      return res.jsonp(await this.articlesService.get(req.session[`shopify-connect-${req.shop}`], blogId, id));
+      return await this.articlesService.get(req.session[`shopify-connect-${req.shop}`], blogId, id);
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   /**
    * Deletes a article with the given id directly in shopify.
    * @param req
-   * @param res
    * @param id Id of the article being deleted.
    */
   @UseGuards(ShopifyApiGuard)
@@ -207,22 +197,20 @@ export class ArticlesController {
   @Delete(':blog_id/articles/:article_id')
   async deleteInShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Param('blog_id') blogId: number,
     @Param('article_id') id: number,
   ) {
     try {
-      return res.jsonp(await this.articlesService.delete(req.session[`shopify-connect-${req.shop}`], blogId, id));
+      return await this.articlesService.delete(req.session[`shopify-connect-${req.shop}`], blogId, id);
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   /**
    * Updates a article directly from shopify.
    * @param req
-   * @param res
    * @param id Article id
    * @param article
    */
@@ -231,17 +219,16 @@ export class ArticlesController {
   @Put(':blog_id/articles/:article_id')
   async updateInShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Param('blog_id') blogId: number,
     @Param('article_id') id: number,
     @Body() article: Partial<Interfaces.Article>,
   ) {
     this.logger.debug('update article', id, article);
     try {
-      return res.jsonp(await this.articlesService.update(req.session[`shopify-connect-${req.shop}`], blogId, id, article));
+      return await this.articlesService.update(req.session[`shopify-connect-${req.shop}`], blogId, id, article);
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

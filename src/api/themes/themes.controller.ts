@@ -1,5 +1,4 @@
-import { Controller, Param, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Param, UseGuards, Req, Get, HttpStatus, HttpException } from '@nestjs/common';
 import { Roles } from '../../guards/roles.decorator';
 import { DebugService } from './../../debug.service';
 import { ThemesService } from './themes.service';
@@ -20,19 +19,11 @@ export class ThemesController {
   @Get()
   getThemes(
     @Req() req: IUserRequest,
-    @Res() res: Response,
   ) {
     const shop = req.session.currentShop || req.shop;
-    this.themesService.listFromShopify(req.session[`user-${shop}`])
-    .then((themes) => {
-      // this.logger.debug(`themes: %O`, themes);
-      return res.jsonp(themes);
-    })
+    return this.themesService.listFromShopify(req.session[`user-${shop}`])
     .catch((error: Error) => {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -41,19 +32,12 @@ export class ThemesController {
   @Get('active')
   getActiveTheme(
     @Req() req,
-    @Res() res: Response,
   ) {
     const shop = req.session.currentShop || req.shop;
-    this.themesService.getActive(req.session[`user-${shop}`])
-    .then((theme) => {
-      // this.logger.debug(`theme: %O`, theme);
-      return res.jsonp(theme);
-    })
+    return this.themesService.getActive(req.session[`user-${shop}`])
     .catch((error: Error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -63,19 +47,12 @@ export class ThemesController {
   getTheme(
     @Param('theme_id') themeId: number,
     @Req() req,
-    @Res() res: Response,
   ) {
     const shop = req.session.currentShop || req.shop;
-    this.themesService.getFromShopify(req.session[`user-${shop}`], themeId)
-    .then((theme) => {
-      // this.logger.debug(`theme: %O`, theme);
-      return res.jsonp(theme);
-    })
+    return this.themesService.getFromShopify(req.session[`user-${shop}`], themeId)
     .catch((error: Error) => {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 

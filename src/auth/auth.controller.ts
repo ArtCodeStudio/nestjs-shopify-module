@@ -10,6 +10,7 @@ import {
   Param,
   Body,
   HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 
 import {
@@ -93,8 +94,6 @@ export class ShopifyAuthController {
    * Used for auth with a clientsite redirect (needed in the shopify iframe).
    * @param shop
    * @param req
-   * @param res
-   * @param next
    * @param session
    */
   @Get('/iframe')
@@ -103,13 +102,11 @@ export class ShopifyAuthController {
     @Param('shop') shopParam: string,
     @Body('shop') shopBody: string,
     @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Next() next,
     @Session() session: IUserSession,
   ) {
     shop = shop || shopParam || shopBody || req.headers.shop as string || req.headers['x-shopify-shop-domain'] as string || req.headers['X-Shopify-Shop-Domain'] as string;
     if (typeof shop !== 'string') {
-      return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
+      throw new HttpException('shop was not a string, e.g. /auth/shopify?shop=your-shop-name', HttpStatus.BAD_REQUEST);
     }
 
     session.currentShop = shop;
@@ -118,7 +115,7 @@ export class ShopifyAuthController {
     const oAuthConnect = this.shopifyAuthService.oAuthConnect(req, shop);
     session.nonce = oAuthConnect.nonce;
 
-    return res.json({authUrl: oAuthConnect.authUrl});
+    return {authUrl: oAuthConnect.authUrl};
   }
 
   /**
@@ -145,12 +142,11 @@ export class ShopifyAuthController {
     @Query('timestamp') timestamp,
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Next() next,
     @Session() session: IUserSession,
   ) {
     shop = shop || shopParam || shopBody || req.headers['x-shopify-shop-domain'] as string || req.headers['X-Shopify-Shop-Domain'] as string;
     if (typeof shop !== 'string') {
-      return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
+      throw new HttpException('shop was not a string, e.g. /auth/shopify?shop=your-shop-name', HttpStatus.BAD_REQUEST);
     }
 
     session.currentShop = shop;
@@ -172,8 +168,11 @@ export class ShopifyAuthController {
 
   /**
    * OAuth shopify callback
-   * @param res
+   * @param shop
    * @param req
+   * @param res
+   * @param next
+   * @param session
    */
   @Get('/callback')
   callback(
@@ -186,9 +185,7 @@ export class ShopifyAuthController {
   ) {
     shop = shop || shopParam;
     if (typeof shop !== 'string') {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: 'shop query param not found',
-      });
+      throw new HttpException('shop query param not found', HttpStatus.BAD_REQUEST);
     }
 
     session.currentShop = shop;
@@ -206,8 +203,9 @@ export class ShopifyAuthController {
 
   /**
    * Called if OAuth was success
+   * @param shop
    * @param res
-   * @param req
+   * @param session
    */
   @Get('/success/:shop')
   success(
@@ -227,81 +225,63 @@ export class ShopifyAuthController {
 
   /**
    * Called if OAuth fails
-   * @param res
-   * @param req
+   * @param shop
    */
   @Get('/failure/:shop')
-  failure(@Param('shop') shop, @Res() res: Response) {
+  failure(@Param('shop') shop) {
     this.passport.unuse(`shopify-${shop}`);
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    .json({ message: `Failure on oauth autentification`, shop });
+    throw new HttpException(`Failure on oauth autentification`, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   /**
    * Get a list of all connected shopify accounts
-   * @param res
-   * @param req
    */
   @Get('/connected')
   @Roles('admin')
-  async connects(@Res() res: Response) {
+  async connects() {
     return this.shopifyConnectService.findAll()
-    .then((connects) => {
-      return res.json(connects);
-    })
     .catch((error: Error) => {
       this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ message: `Failure on get connected shopify accounts`});
+      throw new HttpException(`Failure on get connected shopify accounts`, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
   /**
    * Get connected shopify account by current user
    * TODO return multiple accounts if req.session.shops has multiple shops?
-   * @param res
    * @param req
    */
   @Get('/connected/current')
   @Roles('shopify-staff-member')
-  async connectCurrent(@Req() req: IUserRequest, @Res() res: Response) {
+  async connectCurrent(@Req() req: IUserRequest) {
     const shop = req.session.currentShop || req.shop;
     return this.shopifyConnectService.findByDomain(shop)
-    .then((connect) => {
-      return res.json(connect);
-    })
     .catch((error: Error) => {
       this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({
+      throw new HttpException({
         message: `Failure on get connected shopify account.`,
         info: error.message,
         name: error.name,
-      });
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
   /**
    * Get a connected shopify account by id
-   * @param res
-   * @param req
+   * @param id
    */
   @Get('/connected/:id')
   @Roles('admin')
-  async connect(@Param('id') id, @Res() res: Response) {
+  async connect(@Param('id') id) {
     return this.shopifyConnectService.findByShopifyId(Number(id))
-    .then((connect) => {
-      return res.json(connect);
-    })
     .catch((error: Error) => {
       this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({
+      throw new HttpException({
         message: `Failure on get connected shopify account with id ${id}.`,
         info: error.message,
         name: error.name,
         id,
-      });
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
@@ -319,14 +299,10 @@ export class ShopifyAuthController {
 
   /**
    * Check if the current user (the request comes from) is logged in
-   * @param res
    * @param req
    */
   @Get('/loggedIn')
-  loggedIn(@Res() res: Response, @Req() req: IUserRequest) {
-    if (this.shopifyAuthService.isLoggedIn(req)) {
-      return res.json(true);
-    }
-    return res.json(false);
+  loggedIn(@Req() req: IUserRequest) {
+    return this.shopifyAuthService.isLoggedIn(req);
   }
 }
