@@ -255,9 +255,10 @@ export class ShopifyAuthController {
   @Roles('shopify-staff-member')
   async connectCurrent(@Req() req: IUserRequest) {
     const shop = req.session.currentShop || req.shop;
+    this.logger.debug("get /connected/current");
     return this.shopifyConnectService.findByDomain(shop)
     .catch((error: Error) => {
-      this.logger.error(error);
+      this.logger.error("Failure on getting connected shopify account:", error);
       throw new HttpException({
         message: `Failure on get connected shopify account.`,
         info: error.message,

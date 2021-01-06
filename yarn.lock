@@ -709,34 +709,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/common@npm:^7.6.3":
-  version: 7.6.3
-  resolution: "@nestjs/common@npm:7.6.3"
+"@nestjs/common@npm:7.5.5":
+  version: 7.5.5
+  resolution: "@nestjs/common@npm:7.5.5"
   dependencies:
     axios: 0.21.0
     iterare: 1.2.1
     tslib: 2.0.3
-    uuid: 8.3.2
+    uuid: 8.3.1
   peerDependencies:
-    cache-manager: "*"
-    class-transformer: "*"
-    class-validator: "*"
     reflect-metadata: ^0.1.12
     rxjs: ^6.0.0
-  peerDependenciesMeta:
-    cache-manager:
-      optional: true
-    class-transformer:
-      optional: true
-    class-validator:
-      optional: true
-  checksum: a44354a7b51e4a74012bbeaf9d122dd73d269b70592d927b25615c31d0ab55e16e864e7c0a08181c689c78418be31bde1d123b82d1056fd60065b68baebb84f0
+  checksum: eaa4313d5b7af928956cfd785062b782739f2a600fbc57b56cb3bf24ca56949572bd038c62783b930ce64e196e277f848c805e04aa7fb372c5cabcc50f192aa5
   languageName: node
   linkType: hard
 
-"@nestjs/core@npm:^7.6.3":
-  version: 7.6.3
-  resolution: "@nestjs/core@npm:7.6.3"
+"@nestjs/core@npm:7.5.5":
+  version: 7.5.5
+  resolution: "@nestjs/core@npm:7.5.5"
   dependencies:
     "@nuxtjs/opencollective": 0.3.2
     fast-safe-stringify: 2.0.7
@@ -744,22 +734,12 @@ __metadata:
     object-hash: 2.0.3
     path-to-regexp: 3.2.0
     tslib: 2.0.3
-    uuid: 8.3.2
+    uuid: 8.3.1
   peerDependencies:
     "@nestjs/common": ^7.0.0
-    "@nestjs/microservices": ^7.0.0
-    "@nestjs/platform-express": ^7.0.0
-    "@nestjs/websockets": ^7.0.0
     reflect-metadata: ^0.1.12
     rxjs: ^6.0.0
-  peerDependenciesMeta:
-    "@nestjs/microservices":
-      optional: true
-    "@nestjs/platform-express":
-      optional: true
-    "@nestjs/websockets":
-      optional: true
-  checksum: 7b68caad6046762c7892ecb45cc23f9fb4b0187e7b2272c1dbf0f55f30be2caf8292462d53cd99820f3c81d6d9a8ef6cb0db1ed79ffe491706214be863a14e7b
+  checksum: 1d6b9bc63341b5fd1d17b00fce0ca7d460b22f5913f34e273702e9e3ccba2d8a4376aba4e56bad37d5cee920c917027504c87f950f8b37cc50101b7e0748a393
   languageName: node
   linkType: hard
 
@@ -773,9 +753,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-socket.io@npm:^7.6.3":
-  version: 7.6.3
-  resolution: "@nestjs/platform-socket.io@npm:7.6.3"
+"@nestjs/platform-socket.io@npm:7.5.5":
+  version: 7.5.5
+  resolution: "@nestjs/platform-socket.io@npm:7.5.5"
   dependencies:
     socket.io: 2.3.0
     tslib: 2.0.3
@@ -783,56 +763,48 @@ __metadata:
     "@nestjs/common": ^7.0.0
     "@nestjs/websockets": ^7.0.0
     rxjs: ^6.0.0
-  checksum: 14051655c835387e6d5cb55a3bf2565a8ea8238142c41d6385de15d30bfe068386b2e74ed868d9f3813f11c4214d2672ee3df2a960ec1e2fdd1f3b05f2ba6381
+  checksum: 94763768101e9e3b59dd27ce6d06754a044f3e074a1907ec064a239ee40cd1d3ca883f45d9f64597a730003432c9b30565dacf7cdabbd14253819b7fd3a9c26a
   languageName: node
   linkType: hard
 
-"@nestjs/platform-ws@npm:^7.6.3":
-  version: 7.6.3
-  resolution: "@nestjs/platform-ws@npm:7.6.3"
+"@nestjs/platform-ws@npm:7.5.5":
+  version: 7.5.5
+  resolution: "@nestjs/platform-ws@npm:7.5.5"
   dependencies:
     tslib: 2.0.3
-    ws: 7.4.1
+    ws: 7.4.0
   peerDependencies:
     "@nestjs/common": ^7.0.0
     "@nestjs/websockets": ^7.0.0
     rxjs: ^6.0.0
-  checksum: bf987f3f20ff4f3ebf59c77f39a3361e3c23348c41a8c6a3fb656d20b3f773422949544baaac4f11f608668158d85d190829972bda8aec51b42e3949ab1a0a02
+  checksum: a3c900ff4e27a5d1c048cdbf2cc804894389eb1ab89f869460cb1f7281f1c3bc1c40ed106617037e27c3d7a792c22e0d6b1e0ce230b52b0659605d7d32f1793f
   languageName: node
   linkType: hard
 
-"@nestjs/testing@npm:^7.6.3":
-  version: 7.6.3
-  resolution: "@nestjs/testing@npm:7.6.3"
+"@nestjs/testing@npm:7.5.5":
+  version: 7.5.5
+  resolution: "@nestjs/testing@npm:7.5.5"
   dependencies:
     optional: 0.1.4
     tslib: 2.0.3
   peerDependencies:
     "@nestjs/common": ^7.0.0
     "@nestjs/core": ^7.0.0
-    "@nestjs/microservices": ^7.0.0
-    "@nestjs/platform-express": ^7.0.0
-  peerDependenciesMeta:
-    "@nestjs/microservices":
-      optional: true
-    "@nestjs/platform-express":
-      optional: true
-  checksum: f3e393558b07ade383826c4dcfacb398b96afe390ca1f654fbc4f3e7a1bf1c9e2a163fa4082f9235889795b307b19182b567fd75dba43ba042b64d37a747ec45
+  checksum: 7f5f59bbaa346c1d39bfdc51213cbefdda2b5c9199a4b63b124117ae31d84663df6362fa52e368585bb34b3be380159288f46b2759e7bb10a3760a31a9746c3f
   languageName: node
   linkType: hard
 
-"@nestjs/websockets@npm:^7.6.3":
-  version: 7.6.3
-  resolution: "@nestjs/websockets@npm:7.6.3"
+"@nestjs/websockets@npm:7.5.5":
+  version: 7.5.5
+  resolution: "@nestjs/websockets@npm:7.5.5"
   dependencies:
     iterare: 1.2.1
     tslib: 2.0.3
   peerDependencies:
     "@nestjs/common": ^7.0.0
     "@nestjs/core": ^7.0.0
-    reflect-metadata: ^0.1.12
     rxjs: ^6.0.0
-  checksum: 143bde48c9148a3f21dc8d901ea725325c3382166815624c7707caf669b5bd71153459a199e407a7538ebe724632567e9ab04042f0d8ced17c3afdc4431a5603
+  checksum: 0bdb84d69ceb3a83d6e502efca2713b7a56722246044abe2459dc60c4215e52858ee11f1b27ddad96dbfa411f0a750b21d90636151a86c11178484b5b27c658a
   languageName: node
   linkType: hard
 
@@ -1248,24 +1220,6 @@ __metadata:
   version: 2.4.0
   resolution: "@types/normalize-package-data@npm:2.4.0"
   checksum: b1630889bc3aec064e80f523b789979a43ca0d301d5ec0bbc335ab8b01b8332dd04e51c2b572178c84b3390daafe7fb553855c87bfe323585c137c51caff73c4
-  languageName: node
-  linkType: hard
-
-"@types/p-queue@npm:^3.2.1":
-  version: 3.2.1
-  resolution: "@types/p-queue@npm:3.2.1"
-  dependencies:
-    p-queue: "*"
-  checksum: cfc0fb72583bc96dddf43777b77c4291ce5cb52df13d8458398c7acca2a0bbbee3ab116e5e7d95ed97ecaff51be5cfada694b9d826b02f1b29da6abb50c3063b
-  languageName: node
-  linkType: hard
-
-"@types/p-retry@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@types/p-retry@npm:3.0.1"
-  dependencies:
-    p-retry: "*"
-  checksum: 4e1fc7ac5140cc89bb0b5e33fdc336ce202cffa7effc2a85401bf439514a8496bf406a3a6373263348b4ec011160801726ba815c805bbe6e70c50395836d4c13
   languageName: node
   linkType: hard
 
@@ -6168,13 +6122,13 @@ __metadata:
     "@graphql-tools/graphql-file-loader": ^6.2.6
     "@graphql-tools/load": ^6.2.5
     "@graphql-tools/utils": ^7.1.6
-    "@nestjs/common": ^7.6.3
-    "@nestjs/core": ^7.6.3
+    "@nestjs/common": 7.5.5
+    "@nestjs/core": 7.5.5
     "@nestjs/passport": ^7.1.5
-    "@nestjs/platform-socket.io": ^7.6.3
-    "@nestjs/platform-ws": ^7.6.3
-    "@nestjs/testing": ^7.6.3
-    "@nestjs/websockets": ^7.6.3
+    "@nestjs/platform-socket.io": 7.5.5
+    "@nestjs/platform-ws": 7.5.5
+    "@nestjs/testing": 7.5.5
+    "@nestjs/websockets": 7.5.5
     "@types/body-parser": ^1.19.0
     "@types/cache-manager": ^2.10.3
     "@types/cache-manager-ioredis": ^2.0.1
@@ -6191,8 +6145,6 @@ __metadata:
     "@types/mongodb": ^3.6.3
     "@types/node": ^14.14.14
     "@types/node-fetch": ^2.5.7
-    "@types/p-queue": ^3.2.1
-    "@types/p-retry": ^3.0.1
     "@types/passport": ^1.0.4
     "@types/retry": ^0.12.0
     "@types/socket.io": ^2.1.12
@@ -6651,7 +6603,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-queue@npm:*, p-queue@npm:^6.6.2":
+"p-queue@npm:^6.6.2":
   version: 6.6.2
   resolution: "p-queue@npm:6.6.2"
   dependencies:
@@ -6661,7 +6613,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-retry@npm:*, p-retry@npm:^4.2.0":
+"p-retry@npm:^4.2.0":
   version: 4.2.0
   resolution: "p-retry@npm:4.2.0"
   dependencies:
@@ -9065,12 +9017,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:8.3.2, uuid@npm:^8.3.0":
-  version: 8.3.2
-  resolution: "uuid@npm:8.3.2"
+"uuid@npm:8.3.1":
+  version: 8.3.1
+  resolution: "uuid@npm:8.3.1"
   bin:
     uuid: dist/bin/uuid
-  checksum: 1332fea63437d4ce858b4b237fab8755aeba8fe8fe9b722227a883695806e4a01d0e4d01d09ff7e48f3c87aca979c3672cad15373fce5fd33738c4dfec619294
+  checksum: 86c8f4a633c6a27773dcf27fa791b66f93494b6729861970b6c76f85feddc797c31960c1954d724536207e9b56e8e38207c8ae1f87d0793a23d231d35b910be0
   languageName: node
   linkType: hard
 
@@ -9080,6 +9032,15 @@ __metadata:
   bin:
     uuid: ./bin/uuid
   checksum: 28cbce9f7d0d63229a0a1926bac76d72c22ff21009e5581477c5dad59e00a52ea48f487048476c85fd9dddcd7a29216475d33e4da851ccf8fe04baafe2957c74
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^8.3.0":
+  version: 8.3.2
+  resolution: "uuid@npm:8.3.2"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 1332fea63437d4ce858b4b237fab8755aeba8fe8fe9b722227a883695806e4a01d0e4d01d09ff7e48f3c87aca979c3672cad15373fce5fd33738c4dfec619294
   languageName: node
   linkType: hard
 
@@ -9292,7 +9253,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:7.4.1, ws@npm:^7.1.2, ws@npm:^7.2.3":
+"ws@npm:7.4.0":
+  version: 7.4.0
+  resolution: "ws@npm:7.4.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ^5.0.2
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 8b7b37411b9780b8b83f5e9794ae6e86e16793fb114fac0c4750406cd4fadace39649da2667f307c5cb026476b4d6626541d8f7227845b1b9fc5941c327e77c4
+  languageName: node
+  linkType: hard
+
+"ws@npm:^7.1.2, ws@npm:^7.2.3":
   version: 7.4.1
   resolution: "ws@npm:7.4.1"
   peerDependencies:

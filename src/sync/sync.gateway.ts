@@ -59,7 +59,7 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   handleConnection(client: SessionSocket) {
-    // this.logger.debug('connect', client.id, client.handshake.session);
+    this.logger.debug('connect', client.id, client.handshake.session);
     // Join the room for app backend users to receive broadcast events
     if (client.handshake.session && client.handshake.session.isAppBackendRequest && client.handshake.session.isLoggedInToAppBackend) {
       client.join(`${client.handshake.session.currentShop}-app-backend`);
