@@ -7,6 +7,7 @@ import {
   OnGatewayDisconnect,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { Namespace } from 'socket.io';
 import { Observable } from 'rxjs';
 import { IShopifySyncProductListOptions,  } from '../interfaces';
 import { ProductsService } from './products.service';
@@ -14,10 +15,10 @@ import { Interfaces } from 'shopify-admin-api';
 import { DebugService } from '../../debug.service';
 import { IShopifyConnect, SessionSocket } from '../../interfaces';
 
-@WebSocketGateway({namespace: '/socket.io/shopify/api/products', transports: ['websocket', 'polling']})
+@WebSocketGateway({namespace: '/socket.io/shopify/api/products'})
 export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
-  @WebSocketServer() server: SocketIO.Namespace;
+  @WebSocketServer() server: Namespace;
 
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
@@ -37,7 +38,7 @@ export class ProductsGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     return this.productsService.listAllFromShopifyObservable(shopifyConnect, 'all', options);
   }
 
-  afterInit(nsp: SocketIO.Namespace) {
+  afterInit(nsp: Namespace) {
     this.logger.debug('afterInit %s', nsp?.name);
   }
 

@@ -5,6 +5,7 @@ import {
   OnGatewayDisconnect,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { Namespace } from 'socket.io';
 import { SessionSocket } from '../interfaces/session-socket';
 import { SyncService } from './sync.service';
 import { DebugService } from '../debug.service';
@@ -13,10 +14,10 @@ import {
   SyncProgressDocument,
 } from '../interfaces';
 
-@WebSocketGateway({namespace: '/shopify/sync/socket.io', transports: ['websocket', 'polling']})
+@WebSocketGateway({namespace: '/shopify/sync/socket.io'})
 export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
-  @WebSocketServer() server: SocketIO.Namespace;
+  @WebSocketServer() server: Namespace;
 
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
@@ -30,7 +31,7 @@ export class SyncGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   //   // return this.syncService.startSync(client.handshake.session[`shopify-connect-${session.currentShop}`], 'start', options);
   // }
 
-  afterInit(nsp: SocketIO.Namespace) {
+  afterInit(nsp: Namespace) {
     this.logger.debug('afterInit', nsp.name);
 
     this.eventService.on(`sync-exception`, (myshopifyDomain: string, error: any) => {

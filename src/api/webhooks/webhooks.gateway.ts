@@ -24,7 +24,7 @@ import { WebhooksService } from '../../webhooks/webhooks.service';
 /**
  * Rooms: `${myshopifyDomain}-app-backend`, `${myshopifyDomain}-client-theme`
  */
-@WebSocketGateway({namespace: '/socket.io/shopify/api/webhooks', transports: ['websocket', 'polling'] })
+@WebSocketGateway({namespace: '/socket.io/shopify/api/webhooks'})
 export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
@@ -38,12 +38,8 @@ export class WebhooksGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   ) {
   }
 
-  afterInit(nsp: SocketIO.Namespace) {
+  afterInit(nsp: Namespace) {
     this.logger.debug('afterInit: %s', nsp.name);
-
-    // WORKAROUND
-    this.nps.server.on('connection', this.handleConnection.bind(this))
-    this.nps.server.on('disconnect', this.handleDisconnect.bind(this))
 
     this.eventService.on(`webhook:carts/create`, (myshopifyDomain: string, data: any) => {
       nsp.to(`${myshopifyDomain}-app-backend`).emit('webhook:carts/create', data);
