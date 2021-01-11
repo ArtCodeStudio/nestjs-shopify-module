@@ -54,7 +54,7 @@
     "graphql": "^15.4.0",
     "graphql-request": "^3.4.0",
     "ioredis": "^4.19.4",
-    "mongoose": "^5.11.8",
+    "mongoose": "5.11.8",
     "node-fetch": "^2.6.1",
     "p-map": "^4.0.0",
     "p-queue": "^6.6.2",
