@@ -201,7 +201,7 @@ export class ShopifyAuthService {
       return shop;
     }
 
-    shop = (req.shop || req.query?.shop || req.session?.currentShop || req?.params?.shop).toString()
+    shop = (req.shop || req.query?.shop || req.session?.currentShop || req?.params?.shop || '').toString()
 
     if (shop?.toString().endsWith('.myshopify.com')) {
       return shop;
