@@ -481,7 +481,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/utils@npm:^7.0.0, @graphql-tools/utils@npm:^7.1.2, @graphql-tools/utils@npm:^7.1.6":
+"@graphql-tools/utils@npm:^7.0.0, @graphql-tools/utils@npm:^7.1.2, @graphql-tools/utils@npm:^7.2.3":
   version: 7.2.3
   resolution: "@graphql-tools/utils@npm:7.2.3"
   dependencies:
@@ -1108,7 +1108,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ioredis@npm:*, @types/ioredis@npm:^4.17.9":
+"@types/ioredis@npm:*, @types/ioredis@npm:^4.17.10":
   version: 4.17.10
   resolution: "@types/ioredis@npm:4.17.10"
   dependencies:
@@ -1202,7 +1202,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=0.0.2, @types/node@npm:>=4.0.0, @types/node@npm:^14.14.14, @types/node@npm:^14.14.8":
+"@types/node@npm:*, @types/node@npm:>=0.0.2, @types/node@npm:>=4.0.0, @types/node@npm:^14.14.20, @types/node@npm:^14.14.8":
   version: 14.14.20
   resolution: "@types/node@npm:14.14.20"
   checksum: 89937ba86a9e04d598db9ec23482453a178f569c6f4b78a7f23f4fcb4ee4d00f82e26c43da47c9fef8ddb7562edb7582de2e0ba2a1cb645506dda6d00e5953da
@@ -1223,7 +1223,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/passport@npm:^1.0.4":
+"@types/passport@npm:^1.0.5":
   version: 1.0.5
   resolution: "@types/passport@npm:1.0.5"
   dependencies:
@@ -1378,7 +1378,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^4.10.0":
+"@typescript-eslint/eslint-plugin@npm:^4.12.0":
   version: 4.12.0
   resolution: "@typescript-eslint/eslint-plugin@npm:4.12.0"
   dependencies:
@@ -1416,7 +1416,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^4.10.0":
+"@typescript-eslint/parser@npm:^4.12.0":
   version: 4.12.0
   resolution: "@typescript-eslint/parser@npm:4.12.0"
   dependencies:
@@ -3404,7 +3404,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-prettier@npm:^7.0.0":
+"eslint-config-prettier@npm:^7.1.0":
   version: 7.1.0
   resolution: "eslint-config-prettier@npm:7.1.0"
   peerDependencies:
@@ -3415,7 +3415,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:^3.3.0":
+"eslint-plugin-prettier@npm:^3.3.1":
   version: 3.3.1
   resolution: "eslint-plugin-prettier@npm:3.3.1"
   dependencies:
@@ -3464,7 +3464,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^7.16.0":
+"eslint@npm:^7.17.0":
   version: 7.17.0
   resolution: "eslint@npm:7.17.0"
   dependencies:
@@ -6040,7 +6040,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongoose@npm:5.11.10, mongoose@npm:^5.11.8":
+"mongoose@npm:5.11.10, mongoose@npm:^5.11.10":
   version: 5.11.10
   resolution: "mongoose@npm:5.11.10"
   dependencies:
@@ -6140,7 +6140,7 @@ __metadata:
   dependencies:
     "@graphql-tools/graphql-file-loader": ^6.2.6
     "@graphql-tools/load": ^6.2.5
-    "@graphql-tools/utils": ^7.1.6
+    "@graphql-tools/utils": ^7.2.3
     "@nestjs/common": 7.5.5
     "@nestjs/core": 7.5.5
     "@nestjs/passport": ^7.1.5
@@ -6159,17 +6159,17 @@ __metadata:
     "@types/express-session": ^1.17.3
     "@types/express-socket.io-session": ^1.3.4
     "@types/find-root": ^1.1.2
-    "@types/ioredis": ^4.17.9
+    "@types/ioredis": ^4.17.10
     "@types/jest": ^26.0.19
     "@types/mongodb": ^3.6.3
-    "@types/node": ^14.14.14
+    "@types/node": ^14.14.20
     "@types/node-fetch": ^2.5.7
-    "@types/passport": ^1.0.4
+    "@types/passport": ^1.0.5
     "@types/retry": ^0.12.0
     "@types/socket.io": ^2.1.12
     "@types/supertest": ^2.0.10
-    "@typescript-eslint/eslint-plugin": ^4.10.0
-    "@typescript-eslint/parser": ^4.10.0
+    "@typescript-eslint/eslint-plugin": ^4.12.0
+    "@typescript-eslint/parser": ^4.12.0
     "@yarnpkg/pnpify": ^2.4.0
     body-parser: ^1.19.0
     cache-manager: ^3.4.0
@@ -6178,16 +6178,16 @@ __metadata:
     concat-stream: ^2.0.0
     debug: ^4.3.2
     deepmerge: ^4.2.2
-    eslint: ^7.16.0
-    eslint-config-prettier: ^7.0.0
-    eslint-plugin-prettier: ^3.3.0
+    eslint: ^7.17.0
+    eslint-config-prettier: ^7.1.0
+    eslint-plugin-prettier: ^3.3.1
     express-socket.io-session: ^1.3.5
     find-root: ^1.1.0
     graphql: ^15.4.0
     graphql-request: ^3.4.0
     ioredis: ^4.19.4
     jest: ^26.6.3
-    mongoose: ^5.11.8
+    mongoose: ^5.11.10
     node-fetch: ^2.6.1
     p-map: ^4.0.0
     p-queue: ^6.6.2
