@@ -63,8 +63,12 @@ export class ShopifyAuthController {
     @Session() session: IUserSession,
   ) {
     shop =  shop || shopParam || shopBody || this.shopifyAuthService.getShopFromRequest(req);
-    if (typeof shop !== 'string') {
+    if (typeof shop !== 'string' || shop === '') {
       return res.send('shop was not a string, e.g. /auth/shopify?shop=your-shop-name');
+    }
+
+    if (!shop.endsWith('.myshopify.com')) {
+      shop = shop + '.myshopify.com';
     }
 
     // Logout if the user is logged in another shop
@@ -105,8 +109,12 @@ export class ShopifyAuthController {
     @Session() session: IUserSession,
   ) {
     shop = shop || shopParam || shopBody || req.headers.shop as string || req.headers['x-shopify-shop-domain'] as string || req.headers['X-Shopify-Shop-Domain'] as string;
-    if (typeof shop !== 'string') {
+    if (typeof shop !== 'string' || shop === '') {
       throw new HttpException('shop was not a string, e.g. /auth/shopify?shop=your-shop-name', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!shop.endsWith('.myshopify.com')) {
+      shop = shop + '.myshopify.com';
     }
 
     session.currentShop = shop;
