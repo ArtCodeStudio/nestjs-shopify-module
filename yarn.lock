@@ -482,7 +482,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/utils@npm:^7.0.0, @graphql-tools/utils@npm:^7.1.2, @graphql-tools/utils@npm:^7.2.3":
+"@graphql-tools/utils@npm:^7.0.0, @graphql-tools/utils@npm:^7.1.2":
   version: 7.2.3
   resolution: "@graphql-tools/utils@npm:7.2.3"
   dependencies:
@@ -492,6 +492,19 @@ __metadata:
   peerDependencies:
     graphql: ^14.0.0 || ^15.0.0
   checksum: d6c13b29b992a55c92143e96f6a147807e5848b5f4d85d7f59cc6f390ae4daca795abf0188dbb1c56479c13b99f87e5740b5eb6e09f6660135d74a230e04e984
+  languageName: node
+  linkType: hard
+
+"@graphql-tools/utils@npm:^7.1.6":
+  version: 7.2.4
+  resolution: "@graphql-tools/utils@npm:7.2.4"
+  dependencies:
+    "@ardatan/aggregate-error": 0.0.6
+    camel-case: 4.1.2
+    tslib: ~2.1.0
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0
+  checksum: 733e046af3e9c4109399afc49e0ec2c377fda6e722da00d3d317ba2d67c49d35f9da5257069ea6104d6642a0a2a8f1192e3b37d148ec92553c184055f6f9fa40
   languageName: node
   linkType: hard
 
@@ -1217,7 +1230,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=0.0.2, @types/node@npm:>=4.0.0, @types/node@npm:^14.14.10, @types/node@npm:^14.14.14, @types/node@npm:^14.14.8":
+"@types/node@npm:*, @types/node@npm:>=0.0.2, @types/node@npm:>=4.0.0, @types/node@npm:^14.14.10, @types/node@npm:^14.14.20, @types/node@npm:^14.14.8":
   version: 14.14.20
   resolution: "@types/node@npm:14.14.20"
   checksum: 84a9fd73de978967723f951173ff4d07dca259941d3e37c7a3dbb236c09b3f2294bb2098678a806afe6fd6cac39a7d0a1d399f602378c951bd5d01ede535d570
@@ -6086,7 +6099,7 @@ __metadata:
     p-retry: ^4.2.0
     passport: ^0.4.1
     passport-shopify: ^0.1.2
-    prettier: ^2.1.2
+    prettier: ^2.2.1
     reflect-metadata: ^0.1.13
     rxjs: ^6.6.3
     shopify-admin-api: ^2.16.3
@@ -8607,6 +8620,13 @@ __metadata:
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
   checksum: f44fe7f216946b17d3e3074df3746372703cf24e9127b4c045511456e8e4bf25515fb0a1bb3937676cc305651c5d4fcb6377b0588a4c6a957e748c4c28905d17
+  languageName: node
+  linkType: hard
+
+"tslib@npm:~2.1.0":
+  version: 2.1.0
+  resolution: "tslib@npm:2.1.0"
+  checksum: d8f5bdd067611651c6b846c2388f4dc8ba1f5af124e66105f5263d1ad56da17f4b8c6566887ca2f205c5a9758451871ceca87d5d06087af2dca1699c5e33db69
   languageName: node
   linkType: hard
 
