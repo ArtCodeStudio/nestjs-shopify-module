@@ -1,12 +1,12 @@
 {
   "name": "nest-shopify",
-  "version": "7.6.1",
+  "version": "7.6.2",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "source": "src/index.ts",
   "types": "dist/index.d.ts",
   "description": "Nest module for Shopify app backend",
-  "author": "Moritz Raguschat<moritz@artandcode.studio>, Pascal Garber<pascal@artandcode.studio>",
+  "author": "Moritz Raguschat<moritz@artandcode.studio>, Pascal Garber<pascal@artandcode.studio>, Daniel Omran <daniel@artandcode.studio>",
   "license": "MIT",
   "url": "https://github.com/ArtCodeStudio/nestjs-shopify-module",
   "repository": {
