@@ -35,15 +35,19 @@ export class ExtProductsController {
     @Query("sortKey") sortKey = "ID",
     @Query("reverse") reverse = false
   ) {
-    const products = await this.extProductsService.listScheduled(req.session[`shopify-connect-${req.shop}`], {
-      limit: limit,
-      tag: tag,
-      sortKey: SortKey[sortKey as keyof typeof SortKey],
-      reverse: reverse,
-      after: after
-    });
-    return products;
-  }
+    try {
+      const products = await this.extProductsService.listScheduled(req.session[`shopify-connect-${req.shop}`], {
+        limit: limit,
+        tag: tag,
+        sortKey: SortKey[sortKey as keyof typeof SortKey],
+        reverse: reverse,
+        after: after
+      });
+      return products;
+    } catch(error) {
+      return error;
+    }
+}
 
     /**
    * Get a list of all publications
