@@ -61,9 +61,10 @@ export class ApiCacheInterceptor implements NestInterceptor {
         : ttlValueOrFactory;
       return next.handle().pipe(
         tap(response => {
-          if(response.errors) return;
-          const args = isNil(ttl) ? [key, response] : [key, response, { ttl }];
-          this.cacheManager.set(...args);
+          if(!(response["response"] !== undefined && response["response"].errors)) {
+            const args = isNil(ttl) ? [key, response] : [key, response, { ttl }];
+            this.cacheManager.set(...args);  
+          }
         }),
       );
     } catch (error) {
