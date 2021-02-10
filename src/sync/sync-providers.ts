@@ -55,7 +55,7 @@ const syncProviders = (connection: Mongoose) => {
           }
           next(null);
         });
-        return connection.model(`shopify_sync-progress`, SyncProgressSchema) as Model<SyncProgressDocument>;
+        return connection.model(`shopify_sync-progress`, SyncProgressSchema) as unknown as Model<SyncProgressDocument>;
       },
     },
   ];

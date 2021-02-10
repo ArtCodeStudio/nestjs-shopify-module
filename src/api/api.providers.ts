@@ -41,7 +41,7 @@ function getDbModel<DocumentType extends Document>(connection: Mongoose, myShopi
   try {
     return connection.model(modelName) as Model<DocumentType>;
   } catch (e) {
-    return connection.model(modelName, schema) as Model<DocumentType>;
+    return connection.model(modelName, schema) as unknown as Model<DocumentType>;
   }
 }
 
