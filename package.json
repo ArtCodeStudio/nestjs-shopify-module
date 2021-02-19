@@ -7,7 +7,7 @@
   "types": "dist/index.d.ts",
   "description": "Nest module for Shopify app backend",
   "author": "Moritz Raguschat<moritz@artandcode.studio>, Pascal Garber<pascal@artandcode.studio>, Daniel Omran <daniel@artandcode.studio>",
-  "license": "MIT",
+  "license": "AGPL",
   "url": "https://github.com/ArtCodeStudio/nestjs-shopify-module",
   "repository": {
     "type": "git",

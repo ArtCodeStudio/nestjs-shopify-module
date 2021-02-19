@@ -67,13 +67,14 @@ export class WebhooksService {
     });
 
     // Auto unsubscripe webhooks from config on app uninstall
-    eventService.on('app/uninstalled', async (shopifyConnect: IShopifyConnect) => {
-      this.deleteAll(shopifyConnect)
+    eventService.on('webhook:app/uninstalled', async (myShopifyDomain: IShopifyConnect['shop']['myshopify_domain']) => {
+      this.deleteAllByDomain(myShopifyDomain)
       .then((result) => {
         this.logger.debug('unsubscribed webhooks', result);
+        return result;
       })
       .catch((error: WebhookError) => {
-        this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on unsubscribe webhooks: ${error.message}`, error.errors);
+        this.logger.error(`[${myShopifyDomain}] Error on unsubscribe webhooks: ${error.message}`, error.errors);
       });
     });
 
@@ -107,6 +108,11 @@ export class WebhooksService {
         this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on unsubscribe webhook ${webhook.topic} with id: ${webhook.id}: ${error.message}`, error.errors);
       });
     }
+  }
+
+  public async deleteAllByDomain(myShopifyDomain: IShopifyConnect['shop']['myshopify_domain']) {
+    const shopifyConnect = await this.shopifyConnectService.findByDomain(myShopifyDomain);
+    return this.deleteAll(shopifyConnect);
   }
 
 
