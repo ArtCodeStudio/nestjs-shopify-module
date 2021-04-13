@@ -1,11 +1,11 @@
-import { Schema, Document, DocumentDefinition } from 'mongoose';
-import { Interfaces } from 'shopify-admin-api';
-import { MetafieldSchema } from './metafield.schema';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
+import { MetafieldSchema } from "./metafield.schema";
 
 export type BlogDocument = DocumentDefinition<Interfaces.Blog> & Document;
 
 export const BlogSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: { type: Number, index: { unique: true } },
   commentable: Boolean,
   created_at: String,
   feedburner: String,

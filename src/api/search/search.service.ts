@@ -1,9 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 /**
  * Search api service
  */
 @Injectable()
-export class SearchService {
-
-}
+export class SearchService {}

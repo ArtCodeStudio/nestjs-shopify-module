@@ -1,7 +1,7 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import * as bodyParser from 'body-parser';
-import { IUserRequest } from '../interfaces/user-request';
-import { Response, NextFunction } from 'express';
+import { Injectable, NestMiddleware } from "@nestjs/common";
+import * as bodyParser from "body-parser";
+import { IUserRequest } from "../interfaces/user-request";
+import { Response, NextFunction } from "express";
 
 /**
  * Body parser json middleware to use the middleware if you have disabled the default nest paser middleware
@@ -13,5 +13,5 @@ export class BodyParserJsonMiddleware implements NestMiddleware {
   use(req: IUserRequest, res: Response, next: NextFunction) {
     const jsonParser = bodyParser.json();
     return jsonParser(req, res, next);
-  };
+  }
 }

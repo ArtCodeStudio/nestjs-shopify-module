@@ -4,4 +4,7 @@ export interface IListAllCallbackData<T> {
   data: T[];
 }
 
-export type listAllCallback<T> = (error: Error, data: IListAllCallbackData<T>) => void;
+export type listAllCallback<T> = (
+  error: Error,
+  data: IListAllCallbackData<T>
+) => void;

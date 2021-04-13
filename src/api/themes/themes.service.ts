@@ -1,46 +1,52 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { Themes } from 'shopify-admin-api'; // https://github.com/ArtCodeStudio/shopify-admin-api
-import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Interfaces } from 'shopify-admin-api';
-import { ThemeDocument } from '../interfaces/mongoose/theme.schema';
-import { Model } from 'mongoose';
-import { ShopifyApiRootService } from '../shopify-api-root.service';
-import { EventService } from '../../event.service';
+import { Inject, Injectable } from "@nestjs/common";
+import { Themes } from "shopify-admin-api"; // https://github.com/ArtCodeStudio/shopify-admin-api
+import { IShopifyConnect } from "../../auth/interfaces/connect";
+import { Interfaces } from "shopify-admin-api";
+import { ThemeDocument } from "../interfaces/mongoose/theme.schema";
+import { Model } from "mongoose";
+import { ShopifyApiRootService } from "../shopify-api-root.service";
+import { EventService } from "../../event.service";
 
 import {
   SyncProgressDocument,
   ShopifyModuleOptions,
   Resource,
-} from '../../interfaces';
+} from "../../interfaces";
 import {
   IShopifySyncThemeGetOptions,
   IShopifySyncThemeListOptions,
   IAppThemeListOptions,
   IAppThemeListFilter,
-} from '../interfaces';
-import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
+} from "../interfaces";
+import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 
 @Injectable()
 export class ThemesService extends ShopifyApiRootService<
-Interfaces.Theme, // ShopifyObjectType
-Themes, // ShopifyModelClass
-IShopifySyncThemeGetOptions, // GetOptions
-IShopifySyncThemeListOptions, // ListOptions
-ThemeDocument // DatabaseDocumentType
+  Interfaces.Theme, // ShopifyObjectType
+  Themes, // ShopifyModelClass
+  IShopifySyncThemeGetOptions, // GetOptions
+  IShopifySyncThemeListOptions, // ListOptions
+  ThemeDocument // DatabaseDocumentType
 > {
-
-  resourceName: Resource = 'themes';
-  subResourceNames: Resource[] = ['assets'];
+  resourceName: Resource = "themes";
+  subResourceNames: Resource[] = ["assets"];
 
   constructor(
-    @Inject('ThemeModelToken')
+    @Inject("ThemeModelToken")
     private readonly themeModel: (shopName: string) => Model<ThemeDocument>,
     private readonly eventService: EventService,
-    @Inject('SyncProgressModelToken')
+    @Inject("SyncProgressModelToken")
     private readonly syncProgressModel: Model<SyncProgressDocument>,
-    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions
   ) {
-    super(themeModel, Themes, eventService, syncProgressModel, shopifyModuleOptions);
+    super(
+      themeModel,
+      Themes,
+      eventService,
+      syncProgressModel,
+      shopifyModuleOptions
+    );
   }
 
   /**
@@ -54,10 +60,9 @@ ThemeDocument // DatabaseDocumentType
   public async listFromShopify(
     shopifyConnect: IShopifyConnect,
     options?: IAppThemeListOptions,
-    filter?: IAppThemeListFilter,
+    filter?: IAppThemeListFilter
   ): Promise<Partial<Interfaces.Theme>[]> {
-    return super.listFromShopify(shopifyConnect, options)
-    .then((themes) => {
+    return super.listFromShopify(shopifyConnect, options).then((themes) => {
       if (!filter) {
         return themes;
       } else {
@@ -65,7 +70,7 @@ ThemeDocument // DatabaseDocumentType
           let matches = true;
           for (const key in filter) {
             if (filter[key]) {
-              matches = matches && (theme[key] === filter[key]);
+              matches = matches && theme[key] === filter[key];
             }
           }
           return matches;
@@ -80,9 +85,10 @@ ThemeDocument // DatabaseDocumentType
    * @param id theme id
    * @see https://help.shopify.com/en/api/reference/online-store/theme#show
    */
-  public async getActive(user: IShopifyConnect): Promise<Partial<Interfaces.Theme> | null> {
-    return this.listFromShopify(user, {}, { role: 'main' })
-    .then((themes) => {
+  public async getActive(
+    user: IShopifyConnect
+  ): Promise<Partial<Interfaces.Theme> | null> {
+    return this.listFromShopify(user, {}, { role: "main" }).then((themes) => {
       if (themes.length) {
         return themes[0];
       } else {

@@ -1,17 +1,16 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { ShopifyConnectService} from './connect.service';
-import { DebugService } from '../debug.service';
-import { PassportStatic } from 'passport';
-import { IShopifyConnect } from '../interfaces/user-request';
+import { Injectable, Inject } from "@nestjs/common";
+import { ShopifyConnectService } from "./connect.service";
+import { DebugService } from "../debug.service";
+import { PassportStatic } from "passport";
+import { IShopifyConnect } from "../interfaces/user-request";
 
 @Injectable()
 export class PassportService {
-
-  protected logger = new DebugService('shopify:ShopifyConnectService');
+  protected logger = new DebugService("shopify:ShopifyConnectService");
 
   constructor(
     private readonly shopifyConnectService: ShopifyConnectService,
-    @Inject('Passport') private readonly passport: PassportStatic,
+    @Inject("Passport") private readonly passport: PassportStatic
   ) {
     this.passport.serializeUser(this.serializeUser.bind(this));
     this.passport.deserializeUser(this.deserializeUser.bind(this));
@@ -29,19 +28,20 @@ export class PassportService {
       this.logger.error(error);
       return done(error);
     }
-    this.shopifyConnectService.findByShopifyId(id)
-    .then((user) => {
-      this.logger.debug(`deserializeUser`, user);
-      if (!user) {
-        const error = new Error("User not found!");
+    this.shopifyConnectService
+      .findByShopifyId(id)
+      .then((user) => {
+        this.logger.debug(`deserializeUser`, user);
+        if (!user) {
+          const error = new Error("User not found!");
+          this.logger.error(error);
+          return done(error);
+        }
+        return done(null, user);
+      })
+      .catch((error: Error) => {
         this.logger.error(error);
-        return done(error);
-      }
-      return done(null, user);
-    })
-    .catch((error: Error) => {
-      this.logger.error(error);
-      done(error);
-    });
+        done(error);
+      });
   }
 }

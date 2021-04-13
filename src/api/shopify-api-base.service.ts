@@ -1,24 +1,25 @@
 // Third party
-import { BulkWriteOpResultObject } from 'mongodb';
-import { Model, Document } from 'mongoose';
-import { Infrastructure } from 'shopify-admin-api';
+import { BulkWriteOpResultObject } from "mongodb";
+import { Model, Document } from "mongoose";
+import { Infrastructure } from "shopify-admin-api";
 
-import { IShopifyConnect } from '../auth/interfaces';
-import { ShopifyModuleOptions, Resource } from '../interfaces';
+import { IShopifyConnect } from "../auth/interfaces";
+import { ShopifyModuleOptions, Resource } from "../interfaces";
 
+import { IAppBasicListOptions } from "./interfaces";
+import { DebugService } from "../debug.service";
+import { EventService } from "../event.service";
 import {
-  IAppBasicListOptions,
-} from './interfaces';
-import { DebugService } from '../debug.service';
-import { EventService } from '../event.service';
-import { firstCharUppercase, underscoreCase, deleteUndefinedProperties } from '../helpers';
+  firstCharUppercase,
+  underscoreCase,
+  deleteUndefinedProperties,
+} from "../helpers";
 
 export abstract class ShopifyApiBaseService<
-    ShopifyObjectType,
-    ShopifyModelClass extends Infrastructure.BaseService,
-    DatabaseDocumentType extends Document,
-  > {
-
+  ShopifyObjectType,
+  ShopifyModelClass extends Infrastructure.BaseService,
+  DatabaseDocumentType extends Document
+> {
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
   abstract resourceName: Resource; // resource name: 'orders', 'products', etc.
 
@@ -46,12 +47,16 @@ export abstract class ShopifyApiBaseService<
   }
 
   constructor(
-    protected readonly dbModel: (shopName: string) => Model<DatabaseDocumentType>,
-    protected readonly ShopifyModel: new (shopDomain: string, accessToken: string) => ShopifyModelClass,
+    protected readonly dbModel: (
+      shopName: string
+    ) => Model<DatabaseDocumentType>,
+    protected readonly ShopifyModel: new (
+      shopDomain: string,
+      accessToken: string
+    ) => ShopifyModelClass,
     protected readonly events: EventService,
-    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
-  ) {
-  }
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions
+  ) {}
 
   /**
    * returns a Mongoose query object on this data model for the specified conditions.
@@ -64,11 +69,14 @@ export abstract class ShopifyApiBaseService<
    *
    * @see https://mongoosejs.com/docs/api.html#Query
    */
-  public queryDb(shopifyConnect: IShopifyConnect, conditions = {})/*: MongooseQuery<ShopifyObjectType>*/ {
+  public queryDb(
+    shopifyConnect: IShopifyConnect,
+    conditions = {}
+  ) /*: MongooseQuery<ShopifyObjectType>*/ {
     return this.dbModel(shopifyConnect.shop.myshopify_domain)
-    .find(conditions)
-    .select('-_id -__v') // Removes :id and __v properties from result
-    .lean(); // Just return the result data without mongoose methods like `.save()`
+      .find(conditions)
+      .select("-_id -__v") // Removes :id and __v properties from result
+      .lean(); // Just return the result data without mongoose methods like `.save()`
   }
 
   /**
@@ -76,8 +84,14 @@ export abstract class ShopifyApiBaseService<
    * @param user
    * @param id
    */
-  public async getFromDb(user: IShopifyConnect, conditions: any)/*: Promise<ShopifyObjectType | null>*/ {
-    return this.dbModel(user.shop.myshopify_domain).findOne(conditions).select('-_id -__v').lean();
+  public async getFromDb(
+    user: IShopifyConnect,
+    conditions: any
+  ) /*: Promise<ShopifyObjectType | null>*/ {
+    return this.dbModel(user.shop.myshopify_domain)
+      .findOne(conditions)
+      .select("-_id -__v")
+      .lean();
   }
 
   /**
@@ -85,10 +99,13 @@ export abstract class ShopifyApiBaseService<
    * @param user
    * @param options
    */
-  async countFromDb(user: IShopifyConnect, conditions: any = {}): Promise<number> {
+  async countFromDb(
+    user: IShopifyConnect,
+    conditions: any = {}
+  ): Promise<number> {
     return this.dbModel(user.shop.myshopify_domain)
-    .find(conditions)
-    .countDocuments(conditions);
+      .find(conditions)
+      .countDocuments(conditions);
   }
 
   /**
@@ -96,7 +113,6 @@ export abstract class ShopifyApiBaseService<
    * @param basicOptions
    */
   protected setDefaultAppListOptions(basicOptions: IAppBasicListOptions) {
-
     basicOptions = deleteUndefinedProperties(basicOptions);
 
     if (isNaN(basicOptions.page)) {
@@ -109,17 +125,21 @@ export abstract class ShopifyApiBaseService<
     }
     basicOptions.limit = Math.max(0, basicOptions.limit);
 
-    if (!basicOptions.limit || basicOptions.limit > 250 || basicOptions.limit <= 0) {
+    if (
+      !basicOptions.limit ||
+      basicOptions.limit > 250 ||
+      basicOptions.limit <= 0
+    ) {
       basicOptions.limit = 50;
     }
 
     if (!basicOptions.sort_by) {
-      basicOptions.sort_by = 'created_at';
+      basicOptions.sort_by = "created_at";
     }
 
     // Ascending Order or Descending Order
     if (!basicOptions.sort_dir) {
-      basicOptions.sort_dir = 'asc';
+      basicOptions.sort_dir = "asc";
     }
 
     return basicOptions;
@@ -132,9 +152,8 @@ export abstract class ShopifyApiBaseService<
   public async listFromDb(
     user: IShopifyConnect,
     conditions: any = {},
-    basicOptions: IAppBasicListOptions = {},
-    ) {
-
+    basicOptions: IAppBasicListOptions = {}
+  ) {
     basicOptions = this.setDefaultAppListOptions(basicOptions);
     /**
      * Just return the specified `fields` or removes mongodb internally _id and __v properties from result
@@ -147,7 +166,7 @@ export abstract class ShopifyApiBaseService<
      * Convert fields to mongodb fields
      */
     if (basicOptions.fields) {
-      const _fields = basicOptions.fields.replace(/\s/g, '').split(',');
+      const _fields = basicOptions.fields.replace(/\s/g, "").split(",");
       if (_fields.length >= 1) {
         for (const field of _fields) {
           fields[field] = 1;
@@ -175,7 +194,7 @@ export abstract class ShopifyApiBaseService<
      */
     if (basicOptions.ids) {
       conditions.$or = conditions.$or || new Array<string>();
-      const ids = basicOptions.ids.replace(/\s/g, '').split(',');
+      const ids = basicOptions.ids.replace(/\s/g, "").split(",");
       for (const id of ids) {
         conditions.$or.push({
           id,
@@ -191,7 +210,9 @@ export abstract class ShopifyApiBaseService<
     sort[basicOptions.sort_by] = basicOptions.sort_dir;
 
     if (basicOptions.page) {
-      skip = (basicOptions.page - 1 /* Shopify page starts on 1 and not 0 */) * basicOptions.limit;
+      skip =
+        (basicOptions.page - 1) /* Shopify page starts on 1 and not 0 */ *
+        basicOptions.limit;
     }
 
     /**
@@ -234,11 +255,11 @@ export abstract class ShopifyApiBaseService<
     }
 
     return this.dbModel(user.shop.myshopify_domain)
-    .find(conditions)
-    .select(fields)
-    .sort(sort)
-    .limit(basicOptions.limit)
-    .skip(skip)
+      .find(conditions)
+      .select(fields)
+      .sort(sort)
+      .limit(basicOptions.limit)
+      .skip(skip);
     // .lean(); // Just return the result data without mongoose methods like `.save()`
   }
 
@@ -247,9 +268,13 @@ export abstract class ShopifyApiBaseService<
    * @param user
    * @param object The objects to create / update
    */
-  public async updateOrCreateInDb(user: IShopifyConnect, conditions = {}, update: Partial<ShopifyObjectType>) {
+  public async updateOrCreateInDb(
+    user: IShopifyConnect,
+    conditions = {},
+    update: Partial<ShopifyObjectType>
+  ) {
     const model = this.dbModel(user.shop.myshopify_domain);
-    return model.findOneAndUpdate(conditions, update as any, {upsert: true}); // TODO NEST7 CHECKME
+    return model.findOneAndUpdate(conditions, update as any, { upsert: true }); // TODO NEST7 CHECKME
   }
 
   /**
@@ -259,9 +284,9 @@ export abstract class ShopifyApiBaseService<
    */
   public async updateOrCreateInApp(
     user: IShopifyConnect,
-    selectBy = 'id',
+    selectBy = "id",
     update: Partial<ShopifyObjectType>,
-    inDb =  true,
+    inDb = true
   ) {
     this.logger.debug(`[updateOrCreateInApp:${this.resourceName}] start`);
     const promises = new Array<Promise<any>>();
@@ -270,8 +295,7 @@ export abstract class ShopifyApiBaseService<
       conditions[selectBy] = update[selectBy];
       promises.push(this.updateOrCreateInDb(user, conditions, update));
     }
-    return Promise.all(promises)
-    .then((_) => {
+    return Promise.all(promises).then((_) => {
       this.logger.debug(`[updateOrCreateInApp:${this.resourceName}] done`);
       return _;
     });
@@ -285,9 +309,11 @@ export abstract class ShopifyApiBaseService<
   protected async updateOrCreateManyInDb(
     user: IShopifyConnect,
     selectBy: string,
-    objects: Partial<ShopifyObjectType>[],
+    objects: Partial<ShopifyObjectType>[]
   ) {
-    this.logger.debug(`[updateOrCreateManyInDb:${this.resourceName}] start selectBy: ${selectBy} objects.length: ${objects.length}`);
+    this.logger.debug(
+      `[updateOrCreateManyInDb:${this.resourceName}] start selectBy: ${selectBy} objects.length: ${objects.length}`
+    );
     // An empty bulkwrite is not allowed. Just return an empty object if the passed array is empty.
     if (objects.length === 0) {
       return {};
@@ -308,7 +334,9 @@ export abstract class ShopifyApiBaseService<
       {}
     );
 
-    this.logger.debug(`[updateOrCreateManyInDb:${this.resourceName}] done result: ${result}`);
+    this.logger.debug(
+      `[updateOrCreateManyInDb:${this.resourceName}] done result: ${result}`
+    );
     return result;
   }
 
@@ -320,12 +348,12 @@ export abstract class ShopifyApiBaseService<
    */
   public async updateOrCreateManyInApp(
     user: IShopifyConnect,
-    selectBy = 'id',
+    selectBy = "id",
     objects: ShopifyObjectType[],
-    inDb = false,
+    inDb = false
   ): Promise<Partial<BulkWriteOpResultObject[]>> {
     this.logger.debug(
-      `[updateOrCreateManyInApp:${this.resourceName}] start inDb: ${inDb} objects.length: ${objects.length}`,
+      `[updateOrCreateManyInApp:${this.resourceName}] start inDb: ${inDb} objects.length: ${objects.length}`
     );
     const promises = new Array<Promise<any>>();
 
@@ -333,8 +361,7 @@ export abstract class ShopifyApiBaseService<
       promises.push(this.updateOrCreateManyInDb(user, selectBy, objects));
     }
 
-    return Promise.all(promises)
-    .then((_) => {
+    return Promise.all(promises).then((_) => {
       this.logger.debug(`[updateOrCreateManyInApp:${this.resourceName}] done`);
       return _;
     });

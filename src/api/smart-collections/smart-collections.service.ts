@@ -1,41 +1,55 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { SmartCollections, Interfaces } from 'shopify-admin-api'; // https://github.com/ArtCodeStudio/shopify-admin-api
-import { IShopifyConnect } from '../../auth/interfaces/connect';
+import { Inject, Injectable } from "@nestjs/common";
+import { SmartCollections, Interfaces } from "shopify-admin-api"; // https://github.com/ArtCodeStudio/shopify-admin-api
+import { IShopifyConnect } from "../../auth/interfaces/connect";
 import {
   SmartCollectionDocument,
   IListAllCallbackData,
   IShopifySyncSmartCollectionListOptions,
   IShopifySyncSmartCollectionCountOptions,
   IShopifySyncSmartCollectionGetOptions,
-} from '../interfaces';
-import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions, ShopifyModuleOptions, Resource } from '../../interfaces';
-import { Model } from 'mongoose';
-import { EventService } from '../../event.service';
-import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
-import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
+} from "../interfaces";
+import {
+  SyncProgressDocument,
+  SubSyncProgressDocument,
+  IStartSyncOptions,
+  ShopifyModuleOptions,
+  Resource,
+} from "../../interfaces";
+import { Model } from "mongoose";
+import { EventService } from "../../event.service";
+import { ShopifyApiRootCountableService } from "../shopify-api-root-countable.service";
+import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 
 @Injectable()
 export class SmartCollectionsService extends ShopifyApiRootCountableService<
-Interfaces.SmartCollection, // ShopifyObjectType
-SmartCollections, // ShopifyModelClass
-IShopifySyncSmartCollectionCountOptions, // CountOptions
-IShopifySyncSmartCollectionGetOptions, // GetOptions
-IShopifySyncSmartCollectionListOptions, // ListOptions
-SmartCollectionDocument // DatabaseDocumentType
+  Interfaces.SmartCollection, // ShopifyObjectType
+  SmartCollections, // ShopifyModelClass
+  IShopifySyncSmartCollectionCountOptions, // CountOptions
+  IShopifySyncSmartCollectionGetOptions, // GetOptions
+  IShopifySyncSmartCollectionListOptions, // ListOptions
+  SmartCollectionDocument // DatabaseDocumentType
 > {
-
-  resourceName: Resource = 'smartCollections';
+  resourceName: Resource = "smartCollections";
   subResourceNames: Resource[] = [];
 
   constructor(
-    @Inject('SmartCollectionModelToken')
-    private readonly smartCollectionModel: (shopName: string) => Model<SmartCollectionDocument>,
-    @Inject('SyncProgressModelToken')
+    @Inject("SmartCollectionModelToken")
+    private readonly smartCollectionModel: (
+      shopName: string
+    ) => Model<SmartCollectionDocument>,
+    @Inject("SyncProgressModelToken")
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     private readonly eventService: EventService,
-    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions
   ) {
-    super(smartCollectionModel, SmartCollections, eventService, syncProgressModel, shopifyModuleOptions);
+    super(
+      smartCollectionModel,
+      SmartCollections,
+      eventService,
+      syncProgressModel,
+      shopifyModuleOptions
+    );
   }
 
   /**
@@ -50,7 +64,7 @@ SmartCollectionDocument // DatabaseDocumentType
     progress: SyncProgressDocument,
     subProgress: SubSyncProgressDocument,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Interfaces.SmartCollection>,
+    data: IListAllCallbackData<Interfaces.SmartCollection>
   ) {
     const products = data.data;
     subProgress.syncedCount += products.length;

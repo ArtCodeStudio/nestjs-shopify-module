@@ -1,23 +1,21 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { ShopifyAuthService } from '../auth/auth.service';
-import { ShopifyConnectService } from '../auth/connect.service';
-import { DebugService } from '../debug.service';
-import { IUserRequest, IShopifyConnect } from '../interfaces/user-request';
-import { Response, NextFunction } from 'express';
+import { Injectable, NestMiddleware } from "@nestjs/common";
+import { ShopifyAuthService } from "../auth/auth.service";
+import { ShopifyConnectService } from "../auth/connect.service";
+import { DebugService } from "../debug.service";
+import { IUserRequest, IShopifyConnect } from "../interfaces/user-request";
+import { Response, NextFunction } from "express";
 
 @Injectable()
 export class GetUserMiddleware implements NestMiddleware {
   logger = new DebugService(`shopify:${this.constructor.name}`);
   constructor(
     private readonly shopifyAuthService: ShopifyAuthService,
-    private readonly shopifyConnectService: ShopifyConnectService,
-  ) {
-
-  }
+    private readonly shopifyConnectService: ShopifyConnectService
+  ) {}
 
   protected setShop(req: IUserRequest, shop: string) {
     req.session.shops = req.session.shops || [];
-    if(!req.session.shops.includes(shop)) {
+    if (!req.session.shops.includes(shop)) {
       req.session.shops.push(shop);
     }
     req.session.currentShop = shop;
@@ -25,23 +23,27 @@ export class GetUserMiddleware implements NestMiddleware {
   }
 
   async use(req: IUserRequest, res: Response, next: NextFunction) {
-
     let shop: string;
 
-    const requestType = await this.shopifyAuthService.getRequestType(req)
-    .catch((error: Error) => {
-      if (error && typeof error.message === 'string' && error.message.toLowerCase().includes('shop not found')) {
-        // DO nothing
-        this.logger.debug(error.message);
-      } else {
-        this.logger.error(error);
-      }
-    });
+    const requestType = await this.shopifyAuthService
+      .getRequestType(req)
+      .catch((error: Error) => {
+        if (
+          error &&
+          typeof error.message === "string" &&
+          error.message.toLowerCase().includes("shop not found")
+        ) {
+          // DO nothing
+          this.logger.debug(error.message);
+        } else {
+          this.logger.error(error);
+        }
+      });
 
     req.session.isLoggedInToAppBackend = false;
 
     if (requestType) {
-      shop = requestType.myshopifyDomain
+      shop = requestType.myshopifyDomain;
       req.session.isAppBackendRequest = requestType.isAppBackendRequest;
       req.session.isThemeClientRequest = requestType.isThemeClientRequest;
       req.session.isUnknownClientRequest = requestType.isUnknownClientRequest;
@@ -74,7 +76,7 @@ export class GetUserMiddleware implements NestMiddleware {
      * ```
      */
     if (!shop) {
-      this.logger.warn('[GetUserMiddleware] Shop not found!');
+      this.logger.warn("[GetUserMiddleware] Shop not found!");
       return next();
     }
 
@@ -94,7 +96,7 @@ export class GetUserMiddleware implements NestMiddleware {
     if (req.user) {
       const user = req.user;
       // set to session (for websockets)
-      this.logger.debug('\n\nSet user: ',user);
+      this.logger.debug("\n\nSet user: ", user);
       req.session[`user-${shop}`] = user;
       req.session.isLoggedInToAppBackend = true;
       return next();
@@ -102,21 +104,22 @@ export class GetUserMiddleware implements NestMiddleware {
 
     // Get user from passport session
     if (req.session.passport && req.session.passport.user) {
-      return this.shopifyConnectService.findByShopifyId(req.session.passport.user)
-      .then((user) => {
-        if (user) {
-          // set to request (for passport and co)
-          req.user = user;
-          // set to session (for websockets)
-          this.logger.debug('\n\nSet user: ',user);
-          req.session[`user-${shop}`] = user;
-          req.session.isLoggedInToAppBackend = true;
-          return next();
-        }
-      })
-      .catch((error) => {
-        this.logger.error(error);
-      });
+      return this.shopifyConnectService
+        .findByShopifyId(req.session.passport.user)
+        .then((user) => {
+          if (user) {
+            // set to request (for passport and co)
+            req.user = user;
+            // set to session (for websockets)
+            this.logger.debug("\n\nSet user: ", user);
+            req.session[`user-${shop}`] = user;
+            req.session.isLoggedInToAppBackend = true;
+            return next();
+          }
+        })
+        .catch((error) => {
+          this.logger.error(error);
+        });
     }
 
     return next();

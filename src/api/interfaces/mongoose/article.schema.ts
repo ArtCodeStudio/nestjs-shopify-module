@@ -1,5 +1,5 @@
-import { Schema, Document, DocumentDefinition } from 'mongoose';
-import { Interfaces } from 'shopify-admin-api';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
 
 export type ArticleDocument = DocumentDefinition<Interfaces.Article> & Document;
 
@@ -18,10 +18,10 @@ export const ImageSchema = new Schema({
    * The image's src URL.
    */
   src: String,
-})
+});
 
 export const ArticleSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: { type: Number, index: { unique: true } },
   /**
    * The name of the author of this article
    */
