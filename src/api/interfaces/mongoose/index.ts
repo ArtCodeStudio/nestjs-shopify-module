@@ -1,3 +1,4 @@
+export * from "./access-scope.schema";
 export * from "./address.schema";
 export * from "./article.schema";
 export * from "./asset.schema";

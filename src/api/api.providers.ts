@@ -1,5 +1,7 @@
 import { Document, Model, Mongoose, Schema } from "mongoose";
 import {
+  AccessScopeSchema,
+  AccessScopeDocument,
   OrderSchema,
   OrderDocument,
   ProductSchema,
@@ -54,6 +56,17 @@ function getDbModel<DocumentType extends Document>(
 
 export const shopifyApiProviders = (connection: Mongoose) => {
   return [
+    {
+      provide: "AccessScopeModelToken",
+      useValue: (myshopifyDomain: string) => {
+        return getDbModel<AccessScopeDocument>(
+          connection,
+          myshopifyDomain,
+          "accessScope",
+          AccessScopeSchema
+        );
+      },
+    },
     {
       provide: "OrderModelToken",
       useValue: (myshopifyDomain: string) => {

@@ -1,4 +1,5 @@
 // Services
+export { AccessScopesService } from "./access-scopes/access-scopes.service";
 export { BlogsService } from "./blogs/blogs.service";
 export { CollectsService } from "./collects/collects.service";
 export { CustomCollectionsService } from "./custom-collections/custom-collections.service";

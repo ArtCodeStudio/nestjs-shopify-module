@@ -1,4 +1,5 @@
 export type Resource =
+  | "accessScopes"
   | "blogs"
   | "checkouts"
   | "orders"
@@ -15,6 +16,7 @@ export type Resource =
   | "collects"
   | "themes";
 export type ResourceSignular =
+  | "accessScope"
   | "blog"
   | "checkout"
   | "order"
