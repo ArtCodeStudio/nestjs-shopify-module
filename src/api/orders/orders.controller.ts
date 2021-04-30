@@ -21,11 +21,8 @@ import { Interfaces } from "shopify-admin-api";
 
 // Interfaces
 import { IUserRequest } from "../../interfaces/user-request";
-import {
-  IAppOrderListOptions,
-  IShopifySyncOrderCountOptions,
-  IShopifySyncOrderListOptions,
-} from "../interfaces";
+import { IAppOrderListOptions } from "../interfaces";
+import { Options } from "shopify-admin-api";
 
 @Controller("shopify/api/orders")
 export class OrdersController {
@@ -54,20 +51,12 @@ export class OrdersController {
     @Query("since_id") since_id?: number,
     @Query("status") status = "any",
     @Query("updated_at_max") updated_at_max?: string,
-    @Query("updated_at_min") updated_at_min?: string,
-    /**
-     * Custom sync options
-     */
-    @Query("sync_to_db") syncToDb?: boolean,
-    @Query("cancel_signal") cancelSignal?: string,
-    @Query("fail_on_sync_error") failOnSyncError?: boolean
+    @Query("updated_at_min") updated_at_min?: string
   ) {
     try {
-      const options: IShopifySyncOrderListOptions = {
-        cancelSignal,
+      const options: Options.OrderListOptions = {
         created_at_max,
         created_at_min,
-        failOnSyncError,
         fields,
         financial_status,
         fulfillment_status: fulfillment_status as any, // TODO
@@ -77,7 +66,6 @@ export class OrdersController {
         processed_at_min,
         since_id,
         status,
-        syncToDb,
         updated_at_max,
         updated_at_min,
       };
@@ -120,7 +108,7 @@ export class OrdersController {
   listAllFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Query() options: IShopifySyncOrderListOptions
+    @Query() options: Options.OrderListOptions
   ) {
     this.ordersService
       .listAllFromShopifyStream(req.session[`shopify-connect-${req.shop}`], {
@@ -135,7 +123,7 @@ export class OrdersController {
   @Get("db/count")
   async countFromDb(
     @Req() req: IUserRequest,
-    @Query() options: IShopifySyncOrderCountOptions
+    @Query() options: Options.OrderCountOptions
   ) {
     try {
       return await this.ordersService.countFromDb(
@@ -167,7 +155,7 @@ export class OrdersController {
   @Get("count")
   async countFromShopify(
     @Req() req: IUserRequest,
-    @Query() options: IShopifySyncOrderCountOptions
+    @Query() options: Options.OrderCountOptions
   ) {
     try {
       return await this.ordersService.countFromShopify(

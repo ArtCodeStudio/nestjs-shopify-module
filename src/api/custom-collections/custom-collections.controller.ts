@@ -17,11 +17,8 @@ import { ShopifyApiGuard } from "../../guards/shopify-api.guard";
 import { Roles } from "../../guards/roles.decorator";
 import { DebugService } from "../../debug.service";
 
-import {
-  IShopifySyncCustomCollectionListOptions,
-  IShopifySyncCustomCollectionGetOptions,
-  IShopifySyncCustomCollectionCountOptions,
-} from "../interfaces";
+import { Options } from "shopify-admin-api";
+
 import { CustomCollectionsService } from "./custom-collections.service";
 
 @Controller("shopify/api/custom-collections")
@@ -91,7 +88,7 @@ export class CustomCollectionsController {
      */
     @Query("fields") fields?: string
   ) {
-    const options: IShopifySyncCustomCollectionListOptions = {
+    const options: Options.CollectionListOptions = {
       limit,
       page,
       ids,
@@ -141,7 +138,7 @@ export class CustomCollectionsController {
   listAllFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Query() options: IShopifySyncCustomCollectionListOptions
+    @Query() options: Options.CollectionListOptions
   ) {
     this.customCollectionsService
       .listAllFromShopifyStream(
@@ -156,7 +153,7 @@ export class CustomCollectionsController {
   @Get("db/count")
   async countFromDb(
     @Req() req: IUserRequest,
-    @Query() options: IShopifySyncCustomCollectionCountOptions
+    @Query() options: Options.CollectionCountOptions
   ) {
     try {
       return await this.customCollectionsService.countFromDb(
@@ -218,7 +215,7 @@ export class CustomCollectionsController {
     @Query("published_status")
     published_status: "published" | "unpublished" | "any" = "any"
   ) {
-    const options: IShopifySyncCustomCollectionCountOptions = {
+    const options: Options.CollectionCountOptions = {
       title,
       product_id,
       updated_at_min,
@@ -261,7 +258,7 @@ export class CustomCollectionsController {
     @Param("id") id: number,
     @Query("fields") fields?: string
   ) {
-    const options: IShopifySyncCustomCollectionGetOptions = {
+    const options: Options.CollectionGetOptions = {
       fields,
     };
     try {

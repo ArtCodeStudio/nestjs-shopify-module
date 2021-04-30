@@ -1,13 +1,8 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Transactions } from "shopify-admin-api";
 import { IShopifyConnect } from "../../../auth/interfaces";
-import { Interfaces } from "shopify-admin-api";
-import {
-  TransactionDocument,
-  IShopifySyncTransactionCountOptions,
-  IShopifySyncTransactionGetOptions,
-  IShopifySyncTransactionListOptions,
-} from "../../interfaces";
+import { Interfaces, Options } from "shopify-admin-api";
+import { TransactionDocument } from "../../interfaces";
 import { ShopifyModuleOptions, Resource } from "../../../interfaces";
 import { SHOPIFY_MODULE_OPTIONS } from "../../../shopify.constants";
 import { Model } from "mongoose";
@@ -19,9 +14,9 @@ import { EventService } from "../../../event.service";
 export class TransactionsService extends ShopifyApiChildCountableService<
   Interfaces.Transaction,
   Transactions,
-  IShopifySyncTransactionCountOptions,
-  IShopifySyncTransactionGetOptions,
-  IShopifySyncTransactionListOptions
+  Options.TransactionCountOptions,
+  Options.TransactionGetOptions,
+  Options.TransactionListOptions
 > {
   resourceName: Resource = "transactions";
   subResourceNames: Resource[] = [];
@@ -42,26 +37,15 @@ export class TransactionsService extends ShopifyApiChildCountableService<
     user: IShopifyConnect,
     order_id: number,
     id: number,
-    options: IShopifySyncTransactionGetOptions = {}
+    options: Options.TransactionGetOptions = {}
   ): Promise<Interfaces.Transaction | null> {
     const transactions = new Transactions(
       user.myshopify_domain,
       user.accessToken
     );
-    const syncToDb = options && options.syncToDb;
-
     const transaction = await shopifyRetry(() => {
       return transactions.get(order_id, id);
     });
-
-    if (
-      this.shopifyModuleOptions.sync.enabled &&
-      this.shopifyModuleOptions.sync.autoSyncResources.includes(
-        this.resourceName
-      )
-    ) {
-      await this.updateOrCreateInApp(user, "id", transaction, syncToDb);
-    }
 
     return transaction;
   }

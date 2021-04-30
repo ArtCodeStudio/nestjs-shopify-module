@@ -16,12 +16,9 @@ import { IUserRequest } from "../../interfaces/user-request";
 import { ShopifyApiGuard } from "../../guards/shopify-api.guard";
 import { Roles } from "../../guards/roles.decorator";
 import { DebugService } from "../../debug.service";
-import {
-  IShopifySyncSmartCollectionListOptions,
-  IShopifySyncSmartCollectionGetOptions,
-  IShopifySyncSmartCollectionCountOptions,
-  IAppSmartCollectionListOptions,
-} from "../interfaces";
+import { IAppCollectionListOptions } from "../interfaces";
+
+import { Options } from "shopify-admin-api";
 
 import { SmartCollectionsService } from "./smart-collections.service";
 
@@ -101,7 +98,7 @@ export class SmartCollectionsController {
       published_status = "published"; // For security reasons, only return public smart collections if the request comes not from a logged in user
     }
 
-    const options: IShopifySyncSmartCollectionListOptions = {
+    const options: Options.CollectionListOptions = {
       limit,
       page,
       ids,
@@ -163,7 +160,7 @@ export class SmartCollectionsController {
     @Query("sort_dir") sort_dir?: "asc" | "desc"
   ) {
     try {
-      const options: IAppSmartCollectionListOptions = {
+      const options: IAppCollectionListOptions = {
         /*
          * Options from shopify
          */
@@ -210,7 +207,7 @@ export class SmartCollectionsController {
   listAllFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Query() options: IShopifySyncSmartCollectionListOptions
+    @Query() options: Options.CollectionListOptions
   ) {
     this.smartCollectionsService
       .listAllFromShopifyStream(
@@ -225,7 +222,7 @@ export class SmartCollectionsController {
   @Get("db/count")
   async countFromDb(
     @Req() req: IUserRequest,
-    @Query() options: IShopifySyncSmartCollectionCountOptions
+    @Query() options: Options.CollectionCountOptions
   ) {
     try {
       return await this.smartCollectionsService.countFromDb(
@@ -292,7 +289,7 @@ export class SmartCollectionsController {
     @Query("published_status")
     published_status: "published" | "unpublished" | "any" = "any"
   ) {
-    const options: IShopifySyncSmartCollectionCountOptions = {
+    const options: Options.CollectionCountOptions = {
       title,
       product_id,
       updated_at_min,
@@ -340,7 +337,7 @@ export class SmartCollectionsController {
     @Param("id") id: number,
     @Query("fields") fields: string
   ) {
-    const options: IShopifySyncSmartCollectionGetOptions = {
+    const options: Options.CollectionGetOptions = {
       fields,
     };
     try {

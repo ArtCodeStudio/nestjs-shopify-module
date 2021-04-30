@@ -1,13 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { SmartCollections, Interfaces } from "shopify-admin-api"; // https://github.com/ArtCodeStudio/shopify-admin-api
+import { SmartCollections, Interfaces, Options } from "shopify-admin-api"; // https://github.com/ArtCodeStudio/shopify-admin-api
 import { IShopifyConnect } from "../../auth/interfaces/connect";
-import {
-  SmartCollectionDocument,
-  IListAllCallbackData,
-  IShopifySyncSmartCollectionListOptions,
-  IShopifySyncSmartCollectionCountOptions,
-  IShopifySyncSmartCollectionGetOptions,
-} from "../interfaces";
+import { SmartCollectionDocument, IListAllCallbackData } from "../interfaces";
 import {
   SyncProgressDocument,
   SubSyncProgressDocument,
@@ -24,9 +18,9 @@ import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 export class SmartCollectionsService extends ShopifyApiRootCountableService<
   Interfaces.SmartCollection, // ShopifyObjectType
   SmartCollections, // ShopifyModelClass
-  IShopifySyncSmartCollectionCountOptions, // CountOptions
-  IShopifySyncSmartCollectionGetOptions, // GetOptions
-  IShopifySyncSmartCollectionListOptions, // ListOptions
+  Options.CollectionCountOptions, // CountOptions
+  Options.CollectionGetOptions, // GetOptions
+  Options.CollectionListOptions, // ListOptions
   SmartCollectionDocument // DatabaseDocumentType
 > {
   resourceName: Resource = "smartCollections";

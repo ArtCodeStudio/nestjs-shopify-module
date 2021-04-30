@@ -6,13 +6,9 @@ import { shopifyRetry } from "../../../helpers";
 
 import { IShopifyConnect } from "../../../auth/interfaces";
 import { ProductVariants } from "shopify-admin-api";
-import { Interfaces } from "shopify-admin-api";
+import { Interfaces, Options } from "shopify-admin-api";
 import { Model } from "mongoose";
-import {
-  ProductVariantDocument,
-  IShopifySyncProductVariantGetOptions,
-  IShopifySyncProductVariantListOptions,
-} from "../../interfaces";
+import { ProductVariantDocument } from "../../interfaces";
 
 import { EventService } from "../../../event.service";
 import { Resource } from "../../../interfaces";
@@ -41,13 +37,12 @@ export class ProductVariantsService {
     user: IShopifyConnect,
     parentId: number,
     id: number,
-    options?: IShopifySyncProductVariantGetOptions
+    options?: Options.ProductVariantGetOptions
   ): Promise<Partial<Interfaces.ProductVariant> | null> {
     const shopifyModel = new ProductVariants(
       user.myshopify_domain,
       user.accessToken
     );
-    delete options.syncToDb;
     return shopifyRetry(() => {
       return shopifyModel.get(parentId, options);
     });
@@ -61,16 +56,13 @@ export class ProductVariantsService {
   public async listFromShopify(
     shopifyConnect: IShopifyConnect,
     parentId: number,
-    options?: IShopifySyncProductVariantListOptions
+    options?: Options.ProductVariantListOptions
   ): Promise<Partial<Interfaces.ProductVariant>[]> {
     const shopifyModel = new ProductVariants(
       shopifyConnect.myshopify_domain,
       shopifyConnect.accessToken
     );
     options = Object.assign({}, options);
-    delete options.syncToDb;
-    delete options.failOnSyncError;
-    delete options.cancelSignal; // TODO?
     return shopifyRetry(() => {
       return shopifyModel.list(parentId, options);
     });

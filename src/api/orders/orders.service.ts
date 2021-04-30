@@ -5,14 +5,9 @@ import { ShopifyApiRootCountableService } from "../shopify-api-root-countable.se
 
 // Interfaces
 import { Model } from "mongoose";
-import { Interfaces } from "shopify-admin-api";
+import { Interfaces, Options } from "shopify-admin-api";
 import { Orders } from "shopify-admin-api";
-import {
-  OrderDocument,
-  IShopifySyncOrderCountOptions,
-  IShopifySyncOrderGetOptions,
-  IShopifySyncOrderListOptions,
-} from "../interfaces";
+import { OrderDocument } from "../interfaces";
 import {
   SyncProgressDocument,
   IStartSyncOptions,
@@ -29,9 +24,9 @@ import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 export class OrdersService extends ShopifyApiRootCountableService<
   Interfaces.Order, // ShopifyObjectType
   Orders, // ShopifyModelClass
-  IShopifySyncOrderCountOptions, // CountOptions
-  IShopifySyncOrderGetOptions, // GetOptions
-  IShopifySyncOrderListOptions, // ListOptions
+  Options.OrderCountOptions, // CountOptions
+  Options.OrderGetOptions, // GetOptions
+  Options.OrderListOptions, // ListOptions
   OrderDocument // DatabaseDocumentType
 > {
   resourceName: Resource = "orders";
@@ -78,10 +73,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
       for (const order of orders) {
         const transactions = await this.transactionsService.listFromShopify(
           shopifyConnect,
-          order.id,
-          {
-            syncToDb: options.syncToDb,
-          }
+          order.id
         );
         subProgress.syncedTransactionsCount += transactions.length;
         subProgress.syncedCount++;
@@ -104,7 +96,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
    */
   protected getSyncCountOptions(
     syncOptions: IStartSyncOptions
-  ): IShopifySyncOrderCountOptions {
+  ): Options.OrderCountOptions {
     this.logger.debug(`getSyncCountOptions: %O`, syncOptions);
     this.logger.debug("status %o:", { status: "any" });
     return { status: "any" };

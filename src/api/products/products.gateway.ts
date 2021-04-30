@@ -9,11 +9,12 @@ import {
 } from "@nestjs/websockets";
 import { Namespace } from "socket.io";
 import { Observable } from "rxjs";
-import { IShopifySyncProductListOptions } from "../interfaces";
 import { ProductsService } from "./products.service";
 import { Interfaces } from "shopify-admin-api";
 import { DebugService } from "../../debug.service";
 import { IShopifyConnect, SessionSocket } from "../../interfaces";
+
+import { Options } from "shopify-admin-api";
 
 @WebSocketGateway({ namespace: "/socket.io/shopify/api/products" })
 export class ProductsGateway
@@ -27,7 +28,7 @@ export class ProductsGateway
   @SubscribeMessage("all")
   onAll(
     client: SessionSocket,
-    options: IShopifySyncProductListOptions = {}
+    options: Options.ProductListOptions = {}
   ): Observable<WsResponse<Partial<Interfaces.Product>>> {
     const shop = client.handshake.session.currentShop; // TODO
     this.logger.debug("subscribe all for shop", shop);

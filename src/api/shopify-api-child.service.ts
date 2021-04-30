@@ -12,7 +12,6 @@ import { Observable, Observer } from "rxjs";
 import { IShopifyConnect } from "../auth/interfaces";
 import {
   listAllCallback,
-  ISyncOptions,
   ShopifyBaseObjectType,
   ChildGet,
   ChildList,
@@ -25,9 +24,8 @@ export abstract class ShopifyApiChildService<
   ShopifyModelClass extends Infrastructure.BaseService &
     ChildGet<ShopifyObjectType, GetOptions> &
     ChildList<ShopifyObjectType, ListOptions>,
-  GetOptions extends ISyncOptions = ISyncOptions,
-  ListOptions extends ISyncOptions & Options.BasicListOptions = ISyncOptions &
-    Options.BasicListOptions,
+  GetOptions,
+  ListOptions extends Options.BasicListOptions = Options.BasicListOptions,
   DatabaseDocumentType extends Document = ShopifyObjectType & Document
 > extends ShopifyApiBaseService<
   ShopifyObjectType,
@@ -51,21 +49,10 @@ export abstract class ShopifyApiChildService<
       user.myshopify_domain,
       user.accessToken
     );
-    const syncToDb = options && options.syncToDb;
-    delete options.syncToDb;
 
     const shopifyObj = await shopifyRetry(() => {
       return shopifyModel.get(parentId, id, options);
     });
-
-    if (
-      this.shopifyModuleOptions.sync.enabled &&
-      this.shopifyModuleOptions.sync.autoSyncResources.includes(
-        this.resourceName
-      )
-    ) {
-      await this.updateOrCreateInApp(user, "id", shopifyObj, syncToDb);
-    }
 
     return shopifyObj;
   }
@@ -85,30 +72,8 @@ export abstract class ShopifyApiChildService<
       shopifyConnect.accessToken
     );
     options = Object.assign({}, options);
-    const syncToDb = options && options.syncToDb;
-    const failOnSyncError = options && options.failOnSyncError;
-    delete options.syncToDb;
-    delete options.failOnSyncError;
-    delete options.cancelSignal; // TODO@Moritz?
     return shopifyRetry(() => {
       return shopifyModel.list(parentId, options);
-    }).then(async (shopifyListObjs) => {
-      return this.updateOrCreateManyInApp(
-        shopifyConnect,
-        "id",
-        shopifyListObjs,
-        syncToDb
-      )
-        .then(() => {
-          return shopifyListObjs;
-        })
-        .catch((e: Error) => {
-          this.logger.error(e);
-          if (failOnSyncError) {
-            throw e;
-          }
-          return shopifyListObjs;
-        });
     });
   }
 

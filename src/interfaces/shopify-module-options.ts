@@ -13,14 +13,6 @@ export interface ConfigApp {
   environment: "production" | "development" | "test";
 }
 
-export interface ConfigSync {
-  enabled: boolean;
-  /**
-   * Resources wich should be auto synced to the app's database, e.g. ['orders', 'blogs']
-   */
-  autoSyncResources: Resource[];
-}
-
 export interface ConfigShopify {
   /** client id / Api key */
   clientID: string;
@@ -69,8 +61,6 @@ export interface ConfigMongoDB {
 }
 export interface ShopifyModuleOptions {
   app: ConfigApp;
-
-  sync: ConfigSync;
 
   shopify: ConfigShopify;
 

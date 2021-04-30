@@ -6,7 +6,6 @@ import { Document, DocumentDefinition } from "mongoose";
 
 import { IShopifyConnect } from "../auth/interfaces";
 import {
-  ISyncOptions,
   ShopifyBaseObjectType,
   ChildCount,
   ChildGet,
@@ -22,11 +21,8 @@ export abstract class ShopifyApiChildCountableService<
     ChildGet<ShopifyObjectType, GetOptions> &
     ChildList<ShopifyObjectType, ListOptions>,
   CountOptions,
-  GetOptions extends ISyncOptions = ISyncOptions,
-  ListOptions extends CountOptions &
-    ISyncOptions &
-    Options.BasicListOptions = CountOptions &
-    ISyncOptions &
+  GetOptions,
+  ListOptions extends CountOptions & Options.BasicListOptions = CountOptions &
     Options.BasicListOptions,
   DatabaseDocumentType extends Document = DocumentDefinition<
     ShopifyObjectType

@@ -10,4 +10,3 @@ export * from "./root-count";
 export * from "./root-get";
 export * from "./root-list";
 export * from "./shopify-base-object-type";
-export * from "./options/sync";

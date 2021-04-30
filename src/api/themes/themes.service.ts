@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { Themes } from "shopify-admin-api"; // https://github.com/ArtCodeStudio/shopify-admin-api
+import { Themes, Options } from "shopify-admin-api"; // https://github.com/ArtCodeStudio/shopify-admin-api
 import { IShopifyConnect } from "../../auth/interfaces/connect";
 import { Interfaces } from "shopify-admin-api";
 import { ThemeDocument } from "../interfaces/mongoose/theme.schema";
@@ -12,20 +12,15 @@ import {
   ShopifyModuleOptions,
   Resource,
 } from "../../interfaces";
-import {
-  IShopifySyncThemeGetOptions,
-  IShopifySyncThemeListOptions,
-  IAppThemeListOptions,
-  IAppThemeListFilter,
-} from "../interfaces";
+import { IAppThemeListOptions, IAppThemeListFilter } from "../interfaces";
 import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 
 @Injectable()
 export class ThemesService extends ShopifyApiRootService<
   Interfaces.Theme, // ShopifyObjectType
   Themes, // ShopifyModelClass
-  IShopifySyncThemeGetOptions, // GetOptions
-  IShopifySyncThemeListOptions, // ListOptions
+  Options.ThemeGetOptions, // GetOptions
+  Options.ThemeListOptions, // ListOptions
   ThemeDocument // DatabaseDocumentType
 > {
   resourceName: Resource = "themes";

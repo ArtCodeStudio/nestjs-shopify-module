@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { CustomCollections, Interfaces } from "shopify-admin-api"; // https://github.com/ArtCodeStudio/shopify-admin-api
+import { CustomCollections, Interfaces, Options } from "shopify-admin-api"; // https://github.com/ArtCodeStudio/shopify-admin-api
 import {
   SyncProgressDocument,
   Resource,
@@ -10,20 +10,15 @@ import { EventService } from "../../event.service";
 import { ShopifyApiRootCountableService } from "../shopify-api-root-countable.service";
 import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 
-import {
-  CustomCollectionDocument,
-  IShopifySyncCustomCollectionCountOptions,
-  IShopifySyncCustomCollectionGetOptions,
-  IShopifySyncCustomCollectionListOptions,
-} from "../interfaces";
+import { CustomCollectionDocument } from "../interfaces";
 
 @Injectable()
 export class CustomCollectionsService extends ShopifyApiRootCountableService<
   Interfaces.CustomCollection, // ShopifyObjectType
   CustomCollections, // ShopifyModelClass
-  IShopifySyncCustomCollectionCountOptions, // CountOptions
-  IShopifySyncCustomCollectionGetOptions, // GetOptions
-  IShopifySyncCustomCollectionListOptions, // ListOptions
+  Options.CollectionCountOptions, // CountOptions
+  Options.CollectionGetOptions, // GetOptions
+  Options.CollectionListOptions, // ListOptions
   CustomCollectionDocument // DatabaseDocumentType
 > {
   resourceName: Resource = "customCollections";

@@ -16,10 +16,7 @@ import { DebugService } from "../../../debug.service";
 import { ShopifyApiGuard } from "../../../guards/shopify-api.guard";
 import { Roles } from "../../../guards/roles.decorator";
 
-import {
-  IShopifySyncTransactionGetOptions,
-  IShopifySyncTransactionListOptions,
-} from "../../interfaces";
+import { Options } from "shopify-admin-api";
 
 @Controller("shopify/api/orders")
 export class TransactionsController {
@@ -32,7 +29,7 @@ export class TransactionsController {
   async listFromShopify(
     @Req() req: IUserRequest,
     @Param("order_id") orderId: number,
-    @Query() options: IShopifySyncTransactionListOptions
+    @Query() options: Options.TransactionGetOptions
   ) {
     return this.transactionsService
       .listFromShopify(req.session[`shopify-connect-${req.shop}`], orderId, {
@@ -123,7 +120,7 @@ export class TransactionsController {
     @Req() req: IUserRequest,
     @Param("order_id") orderId,
     @Param("id") id: number,
-    @Query() options: IShopifySyncTransactionGetOptions
+    @Query() options: Options.TransactionGetOptions
   ) {
     return this.transactionsService
       .getFromShopify(

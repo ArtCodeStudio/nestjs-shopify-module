@@ -21,14 +21,9 @@ import { DebugService } from "../../debug.service";
 import { ShopifyApiGuard } from "../../guards/shopify-api.guard";
 import { Roles } from "../../guards/roles.decorator";
 import { IUserRequest } from "../../interfaces";
-import {
-  IShopifySyncProductCountOptions,
-  IShopifySyncProductGetOptions,
-  IShopifySyncProductListOptions,
-  IAppProductListOptions,
-} from "../interfaces";
+import { IAppProductListOptions } from "../interfaces";
 import { Response } from "express";
-import { Interfaces } from "shopify-admin-api";
+import { Interfaces, Options } from "shopify-admin-api";
 
 @Controller("shopify/api/products")
 export class ProductsController {
@@ -66,19 +61,12 @@ export class ProductsController {
     @Query("title") title?: string,
     @Query("updated_at_max") updated_at_max?: string,
     @Query("updated_at_min") updated_at_min?: string,
-    @Query("vendor") vendor?: string,
-    /*
-     * Custom sync options
-     */
-    @Query("sync_to_db") syncToDb?: boolean,
-    @Query("cancel_signal") cancelSignal?: string,
-    @Query("fail_on_sync_error") failOnSyncError?: boolean
+    @Query("vendor") vendor?: string
   ) {
     if (req.session.isThemeClientRequest) {
       published_status = "published"; // For security reasons, only return public products if the request comes not from a logged in user
-      syncToDb = false;
     }
-    const options: IShopifySyncProductListOptions = {
+    const options: Options.ProductListOptions = {
       /*
        * Retransmitt options from shopify
        */
@@ -98,12 +86,6 @@ export class ProductsController {
       updated_at_max,
       updated_at_min,
       vendor,
-      /*
-       * Custom sync options
-       */
-      syncToDb,
-      cancelSignal,
-      failOnSyncError,
     };
 
     // replace " and ' if query string was parsed like this: '"1234, 3456, 7890"'
@@ -269,7 +251,6 @@ export class ProductsController {
         published_at_min,
         published_status,
         since_id,
-        syncToDb: sync_to_db,
         title,
         updated_at_max,
         updated_at_min,
@@ -358,7 +339,7 @@ export class ProductsController {
     @Query("updated_at_min") updated_at_min: string,
     @Query("vendor") vendor: string
   ) {
-    const options: IShopifySyncProductCountOptions = {
+    const options: Options.ProductCountOptions = {
       collection_id,
       created_at_max,
       created_at_min,
@@ -572,7 +553,7 @@ export class ProductsController {
     @Param("id") id: number,
     @Query("fields") fields?: string
   ) {
-    const options: IShopifySyncProductGetOptions = {
+    const options: Options.ProductGetOptions = {
       fields,
     };
     try {

@@ -12,7 +12,6 @@ import { IShopifyConnect } from "../auth/interfaces/connect";
 import { SyncProgressDocument, ShopifyModuleOptions } from "../interfaces";
 import {
   listAllCallback,
-  ISyncOptions,
   ShopifyBaseObjectType,
   RootGet,
   RootList,
@@ -26,9 +25,8 @@ export abstract class ShopifyApiRootService<
   ShopifyModelClass extends Infrastructure.BaseService &
     RootGet<ShopifyObjectType, GetOptions> &
     RootList<ShopifyObjectType, ListOptions>,
-  GetOptions extends ISyncOptions = ISyncOptions,
-  ListOptions extends ISyncOptions & Options.BasicListOptions = ISyncOptions &
-    Options.BasicListOptions,
+  GetOptions,
+  ListOptions extends Options.BasicListOptions = Options.BasicListOptions,
   DatabaseDocumentType extends Document = ShopifyObjectType & Document
 > extends ShopifyApiBaseService<
   ShopifyObjectType,
@@ -54,7 +52,7 @@ export abstract class ShopifyApiRootService<
    * Retrieves a single `ShopifyObjectType` directly from the shopify API
    * @param user
    * @param id
-   * @param sync
+   * @param options
    * @see https://help.shopify.com/en/api/reference/products/product#show
    */
   public async getFromShopify(
@@ -66,23 +64,10 @@ export abstract class ShopifyApiRootService<
       user.myshopify_domain,
       user.accessToken
     );
-    const syncToDb = options && options.syncToDb;
-    if (options) {
-      delete options.syncToDb;
-    }
 
     const shopifyObj = await shopifyRetry(() => {
       return shopifyModel.get(id, options);
     });
-
-    if (
-      this.shopifyModuleOptions.sync.enabled &&
-      this.shopifyModuleOptions.sync.autoSyncResources.includes(
-        this.resourceName
-      )
-    ) {
-      await this.updateOrCreateInApp(user, "id", shopifyObj, syncToDb);
-    }
 
     return shopifyObj;
   }
@@ -104,40 +89,13 @@ export abstract class ShopifyApiRootService<
       shopifyConnect.myshopify_domain,
       shopifyConnect.accessToken
     );
-    const syncToDb = options && options.syncToDb;
     options = Object.assign({}, options);
-    const failOnSyncError = options && options.failOnSyncError;
-    delete options.syncToDb;
-    delete options.failOnSyncError;
-    delete options.cancelSignal; // TODO@Moritz?
     return shopifyRetry(async (count) => {
       this.logger.debug("[listFromShopify] retry count: %d" + count);
       return shopifyModel.list(options).catch((error) => {
         this.logger.error(error);
         throw error;
       });
-    }).then(async (shopifyObjects: ShopifyObjectType[]) => {
-      this.logger.debug(
-        "[listFromShopify] result length %d",
-        shopifyObjects.length
-      );
-      this.logger.debug("[listFromShopify] updateOrCreateManyInApp");
-      return this.updateOrCreateManyInApp(
-        shopifyConnect,
-        "id",
-        shopifyObjects,
-        syncToDb
-      )
-        .then((/*syncResult*/) => {
-          return shopifyObjects;
-        })
-        .catch((error) => {
-          this.logger.error(error);
-          if (failOnSyncError) {
-            throw error;
-          }
-          return shopifyObjects;
-        });
     });
   }
 

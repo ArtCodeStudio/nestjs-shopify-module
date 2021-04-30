@@ -5,14 +5,10 @@ import { Inject, Injectable } from "@nestjs/common";
 import { shopifyRetry } from "../../helpers";
 
 import { IShopifyConnect } from "../../auth/interfaces";
-import { Checkouts } from "shopify-admin-api";
+import { Checkouts, Options } from "shopify-admin-api";
 import { Interfaces } from "shopify-admin-api";
 import { Model } from "mongoose";
-import {
-  CheckoutDocument,
-  IShopifySyncCheckoutGetOptions,
-  IShopifySyncCheckoutListOptions,
-} from "../interfaces";
+import { CheckoutDocument } from "../interfaces";
 
 import { EventService } from "../../event.service";
 import { Resource } from "../../interfaces";
@@ -40,13 +36,12 @@ export class CheckoutsService {
   public async getFromShopify(
     user: IShopifyConnect,
     checkoutToken: string,
-    options?: IShopifySyncCheckoutGetOptions
+    options?: Options.CheckoutGetOptions
   ): Promise<Partial<Interfaces.Checkout> | null> {
     const shopifyCheckoutModel = new Checkouts(
       user.myshopify_domain,
       user.accessToken
     );
-    delete options.syncToDb;
     return shopifyRetry(() => {
       return shopifyCheckoutModel.get(checkoutToken, options);
     });
@@ -59,16 +54,13 @@ export class CheckoutsService {
    */
   public async listFromShopify(
     shopifyConnect: IShopifyConnect,
-    options?: IShopifySyncCheckoutListOptions
+    options?: Options.CheckoutListOptions
   ): Promise<Partial<Interfaces.Checkout>[]> {
     const shopifyCheckoutModel = new Checkouts(
       shopifyConnect.myshopify_domain,
       shopifyConnect.accessToken
     );
     options = Object.assign({}, options);
-    delete options.syncToDb;
-    delete options.failOnSyncError;
-    delete options.cancelSignal; // TODO@Moritz?
     return shopifyRetry(() => {
       return shopifyCheckoutModel.list(options);
     });

@@ -13,7 +13,6 @@ import {
 import {
   listAllCallback,
   IListAllCallbackData,
-  ISyncOptions,
   ShopifyBaseObjectType,
   RootCount,
   RootGet,
@@ -29,10 +28,9 @@ export abstract class ShopifyApiRootCountableService<
     RootGet<ShopifyObjectType, GetOptions> &
     RootList<ShopifyObjectType, ListOptions>,
   CountOptions,
-  GetOptions extends ISyncOptions = ISyncOptions,
-  ListOptions extends CountOptions &
-    ISyncOptions &
-    Options.ListOptions = CountOptions & ISyncOptions & Options.ListOptions,
+  GetOptions,
+  ListOptions extends CountOptions & Options.ListOptions = CountOptions &
+    Options.ListOptions,
   DatabaseDocumentType extends Document = ShopifyObjectType & Document
 > extends ShopifyApiRootService<
   ShopifyObjectType,
@@ -82,15 +80,6 @@ export abstract class ShopifyApiRootCountableService<
     const itemsPerPage = 250;
     const pages = Math.ceil(count / itemsPerPage);
 
-    let cancelled = false;
-
-    const cancelHandler = () => {
-      cancelled = true;
-    };
-    if (options && options.cancelSignal) {
-      this.events.once(options.cancelSignal, cancelHandler);
-    }
-
     for (let page = 1; page <= pages; page++) {
       await this.listFromShopify(shopifyConnect, {
         ...options,
@@ -109,28 +98,14 @@ export abstract class ShopifyApiRootCountableService<
           }
         })
         .catch(async (error) => {
-          this.logger.error(`${this.resourceName} sync error`, error);
+          this.logger.error(`${this.resourceName} listAll error`, error);
           if (typeof listAllPageCallback === "function") {
             await listAllPageCallback(error, null);
-            if (options.failOnSyncError) {
-              this.events.off(options.cancelSignal, cancelHandler);
-              throw error;
-            }
           } else {
-            if (options.cancelSignal) {
-              this.events.off(options.cancelSignal, cancelHandler);
-            }
             throw error;
           }
         });
-      if (cancelled) {
-        this.events.off(options.cancelSignal, cancelHandler);
-        throw new Error("cancelled");
-      }
       await new Promise((res) => setTimeout(res, 333));
-    }
-    if (options.cancelSignal) {
-      this.events.off(options.cancelSignal, cancelHandler);
     }
     if (typeof listAllPageCallback === "function") {
       return; // void; we do not need the result if we have a callback

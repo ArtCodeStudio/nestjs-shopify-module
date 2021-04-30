@@ -19,9 +19,8 @@ import { ShopifyApiGuard } from "../../../guards/shopify-api.guard";
 import { Roles } from "../../../guards/roles.decorator";
 
 // Interfaces
-import { Interfaces } from "shopify-admin-api";
+import { Interfaces, Options } from "shopify-admin-api";
 import { IUserRequest } from "../../../interfaces/user-request";
-import { IShopifySyncArticleListOptions } from "../../interfaces";
 
 @Controller("shopify/api/blogs")
 export class ArticlesController {
@@ -84,20 +83,13 @@ export class ArticlesController {
     @Query("since_id") since_id?: number,
     @Query("tag") tag?: string,
     @Query("updated_at_max") updated_at_max?: string,
-    @Query("updated_at_min") updated_at_min?: string,
-    /**
-     * Custom sync options
-     */
-    @Query("sync_to_db") syncToDb?: boolean,
-    @Query("cancel_signal") cancelSignal?: string,
-    @Query("fail_on_sync_error") failOnSyncError?: boolean
+    @Query("updated_at_min") updated_at_min?: string
   ) {
     try {
       if (req.session.isThemeClientRequest) {
         published_status = "published"; // For security reasons, only return public articles if the request comes not from a logged in user
-        syncToDb = false;
       }
-      const options: IShopifySyncArticleListOptions = {
+      const options: Options.ArticleListOptions = {
         author,
         created_at_max,
         created_at_min,
@@ -110,11 +102,8 @@ export class ArticlesController {
         published_status,
         since_id,
         tag,
-        syncToDb,
         updated_at_max,
         updated_at_min,
-        cancelSignal,
-        failOnSyncError,
       };
 
       this.logger.debug("ArticleListOptions", options);

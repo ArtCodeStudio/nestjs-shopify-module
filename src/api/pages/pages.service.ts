@@ -7,13 +7,7 @@ import { ShopifyApiRootCountableService } from "../shopify-api-root-countable.se
 import { Model } from "mongoose";
 import { IShopifyConnect } from "../../auth/interfaces/connect";
 import { Pages, Options, Interfaces } from "shopify-admin-api";
-import {
-  PageDocument,
-  IListAllCallbackData,
-  IShopifySyncPageCountOptions,
-  IShopifySyncPageGetOptions,
-  IShopifySyncPageListOptions,
-} from "../interfaces";
+import { PageDocument, IListAllCallbackData } from "../interfaces";
 import {
   SyncProgressDocument,
   ISubSyncProgress,
@@ -27,9 +21,9 @@ import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 export class PagesService extends ShopifyApiRootCountableService<
   Interfaces.Page, // ShopifyObjectType
   Pages, // ShopifyModelClass
-  IShopifySyncPageCountOptions, // CountOptions
-  IShopifySyncPageGetOptions, // GetOptions
-  IShopifySyncPageListOptions, // ListOptions
+  Options.PageCountOptions, // CountOptions
+  Options.PageGetOptions, // GetOptions
+  Options.PageListOptions, // ListOptions
   PageDocument // DatabaseDocumentType
 > {
   resourceName: Resource = "pages";

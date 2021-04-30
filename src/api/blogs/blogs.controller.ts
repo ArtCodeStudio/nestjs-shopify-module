@@ -19,9 +19,8 @@ import { ShopifyApiGuard } from "../../guards/shopify-api.guard";
 import { Roles } from "../../guards/roles.decorator";
 
 // Interfaces
-import { Interfaces } from "shopify-admin-api";
+import { Interfaces, Options } from "shopify-admin-api";
 import { IUserRequest } from "../../interfaces/user-request";
-import { IShopifySyncBlogListOptions } from "../interfaces";
 
 @Controller("shopify/api/blogs")
 export class BlogsController {
@@ -71,26 +70,18 @@ export class BlogsController {
     @Query("fields") fields?: string,
     @Query("handle") handle?: string,
 
-    @Query("since_id") since_id?: number,
-    /**
-     * Custom sync options
-     */
-    @Query("sync_to_db") syncToDb?: boolean,
-    @Query("cancel_signal") cancelSignal?: string,
-    @Query("fail_on_sync_error") failOnSyncError?: boolean
+    @Query("since_id") since_id?: number
   ) {
     try {
+      /*
       if (req.session.isThemeClientRequest) {
-        // published_status = 'published'; // For security reasons, only return visible blogs if the request comes not from a logged in user
-        syncToDb = false;
+        published_status = 'published'; // For security reasons, only return visible blogs if the request comes not from a logged in user
       }
-      const options: IShopifySyncBlogListOptions = {
+      */
+      const options: Options.BlogListOptions = {
         fields,
         handle,
         since_id,
-        syncToDb,
-        cancelSignal,
-        failOnSyncError,
       };
 
       this.logger.debug("BlogListOptions %O", options);

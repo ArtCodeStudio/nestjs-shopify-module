@@ -6,15 +6,12 @@ import { Inject, Injectable } from "@nestjs/common";
 import { shopifyRetry } from "../../helpers";
 
 import { IShopifyConnect } from "../../auth/interfaces";
-import { Interfaces, Products } from "shopify-admin-api";
+import { Interfaces, Products, Options } from "shopify-admin-api";
 import { Model } from "mongoose";
 import {
   ProductDocument,
   IListAllCallbackData,
   IAppBasicListOptions,
-  IShopifySyncProductCountOptions,
-  IShopifySyncProductGetOptions,
-  IShopifySyncProductListOptions,
   IAppProductListOptions,
 } from "../interfaces";
 
@@ -33,9 +30,9 @@ import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 export class ProductsService extends ShopifyApiRootCountableService<
   Interfaces.Product, // ShopifyObjectType
   Products, // ShopifyModelClass
-  IShopifySyncProductCountOptions, // CountOptions
-  IShopifySyncProductGetOptions, // GetOptions
-  IShopifySyncProductListOptions, // ListOptions
+  Options.ProductCountOptions, // CountOptions
+  Options.ProductGetOptions, // GetOptions
+  Options.ProductListOptions, // ListOptions
   ProductDocument // DatabaseDocumentType
 > {
   resourceName: Resource = "products";

@@ -4,13 +4,8 @@ import { ShopifyApiRootCountableService } from "../shopify-api-root-countable.se
 
 // Interfaces
 import { Model } from "mongoose";
-import { Collects, Interfaces } from "shopify-admin-api";
-import {
-  CollectDocument,
-  IShopifySyncCollectCountOptions,
-  IShopifySyncCollectGetOptions,
-  IShopifySyncCollectListOptions,
-} from "../interfaces";
+import { Collects, Interfaces, Options } from "shopify-admin-api";
+import { CollectDocument } from "../interfaces";
 import {
   SyncProgressDocument,
   Resource,
@@ -22,9 +17,9 @@ import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 export class CollectsService extends ShopifyApiRootCountableService<
   Interfaces.Collect, // ShopifyObjectType
   Collects, // ShopifyModelClass
-  IShopifySyncCollectCountOptions, // CountOptions
-  IShopifySyncCollectGetOptions, // GetOptions
-  IShopifySyncCollectListOptions, // ListOptions
+  Options.CollectCountOptions, // CountOptions
+  Options.CollectGetOptions, // GetOptions
+  Options.CollectListOptions, // ListOptions
   CollectDocument // DatabaseDocumentType
 > {
   resourceName: Resource = "collects";

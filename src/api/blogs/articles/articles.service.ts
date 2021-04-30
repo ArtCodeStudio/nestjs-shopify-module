@@ -7,13 +7,7 @@ import { ShopifyApiChildCountableService } from "../../shopify-api-child-countab
 import { Model } from "mongoose";
 import { IShopifyConnect } from "../../../auth/interfaces/connect";
 import { Interfaces, Articles, Options } from "shopify-admin-api";
-import {
-  ArticleDocument,
-  IListAllCallbackData,
-  IShopifySyncArticleCountOptions,
-  IShopifySyncArticleGetOptions,
-  IShopifySyncArticleListOptions,
-} from "../../interfaces";
+import { ArticleDocument, IListAllCallbackData } from "../../interfaces";
 import {
   SyncProgressDocument,
   ISubSyncProgress,
@@ -27,9 +21,9 @@ import { SHOPIFY_MODULE_OPTIONS } from "../../../shopify.constants";
 export class ArticlesService extends ShopifyApiChildCountableService<
   Interfaces.Article, // ShopifyObjectType
   Articles, // ShopifyModelClass
-  IShopifySyncArticleCountOptions, // CountOptions
-  IShopifySyncArticleGetOptions, // GetOptions
-  IShopifySyncArticleListOptions, // ListOptions
+  Options.ArticleCountOptions, // CountOptions
+  Options.ArticleGetOptions, // GetOptions
+  Options.ArticleListOptions, // ListOptions
   ArticleDocument // DatabaseDocumentType
 > {
   resourceName: Resource = "articles";

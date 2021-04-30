@@ -10,13 +10,7 @@ import { IShopifyConnect } from "../../auth/interfaces/connect";
 import { Interfaces } from "shopify-admin-api";
 import { Blogs, Options } from "shopify-admin-api";
 import { ArticlesService } from "./articles/articles.service";
-import {
-  BlogDocument,
-  IListAllCallbackData,
-  IShopifySyncBlogCountOptions,
-  IShopifySyncBlogGetOptions,
-  IShopifySyncBlogListOptions,
-} from "../interfaces";
+import { BlogDocument, IListAllCallbackData } from "../interfaces";
 import {
   SyncProgressDocument,
   IStartSyncOptions,
@@ -30,9 +24,9 @@ import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 export class BlogsService extends ShopifyApiRootCountableService<
   Interfaces.Blog, // ShopifyObjectType
   Blogs, // ShopifyModelClass
-  IShopifySyncBlogCountOptions, // CountOptions
-  IShopifySyncBlogGetOptions, // GetOptions
-  IShopifySyncBlogListOptions, // ListOptions
+  Options.BlogCountOptions, // CountOptions
+  Options.BlogGetOptions, // GetOptions
+  Options.BlogListOptions, // ListOptions
   BlogDocument // DatabaseDocumentType
 > {
   resourceName: Resource = "blogs";
@@ -174,10 +168,7 @@ export class BlogsService extends ShopifyApiRootCountableService<
       for (const blog of blogs) {
         const articles = await this.articlesService.listFromShopify(
           shopifyConnect,
-          blog.id,
-          {
-            syncToDb: options.syncToDb,
-          }
+          blog.id
         );
         subProgress.syncedArticlesCount += articles.length;
         subProgress.syncedCount++;

@@ -1,8 +1,4 @@
-import { ISyncOptions } from "./options";
-export interface RootGet<
-  ShopifyObjectType,
-  GetOptions extends ISyncOptions = ISyncOptions
-> {
+export interface RootGet<ShopifyObjectType, GetOptions> {
   get(
     id: number,
     options?: GetOptions
