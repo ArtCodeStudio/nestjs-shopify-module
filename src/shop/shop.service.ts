@@ -1,17 +1,17 @@
-import { Injectable, Inject } from "@nestjs/common";
-import { Model } from "mongoose";
+import { Injectable, Inject } from '@nestjs/common';
+import { Model } from 'mongoose';
 
-import { IShopifyConnectDocument } from "../auth/interfaces/connect";
-import { IShopifyShop } from "./interfaces/shop";
-import { DebugService } from "../debug.service";
+import { IShopifyConnectDocument } from '../auth/interfaces/connect';
+import { IShopifyShop } from './interfaces/shop';
+import { DebugService } from '../debug.service';
 
 @Injectable()
 export class ShopService {
-  protected logger = new DebugService("shopify:ShopifyConnectService");
+  protected logger = new DebugService('shopify:ShopifyConnectService');
 
   constructor(
-    @Inject("ShopifyConnectModelToken")
-    private readonly shopifyConnectModel: Model<IShopifyConnectDocument>
+    @Inject('ShopifyConnectModelToken')
+    private readonly shopifyConnectModel: Model<IShopifyConnectDocument>,
   ) {}
 
   async findAll(): Promise<IShopifyShop[]> {

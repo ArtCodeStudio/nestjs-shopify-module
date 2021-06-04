@@ -1,19 +1,19 @@
 // Third party
-import { Infrastructure, Options } from "shopify-admin-api";
+import { Infrastructure, Options } from 'shopify-admin-api';
 // import * as pRetry from 'p-retry';
-import { shopifyRetry } from "../helpers";
-import { Document, DocumentDefinition } from "mongoose";
+import { shopifyRetry } from '../helpers';
+import { Document, DocumentDefinition } from 'mongoose';
 
-import { IShopifyConnect } from "../auth/interfaces";
+import { IShopifyConnect } from '../auth/interfaces';
 import {
   ISyncOptions,
   ShopifyBaseObjectType,
   ChildCount,
   ChildGet,
   ChildList,
-} from "./interfaces";
-import { deleteUndefinedProperties } from "../helpers";
-import { ShopifyApiChildService } from "./shopify-api-child.service";
+} from './interfaces';
+import { deleteUndefinedProperties } from '../helpers';
+import { ShopifyApiChildService } from './shopify-api-child.service';
 
 export abstract class ShopifyApiChildCountableService<
   ShopifyObjectType extends ShopifyBaseObjectType,
@@ -28,10 +28,8 @@ export abstract class ShopifyApiChildCountableService<
     Options.BasicListOptions = CountOptions &
     ISyncOptions &
     Options.BasicListOptions,
-  DatabaseDocumentType extends Document = DocumentDefinition<
-    ShopifyObjectType
-  > &
-    Document
+  DatabaseDocumentType extends Document = DocumentDefinition<ShopifyObjectType> &
+    Document,
 > extends ShopifyApiChildService<
   ShopifyObjectType,
   ShopifyModelClass,
@@ -41,16 +39,16 @@ export abstract class ShopifyApiChildCountableService<
 > {
   public async countFromShopify(
     shopifyConnect: IShopifyConnect,
-    parentId: number
+    parentId: number,
   ): Promise<number>;
   public async countFromShopify(
     shopifyConnect: IShopifyConnect,
     parentId: number,
-    options?: CountOptions
+    options?: CountOptions,
   ): Promise<number> {
     const shopifyModel = new this.ShopifyModel(
       shopifyConnect.myshopify_domain,
-      shopifyConnect.accessToken
+      shopifyConnect.accessToken,
     );
     // Delete undefined options
     deleteUndefinedProperties(options);

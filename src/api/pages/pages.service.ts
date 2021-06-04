@@ -1,27 +1,27 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { deleteUndefinedProperties } from "../../helpers";
-import { EventService } from "../../event.service";
-import { ShopifyApiRootCountableService } from "../shopify-api-root-countable.service";
+import { Inject, Injectable } from '@nestjs/common';
+import { deleteUndefinedProperties } from '../../helpers';
+import { EventService } from '../../event.service';
+import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 
 // Interfaces
-import { Model } from "mongoose";
-import { IShopifyConnect } from "../../auth/interfaces/connect";
-import { Pages, Options, Interfaces } from "shopify-admin-api";
+import { Model } from 'mongoose';
+import { IShopifyConnect } from '../../auth/interfaces/connect';
+import { Pages, Options, Interfaces } from 'shopify-admin-api';
 import {
   PageDocument,
   IListAllCallbackData,
   IShopifySyncPageCountOptions,
   IShopifySyncPageGetOptions,
   IShopifySyncPageListOptions,
-} from "../interfaces";
+} from '../interfaces';
 import {
   SyncProgressDocument,
   ISubSyncProgress,
   IStartSyncOptions,
   ShopifyModuleOptions,
   Resource,
-} from "../../interfaces";
-import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
+} from '../../interfaces';
+import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
 
 @Injectable()
 export class PagesService extends ShopifyApiRootCountableService<
@@ -32,24 +32,24 @@ export class PagesService extends ShopifyApiRootCountableService<
   IShopifySyncPageListOptions, // ListOptions
   PageDocument // DatabaseDocumentType
 > {
-  resourceName: Resource = "pages";
+  resourceName: Resource = 'pages';
   subResourceNames: Resource[] = [];
 
   constructor(
-    @Inject("PageModelToken")
+    @Inject('PageModelToken')
     private readonly pageModel: (shopName: string) => Model<PageDocument>,
     private readonly eventService: EventService,
-    @Inject("SyncProgressModelToken")
+    @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     @Inject(SHOPIFY_MODULE_OPTIONS)
-    protected readonly shopifyModuleOptions: ShopifyModuleOptions
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
     super(
       pageModel,
       Pages,
       eventService,
       syncProgressModel,
-      shopifyModuleOptions
+      shopifyModuleOptions,
     );
   }
 
@@ -60,7 +60,7 @@ export class PagesService extends ShopifyApiRootCountableService<
    */
   public async create(
     user: IShopifyConnect,
-    page: Partial<Interfaces.Page>
+    page: Partial<Interfaces.Page>,
   ): Promise<Interfaces.Page> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     return pages.create(page).then((pageObj) => {
@@ -77,7 +77,7 @@ export class PagesService extends ShopifyApiRootCountableService<
   public async get(
     user: IShopifyConnect,
     id: number,
-    options?: Options.FieldOptions
+    options?: Options.FieldOptions,
   ): Promise<Partial<Interfaces.Page>> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
@@ -95,7 +95,7 @@ export class PagesService extends ShopifyApiRootCountableService<
   public async update(
     user: IShopifyConnect,
     id: number,
-    page: Partial<Interfaces.Page>
+    page: Partial<Interfaces.Page>,
   ): Promise<Interfaces.Page> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     return pages.update(id, page).then((pageObj) => {
@@ -110,7 +110,7 @@ export class PagesService extends ShopifyApiRootCountableService<
    */
   public async list(
     user: IShopifyConnect,
-    options?: Options.FieldOptions
+    options?: Options.FieldOptions,
   ): Promise<Partial<Interfaces.Page>[]> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
@@ -126,11 +126,11 @@ export class PagesService extends ShopifyApiRootCountableService<
    */
   public async count(
     user: IShopifyConnect,
-    options?: Options.PageCountOptions
+    options?: Options.PageCountOptions,
   ): Promise<number> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
-    this.logger.debug("count options: %O", options);
+    this.logger.debug('count options: %O', options);
     return pages.count(options).then((count) => {
       return count;
     });
@@ -143,7 +143,7 @@ export class PagesService extends ShopifyApiRootCountableService<
    */
   public async delete(
     user: IShopifyConnect,
-    id: number
+    id: number,
   ): Promise<{ id: number }> {
     const pages = new Pages(user.myshopify_domain, user.accessToken);
     return pages.delete(id).then((result) => {
@@ -163,7 +163,7 @@ export class PagesService extends ShopifyApiRootCountableService<
     progress: SyncProgressDocument,
     subProgress: ISubSyncProgress,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Interfaces.Page>
+    data: IListAllCallbackData<Interfaces.Page>,
   ): Promise<void> {
     const pages = data.data;
     subProgress.syncedCount += pages.length;

@@ -1,14 +1,14 @@
-import { PassportStrategy } from "@nestjs/passport";
-import { Strategy } from "passport-shopify"; // https://github.com/danteata/passport-shopify
-import { ShopifyConnectService } from "./connect.service";
-import { DebugService } from "../debug.service";
-import { ShopifyAuthController } from "./auth.controller";
-import { IShopifyAuthProfile } from "./interfaces/profile";
-import { ShopifyModuleOptions } from "../interfaces/shopify-module-options";
-import { PassportStatic } from "passport";
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy } from 'passport-shopify'; // https://github.com/danteata/passport-shopify
+import { ShopifyConnectService } from './connect.service';
+import { DebugService } from '../debug.service';
+import { ShopifyAuthController } from './auth.controller';
+import { IShopifyAuthProfile } from './interfaces/profile';
+import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
+import { PassportStatic } from 'passport';
 
-export class ShopifyAuthStrategy extends PassportStrategy(Strategy, "shopify") {
-  protected logger = new DebugService("shopify:ShopifyAuthStrategy");
+export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
+  protected logger = new DebugService('shopify:ShopifyAuthStrategy');
 
   protected authController: ShopifyAuthController;
 
@@ -16,7 +16,7 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, "shopify") {
     shop: string,
     private shopifyConnectService: ShopifyConnectService,
     private readonly shopifyModuleOptions: ShopifyModuleOptions,
-    private readonly passport: PassportStatic
+    private readonly passport: PassportStatic,
   ) {
     super({
       clientID: shopifyModuleOptions.shopify.clientID,
@@ -40,7 +40,7 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, "shopify") {
   async validate(
     accessToken: string,
     refreshToken: string,
-    profile: IShopifyAuthProfile /*, verifiedDone: (error?: Error | null, user?: any) => void*/
+    profile: IShopifyAuthProfile /*, verifiedDone: (error?: Error | null, user?: any) => void*/,
   ) {
     this.logger.debug(`validate`);
     this.logger.debug(`accessToken: %s`, accessToken);
@@ -51,11 +51,11 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, "shopify") {
       .connectOrUpdate(profile, accessToken)
       .then((user) => {
         if (!user) {
-          throw new Error("Error on connect or update user");
+          throw new Error('Error on connect or update user');
         }
         this.logger.debug(
           `validate user, user.myshopify_domain: %s`,
-          user.myshopify_domain
+          user.myshopify_domain,
         );
         // return verifiedDone(null, user);
         return user; // see AuthStrategy -> serializeUser

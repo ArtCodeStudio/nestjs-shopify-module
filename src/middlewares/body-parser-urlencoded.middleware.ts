@@ -1,7 +1,8 @@
-import { Injectable, NestMiddleware } from "@nestjs/common";
-import * as bodyParser from "body-parser";
-import { IUserRequest } from "../interfaces/user-request";
-import { Response, NextFunction } from "express";
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import * as bodyParser from 'body-parser';
+import { IUserRequest } from '../interfaces/user-request';
+import { NextFunction } from 'express';
+import type { ServerResponse } from 'http';
 
 /**
  * Body parser urlencoded middleware to use the middleware if you have disabled the default nest paser middleware
@@ -10,7 +11,7 @@ import { Response, NextFunction } from "express";
  */
 @Injectable()
 export class BodyParserUrlencodedMiddleware implements NestMiddleware {
-  use(req: IUserRequest, res: Response, next: NextFunction) {
+  use(req: IUserRequest, res: ServerResponse, next: NextFunction) {
     const urlencodedParser = bodyParser.urlencoded({ extended: true });
     return urlencodedParser(req, res, next);
   }

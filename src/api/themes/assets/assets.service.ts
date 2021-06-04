@@ -1,21 +1,21 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { Options, Interfaces, Assets } from "shopify-admin-api";
+import { Inject, Injectable } from '@nestjs/common';
+import { Options, Interfaces, Assets } from 'shopify-admin-api';
 import {
   AssetDocument,
   IAppAsset,
   IAppAssetListOptions,
-} from "../../interfaces";
-import { IShopifyConnect } from "../../../auth/interfaces/connect";
-import { Model } from "mongoose";
-import { DebugService } from "../../../debug.service";
+} from '../../interfaces';
+import { IShopifyConnect } from '../../../auth/interfaces/connect';
+import { Model } from 'mongoose';
+import { DebugService } from '../../../debug.service';
 
 @Injectable()
 export class AssetsService {
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
-    @Inject("AssetModelToken")
-    private readonly assetModel: Model<AssetDocument>
+    @Inject('AssetModelToken')
+    private readonly assetModel: Model<AssetDocument>,
   ) {}
 
   // https://stackoverflow.com/a/273810/1465919
@@ -35,18 +35,18 @@ export class AssetsService {
     const startSchema = this.regexIndexOf(
       asset.value,
       /{%\s*?schema\s*?%}/gm,
-      false
+      false,
     );
     const endSchema = this.regexIndexOf(
       asset.value,
       /{%\s*?endschema\s*?%}/gm,
-      true
+      true,
     );
     const startLiquid = 0;
     const endLiquid = this.regexIndexOf(
       asset.value,
       /{%\s*?endschema\s*?%}/gm,
-      true
+      true,
     );
     // this.logger.debug(`startSchema: ${startSchema} endSchema: ${endSchema}`);
     if (startSchema >= 0 && endSchema >= 0) {
@@ -76,7 +76,7 @@ export class AssetsService {
   async list(
     user: IShopifyConnect,
     id: number,
-    options: IAppAssetListOptions = {}
+    options: IAppAssetListOptions = {},
   ): Promise<Interfaces.Asset[]> {
     const assets = new Assets(user.myshopify_domain, user.accessToken);
     return assets.list(id, options).then((assetData) => {
@@ -106,17 +106,17 @@ export class AssetsService {
     user: IShopifyConnect,
     id: number,
     key: string,
-    options: Options.FieldOptions = {}
+    options: Options.FieldOptions = {},
   ) {
     const assets = new Assets(user.myshopify_domain, user.accessToken);
     return assets.get(id, key, options).then((assetData: IAppAsset) => {
       // this.logger.debug(`assetData: %O`, assetData);
-      if (assetData.content_type === "application/json") {
+      if (assetData.content_type === 'application/json') {
         assetData.json = JSON.parse(assetData.value);
       }
 
-      if (assetData.content_type === "text/x-liquid") {
-        if (assetData.key.startsWith("sections/")) {
+      if (assetData.content_type === 'text/x-liquid') {
+        if (assetData.key.startsWith('sections/')) {
           assetData = this.parseSection(assetData);
         }
       }

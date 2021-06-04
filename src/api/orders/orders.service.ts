@@ -1,29 +1,29 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { EventService } from "../../event.service";
-import { TransactionsService } from "./transactions/transactions.service";
-import { ShopifyApiRootCountableService } from "../shopify-api-root-countable.service";
+import { Inject, Injectable } from '@nestjs/common';
+import { EventService } from '../../event.service';
+import { TransactionsService } from './transactions/transactions.service';
+import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
 
 // Interfaces
-import { Model } from "mongoose";
-import { Interfaces } from "shopify-admin-api";
-import { Orders } from "shopify-admin-api";
+import { Model } from 'mongoose';
+import { Interfaces } from 'shopify-admin-api';
+import { Orders } from 'shopify-admin-api';
 import {
   OrderDocument,
   IShopifySyncOrderCountOptions,
   IShopifySyncOrderGetOptions,
   IShopifySyncOrderListOptions,
-} from "../interfaces";
+} from '../interfaces';
 import {
   SyncProgressDocument,
   IStartSyncOptions,
   OrderSyncProgressDocument,
   Resource,
   ShopifyModuleOptions,
-} from "../../interfaces";
-import { IListAllCallbackData } from "../../api/interfaces";
-import { IShopifyConnect } from "../../auth/interfaces/connect";
-import { mongooseParallelRetry } from "../../helpers";
-import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
+} from '../../interfaces';
+import { IListAllCallbackData } from '../../api/interfaces';
+import { IShopifyConnect } from '../../auth/interfaces/connect';
+import { mongooseParallelRetry } from '../../helpers';
+import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
 
 @Injectable()
 export class OrdersService extends ShopifyApiRootCountableService<
@@ -34,25 +34,25 @@ export class OrdersService extends ShopifyApiRootCountableService<
   IShopifySyncOrderListOptions, // ListOptions
   OrderDocument // DatabaseDocumentType
 > {
-  resourceName: Resource = "orders";
-  subResourceNames: Resource[] = ["transactions"];
+  resourceName: Resource = 'orders';
+  subResourceNames: Resource[] = ['transactions'];
 
   constructor(
-    @Inject("OrderModelToken")
+    @Inject('OrderModelToken')
     private readonly orderModel: (shopName: string) => Model<OrderDocument>,
-    @Inject("SyncProgressModelToken")
+    @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
     private readonly transactionsService: TransactionsService,
     @Inject(SHOPIFY_MODULE_OPTIONS)
-    protected readonly shopifyModuleOptions: ShopifyModuleOptions
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
     super(
       orderModel,
       Orders,
       eventService,
       syncProgressModel,
-      shopifyModuleOptions
+      shopifyModuleOptions,
     );
   }
 
@@ -70,7 +70,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
     progress: SyncProgressDocument,
     subProgress: OrderSyncProgressDocument,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Interfaces.Order>
+    data: IListAllCallbackData<Interfaces.Order>,
   ): Promise<void> {
     const orders = data.data;
     const lastOrder = orders[orders.length - 1];
@@ -81,7 +81,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
           order.id,
           {
             syncToDb: options.syncToDb,
-          }
+          },
         );
         subProgress.syncedTransactionsCount += transactions.length;
         subProgress.syncedCount++;
@@ -103,10 +103,10 @@ export class OrdersService extends ShopifyApiRootCountableService<
    * @param syncOptions
    */
   protected getSyncCountOptions(
-    syncOptions: IStartSyncOptions
+    syncOptions: IStartSyncOptions,
   ): IShopifySyncOrderCountOptions {
     this.logger.debug(`getSyncCountOptions: %O`, syncOptions);
-    this.logger.debug("status %o:", { status: "any" });
-    return { status: "any" };
+    this.logger.debug('status %o:', { status: 'any' });
+    return { status: 'any' };
   }
 }

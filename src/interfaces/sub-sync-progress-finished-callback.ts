@@ -1,4 +1,4 @@
-import type { SubSyncProgressDocument } from "./mongoose/sync-progress.schema";
+import type { SubSyncProgressDocument } from './mongoose/sync-progress.schema';
 export type ISubSyncProgressFinishedCallback = (
-  doc: SubSyncProgressDocument
+  doc: SubSyncProgressDocument,
 ) => void;

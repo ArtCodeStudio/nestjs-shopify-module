@@ -1,33 +1,33 @@
 // nest
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from '@nestjs/common';
 
 // Third party
-import { shopifyRetry } from "../../../helpers";
+import { shopifyRetry } from '../../../helpers';
 
-import { IShopifyConnect } from "../../../auth/interfaces";
-import { ProductVariants } from "shopify-admin-api";
-import { Interfaces } from "shopify-admin-api";
-import { Model } from "mongoose";
+import { IShopifyConnect } from '../../../auth/interfaces';
+import { ProductVariants } from 'shopify-admin-api';
+import { Interfaces } from 'shopify-admin-api';
+import { Model } from 'mongoose';
 import {
   ProductVariantDocument,
   IShopifySyncProductVariantGetOptions,
   IShopifySyncProductVariantListOptions,
-} from "../../interfaces";
+} from '../../interfaces';
 
-import { EventService } from "../../../event.service";
-import { Resource } from "../../../interfaces";
+import { EventService } from '../../../event.service';
+import { Resource } from '../../../interfaces';
 
 @Injectable()
 export class ProductVariantsService {
-  resourceName: Resource = "products";
+  resourceName: Resource = 'products';
   subResourceNames: Resource[] = [];
 
   constructor(
-    @Inject("ProductVariantModelToken")
+    @Inject('ProductVariantModelToken')
     protected readonly productVariantModel: (
-      shopName: string
+      shopName: string,
     ) => Model<ProductVariantDocument>,
-    protected readonly eventService: EventService
+    protected readonly eventService: EventService,
   ) {}
 
   /**
@@ -41,11 +41,11 @@ export class ProductVariantsService {
     user: IShopifyConnect,
     parentId: number,
     id: number,
-    options?: IShopifySyncProductVariantGetOptions
+    options?: IShopifySyncProductVariantGetOptions,
   ): Promise<Partial<Interfaces.ProductVariant> | null> {
     const shopifyModel = new ProductVariants(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     delete options.syncToDb;
     return shopifyRetry(() => {
@@ -61,11 +61,11 @@ export class ProductVariantsService {
   public async listFromShopify(
     shopifyConnect: IShopifyConnect,
     parentId: number,
-    options?: IShopifySyncProductVariantListOptions
+    options?: IShopifySyncProductVariantListOptions,
   ): Promise<Partial<Interfaces.ProductVariant>[]> {
     const shopifyModel = new ProductVariants(
       shopifyConnect.myshopify_domain,
-      shopifyConnect.accessToken
+      shopifyConnect.accessToken,
     );
     options = Object.assign({}, options);
     delete options.syncToDb;
@@ -94,11 +94,11 @@ export class ProductVariantsService {
   public async createInShopify(
     user: IShopifyConnect,
     productId: number,
-    product: Interfaces.ProductVariantCreate
+    product: Interfaces.ProductVariantCreate,
   ): Promise<Interfaces.ProductVariant> {
     const productVariants = new ProductVariants(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     return shopifyRetry(() => productVariants.create(productId, product));
   }
@@ -112,11 +112,11 @@ export class ProductVariantsService {
   public async updateInShopify(
     user: IShopifyConnect,
     id: number,
-    product: Interfaces.ProductVariantUpdate
+    product: Interfaces.ProductVariantUpdate,
   ): Promise<Interfaces.ProductVariant> {
     const productVariants = new ProductVariants(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     return shopifyRetry(() => productVariants.update(id, product));
   }
@@ -130,22 +130,22 @@ export class ProductVariantsService {
   public async deleteInShopify(
     user: IShopifyConnect,
     productId: number,
-    variantId: number
+    variantId: number,
   ) {
     const productVariants = new ProductVariants(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     return shopifyRetry(() => productVariants.delete(productId, variantId));
   }
 
   public async countFromShopify(
     shopifyConnect: IShopifyConnect,
-    productId: number
+    productId: number,
   ): Promise<number> {
     const shopifyModel = new ProductVariants(
       shopifyConnect.myshopify_domain,
-      shopifyConnect.accessToken
+      shopifyConnect.accessToken,
     );
     return shopifyRetry(() => {
       return shopifyModel.count(productId);

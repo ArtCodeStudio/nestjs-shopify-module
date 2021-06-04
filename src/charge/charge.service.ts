@@ -1,11 +1,11 @@
-import { Inject } from "@nestjs/common";
-import { RecurringCharges, Interfaces } from "shopify-admin-api";
-import { DebugService } from "../debug.service";
-import { IShopifyConnect } from "../auth/interfaces/connect";
-import { ShopifyModuleOptions } from "../interfaces/shopify-module-options";
-import { SHOPIFY_MODULE_OPTIONS } from "../shopify.constants";
+import { Inject } from '@nestjs/common';
+import { RecurringCharges, Interfaces } from 'shopify-admin-api';
+import { DebugService } from '../debug.service';
+import { IShopifyConnect } from '../auth/interfaces/connect';
+import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
+import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 
-import { IAvailableCharge } from "./interfaces/availableCharge";
+import { IAvailableCharge } from './interfaces/availableCharge';
 
 /**
  * @see https://github.com/ArtCodeStudio/shopify-admin-api#create-a-recurring-charge
@@ -15,7 +15,7 @@ export class ChargeService {
 
   constructor(
     @Inject(SHOPIFY_MODULE_OPTIONS)
-    protected readonly shopifyModuleOptions: ShopifyModuleOptions
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {}
 
   /**
@@ -25,7 +25,7 @@ export class ChargeService {
   getChargeById(user: IShopifyConnect, id: number) {
     const recurringCharges = new RecurringCharges(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     return recurringCharges.get(id);
   }
@@ -37,7 +37,7 @@ export class ChargeService {
   listCharges(user: IShopifyConnect) {
     const recurringCharges = new RecurringCharges(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     return recurringCharges.list();
   }
@@ -63,7 +63,7 @@ export class ChargeService {
   create(user: IShopifyConnect, plan) {
     const recurringCharges = new RecurringCharges(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     return recurringCharges.create(plan);
   }
@@ -72,11 +72,11 @@ export class ChargeService {
    * Create a new charge by plan name, if plan was allready accepted just activate this charge
    * @param plan
    */
-  async createByName(user: IShopifyConnect, planName = "Default") {
+  async createByName(user: IShopifyConnect, planName = 'Default') {
     const plan = this.getPlanByName(planName);
 
     if (!plan) {
-      throw new Error("Charge not found");
+      throw new Error('Charge not found');
     }
 
     // Check if the plan was already accepted
@@ -87,7 +87,7 @@ export class ChargeService {
           plan.price === prevPlan.price &&
           plan.test === prevPlan.test &&
           plan.return_url === prevPlan.return_url &&
-          prevPlan.status === "accepted"
+          prevPlan.status === 'accepted'
         ) {
           return this.activate(user, prevPlan.id).then(() => {
             return prevPlan;
@@ -107,18 +107,18 @@ export class ChargeService {
   async activate(user: IShopifyConnect, id?: number) {
     const recurringCharges = new RecurringCharges(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     if (id) {
       return recurringCharges.activate(id);
     }
     return recurringCharges.list().then(async (charges) => {
       for (const charge of charges) {
-        if (charge.status === "accepted") {
+        if (charge.status === 'accepted') {
           return recurringCharges.activate(charge.id);
         }
       }
-      throw new Error("No accepted plan found!");
+      throw new Error('No accepted plan found!');
     });
   }
 
@@ -126,15 +126,15 @@ export class ChargeService {
    * Get the current active charge or null if no active charge is found.
    */
   async active(
-    user: IShopifyConnect
+    user: IShopifyConnect,
   ): Promise<Interfaces.RecurringCharge | null> {
     const charges = new RecurringCharges(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     return charges.list().then(async (chargesList) => {
       for (const charge of chargesList) {
-        if (charge.status === "active") {
+        if (charge.status === 'active') {
           return charge;
         }
       }

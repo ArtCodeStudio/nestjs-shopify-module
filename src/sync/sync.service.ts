@@ -1,32 +1,32 @@
-import { Model, FilterQuery, QueryOptions, Types } from "mongoose";
-import { Injectable, Inject } from "@nestjs/common";
-import { EventService } from "../event.service";
+import { Model, FilterQuery, QueryOptions, Types } from 'mongoose';
+import { Injectable, Inject } from '@nestjs/common';
+import { EventService } from '../event.service';
 
 // Shopify services
-import { OrdersService } from "../api/orders/orders.service";
-import { ProductsService } from "../api/products/products.service";
-import { PagesService } from "../api/pages/pages.service";
-import { BlogsService } from "../api/blogs/blogs.service";
-import { ArticlesService } from "../api/blogs/articles/articles.service";
-import { SmartCollectionsService } from "../api/smart-collections/smart-collections.service";
-import { CustomCollectionsService } from "../api/custom-collections/custom-collections.service";
+import { OrdersService } from '../api/orders/orders.service';
+import { ProductsService } from '../api/products/products.service';
+import { PagesService } from '../api/pages/pages.service';
+import { BlogsService } from '../api/blogs/blogs.service';
+import { ArticlesService } from '../api/blogs/articles/articles.service';
+import { SmartCollectionsService } from '../api/smart-collections/smart-collections.service';
+import { CustomCollectionsService } from '../api/custom-collections/custom-collections.service';
 
-import { IShopifyConnect } from "../auth/interfaces/connect";
-import { DebugService } from "../debug.service";
+import { IShopifyConnect } from '../auth/interfaces/connect';
+import { DebugService } from '../debug.service';
 import {
   IStartSyncOptions,
   SyncProgressDocument,
   SubSyncProgressDocument,
-} from "../interfaces";
+} from '../interfaces';
 // import * as pRetry from 'p-retry';
-import { mongooseParallelRetry } from "../helpers";
+import { mongooseParallelRetry } from '../helpers';
 
 @Injectable()
 export class SyncService {
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
-    @Inject("SyncProgressModelToken")
+    @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     private readonly eventService: EventService,
     private readonly ordersService: OrdersService,
@@ -35,25 +35,25 @@ export class SyncService {
     private readonly blogsService: BlogsService,
     private readonly articlesService: ArticlesService,
     private readonly smartCollectionsService: SmartCollectionsService,
-    private readonly customCollectionsService: CustomCollectionsService
+    private readonly customCollectionsService: CustomCollectionsService,
   ) {
     this.find({
-      state: "running",
+      state: 'running',
     })
       .then((progresses) => {
         // Cancel running progresses
-        this.logger.debug("Cancel running progresses", progresses);
+        this.logger.debug('Cancel running progresses', progresses);
         const promises = new Array<Promise<SyncProgressDocument>>();
 
         progresses.forEach((progress: SyncProgressDocument) => {
           promises.push(
-            this.update({ _id: progress._id }, { state: "cancelled" })
+            this.update({ _id: progress._id }, { state: 'cancelled' }),
           );
         });
         return Promise.all(promises);
       })
       .then((_) => {
-        this.logger.debug("Running progresses cancelled");
+        this.logger.debug('Running progresses cancelled');
         return _;
       })
       .catch((error) => {
@@ -72,7 +72,7 @@ export class SyncService {
   async isSyncRunning(
     shop: string,
     id: Types.ObjectId,
-    waitMilliseconds?: number
+    waitMilliseconds?: number,
   ): Promise<boolean> {
     return new Promise((resolve) => {
       const callback = () => {
@@ -115,18 +115,18 @@ export class SyncService {
   async update(
     conditions: FilterQuery<SyncProgressDocument>,
     progress: Partial<SyncProgressDocument>,
-    options?: QueryOptions
+    options?: QueryOptions,
   ) {
     return this.syncProgressModel.findOneAndUpdate(
       conditions,
       progress,
-      options
+      options,
     );
   }
 
   async findOne(
     query: FilterQuery<SyncProgressDocument>,
-    options?: QueryOptions
+    options?: QueryOptions,
   ) {
     return this.syncProgressModel.findOne(query, {}, options).lean();
   }
@@ -165,7 +165,7 @@ export class SyncService {
       this.eventService.emit(`sync-cancel:${shop}:${id}`);
       setTimeout(() => {
         if (!cancelled) {
-          const error = new Error("sync progress not resonding");
+          const error = new Error('sync progress not resonding');
           this.eventService.emit(`sync-exception:${shop}:${id}`, error);
           this.eventService.emit(`sync-exception`, shop, error);
           reject(error);
@@ -184,7 +184,7 @@ export class SyncService {
    */
   async startSync(
     shopifyConnect: IShopifyConnect,
-    options: IStartSyncOptions
+    options: IStartSyncOptions,
   ): Promise<SyncProgressDocument> {
     const shop = shopifyConnect.myshopify_domain;
     this.logger.debug(`[startSync] (${shop})`);
@@ -207,54 +207,52 @@ export class SyncService {
         !options.includeCustomCollections &&
         !options.includeSmartCollections
       ) {
-        throw new Error("At least one shopify record must be synchronized!");
+        throw new Error('At least one shopify record must be synchronized!');
       }
 
       if (!options.syncToDb) {
-        throw new Error("At least one synchronization target must be defined!");
+        throw new Error('At least one synchronization target must be defined!');
       }
 
       this.logger.debug(`[startSync] (${JSON.stringify(options, null, 2)}`);
 
       // Get the last sync progress (if it exists)
-      const lastProgress: SyncProgressDocument | null = await this.syncProgressModel.findOne(
-        { shop },
-        {}
-      );
+      const lastProgress: SyncProgressDocument | null =
+        await this.syncProgressModel.findOne({ shop }, {});
 
-      if (lastProgress && lastProgress.state === "running") {
+      if (lastProgress && lastProgress.state === 'running') {
         this.logger.debug(
-          `[startSync] Check if last progress ${lastProgress._id} is still running`
+          `[startSync] Check if last progress ${lastProgress._id} is still running`,
         );
         const lastProgressRunning = await this.isSyncRunning(
           shop,
-          lastProgress._id
+          lastProgress._id,
         );
 
         if (!lastProgressRunning) {
           this.logger.debug(
-            `[startSync] Last progress ${lastProgress.id} marked as 'running' did not respond. Set it to 'failed'.`
+            `[startSync] Last progress ${lastProgress.id} marked as 'running' did not respond. Set it to 'failed'.`,
           );
-          lastProgress.state = "failed";
-          lastProgress.lastError = "sync timed out";
+          lastProgress.state = 'failed';
+          lastProgress.lastError = 'sync timed out';
           await lastProgress.save();
           // Just to make sure, we send a cancel event to the progress. Maybe he was just very busy.
           this.eventService.emit(`sync-cancel:${shop}:${lastProgress.id}`);
         } else {
-          this.logger.debug("[startSync] Last progress is still running");
+          this.logger.debug('[startSync] Last progress is still running');
           // If the last progress is still running and includes all the options we need, we just return it, without starting a new one.
           // If the options of the running progress and the sync we want to start are incompatible, we throw a `sync in progress` error,
           // or we cancel the previous progress and start a new one if `cancelExisting` option is set.
 
           const checkOptions = [
-            "syncToDb",
-            "includeProducts",
-            "includeOrders",
-            "includeTransactions",
-            "includePages",
-            "includeSmartCollections",
-            "includeCustomCollections",
-            "resync",
+            'syncToDb',
+            'includeProducts',
+            'includeOrders',
+            'includeTransactions',
+            'includePages',
+            'includeSmartCollections',
+            'includeCustomCollections',
+            'resync',
           ];
 
           // If `cancelExisting` option is set, we cancel the existing running progress unless it is compatible with our options.
@@ -267,15 +265,15 @@ export class SyncService {
               this.logger.debug(`${key} is missing from lastProgress`);
               if (options.cancelExisting) {
                 this.logger.debug(
-                  `[startSync] cancel existing progress and start a new one.`
+                  `[startSync] cancel existing progress and start a new one.`,
                 );
                 this.eventService.emit(
-                  `sync-cancel:${shop}:${lastProgress._id}`
+                  `sync-cancel:${shop}:${lastProgress._id}`,
                 );
                 return true;
               } else {
                 // We don't cancel but throw an error: 'sync in progress'
-                throw new Error("sync in progress");
+                throw new Error('sync in progress');
               }
             }
             return false;
@@ -285,7 +283,7 @@ export class SyncService {
             // The existing running progress is compatible with all the options we want,
             // so we just re-emit its state and return it without starting a new one.
             this.logger.debug(
-              `[startSync] The running progress is compatible with our options`
+              `[startSync] The running progress is compatible with our options`,
             );
             this.eventService.emit(`sync`, shop, lastProgress);
             return lastProgress;
@@ -293,14 +291,13 @@ export class SyncService {
         }
       }
 
-      const progress: SyncProgressDocument = await this.syncProgressModel.create(
-        {
+      const progress: SyncProgressDocument =
+        await this.syncProgressModel.create({
           shop,
           options,
-          state: "starting",
+          state: 'starting',
           lastError: null,
-        } as any
-      ); // TODO NEST7 CHECKME
+        } as any); // TODO NEST7 CHECKME
 
       const subprogressServices = [
         this.ordersService,
@@ -323,7 +320,7 @@ export class SyncService {
             (resolve, reject) => {
               resolveSubProgress = resolve;
               rejectSubProgress = reject;
-            }
+            },
           );
           subSyncFinishedPromises.push(subSyncFinishedPromise);
           try {
@@ -332,7 +329,7 @@ export class SyncService {
               options,
               progress,
               lastProgress,
-              resolveSubProgress
+              resolveSubProgress,
             );
           } catch (error) {
             rejectSubProgress(error);
@@ -340,28 +337,28 @@ export class SyncService {
         }
       }
 
-      progress.state = "running";
+      progress.state = 'running';
 
       // We don't want to return the result of this promise, but the initialized progress as it is now immediately.
       Promise.all(subSyncFinishedPromises)
         .then((subProgresses) => {
-          this.logger.debug("[startSync] All syncs done");
+          this.logger.debug('[startSync] All syncs done');
           let cancelled = false;
           const failed = subProgresses.some((subProgress) => {
-            if (subProgress.state === "failed") {
+            if (subProgress.state === 'failed') {
               return true;
             }
-            if (subProgress.state === "cancelled") {
+            if (subProgress.state === 'cancelled') {
               cancelled = true;
             }
             return false;
           });
           if (failed) {
-            progress.state = "failed";
+            progress.state = 'failed';
           } else if (cancelled) {
-            progress.state = "cancelled";
+            progress.state = 'cancelled';
           } else {
-            progress.state = "success";
+            progress.state = 'success';
           }
           this.eventService.emit(`sync-${progress.state}`, shop, progress);
           return mongooseParallelRetry(() => {
@@ -370,11 +367,11 @@ export class SyncService {
           });
         })
         .catch((error) => {
-          this.logger.error("FIXME", error);
-          progress.state = "failed";
+          this.logger.error('FIXME', error);
+          progress.state = 'failed';
           progress.lastError = error.message
             ? error.message +
-              (process.env.NODE_ENV === "development" ? "\n" + error.stack : "")
+              (process.env.NODE_ENV === 'development' ? '\n' + error.stack : '')
             : error;
           this.eventService.emit(`sync-${progress.state}`, shop, progress);
           return mongooseParallelRetry(() => {

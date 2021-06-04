@@ -1,30 +1,30 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
-import { Observable } from "rxjs";
-import { Reflector } from "@nestjs/core";
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { Reflector } from '@nestjs/core';
 
-import { IUserRequest, IShopifyConnect } from "../interfaces/user-request";
-import { TRoles } from "../auth/interfaces/role";
-import { DebugService } from "../debug.service";
-import { ShopifyAuthService } from "../auth/auth.service";
-import { SessionSocket } from "../interfaces/session-socket";
+import { IUserRequest, IShopifyConnect } from '../interfaces/user-request';
+import { TRoles } from '../auth/interfaces/role';
+import { DebugService } from '../debug.service';
+import { ShopifyAuthService } from '../auth/auth.service';
+import { SessionSocket } from '../interfaces/session-socket';
 
 /**
  * Guard to check the backend user roles
  */
 @Injectable()
 export class RolesGuard implements CanActivate {
-  protected logger = new DebugService("shopify:RolesGuard");
+  protected logger = new DebugService('shopify:RolesGuard');
 
   constructor(
     private readonly reflector: Reflector,
-    private readonly shopifyAuthService: ShopifyAuthService
+    private readonly shopifyAuthService: ShopifyAuthService,
   ) {}
 
   canActivate(
-    context: ExecutionContext
+    context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     // this.logger.debug('context', context);
-    const roles = this.reflector.get<TRoles>("roles", context.getHandler());
+    const roles = this.reflector.get<TRoles>('roles', context.getHandler());
     const request = context.switchToHttp().getRequest() as IUserRequest;
     // this.logger.debug('request', request);
 
@@ -48,7 +48,7 @@ export class RolesGuard implements CanActivate {
       // this.logger.debug('hasRole role', role);
       return roles.includes(role);
     });
-    this.logger.debug("hasRole result", hasRoule);
+    this.logger.debug('hasRole result', hasRoule);
     return hasRoule;
   }
 
@@ -87,7 +87,7 @@ export class RolesGuard implements CanActivate {
         client.handshake.session[
           `user-${client.handshake.session.currentShop}`
         ],
-        roles
+        roles,
       )
     ) {
       return false;

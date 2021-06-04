@@ -1,6 +1,6 @@
-import { Schema, Document, DocumentDefinition } from "mongoose";
-import { Interfaces } from "shopify-admin-api";
-import { PriceSetSchema } from "./price-set.schema";
+import { Schema, Document, DocumentDefinition } from 'mongoose';
+import { Interfaces } from 'shopify-admin-api';
+import { PriceSetSchema } from './price-set.schema';
 
 export type TaxLineDocument = DocumentDefinition<Interfaces.TaxLine> & Document;
 
@@ -14,7 +14,7 @@ export const TaxLineSchema = new Schema(
   {
     _id: false,
     minimize: false,
-  }
+  },
 );
 /*
 TaxLineSchema.set('toJSON', {

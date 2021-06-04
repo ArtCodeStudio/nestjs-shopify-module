@@ -1,8 +1,8 @@
-import { Schema, Document, DocumentDefinition } from "mongoose";
-import { Interfaces } from "shopify-admin-api";
-import { TaxLineSchema } from "./tax-line.schema";
-import { PriceSetSchema } from "./price-set.schema";
-import { DiscountAllocationSchema } from "./discount-allocation.schema";
+import { Schema, Document, DocumentDefinition } from 'mongoose';
+import { Interfaces } from 'shopify-admin-api';
+import { TaxLineSchema } from './tax-line.schema';
+import { PriceSetSchema } from './price-set.schema';
+import { DiscountAllocationSchema } from './discount-allocation.schema';
 
 export type ShippingLineDocument = DocumentDefinition<Interfaces.ShippingLine> &
   Document;
@@ -26,5 +26,5 @@ export const ShippingLineSchema = new Schema(
   },
   {
     minimize: false,
-  }
+  },
 );

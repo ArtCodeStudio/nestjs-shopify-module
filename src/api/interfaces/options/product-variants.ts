@@ -1,6 +1,6 @@
-import { Options } from "shopify-admin-api";
-import { ISyncOptions } from "./sync";
-import { IAppListSortOptions, IAppListFilterOptions } from "./basic";
+import { Options } from 'shopify-admin-api';
+import { ISyncOptions } from './sync';
+import { IAppListSortOptions, IAppListFilterOptions } from './basic';
 
 /**
  * Product variant options to get a list of products from shopify
@@ -11,7 +11,8 @@ export interface IShopifySyncProductVariantListOptions
 export interface IShopifySyncProductVariantGetOptions
   extends Options.ProductVariantGetOptions,
     ISyncOptions {}
-export type IShopifySyncProductVariantCountOptions = Options.ProductVariantCountOptions;
+export type IShopifySyncProductVariantCountOptions =
+  Options.ProductVariantCountOptions;
 
 /**
  * Product variant options to get a list of products from the app

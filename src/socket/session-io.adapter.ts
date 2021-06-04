@@ -1,29 +1,29 @@
 // import { NestApplication } from '@nestjs/core';
-import { INestApplicationContext } from "@nestjs/common";
-import { isFunction, isNil } from "@nestjs/common/utils/shared.utils";
+import { INestApplicationContext } from '@nestjs/common';
+import { isFunction, isNil } from '@nestjs/common/utils/shared.utils';
 import {
   AbstractWsAdapter,
   MessageMappingProperties,
-} from "@nestjs/websockets";
-import { DISCONNECT_EVENT } from "@nestjs/websockets/constants";
-import { fromEvent, Observable } from "rxjs";
-import { filter, first, map, mergeMap, share, takeUntil } from "rxjs/operators";
-import { Socket, Server } from "socket.io";
-import { NextFunction, RequestHandler } from "express";
-import * as sharedsession from "express-socket.io-session";
-import { DebugService } from "../debug.service";
+} from '@nestjs/websockets';
+import { DISCONNECT_EVENT } from '@nestjs/websockets/constants';
+import { fromEvent, Observable } from 'rxjs';
+import { filter, first, map, mergeMap, share, takeUntil } from 'rxjs/operators';
+import { Socket, Server } from 'socket.io';
+import { NextFunction, RequestHandler } from 'express';
+import * as sharedsession from 'express-socket.io-session';
+import { DebugService } from '../debug.service';
 
 // TODO: Using this until socket.io v3 is part of Nest.js, see: https://github.com/nestjs/nest/issues/5676
 export class SessionIoAdapter extends AbstractWsAdapter {
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
   protected socketSessionMiddleware: (
     socket: Socket,
-    next: NextFunction
+    next: NextFunction,
   ) => void;
   constructor(
     session: RequestHandler,
     appOrHttpServer?: INestApplicationContext | any,
-    private corsOrigin?: string | boolean | RegExp | (string | RegExp)[]
+    private corsOrigin?: string | boolean | RegExp | (string | RegExp)[],
   ) {
     super(appOrHttpServer.getHttpServer());
     /**
@@ -32,12 +32,12 @@ export class SessionIoAdapter extends AbstractWsAdapter {
      */
     this.socketSessionMiddleware = sharedsession(session, {
       autoSave: true,
-    });
+    }) as any; // TODO socket.io version conflict
   }
 
   public create(
     port: number,
-    options?: any & { namespace?: string; server?: any }
+    options?: any & { namespace?: string; server?: any },
   ): any {
     if (!options) {
       return this.createIOServer(port);
@@ -64,12 +64,12 @@ export class SessionIoAdapter extends AbstractWsAdapter {
       server = new Server(this.httpServer, {
         cors: {
           origin: this.corsOrigin,
-          methods: ["GET", "POST"],
+          methods: ['GET', 'POST'],
           credentials: true,
         },
         cookie: {
           httpOnly: true,
-          path: "/",
+          path: '/',
         },
         // Allow 1MB of data per request.
         maxHttpBufferSize: 1e6,
@@ -84,11 +84,11 @@ export class SessionIoAdapter extends AbstractWsAdapter {
   public bindMessageHandlers(
     client: any,
     handlers: MessageMappingProperties[],
-    transform: (data: any) => Observable<any>
+    transform: (data: any) => Observable<any>,
   ) {
     const disconnect$ = fromEvent(client, DISCONNECT_EVENT).pipe(
       share(),
-      first()
+      first(),
     );
 
     handlers.forEach(({ message, callback }) => {
@@ -97,10 +97,10 @@ export class SessionIoAdapter extends AbstractWsAdapter {
           const { data, ack } = this.mapPayload(payload);
           return transform(callback(data, ack)).pipe(
             filter((response: any) => !isNil(response)),
-            map((response: any) => [response, ack])
+            map((response: any) => [response, ack]),
           );
         }),
-        takeUntil(disconnect$)
+        takeUntil(disconnect$),
       );
       source$.subscribe(([response, ack]) => {
         if (response.event) {

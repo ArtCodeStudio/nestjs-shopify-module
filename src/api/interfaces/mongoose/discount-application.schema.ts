@@ -1,10 +1,8 @@
-import { Schema, Document, DocumentDefinition } from "mongoose";
-import { Interfaces } from "shopify-admin-api";
+import { Schema, Document, DocumentDefinition } from 'mongoose';
+import { Interfaces } from 'shopify-admin-api';
 
-export type DiscountApplicationDocument = DocumentDefinition<
-  Interfaces.DiscountApplication
-> &
-  Document;
+export type DiscountApplicationDocument =
+  DocumentDefinition<Interfaces.DiscountApplication> & Document;
 
 export const DiscountApplicationSchema = new Schema(
   {
@@ -21,5 +19,5 @@ export const DiscountApplicationSchema = new Schema(
   {
     _id: false,
     minimize: false,
-  }
+  },
 );

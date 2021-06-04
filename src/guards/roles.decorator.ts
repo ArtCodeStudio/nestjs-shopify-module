@@ -1,4 +1,4 @@
-import { TRoles } from "../auth/interfaces/role";
+import { TRoles } from '../auth/interfaces/role';
 
 /**
  * Decorator for RolesGuard, use this with @Roles('admin') or @Roles('shopify-staff-member')
@@ -6,6 +6,6 @@ import { TRoles } from "../auth/interfaces/role";
  */
 export const Roles = (...roles: TRoles): MethodDecorator => {
   return (target: any) => {
-    return Reflect.defineMetadata("roles", roles, target); // TODO NEST7 CHECKME
+    return Reflect.defineMetadata('roles', roles, target); // TODO NEST7 CHECKME
   };
 };

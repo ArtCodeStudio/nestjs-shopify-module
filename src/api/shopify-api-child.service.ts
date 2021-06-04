@@ -1,24 +1,24 @@
 // nest
-import { WsResponse } from "@nestjs/websockets";
+import { WsResponse } from '@nestjs/websockets';
 
 // third party
-import { Infrastructure, Options } from "shopify-admin-api";
-import { Document } from "mongoose";
+import { Infrastructure, Options } from 'shopify-admin-api';
+import { Document } from 'mongoose';
 // import * as pRetry from 'p-retry';
-import { shopifyRetry } from "../helpers";
-import { Readable } from "stream";
-import { Observable, Observer } from "rxjs";
+import { shopifyRetry } from '../helpers';
+import { Readable } from 'stream';
+import { Observable, Observer } from 'rxjs';
 
-import { IShopifyConnect } from "../auth/interfaces";
+import { IShopifyConnect } from '../auth/interfaces';
 import {
   listAllCallback,
   ISyncOptions,
   ShopifyBaseObjectType,
   ChildGet,
   ChildList,
-} from "./interfaces";
-import { deleteUndefinedProperties } from "../helpers";
-import { ShopifyApiBaseService } from "./shopify-api-base.service";
+} from './interfaces';
+import { deleteUndefinedProperties } from '../helpers';
+import { ShopifyApiBaseService } from './shopify-api-base.service';
 
 export abstract class ShopifyApiChildService<
   ShopifyObjectType extends ShopifyBaseObjectType,
@@ -28,7 +28,7 @@ export abstract class ShopifyApiChildService<
   GetOptions extends ISyncOptions = ISyncOptions,
   ListOptions extends ISyncOptions & Options.BasicListOptions = ISyncOptions &
     Options.BasicListOptions,
-  DatabaseDocumentType extends Document = ShopifyObjectType & Document
+  DatabaseDocumentType extends Document = ShopifyObjectType & Document,
 > extends ShopifyApiBaseService<
   ShopifyObjectType,
   ShopifyModelClass,
@@ -45,11 +45,11 @@ export abstract class ShopifyApiChildService<
     user: IShopifyConnect,
     parentId: number,
     id: number,
-    options?: GetOptions
+    options?: GetOptions,
   ): Promise<Partial<ShopifyObjectType> | null> {
     const shopifyModel = new this.ShopifyModel(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     const syncToDb = options && options.syncToDb;
     delete options.syncToDb;
@@ -61,10 +61,10 @@ export abstract class ShopifyApiChildService<
     if (
       this.shopifyModuleOptions.sync.enabled &&
       this.shopifyModuleOptions.sync.autoSyncResources.includes(
-        this.resourceName
+        this.resourceName,
       )
     ) {
-      await this.updateOrCreateInApp(user, "id", shopifyObj, syncToDb);
+      await this.updateOrCreateInApp(user, 'id', shopifyObj, syncToDb);
     }
 
     return shopifyObj;
@@ -78,11 +78,11 @@ export abstract class ShopifyApiChildService<
   public async listFromShopify(
     shopifyConnect: IShopifyConnect,
     parentId: number,
-    options?: ListOptions
+    options?: ListOptions,
   ): Promise<Partial<ShopifyObjectType>[]> {
     const shopifyModel = new this.ShopifyModel(
       shopifyConnect.myshopify_domain,
-      shopifyConnect.accessToken
+      shopifyConnect.accessToken,
     );
     options = Object.assign({}, options);
     const syncToDb = options && options.syncToDb;
@@ -95,9 +95,9 @@ export abstract class ShopifyApiChildService<
     }).then(async (shopifyListObjs) => {
       return this.updateOrCreateManyInApp(
         shopifyConnect,
-        "id",
+        'id',
         shopifyListObjs,
-        syncToDb
+        syncToDb,
       )
         .then(() => {
           return shopifyListObjs;
@@ -119,26 +119,26 @@ export abstract class ShopifyApiChildService<
   public async listAllFromShopify(
     shopifyConnect: IShopifyConnect,
     parentId: number,
-    options?: ListOptions
+    options?: ListOptions,
   ): Promise<Partial<ShopifyObjectType>[]>;
   public async listAllFromShopify(
     shopifyConnect: IShopifyConnect,
     parentId: number,
     options: ListOptions,
-    listAllPageCallback: listAllCallback<Partial<ShopifyObjectType>>
+    listAllPageCallback: listAllCallback<Partial<ShopifyObjectType>>,
   ): Promise<void>;
   public async listAllFromShopify(
     shopifyConnect: IShopifyConnect,
     parentId: number,
     options?: ListOptions,
-    listAllPageCallback?: listAllCallback<Partial<ShopifyObjectType>>
+    listAllPageCallback?: listAllCallback<Partial<ShopifyObjectType>>,
   ): Promise<Partial<ShopifyObjectType>[] | void> {
     // Delete undefined options
     deleteUndefinedProperties(options);
 
     return this.listFromShopify(shopifyConnect, parentId, options)
       .then((objects) => {
-        if (typeof listAllPageCallback === "function") {
+        if (typeof listAllPageCallback === 'function') {
           listAllPageCallback(null, {
             pages: 1,
             page: 1,
@@ -150,7 +150,7 @@ export abstract class ShopifyApiChildService<
         }
       })
       .catch((error) => {
-        if (typeof listAllPageCallback === "function") {
+        if (typeof listAllPageCallback === 'function') {
           listAllPageCallback(error, null);
         } else {
           throw error;
@@ -165,40 +165,40 @@ export abstract class ShopifyApiChildService<
   public listAllFromShopifyStream(
     shopifyConnect: IShopifyConnect,
     parentId: number,
-    options?: ListOptions
+    options?: ListOptions,
   ): Readable {
     const stream = new Readable({ objectMode: true, read: (s) => s });
-    stream.push("[\n");
+    stream.push('[\n');
     this.listAllFromShopify(
       shopifyConnect,
       parentId,
       options,
       (error, data) => {
         if (error) {
-          stream.emit("error", error);
+          stream.emit('error', error);
         } else {
           const objects = data.data;
           for (let j = 0; j < objects.length - 1; j++) {
             stream.push(
-              JSON.stringify([objects[j]], null, 2).slice(2, -2) + ","
+              JSON.stringify([objects[j]], null, 2).slice(2, -2) + ',',
             );
           }
           stream.push(
-            JSON.stringify([objects[objects.length - 1]], null, 2).slice(2, -2)
+            JSON.stringify([objects[objects.length - 1]], null, 2).slice(2, -2),
           );
           if (data.page === data.pages) {
-            stream.push("\n]");
+            stream.push('\n]');
           } else {
-            stream.push(",");
+            stream.push(',');
           }
         }
-      }
+      },
     )
       .then(() => {
         stream.push(null);
       })
       .catch((error) => {
-        stream.emit("error", error);
+        stream.emit('error', error);
       });
     return stream;
   }
@@ -211,7 +211,7 @@ export abstract class ShopifyApiChildService<
     user: IShopifyConnect,
     parentId: number,
     eventName: string,
-    options?: ListOptions
+    options?: ListOptions,
   ): Observable<WsResponse<Partial<ShopifyObjectType>>> {
     // Delete undefined options
     deleteUndefinedProperties(options);
@@ -236,7 +236,7 @@ export abstract class ShopifyApiChildService<
           .catch((error) => {
             observer.error(error);
           });
-      }
+      },
     );
   }
 }

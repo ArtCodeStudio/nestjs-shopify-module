@@ -1,33 +1,33 @@
 // nest
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from '@nestjs/common';
 
 // Third party
-import { shopifyRetry } from "../../helpers";
+import { shopifyRetry } from '../../helpers';
 
-import { IShopifyConnect } from "../../auth/interfaces";
-import { Checkouts } from "shopify-admin-api";
-import { Interfaces } from "shopify-admin-api";
-import { Model } from "mongoose";
+import { IShopifyConnect } from '../../auth/interfaces';
+import { Checkouts } from 'shopify-admin-api';
+import { Interfaces } from 'shopify-admin-api';
+import { Model } from 'mongoose';
 import {
   CheckoutDocument,
   IShopifySyncCheckoutGetOptions,
   IShopifySyncCheckoutListOptions,
-} from "../interfaces";
+} from '../interfaces';
 
-import { EventService } from "../../event.service";
-import { Resource } from "../../interfaces";
+import { EventService } from '../../event.service';
+import { Resource } from '../../interfaces';
 
 @Injectable()
 export class CheckoutsService {
-  resourceName: Resource = "products";
+  resourceName: Resource = 'products';
   subResourceNames: Resource[] = [];
 
   constructor(
-    @Inject("CheckoutModelToken")
+    @Inject('CheckoutModelToken')
     protected readonly checkoutModel: (
-      shopName: string
+      shopName: string,
     ) => Model<CheckoutDocument>,
-    protected readonly eventService: EventService
+    protected readonly eventService: EventService,
   ) {}
 
   /**
@@ -40,11 +40,11 @@ export class CheckoutsService {
   public async getFromShopify(
     user: IShopifyConnect,
     checkoutToken: string,
-    options?: IShopifySyncCheckoutGetOptions
+    options?: IShopifySyncCheckoutGetOptions,
   ): Promise<Partial<Interfaces.Checkout> | null> {
     const shopifyCheckoutModel = new Checkouts(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     delete options.syncToDb;
     return shopifyRetry(() => {
@@ -59,11 +59,11 @@ export class CheckoutsService {
    */
   public async listFromShopify(
     shopifyConnect: IShopifyConnect,
-    options?: IShopifySyncCheckoutListOptions
+    options?: IShopifySyncCheckoutListOptions,
   ): Promise<Partial<Interfaces.Checkout>[]> {
     const shopifyCheckoutModel = new Checkouts(
       shopifyConnect.myshopify_domain,
-      shopifyConnect.accessToken
+      shopifyConnect.accessToken,
     );
     options = Object.assign({}, options);
     delete options.syncToDb;
@@ -91,11 +91,11 @@ export class CheckoutsService {
    */
   public async createInShopify(
     user: IShopifyConnect,
-    checkout: Interfaces.Checkout
+    checkout: Interfaces.Checkout,
   ): Promise<Interfaces.Checkout> {
     const shopifyCheckoutModel = new Checkouts(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     return shopifyRetry(() => shopifyCheckoutModel.create(checkout));
   }
@@ -109,14 +109,14 @@ export class CheckoutsService {
   public async updateInShopify(
     user: IShopifyConnect,
     checkoutToken: string,
-    checkout: Interfaces.CheckoutUpdate
+    checkout: Interfaces.CheckoutUpdate,
   ): Promise<Interfaces.Checkout> {
     const shopifyCheckoutModel = new Checkouts(
       user.myshopify_domain,
-      user.accessToken
+      user.accessToken,
     );
     return shopifyRetry(() =>
-      shopifyCheckoutModel.update(checkoutToken, checkout)
+      shopifyCheckoutModel.update(checkoutToken, checkout),
     );
   }
 }

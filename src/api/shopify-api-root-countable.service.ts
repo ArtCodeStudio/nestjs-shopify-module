@@ -1,15 +1,15 @@
 // Third party
-import { Infrastructure, Options } from "shopify-admin-api";
-import { Document, Types } from "mongoose";
-import { shopifyRetry, mongooseParallelRetry } from "../helpers";
+import { Infrastructure, Options } from 'shopify-admin-api';
+import { Document, Types } from 'mongoose';
+import { shopifyRetry, mongooseParallelRetry } from '../helpers';
 
-import { IShopifyConnect } from "../auth/interfaces/connect";
+import { IShopifyConnect } from '../auth/interfaces/connect';
 import {
   SyncProgressDocument,
   SubSyncProgressDocument,
   IStartSyncOptions,
   ISubSyncProgressFinishedCallback,
-} from "../interfaces";
+} from '../interfaces';
 import {
   listAllCallback,
   IListAllCallbackData,
@@ -18,9 +18,9 @@ import {
   RootCount,
   RootGet,
   RootList,
-} from "./interfaces";
-import { deleteUndefinedProperties, getDiff } from "../helpers";
-import { ShopifyApiRootService } from "./shopify-api-root.service";
+} from './interfaces';
+import { deleteUndefinedProperties, getDiff } from '../helpers';
+import { ShopifyApiRootService } from './shopify-api-root.service';
 
 export abstract class ShopifyApiRootCountableService<
   ShopifyObjectType extends ShopifyBaseObjectType,
@@ -33,7 +33,7 @@ export abstract class ShopifyApiRootCountableService<
   ListOptions extends CountOptions &
     ISyncOptions &
     Options.ListOptions = CountOptions & ISyncOptions & Options.ListOptions,
-  DatabaseDocumentType extends Document = ShopifyObjectType & Document
+  DatabaseDocumentType extends Document = ShopifyObjectType & Document,
 > extends ShopifyApiRootService<
   ShopifyObjectType,
   ShopifyModelClass,
@@ -43,11 +43,11 @@ export abstract class ShopifyApiRootCountableService<
 > {
   public async countFromShopify(
     shopifyConnect: IShopifyConnect,
-    options?: CountOptions
+    options?: CountOptions,
   ): Promise<number> {
     const shopifyModel = new this.ShopifyModel(
       shopifyConnect.myshopify_domain,
-      shopifyConnect.accessToken
+      shopifyConnect.accessToken,
     );
     // Delete undefined options
     deleteUndefinedProperties(options);
@@ -62,17 +62,17 @@ export abstract class ShopifyApiRootCountableService<
    */
   public async listAllFromShopify(
     shopifyConnect: IShopifyConnect,
-    options?: ListOptions
+    options?: ListOptions,
   ): Promise<Partial<ShopifyObjectType>[]>;
   public async listAllFromShopify(
     shopifyConnect: IShopifyConnect,
     options: ListOptions,
-    listAllPageCallback: listAllCallback<Partial<ShopifyObjectType>>
+    listAllPageCallback: listAllCallback<Partial<ShopifyObjectType>>,
   ): Promise<void>;
   public async listAllFromShopify(
     shopifyConnect: IShopifyConnect,
     options?: ListOptions,
-    listAllPageCallback?: listAllCallback<Partial<ShopifyObjectType>>
+    listAllPageCallback?: listAllCallback<Partial<ShopifyObjectType>>,
   ): Promise<Partial<ShopifyObjectType>[] | void> {
     // Delete undefined options
     deleteUndefinedProperties(options);
@@ -98,7 +98,7 @@ export abstract class ShopifyApiRootCountableService<
         limit: itemsPerPage,
       })
         .then((objects) => {
-          if (typeof listAllPageCallback === "function") {
+          if (typeof listAllPageCallback === 'function') {
             listAllPageCallback(null, {
               pages,
               page,
@@ -110,7 +110,7 @@ export abstract class ShopifyApiRootCountableService<
         })
         .catch(async (error) => {
           this.logger.error(`${this.resourceName} sync error`, error);
-          if (typeof listAllPageCallback === "function") {
+          if (typeof listAllPageCallback === 'function') {
             await listAllPageCallback(error, null);
             if (options.failOnSyncError) {
               this.events.off(options.cancelSignal, cancelHandler);
@@ -125,14 +125,14 @@ export abstract class ShopifyApiRootCountableService<
         });
       if (cancelled) {
         this.events.off(options.cancelSignal, cancelHandler);
-        throw new Error("cancelled");
+        throw new Error('cancelled');
       }
       await new Promise((res) => setTimeout(res, 333));
     }
     if (options.cancelSignal) {
       this.events.off(options.cancelSignal, cancelHandler);
     }
-    if (typeof listAllPageCallback === "function") {
+    if (typeof listAllPageCallback === 'function') {
       return; // void; we do not need the result if we have a callback
     } else {
       return results;
@@ -155,7 +155,7 @@ export abstract class ShopifyApiRootCountableService<
           shop: shopifyConnect.myshopify_domain,
           [`options.include${this.upperCaseResourceName}`]: true,
         },
-        {}
+        {},
         // TODO NEST7 CHECKME{ sort: { createdAt: -1} },
       )
       .lean();
@@ -166,7 +166,7 @@ export abstract class ShopifyApiRootCountableService<
     progress: SyncProgressDocument,
     subProgress: Partial<SubSyncProgressDocument>,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<ShopifyObjectType>
+    data: IListAllCallbackData<ShopifyObjectType>,
   ) {
     const objects = data.data;
     subProgress.syncedCount += objects.length;
@@ -181,14 +181,14 @@ export abstract class ShopifyApiRootCountableService<
   protected async seedSyncProgress(
     shopifyConnect: IShopifyConnect,
     options: IStartSyncOptions,
-    lastProgress: SyncProgressDocument
+    lastProgress: SyncProgressDocument,
   ): Promise<Partial<SubSyncProgressDocument>> {
     const shop = shopifyConnect.myshopify_domain;
     const countOptions = this.getSyncCountOptions(options);
 
     this.logger.debug(
       `seedSyncProgress[${this.resourceName}] options: %O`,
-      options
+      options,
     );
     const includedSubResourceNames = this.upperCaseSubResourceNames.filter(
       (subResourceName: string) => {
@@ -196,7 +196,7 @@ export abstract class ShopifyApiRootCountableService<
         const result = options[`include${subResourceName}`];
         this.logger.debug(`${string}: ${result}`);
         return result;
-      }
+      },
     );
 
     const seedSubProgress: Partial<SubSyncProgressDocument> = {
@@ -206,7 +206,7 @@ export abstract class ShopifyApiRootCountableService<
       info: null,
       syncedCount: 0,
       shopifyCount: await this.countFromShopify(shopifyConnect, countOptions),
-      state: "starting",
+      state: 'starting',
       error: null,
     };
 
@@ -237,7 +237,7 @@ export abstract class ShopifyApiRootCountableService<
         });
         lastProgressWithTheseOptions = await this.syncprogressModel.findOne(
           conditions,
-          {}
+          {},
           // TODO NEST7 CHECKME { sort: { createdAt: -1} },
         );
         lastSubProgress =
@@ -255,7 +255,7 @@ export abstract class ShopifyApiRootCountableService<
             lastSubProgress[`synced${subResourceName}Count`];
         });
         seedSubProgress.continuedFromPrevious = new Types.ObjectId(
-          lastProgressWithTheseOptions._id
+          lastProgressWithTheseOptions._id,
         );
       }
     }
@@ -279,7 +279,7 @@ export abstract class ShopifyApiRootCountableService<
     options: IStartSyncOptions,
     progress: SyncProgressDocument,
     lastProgress: SyncProgressDocument | null,
-    finishedCallback?: ISubSyncProgressFinishedCallback
+    finishedCallback?: ISubSyncProgressFinishedCallback,
   ) {
     this.logger.debug(`[startSync] start %O`, options);
 
@@ -290,7 +290,7 @@ export abstract class ShopifyApiRootCountableService<
     progress[this.resourceName] = await this.seedSyncProgress(
       shopifyConnect,
       options,
-      lastProgress
+      lastProgress,
     );
 
     const syncSignal = `${progress._id}:${progress[this.resourceName]._id}`;
@@ -298,13 +298,13 @@ export abstract class ShopifyApiRootCountableService<
 
     // The actual sync action:
 
-    progress[this.resourceName].state = "running";
+    progress[this.resourceName].state = 'running';
 
     let listAllError: Error | null = null;
 
     const _listAllCallback = async (
       error: Error,
-      data: IListAllCallbackData<ShopifyObjectType>
+      data: IListAllCallbackData<ShopifyObjectType>,
     ) => {
       if (error) {
         listAllError = error;
@@ -314,7 +314,7 @@ export abstract class ShopifyApiRootCountableService<
           progress,
           progress[this.resourceName],
           options,
-          data
+          data,
         )
           .then(() => {
             return mongooseParallelRetry(() => {
@@ -344,35 +344,35 @@ export abstract class ShopifyApiRootCountableService<
     this.listAllFromShopify(
       shopifyConnect,
       listAllOptions as ListOptions,
-      _listAllCallback
+      _listAllCallback,
     )
       .then(async () => {
         if (listAllError) {
           throw listAllError;
         }
         this.logger.debug(`[${this.resourceName}] sync ${syncSignal} success`);
-        progress[this.resourceName].state = "success";
+        progress[this.resourceName].state = 'success';
         return mongooseParallelRetry(() => {
           return progress.save();
         });
       })
       .catch(async (error) => {
-        if (error.message === "cancelled") {
+        if (error.message === 'cancelled') {
           this.logger.debug(
-            `[${this.resourceName}] sync ${syncSignal} cancelled`
+            `[${this.resourceName}] sync ${syncSignal} cancelled`,
           );
-          progress[this.resourceName].state = "cancelled";
+          progress[this.resourceName].state = 'cancelled';
         } else {
           this.logger.error(
             `[${this.resourceName}] sync ${syncSignal} error`,
-            error
+            error,
           );
-          progress[this.resourceName].state = "failed";
+          progress[this.resourceName].state = 'failed';
           const errMsg = `${error.message}\n${error.stack}`;
           progress[this.resourceName].error =
-            `${error.message}` + process.env.NODE_ENV === "development"
+            `${error.message}` + process.env.NODE_ENV === 'development'
               ? `\n${error.stack}`
-              : "";
+              : '';
           progress.lastError = `${this.resourceName}:${errMsg}`;
         }
       })
@@ -385,9 +385,9 @@ export abstract class ShopifyApiRootCountableService<
         this.logger.debug(
           `[startSync] ${this.resourceName} done: ${
             progress[this.resourceName].state
-          }`
+          }`,
         );
-        if (typeof finishedCallback === "function") {
+        if (typeof finishedCallback === 'function') {
           finishedCallback(progress[this.resourceName]);
         }
       });
@@ -403,8 +403,8 @@ export abstract class ShopifyApiRootCountableService<
   public async diffSynced(user: IShopifyConnect) {
     const fromDb = await this.listFromDb(user);
     const fromShopify = await this.listAllFromShopify(user);
-    this.logger.debug("from DB %d", fromDb.length);
-    this.logger.debug("from Shopify %d", fromShopify.length);
+    this.logger.debug('from DB %d', fromDb.length);
+    this.logger.debug('from Shopify %d', fromShopify.length);
     let dbObj: any; // TODO@Moritz
     return fromShopify
       .map(
@@ -412,12 +412,12 @@ export abstract class ShopifyApiRootCountableService<
           (dbObj = fromDb.find(
             (x) =>
               // FIXME: should not be necessary to use "toString", as both should be integers. Something must be wrong in the DatabaseDocumentType definition (Document, DocumentType)
-              x.id.toString() === obj.id.toString()
+              x.id.toString() === obj.id.toString(),
           )) && {
             [obj.id]: getDiff(obj, dbObj).filter(
-              (x) => x.operation !== "update" && !x.path.endsWith("._id")
+              (x) => x.operation !== 'update' && !x.path.endsWith('._id'),
             ),
-          }
+          },
       )
       .reduce((a, c) => ({ ...a, ...c }), {});
   }

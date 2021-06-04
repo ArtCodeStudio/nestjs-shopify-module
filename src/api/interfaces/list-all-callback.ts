@@ -6,5 +6,5 @@ export interface IListAllCallbackData<T> {
 
 export type listAllCallback<T> = (
   error: Error,
-  data: IListAllCallbackData<T>
+  data: IListAllCallbackData<T>,
 ) => void;

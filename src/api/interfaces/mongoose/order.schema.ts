@@ -1,19 +1,19 @@
-import { Schema, Document, DocumentDefinition } from "mongoose";
-import { Interfaces } from "shopify-admin-api";
+import { Schema, Document, DocumentDefinition } from 'mongoose';
+import { Interfaces } from 'shopify-admin-api';
 
-import { AddressSchema } from "./address.schema";
-import { ClientDetailsSchema } from "./client-details.schema";
-import { CustomerSchema } from "./customer.schema";
-import { DiscountCodeSchema } from "./discount-code.schema";
-import { DiscountApplicationSchema } from "./discount-application.schema";
-import { FulfillmentSchema } from "./fulfillment.schema";
-import { RefundSchema } from "./refund.schema";
-import { LineItemSchema } from "./line-item.schema";
-import { NoteAttributeSchema } from "./note-attribute.schema";
-import { PaymentDetailsSchema } from "./payment-details.schema";
-import { PriceSetSchema } from "./price-set.schema";
-import { ShippingLineSchema } from "./shipping-line.schema";
-import { TaxLineSchema } from "./tax-line.schema";
+import { AddressSchema } from './address.schema';
+import { ClientDetailsSchema } from './client-details.schema';
+import { CustomerSchema } from './customer.schema';
+import { DiscountCodeSchema } from './discount-code.schema';
+import { DiscountApplicationSchema } from './discount-application.schema';
+import { FulfillmentSchema } from './fulfillment.schema';
+import { RefundSchema } from './refund.schema';
+import { LineItemSchema } from './line-item.schema';
+import { NoteAttributeSchema } from './note-attribute.schema';
+import { PaymentDetailsSchema } from './payment-details.schema';
+import { PriceSetSchema } from './price-set.schema';
+import { ShippingLineSchema } from './shipping-line.schema';
+import { TaxLineSchema } from './tax-line.schema';
 
 export type OrderDocument = DocumentDefinition<Interfaces.Order> & Document;
 
@@ -94,7 +94,7 @@ export const OrderSchema = new Schema(
   },
   {
     minimize: false,
-  }
+  },
 );
 /*
 OrderSchema.set('toJSON', {

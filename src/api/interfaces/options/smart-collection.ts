@@ -1,6 +1,6 @@
-import { Options } from "shopify-admin-api";
-import { ISyncOptions } from "./sync";
-import { IAppListSortOptions, IAppListFilterOptions } from "./basic";
+import { Options } from 'shopify-admin-api';
+import { ISyncOptions } from './sync';
+import { IAppListSortOptions, IAppListFilterOptions } from './basic';
 
 export interface IShopifySyncSmartCollectionListOptions
   extends Options.CollectionListOptions,

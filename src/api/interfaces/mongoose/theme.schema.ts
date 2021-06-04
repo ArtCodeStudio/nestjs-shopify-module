@@ -1,5 +1,5 @@
-import { Schema, Document, DocumentDefinition } from "mongoose";
-import { Interfaces } from "shopify-admin-api";
+import { Schema, Document, DocumentDefinition } from 'mongoose';
+import { Interfaces } from 'shopify-admin-api';
 
 export type ThemeDocument = DocumentDefinition<Interfaces.Theme> & Document;
 
@@ -15,5 +15,5 @@ export const ThemeSchema = new Schema(
   },
   {
     minimize: false,
-  }
+  },
 );

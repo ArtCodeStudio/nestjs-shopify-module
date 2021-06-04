@@ -1,6 +1,6 @@
-import { Schema, Document, DocumentDefinition } from "mongoose";
-import { Interfaces } from "shopify-admin-api";
-import { AddressSchema } from "./address.schema";
+import { Schema, Document, DocumentDefinition } from 'mongoose';
+import { Interfaces } from 'shopify-admin-api';
+import { AddressSchema } from './address.schema';
 
 export type CustomerDocument = DocumentDefinition<Interfaces.CustomCollection> &
   Document;
@@ -32,5 +32,5 @@ export const CustomerSchema = new Schema(
   },
   {
     minimize: false,
-  }
+  },
 );

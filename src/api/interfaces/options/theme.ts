@@ -1,5 +1,5 @@
-import { Options } from "shopify-admin-api";
-import { ISyncOptions } from "./sync";
+import { Options } from 'shopify-admin-api';
+import { ISyncOptions } from './sync';
 
 /**
  * Custom filter implementation (Not supported by Shopify)
@@ -8,7 +8,7 @@ export interface IAppThemeListFilter {
   name?: string;
   created_at?: string;
   updated_at?: string;
-  role?: "main" | "unpublished" | "demo";
+  role?: 'main' | 'unpublished' | 'demo';
   previewable?: boolean;
   processing?: boolean;
 }

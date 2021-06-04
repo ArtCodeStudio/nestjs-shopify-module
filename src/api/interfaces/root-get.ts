@@ -1,10 +1,10 @@
-import { ISyncOptions } from "./options";
+import { ISyncOptions } from './options';
 export interface RootGet<
   ShopifyObjectType,
-  GetOptions extends ISyncOptions = ISyncOptions
+  GetOptions extends ISyncOptions = ISyncOptions,
 > {
   get(
     id: number,
-    options?: GetOptions
+    options?: GetOptions,
   ): Promise<Partial<ShopifyObjectType> | null>;
 }

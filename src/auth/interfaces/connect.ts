@@ -1,7 +1,7 @@
-import { TRoles } from "./role";
-import { Document, Types } from "mongoose";
+import { TRoles } from './role';
+import { Document, Types } from 'mongoose';
 
-import { IShopifyShop } from "../../shop/interfaces/shop";
+import { IShopifyShop } from '../../shop/interfaces/shop';
 
 export interface IShopifyConnect {
   _id: Types.ObjectId;

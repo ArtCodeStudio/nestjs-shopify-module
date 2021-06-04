@@ -1,5 +1,5 @@
-import type { IShopifyConnect } from "../auth/interfaces/connect";
-import type { Session as ExpressSession } from "express-session";
+import type { IShopifyConnect } from '../auth/interfaces/connect';
+import type { Session as ExpressSession } from 'express-session';
 
 export interface Session extends ExpressSession {
   /**  @deprecated use session[`user-${user.myshopify_domain}`] instead  */

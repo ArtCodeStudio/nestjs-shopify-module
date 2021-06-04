@@ -1,6 +1,6 @@
-import { Schema, Document, DocumentDefinition } from "mongoose";
-import { Interfaces } from "shopify-admin-api";
-import { MetafieldSchema } from "./metafield.schema";
+import { Schema, Document, DocumentDefinition } from 'mongoose';
+import { Interfaces } from 'shopify-admin-api';
+import { MetafieldSchema } from './metafield.schema';
 
 export type PageDocument = DocumentDefinition<Interfaces.Page> & Document;
 

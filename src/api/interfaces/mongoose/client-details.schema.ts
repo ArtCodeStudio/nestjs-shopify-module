@@ -1,10 +1,8 @@
-import { Schema, Document, DocumentDefinition } from "mongoose";
-import { Interfaces } from "shopify-admin-api";
+import { Schema, Document, DocumentDefinition } from 'mongoose';
+import { Interfaces } from 'shopify-admin-api';
 
-export type ClientDetailsDocument = DocumentDefinition<
-  Interfaces.ClientDetails
-> &
-  Document;
+export type ClientDetailsDocument =
+  DocumentDefinition<Interfaces.ClientDetails> & Document;
 
 export const ClientDetailsSchema = new Schema(
   {
@@ -18,5 +16,5 @@ export const ClientDetailsSchema = new Schema(
   {
     _id: false,
     minimize: false,
-  }
+  },
 );

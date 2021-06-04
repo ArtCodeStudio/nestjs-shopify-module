@@ -1,19 +1,19 @@
-import { INestApplicationContext } from "@nestjs/common";
-import { Server as HttpServer } from "http";
-import * as express from "express";
-import Redis from "ioredis";
-import { createAdapter } from "socket.io-redis";
-import { Server } from "socket.io";
-import { Adapter } from "socket.io-adapter";
-import { SessionIoAdapter } from "./session-io.adapter";
-import { DebugService } from "../debug.service";
+import { INestApplicationContext } from '@nestjs/common';
+import { Server as HttpServer } from 'http';
+import * as express from 'express';
+import Redis from 'ioredis';
+import { createAdapter } from 'socket.io-redis';
+import { Server } from 'socket.io';
+import { Adapter } from 'socket.io-adapter';
+import { SessionIoAdapter } from './session-io.adapter';
+import { DebugService } from '../debug.service';
 
 /**
  * @see https://github.com/nestjs/nest/blob/master/packages/platform-socket.io/adapters/io-adapter.ts
  * @see https://github.com/nestjs/nest/blob/master/packages/websockets/adapters/ws-adapter.ts
  */
 export class RedisSessionIoAdapter extends SessionIoAdapter {
-  protected logger = new DebugService("shopify:SessionIoAdapter");
+  protected logger = new DebugService('shopify:SessionIoAdapter');
 
   protected redisAdapter: typeof Adapter;
 
@@ -21,7 +21,7 @@ export class RedisSessionIoAdapter extends SessionIoAdapter {
     session: express.RequestHandler,
     redisUrl: string,
     host: string,
-    appOrHttpServer: INestApplicationContext | HttpServer
+    appOrHttpServer: INestApplicationContext | HttpServer,
   ) {
     super(session, appOrHttpServer);
 
