@@ -79,7 +79,7 @@ export class ShopifyAuthService {
    * @param query { ...[key: string]: string }
    * @param session
    */
-  async oAuthCallback(shop: string, query: { [key: string]: any }, session: Session) {
+  async oAuthCallback(shop: string, query: { [key: string]: string }, session: Session) {
     shop = getFullMyshopifyDomain(shop);
     this.logger.debug(`oAuthCallback for shop ${shop}`);
     const shopifyTokenOptions = {
