@@ -11,9 +11,9 @@ import { IShopifyConnect } from '../../../auth/interfaces';
 import { Options } from 'shopify-admin-api';
 import { DebugService } from './../../../debug.service';
 
-import * as pMap from 'p-map';
+import pMap from 'p-map';
 import * as path from 'path';
-import * as merge from 'deepmerge';
+import merge from 'deepmerge';
 
 @Injectable()
 export class LocalesService {

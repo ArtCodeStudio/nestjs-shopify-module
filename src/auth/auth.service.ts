@@ -9,7 +9,7 @@ import { ShopifyConnectService } from './connect.service';
 import * as ShopifyToken from 'shopify-token'; // https://github.com/lpinca/shopify-token
 import { Shops } from 'shopify-admin-api';
 import { Session } from '../interfaces/session';
-import { getSubdomain } from '../helpers';
+import { getSubdomain, getFullMyshopifyDomain } from '../helpers';
 
 @Injectable()
 export class ShopifyAuthService {
@@ -25,12 +25,17 @@ export class ShopifyAuthService {
    * Used for auth with a clientsite redirect (needed in the shopify iframe).
    * @param req Express request object
    * @param myshopify_domain shop origin, e.g. myshop.myshopify.com
-   * @param redirectUri whitelisted redirect URI from Shopify Partner Dashboard
+   * @param scopes An optional array of strings or comma-separated string to specify the list of scopes. This allows you to override the default scopes.
    *
    * @see https://help.shopify.com/en/api/embedded-apps/embedded-app-sdk/oauth
    */
-  oAuthConnect(req: IUserRequest, myshopify_domain?: string) {
+  oAuthConnect(
+    req: IUserRequest,
+    myshopify_domain?: string,
+    scopes?: string[],
+  ) {
     this.logger.debug(`oAuthConnect for shop ${myshopify_domain}`);
+    scopes = scopes || this.shopifyModuleOptions.shopify.scope;
 
     if (!myshopify_domain) {
       myshopify_domain = this.getShopSecureForThemeClients(req);
@@ -40,16 +45,27 @@ export class ShopifyAuthService {
       throw new Error('myshopify_domain is required');
     }
 
-    const shopifyToken = new ShopifyToken({
+    const shopifyTokenOptions = {
       sharedSecret: this.shopifyModuleOptions.shopify.clientSecret,
       apiKey: this.shopifyModuleOptions.shopify.clientID,
-      scopes: this.shopifyModuleOptions.shopify.scope,
+      scopes: scopes,
       redirectUri: this.shopifyModuleOptions.shopify.iframeCallbackURL,
-    });
+    };
+
+    const shopifyToken = new ShopifyToken(shopifyTokenOptions);
 
     const nonce = shopifyToken.generateNonce();
     const shopName = getSubdomain(myshopify_domain);
-    const authUrl = shopifyToken.generateAuthUrl(shopName);
+    const authUrl = shopifyToken.generateAuthUrl(shopName, scopes, nonce);
+
+    this.logger.debug(
+      '[oAuthConnect] shopifyTokenOptions: %O',
+      shopifyTokenOptions,
+    );
+
+    this.logger.debug('[oAuthConnect] nonce: ' + nonce);
+    this.logger.debug('[oAuthConnect] authUrl: ' + authUrl);
+
     return {
       nonce,
       authUrl,
@@ -76,23 +92,31 @@ export class ShopifyAuthService {
     timestamp: string,
     session: Session,
   ) {
+    shop = getFullMyshopifyDomain(shop);
     this.logger.debug(`oAuthCallback for shop ${shop}`);
-    const shopifyToken = new ShopifyToken({
+    const shopifyTokenOptions = {
       sharedSecret: this.shopifyModuleOptions.shopify.clientSecret,
       apiKey: this.shopifyModuleOptions.shopify.clientID,
       scopes: this.shopifyModuleOptions.shopify.scope,
       redirectUri: this.shopifyModuleOptions.shopify.iframeCallbackURL,
-    });
-    const ok = shopifyToken.verifyHmac({
+    };
+    const shopifyToken = new ShopifyToken(shopifyTokenOptions);
+    const query = {
       hmac,
       signature,
       state,
       code,
       shop,
       timestamp,
-    });
+    };
+    const ok = shopifyToken.verifyHmac(query);
 
     if (!ok) {
+      this.logger.debug(
+        '[oAuthCallback] verifyHmac shopifyTokenOptions: %O',
+        shopifyTokenOptions,
+      );
+      this.logger.debug('[oAuthCallback] verifyHmac query: %O', query);
       throw new Error('unauthorized');
     }
 
@@ -104,7 +128,7 @@ export class ShopifyAuthService {
       }>
     ).then(async (res) => {
       this.logger.debug('[getAccessToken] res: %O', res);
-      const shops = new Shops(shop, res.access_token); // // TODO NEST7 CHECKME also store returned scope?
+      const shops = new Shops(shop, res.access_token);
       return shops.get().then(async (shopObject) => {
         const profile: IShopifyAuthProfile = {
           provider: 'shopify',

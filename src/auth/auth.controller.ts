@@ -145,7 +145,7 @@ export class ShopifyAuthController {
    * @param shop
    * @param code
    * @param hmac
-   * @param state
+   * @param state The generated nonce
    * @param timestamp
    * @param req
    * @param res
@@ -153,14 +153,15 @@ export class ShopifyAuthController {
    * @param session
    */
   @Get('callback/iframe')
-  oAuthConnectIframeCallback(
+  async oAuthConnectIframeCallback(
     @Query('shop') shop: string,
     @Param('shop') shopParam: string,
     @Body('shop') shopBody: string,
-    @Query('code') code,
-    @Query('hmac') hmac,
-    @Query('state') state,
-    @Query('timestamp') timestamp,
+    @Query('signature') signature: string | undefined, // TODO?
+    @Query('code') code: string,
+    @Query('hmac') hmac: string,
+    @Query('state') state: string,
+    @Query('timestamp') timestamp: string,
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Session() session: IUserSession,
@@ -181,18 +182,33 @@ export class ShopifyAuthController {
     session.currentShop = shop;
     req.shop = shop;
 
-    session.nonce = undefined;
+    if (state !== session.nonce) {
+      this.logger.warn(`Wrong state / nonce!`);
+      return false;
+    }
 
-    return this.shopifyAuthService
-      .oAuthCallback(hmac, session.nonce, state, code, shop, timestamp, session)
-      .then(async (/*shopifyConnect*/) => {
-        this.logger.debug(`Redirect to /view/settings?shop=${shop}`);
-        return res.redirect(`/view/settings?shop=${shop}`);
-      })
-      .catch((error: Error) => {
-        console.error(error);
-        return res.redirect(`/shopify/auth/failure/${shop}`);
-      });
+    if (typeof hmac !== 'string' || Buffer.byteLength(hmac) !== 64) {
+      this.logger.warn(`Wrong hmac type or length!`);
+      return false;
+    }
+
+    try {
+      await this.shopifyAuthService.oAuthCallback(
+        hmac,
+        signature,
+        state,
+        code,
+        shop,
+        timestamp,
+        session,
+      );
+      this.logger.debug(`Redirect to /view/settings?shop=${shop}`);
+      session.nonce = undefined;
+      return res.redirect(`/view/settings?shop=${shop}`);
+    } catch (error) {
+      console.error(error);
+      return res.redirect(`/shopify/auth/failure/${shop}`);
+    }
   }
 
   /**
