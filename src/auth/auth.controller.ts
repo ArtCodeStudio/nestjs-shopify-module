@@ -154,20 +154,15 @@ export class ShopifyAuthController {
    */
   @Get('callback/iframe')
   async oAuthConnectIframeCallback(
-    @Query('shop') shop: string,
+    @Query() query,
     @Param('shop') shopParam: string,
     @Body('shop') shopBody: string,
-    @Query('signature') signature: string | undefined, // TODO?
-    @Query('code') code: string,
-    @Query('hmac') hmac: string,
-    @Query('state') state: string,
-    @Query('timestamp') timestamp: string,
     @Req() req: IUserRequest,
     @Res() res: Response,
     @Session() session: IUserSession,
   ) {
-    shop =
-      shop ||
+    const shop =
+      query.shop ||
       shopParam ||
       shopBody ||
       (req.headers['x-shopify-shop-domain'] as string) ||
@@ -182,26 +177,21 @@ export class ShopifyAuthController {
     session.currentShop = shop;
     req.shop = shop;
 
-    if (state !== session.nonce) {
+    if (query.state !== session.nonce) {
       this.logger.warn(`Wrong state / nonce!`);
       return false;
     }
 
-    if (typeof hmac !== 'string' || Buffer.byteLength(hmac) !== 64) {
+    if (
+      typeof query.hmac !== 'string' ||
+      Buffer.byteLength(query.hmac) !== 64
+    ) {
       this.logger.warn(`Wrong hmac type or length!`);
       return false;
     }
 
     try {
-      await this.shopifyAuthService.oAuthCallback(
-        hmac,
-        signature,
-        state,
-        code,
-        shop,
-        timestamp,
-        session,
-      );
+      await this.shopifyAuthService.oAuthCallback(shop, query, session);
       this.logger.debug(`Redirect to /view/settings?shop=${shop}`);
       session.nonce = undefined;
       return res.redirect(`/view/settings?shop=${shop}`);

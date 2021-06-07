@@ -75,23 +75,11 @@ export class ShopifyAuthService {
   /**
    * Alternative for AuthStrategy.validate.
    * Used for auth with a clientsite redirect (needed in the shopify iframe).
-   * @param hmac
-   * @param signature
-   * @param state
-   * @param code
-   * @param shop
-   * @param timestamp
+   * @param shop string
+   * @param query { ...[key: string]: string }
    * @param session
    */
-  async oAuthCallback(
-    hmac: string,
-    signature: string,
-    state: string,
-    code: string,
-    shop: string,
-    timestamp: string,
-    session: Session,
-  ) {
+  async oAuthCallback(shop: string, query: { [key: string]: any }, session: Session) {
     shop = getFullMyshopifyDomain(shop);
     this.logger.debug(`oAuthCallback for shop ${shop}`);
     const shopifyTokenOptions = {
@@ -101,14 +89,6 @@ export class ShopifyAuthService {
       redirectUri: this.shopifyModuleOptions.shopify.iframeCallbackURL,
     };
     const shopifyToken = new ShopifyToken(shopifyTokenOptions);
-    const query = {
-      hmac,
-      signature,
-      state,
-      code,
-      shop,
-      timestamp,
-    };
     const ok = shopifyToken.verifyHmac(query);
 
     if (!ok) {
@@ -122,7 +102,7 @@ export class ShopifyAuthService {
 
     // TODO Fix type on https://github.com/lpinca/shopify-token see https://shopify.dev/tutorials/authenticate-with-oauth
     return (
-      shopifyToken.getAccessToken(shop, code) as Promise<{
+      shopifyToken.getAccessToken(shop, query.code) as Promise<{
         access_token: string;
         scope: string;
       }>
