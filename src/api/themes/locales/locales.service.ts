@@ -11,7 +11,7 @@ import { IShopifyConnect } from '../../../auth/interfaces';
 import { Options } from 'shopify-admin-api';
 import { DebugService } from './../../../debug.service';
 
-import pMap from 'p-map';
+import * as pMap from 'p-map';
 import * as path from 'path';
 import merge from 'deepmerge';
 
