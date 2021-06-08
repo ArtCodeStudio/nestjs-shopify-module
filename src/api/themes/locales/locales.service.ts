@@ -13,7 +13,7 @@ import { DebugService } from './../../../debug.service';
 
 import * as pMap from 'p-map';
 import * as path from 'path';
-import merge from 'deepmerge';
+import * as merge from 'deepmerge';
 
 @Injectable()
 export class LocalesService {
