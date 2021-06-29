@@ -64,7 +64,7 @@
     "passport-shopify": "^0.1.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.1.0",
-    "shopify-admin-api": "^2.16.5",
+    "shopify-admin-api": "^2.17.0",
     "shopify-token": "^4.0.4",
     "socket.io": "^4.1.2",
     "socket.io-adapter": "^2.3.1",
