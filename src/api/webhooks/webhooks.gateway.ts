@@ -204,10 +204,7 @@ export class WebhooksGateway
 
     this.eventService.on(
       `webhook:draft_orders/create`,
-      (
-        myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookDraftOrderCreate,
-      ) => {
+      (myshopifyDomain: string, data: Interfaces.WebhookDraftOrderCreate) => {
         this.logger.debug('webhook:draft_orders/create: %O', data);
         nsp
           .to(`${myshopifyDomain}-app-backend`)
@@ -217,10 +214,7 @@ export class WebhooksGateway
 
     this.eventService.on(
       `webhook:draft_orders/delete`,
-      (
-        myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookDraftOrderDelete,
-      ) => {
+      (myshopifyDomain: string, data: Interfaces.WebhookDraftOrderDelete) => {
         this.logger.debug('webhook:draft_orders/delete: %O', data);
         nsp
           .to(`${myshopifyDomain}-app-backend`)
@@ -230,10 +224,7 @@ export class WebhooksGateway
 
     this.eventService.on(
       `webhook:draft_orders/update`,
-      (
-        myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookDraftOrderUpdate,
-      ) => {
+      (myshopifyDomain: string, data: Interfaces.WebhookDraftOrderUpdate) => {
         this.logger.debug('webhook:draft_orders/update: %O', data);
         nsp
           .to(`${myshopifyDomain}-app-backend`)
@@ -243,10 +234,7 @@ export class WebhooksGateway
 
     this.eventService.on(
       `webhook:fulfillments/create`,
-      (
-        myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookFulfillmentCreate,
-      ) => {
+      (myshopifyDomain: string, data: Interfaces.WebhookFulfillmentCreate) => {
         nsp
           .to(`${myshopifyDomain}-app-backend`)
           .emit('fulfillments/create', data);
@@ -255,10 +243,7 @@ export class WebhooksGateway
 
     this.eventService.on(
       `webhook:fulfillments/update`,
-      (
-        myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookFulfillmentUpdate,
-      ) => {
+      (myshopifyDomain: string, data: Interfaces.WebhookFulfillmentUpdate) => {
         nsp
           .to(`${myshopifyDomain}-app-backend`)
           .emit('fulfillments/update', data);
@@ -360,10 +345,7 @@ export class WebhooksGateway
 
     this.eventService.on(
       `webhook:orders/cancelled`,
-      (
-        myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersCancelled,
-      ) => {
+      (myshopifyDomain: string, data: Interfaces.WebhookOrdersCancelled) => {
         this.logger.debug('webhook:orders/cancelled: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/cancelled', data);
       },
@@ -371,10 +353,7 @@ export class WebhooksGateway
 
     this.eventService.on(
       `webhook:orders/create`,
-      (
-        myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersCreate,
-      ) => {
+      (myshopifyDomain: string, data: Interfaces.WebhookOrdersCreate) => {
         this.logger.debug('webhook:orders/create: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/create', data);
       },
@@ -382,10 +361,7 @@ export class WebhooksGateway
 
     this.eventService.on(
       `webhook:orders/fulfilled`,
-      (
-        myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersFulfilled,
-      ) => {
+      (myshopifyDomain: string, data: Interfaces.WebhookOrdersFulfilled) => {
         this.logger.debug('webhook:orders/fulfilled: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/fulfilled', data);
       },
@@ -393,10 +369,7 @@ export class WebhooksGateway
 
     this.eventService.on(
       `webhook:orders/paid`,
-      (
-        myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersPaid,
-      ) => {
+      (myshopifyDomain: string, data: Interfaces.WebhookOrdersPaid) => {
         this.logger.debug('webhook:orders/paid: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/paid', data);
       },
@@ -406,7 +379,7 @@ export class WebhooksGateway
       `webhook:orders/partially_fulfilled`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersPartiallyFulfilled,
+        data: Interfaces.WebhookOrdersPartiallyFulfilled,
       ) => {
         this.logger.debug('webhook:orders/partially_fulfilled: %O', data);
         nsp
@@ -417,10 +390,7 @@ export class WebhooksGateway
 
     this.eventService.on(
       `webhook:orders/updated`,
-      (
-        myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersUpdated,
-      ) => {
+      (myshopifyDomain: string, data: Interfaces.WebhookOrdersUpdated) => {
         this.logger.debug('webhook:orders/updated: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/updated', data);
       },
@@ -428,10 +398,7 @@ export class WebhooksGateway
 
     this.eventService.on(
       `webhook:orders/delete`,
-      (
-        myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersDelete,
-      ) => {
+      (myshopifyDomain: string, data: Interfaces.WebhookOrdersDelete) => {
         this.logger.debug('webhook:orders/delete: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/delete', data);
       },
@@ -439,10 +406,7 @@ export class WebhooksGateway
 
     this.eventService.on(
       `webhook:orders/edited`,
-      (
-        myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersEdited,
-      ) => {
+      (myshopifyDomain: string, data: Interfaces.WebhookOrdersEdited) => {
         this.logger.debug('webhook:orders/edited: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/edited', data);
       },
@@ -452,7 +416,7 @@ export class WebhooksGateway
       `webhook:order_transactions/create`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrderTransactionCreate,
+        data: Interfaces.WebhookOrderTransactionCreate,
       ) => {
         this.logger.debug('webhook:order_transactions/create: %O', data);
         nsp

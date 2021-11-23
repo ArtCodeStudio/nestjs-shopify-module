@@ -6,7 +6,7 @@ import {
   MiddlewareConsumer,
   RequestMethod,
 } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, Reflector } from '@nestjs/core';
 import { PassportStatic } from 'passport';
 import { Mongoose } from 'mongoose';
 
@@ -127,10 +127,11 @@ export { RequestGuard } from './guards/request.guard';
 
 @Module({
   providers: [
+    Reflector,
     // inectable guard
     ShopifyApiGuard,
     // global guard for all controllers
-    // RolesGuard,
+    RolesGuard,
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
