@@ -1,5 +1,8 @@
 export type Resource =
+<<<<<<< Updated upstream
   | 'accessScopes'
+=======
+>>>>>>> Stashed changes
   | 'blogs'
   | 'checkouts'
   | 'orders'
@@ -16,7 +19,10 @@ export type Resource =
   | 'collects'
   | 'themes';
 export type ResourceSignular =
+<<<<<<< Updated upstream
   | 'accessScope'
+=======
+>>>>>>> Stashed changes
   | 'blog'
   | 'checkout'
   | 'order'

@@ -29,11 +29,15 @@ export class ShopifyAuthService {
    *
    * @see https://help.shopify.com/en/api/embedded-apps/embedded-app-sdk/oauth
    */
+<<<<<<< Updated upstream
   oAuthConnect(
     req: IUserRequest,
     myshopify_domain?: string,
     scopes?: string[],
   ) {
+=======
+  oAuthConnect(req: IUserRequest, myshopify_domain?: string) {
+>>>>>>> Stashed changes
     this.logger.debug(`oAuthConnect for shop ${myshopify_domain}`);
     scopes = scopes || this.shopifyModuleOptions.shopify.scope;
 
@@ -80,11 +84,22 @@ export class ShopifyAuthService {
    * @param session
    */
   async oAuthCallback(
+<<<<<<< Updated upstream
     shop: string,
     query: { [key: string]: string },
     session: Session,
   ) {
     shop = getFullMyshopifyDomain(shop);
+=======
+    hmac: string,
+    signature: string,
+    state: string,
+    code: string,
+    shop: string,
+    timestamp: string,
+    session: Session,
+  ) {
+>>>>>>> Stashed changes
     this.logger.debug(`oAuthCallback for shop ${shop}`);
     const shopifyTokenOptions = {
       sharedSecret: this.shopifyModuleOptions.shopify.clientSecret,
@@ -106,13 +121,21 @@ export class ShopifyAuthService {
 
     // TODO Fix type on https://github.com/lpinca/shopify-token see https://shopify.dev/tutorials/authenticate-with-oauth
     return (
+<<<<<<< Updated upstream
       shopifyToken.getAccessToken(shop, query.code) as Promise<{
+=======
+      shopifyToken.getAccessToken(shop, code) as Promise<{
+>>>>>>> Stashed changes
         access_token: string;
         scope: string;
       }>
     ).then(async (res) => {
       this.logger.debug('[getAccessToken] res: %O', res);
+<<<<<<< Updated upstream
       const shops = new Shops(shop, res.access_token);
+=======
+      const shops = new Shops(shop, res.access_token); // // TODO NEST7 CHECKME also store returned scope?
+>>>>>>> Stashed changes
       return shops.get().then(async (shopObject) => {
         const profile: IShopifyAuthProfile = {
           provider: 'shopify',

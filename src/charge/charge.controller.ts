@@ -65,7 +65,10 @@ export class ChargeController {
     try {
       const plans = await this.chargeService.available(user);
       this.logger.debug('available plans', plans);
+<<<<<<< Updated upstream
       return plans;
+=======
+>>>>>>> Stashed changes
     } catch (error) {
       throw new HttpException(
         { message: 'Error on available charges', error },
@@ -89,6 +92,7 @@ export class ChargeController {
   ) {
     this.logger.debug('activate', chargeId);
     const user = req.user as IShopifyConnect;
+<<<<<<< Updated upstream
 
     let charge: Interfaces.RecurringCharge;
 
@@ -114,6 +118,31 @@ export class ChargeController {
         this.shopifyModuleOptions.charges.frontend_return_url,
       );
     }
+=======
+    return this.chargeService
+      .getChargeById(user, chargeId)
+      .then(async (charge: Interfaces.RecurringCharge) => {
+        if (charge.status === 'accepted') {
+          return this.chargeService.activate(user, charge.id).then((result) => {
+            charge.status = 'active';
+            this.logger.debug('result', result);
+            return res.redirect(
+              this.shopifyModuleOptions.charges.frontend_return_url,
+            );
+          });
+        } else {
+          return res.redirect(
+            this.shopifyModuleOptions.charges.frontend_return_url,
+          );
+        }
+      })
+      .catch((error) => {
+        throw new HttpException(
+          { message: 'Error on activate charge', error },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
+>>>>>>> Stashed changes
   }
 
   /**
@@ -131,6 +160,7 @@ export class ChargeController {
   ) {
     this.logger.debug('req.user', req.user);
     const user = req.user as IShopifyConnect;
+<<<<<<< Updated upstream
     let charge: Interfaces.RecurringCharge;
     try {
       charge = await this.chargeService.createByName(user, name);
@@ -150,5 +180,26 @@ export class ChargeController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+=======
+    return this.chargeService
+      .createByName(user, name)
+      .then((charge) => {
+        this.logger.debug('charge', charge);
+        if (charge) {
+          return res.redirect(charge.confirmation_url);
+        } else {
+          throw new HttpException(
+            { message: 'No charge returned!' },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
+      })
+      .catch((error) => {
+        throw new HttpException(
+          { message: 'Error on create charge', error },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
+>>>>>>> Stashed changes
   }
 }

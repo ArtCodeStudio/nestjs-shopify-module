@@ -206,7 +206,7 @@ export class WebhooksGateway
       `webhook:draft_orders/create`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookDraftOrderCreate,
+        data: Interfaces.WebhookDraftOrderCreate,
       ) => {
         this.logger.debug('webhook:draft_orders/create: %O', data);
         nsp
@@ -219,7 +219,7 @@ export class WebhooksGateway
       `webhook:draft_orders/delete`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookDraftOrderDelete,
+        data: Interfaces.WebhookDraftOrderDelete,
       ) => {
         this.logger.debug('webhook:draft_orders/delete: %O', data);
         nsp
@@ -232,7 +232,7 @@ export class WebhooksGateway
       `webhook:draft_orders/update`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookDraftOrderUpdate,
+        data: Interfaces.WebhookDraftOrderUpdate,
       ) => {
         this.logger.debug('webhook:draft_orders/update: %O', data);
         nsp
@@ -245,7 +245,7 @@ export class WebhooksGateway
       `webhook:fulfillments/create`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookFulfillmentCreate,
+        data: Interfaces.WebhookFulfillmentCreate,
       ) => {
         nsp
           .to(`${myshopifyDomain}-app-backend`)
@@ -257,7 +257,7 @@ export class WebhooksGateway
       `webhook:fulfillments/update`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookFulfillmentUpdate,
+        data: Interfaces.WebhookFulfillmentUpdate,
       ) => {
         nsp
           .to(`${myshopifyDomain}-app-backend`)
@@ -362,7 +362,7 @@ export class WebhooksGateway
       `webhook:orders/cancelled`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersCancelled,
+        data: Interfaces.WebhookOrdersCancelled,
       ) => {
         this.logger.debug('webhook:orders/cancelled: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/cancelled', data);
@@ -373,7 +373,7 @@ export class WebhooksGateway
       `webhook:orders/create`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersCreate,
+        data: Interfaces.WebhookOrdersCreate,
       ) => {
         this.logger.debug('webhook:orders/create: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/create', data);
@@ -384,7 +384,7 @@ export class WebhooksGateway
       `webhook:orders/fulfilled`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersFulfilled,
+        data: Interfaces.WebhookOrdersFulfilled,
       ) => {
         this.logger.debug('webhook:orders/fulfilled: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/fulfilled', data);
@@ -395,7 +395,7 @@ export class WebhooksGateway
       `webhook:orders/paid`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersPaid,
+        data: Interfaces.WebhookOrdersPaid,
       ) => {
         this.logger.debug('webhook:orders/paid: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/paid', data);
@@ -406,7 +406,7 @@ export class WebhooksGateway
       `webhook:orders/partially_fulfilled`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersPartiallyFulfilled,
+        data: Interfaces.WebhookOrdersPartiallyFulfilled,
       ) => {
         this.logger.debug('webhook:orders/partially_fulfilled: %O', data);
         nsp
@@ -419,7 +419,7 @@ export class WebhooksGateway
       `webhook:orders/updated`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersUpdated,
+        data: Interfaces.WebhookOrdersUpdated,
       ) => {
         this.logger.debug('webhook:orders/updated: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/updated', data);
@@ -430,7 +430,7 @@ export class WebhooksGateway
       `webhook:orders/delete`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersDelete,
+        data: Interfaces.WebhookOrdersDelete,
       ) => {
         this.logger.debug('webhook:orders/delete: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/delete', data);
@@ -441,7 +441,7 @@ export class WebhooksGateway
       `webhook:orders/edited`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrdersEdited,
+        data: Interfaces.WebhookOrdersEdited,
       ) => {
         this.logger.debug('webhook:orders/edited: %O', data);
         nsp.to(`${myshopifyDomain}-app-backend`).emit('orders/edited', data);
@@ -452,7 +452,7 @@ export class WebhooksGateway
       `webhook:order_transactions/create`,
       (
         myshopifyDomain: string,
-        data: Interfaces.WebhooksReponse.WebhookOrderTransactionCreate,
+        data: Interfaces.WebhookOrderTransactionCreate,
       ) => {
         this.logger.debug('webhook:order_transactions/create: %O', data);
         nsp

@@ -6,6 +6,10 @@ import { TRoles } from '../auth/interfaces/role';
  */
 export const Roles = (...roles: TRoles): MethodDecorator => {
   return (target: any) => {
+<<<<<<< Updated upstream
     return Reflect.defineMetadata('roles', roles, target);
+=======
+    return Reflect.defineMetadata('roles', roles, target); // TODO NEST7 CHECKME
+>>>>>>> Stashed changes
   };
 };

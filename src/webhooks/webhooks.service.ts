@@ -93,6 +93,7 @@ export class WebhooksService {
 
     // Auto unsubscripe webhooks from config on app uninstall
     eventService.on(
+<<<<<<< Updated upstream
       'webhook:app/uninstalled',
       async (myShopifyDomain: IShopifyConnect['shop']['myshopify_domain']) => {
         this.deleteAllByDomain(myShopifyDomain)
@@ -103,6 +104,17 @@ export class WebhooksService {
           .catch((error: WebhookError) => {
             this.logger.error(
               `[${myShopifyDomain}] Error on unsubscribe webhooks: ${error.message}`,
+=======
+      'app/uninstalled',
+      async (shopifyConnect: IShopifyConnect) => {
+        this.deleteAll(shopifyConnect)
+          .then((result) => {
+            this.logger.debug('unsubscribed webhooks', result);
+          })
+          .catch((error: WebhookError) => {
+            this.logger.error(
+              `[${shopifyConnect.myshopify_domain}] Error on unsubscribe webhooks: ${error.message}`,
+>>>>>>> Stashed changes
               error.errors,
             );
           });
@@ -154,6 +166,7 @@ export class WebhooksService {
     }
   }
 
+<<<<<<< Updated upstream
   public async deleteAllByDomain(
     myShopifyDomain: IShopifyConnect['shop']['myshopify_domain'],
   ) {
@@ -163,6 +176,8 @@ export class WebhooksService {
     return this.deleteAll(shopifyConnect);
   }
 
+=======
+>>>>>>> Stashed changes
   public async list(user: IShopifyConnect): Promise<Interfaces.Webhook[]> {
     const webhooks = new Webhooks(user.myshopify_domain, user.accessToken);
     return webhooks.list();
@@ -173,7 +188,7 @@ export class WebhooksService {
     topic: Enums.WebhookTopic,
   ): Observable<WsResponse<any>> {
     const webhookEventName = `webhook:${client.handshake.session.currentShop}:${topic}`;
-    const unscripeEventName = `${webhookEventName}:unsubscribe`;
+    const unsubscribeEventName = `${webhookEventName}:unsubscribe`;
     // // Return cached Observable when available
     // if (WebhooksService.webhookObservables[webhookEventName]) {
     //   return WebhooksService.webhookObservables[webhookEventName];
@@ -187,8 +202,8 @@ export class WebhooksService {
             data,
           });
         });
-        this.eventService.on(unscripeEventName, () => {
-          this.logger.debug(unscripeEventName);
+        this.eventService.on(unsubscribeEventName, () => {
+          this.logger.debug(unsubscribeEventName);
           observer.complete();
         });
       }).pipe<WsResponse<any>>(this.takeUntilOneDay()); // Stop after 24 hours
@@ -206,9 +221,9 @@ export class WebhooksService {
     topic: Enums.WebhookTopic,
   ): void {
     const webhookEventName = `webhook:${client.handshake.session.currentShop}:${topic}`;
-    const unscripeEventName = `${webhookEventName}:unsubscribe`;
-    // Emit unscripe event to complete the oberservable
-    this.eventService.emit(unscripeEventName);
+    const unsubscribeEventName = `${webhookEventName}:unsubscribe`;
+    // Emit unscrie event to complete the oberservable
+    this.eventService.emit(unsubscribeEventName);
   }
 
   public getTopics() {

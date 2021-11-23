@@ -6,7 +6,6 @@ import * as sharedsession from 'express-socket.io-session';
 import { DebugService } from '../debug.service';
 
 export class SessionIoAdapter extends IoAdapter {
-
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
   protected socketSessionMiddleware: (
     socket: Socket,
@@ -14,7 +13,7 @@ export class SessionIoAdapter extends IoAdapter {
   ) => void;
   constructor(
     session: RequestHandler,
-    appOrHttpServer?: INestApplicationContext | any
+    appOrHttpServer?: INestApplicationContext | any,
   ) {
     super(appOrHttpServer);
     /**

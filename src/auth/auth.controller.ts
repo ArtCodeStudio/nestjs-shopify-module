@@ -161,8 +161,8 @@ export class ShopifyAuthController {
     @Res() res: Response,
     @Session() session: IUserSession,
   ) {
-    const shop =
-      query.shop ||
+    shop =
+      shop ||
       shopParam ||
       shopBody ||
       (req.headers['x-shopify-shop-domain'] as string) ||

@@ -17,15 +17,25 @@ export class ShopifyConnectService {
     // Delete connected shop on app uninstall
     this.eventService.on(
       'webhook:app/uninstalled',
+<<<<<<< Updated upstream
       async (myShopifyDomain: IShopifyConnect['shop']['myshopify_domain']) => {
         this.logger.warn('webhook:app/uninstalled:', myShopifyDomain);
         this.deleteByDomain(myShopifyDomain)
+=======
+      async (shop: IShopifyConnect['shop']) => {
+        this.logger.warn('webhook:app/uninstalled:', shop.myshopify_domain);
+        this.deleteByShopifyId(shop.id)
+>>>>>>> Stashed changes
           .then((result) => {
             this.logger.debug('Delete connected shop result:', result);
           })
           .catch((error: Error) => {
             this.logger.error(
+<<<<<<< Updated upstream
               `[${myShopifyDomain}] Error on delete connected shop: ${error.message}`,
+=======
+              `[${shop.myshopify_domain}] Error on delete connected shop: ${error.message}`,
+>>>>>>> Stashed changes
               error,
             );
           });
@@ -128,6 +138,7 @@ export class ShopifyConnectService {
   async deleteByShopifyId(shopifyID: number) {
     return this.shopifyConnectModel.findOneAndDelete({ shopifyID }).exec();
   }
+<<<<<<< Updated upstream
 
   /**
    * Delete connected shop by shopify id
@@ -139,4 +150,6 @@ export class ShopifyConnectService {
       .findOneAndDelete({ shopifyID: shopifyConnect.shopifyID })
       .exec();
   }
+=======
+>>>>>>> Stashed changes
 }
