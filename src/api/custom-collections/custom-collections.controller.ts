@@ -1,4 +1,15 @@
-import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus, HttpException, Header } from '@nestjs/common';
+import {
+  Controller,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+  Res,
+  Get,
+  HttpStatus,
+  HttpException,
+  Header,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { IUserRequest } from '../../interfaces/user-request';
 
@@ -73,13 +84,13 @@ export class CustomCollectionsController {
     /**
      * Filter results based on the published status of smart collections.
      */
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any' = 'any',
+    @Query('published_status')
+    published_status: 'published' | 'unpublished' | 'any' = 'any',
     /**
      * Show only certain fields, specified by a comma-separated list of field names.
      */
     @Query('fields') fields?: string,
   ) {
-
     const options: IShopifySyncCustomCollectionListOptions = {
       limit,
       page,
@@ -97,7 +108,10 @@ export class CustomCollectionsController {
     };
 
     try {
-      return await this.customCollectionsService.listFromShopify(req.session[`shopify-connect-${req.shop}`], options);
+      return await this.customCollectionsService.listFromShopify(
+        req.session[`shopify-connect-${req.shop}`],
+        options,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -109,7 +123,11 @@ export class CustomCollectionsController {
   @Get('db')
   async listFromDb(@Req() req: IUserRequest) {
     try {
-      return await this.customCollectionsService.listFromDb(req.session[`shopify-connect-${req.shop}`], {}, {});
+      return await this.customCollectionsService.listFromDb(
+        req.session[`shopify-connect-${req.shop}`],
+        {},
+        {},
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -120,16 +138,31 @@ export class CustomCollectionsController {
   @Roles('shopify-staff-member')
   @Get('all')
   @Header('Content-type', 'application/json')
-  listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Query() options: IShopifySyncCustomCollectionListOptions) {
-    this.customCollectionsService.listAllFromShopifyStream(req.session[`shopify-connect-${req.shop}`], options).pipe(res);
+  listAllFromShopify(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Query() options: IShopifySyncCustomCollectionListOptions,
+  ) {
+    this.customCollectionsService
+      .listAllFromShopifyStream(
+        req.session[`shopify-connect-${req.shop}`],
+        options,
+      )
+      .pipe(res);
   }
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('db/count')
-  async countFromDb(@Req() req: IUserRequest, @Query() options: IShopifySyncCustomCollectionCountOptions) {
+  async countFromDb(
+    @Req() req: IUserRequest,
+    @Query() options: IShopifySyncCustomCollectionCountOptions,
+  ) {
     try {
-      return await this.customCollectionsService.countFromDb(req.session[`shopify-connect-${req.shop}`], options);
+      return await this.customCollectionsService.countFromDb(
+        req.session[`shopify-connect-${req.shop}`],
+        options,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -141,7 +174,9 @@ export class CustomCollectionsController {
   @Get('db/diff')
   async diffSynced(@Req() req: IUserRequest) {
     try {
-      return await this.customCollectionsService.diffSynced(req.session[`shopify-connect-${req.shop}`]);
+      return await this.customCollectionsService.diffSynced(
+        req.session[`shopify-connect-${req.shop}`],
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -180,7 +215,8 @@ export class CustomCollectionsController {
     /**
      * Filter results based on the published status of smart collections.
      */
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any' = 'any',
+    @Query('published_status')
+    published_status: 'published' | 'unpublished' | 'any' = 'any',
   ) {
     const options: IShopifySyncCustomCollectionCountOptions = {
       title,
@@ -192,7 +228,10 @@ export class CustomCollectionsController {
       published_status,
     };
     try {
-      return await this.customCollectionsService.countFromShopify(req.session[`shopify-connect-${req.shop}`], options);
+      return await this.customCollectionsService.countFromShopify(
+        req.session[`shopify-connect-${req.shop}`],
+        options,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -204,7 +243,10 @@ export class CustomCollectionsController {
   @Get(':id/db')
   async getFromDb(@Req() req: IUserRequest, @Param('id') id: number) {
     try {
-      return await this.customCollectionsService.getFromDb(req.session[`shopify-connect-${req.shop}`], id);
+      return await this.customCollectionsService.getFromDb(
+        req.session[`shopify-connect-${req.shop}`],
+        id,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -223,7 +265,11 @@ export class CustomCollectionsController {
       fields,
     };
     try {
-      return await this.customCollectionsService.getFromShopify(req.session[`shopify-connect-${req.shop}`], id, options);
+      return await this.customCollectionsService.getFromShopify(
+        req.session[`shopify-connect-${req.shop}`],
+        id,
+        options,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);

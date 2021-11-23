@@ -14,20 +14,22 @@ import { SessionSocket } from '../interfaces/session-socket';
  */
 @Injectable()
 export class RequestGuard implements CanActivate {
-
   protected logger = new DebugService('shopify:RequestGuard');
 
   constructor(
     private readonly reflector: Reflector,
     private readonly shopifyAuthService: ShopifyAuthService,
-    ) {}
+  ) {}
 
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     // this.logger.debug('context', context);
     // TODO NEST7 CHECKME
-    const types = this.reflector.get<TRequestTypes>('request', context.getHandler());
+    const types = this.reflector.get<TRequestTypes>(
+      'request',
+      context.getHandler(),
+    );
     const request = context.switchToHttp().getRequest() as IUserRequest;
     // this.logger.debug('request', request);
 
@@ -59,7 +61,6 @@ export class RequestGuard implements CanActivate {
   }
 
   validateRequest(request: IUserRequest, types?: TRequestTypes) {
-
     // if no type are passt using @Request('app-backend') this route do not need any role so activate this with true
     if (!types || types.length === 0) {
       return true;
@@ -76,5 +77,4 @@ export class RequestGuard implements CanActivate {
 
     return this.hasType(client.handshake.session, types);
   }
-
 }

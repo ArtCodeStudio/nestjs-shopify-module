@@ -1,7 +1,5 @@
 import { Model, Mongoose } from 'mongoose';
-import {
-  SyncProgressSchema, SyncProgressDocument,
-} from '../interfaces';
+import { SyncProgressSchema, SyncProgressDocument } from '../interfaces';
 
 import { EventService } from '../event.service';
 
@@ -27,35 +25,52 @@ const syncProviders = (connection: Mongoose) => {
       inject: [EventService],
       provide: 'SyncProgressModelToken',
       useFactory: (eventService: EventService) => {
-        SyncProgressSchema.post('save', (progress: SyncProgressDocument, next) => {
-          logger.debug(`SyncProgress Post save hook:`, progress.id, progress._id, progress. state);
-          // logger.debug(`emit sync:${progress.shop}:${progress._id}`, progress);
-          eventService.emit(`sync:${progress.shop}:${progress._id}`, progress);
-          // logger.debug(`emit sync`, progress.shop, progress);
-          eventService.emit(`sync`, progress.shop, progress);
-          if (progress.state !== 'running') {
-            // logger.debug(`emit sync-ended:${progress.shop}:${progress._id}`, progress);
-            eventService.emit(`sync-ended:${progress.shop}:${progress._id}`, progress);
-            // logger.debug(`emit sync-ended`, progress.shop, progress);
-            eventService.emit(`sync-ended`, progress.shop, progress);
-            switch (progress.state) {
-              case 'success':
-                // logger.debug(`emit sync-success`, progress.shop, progress);
-                eventService.emit(`sync-success`, progress.shop, progress);
-                break;
-              case 'failed':
-                // logger.debug(`emit sync-failed`, progress.shop, progress);
-                eventService.emit(`sync-failed`, progress.shop, progress);
-                break;
-              case 'cancelled':
-                // logger.debug(`emit sync-cancelled`, progress.shop, progress);
-                eventService.emit(`sync-cancelled`, progress.shop, progress);
-                break;
+        SyncProgressSchema.post(
+          'save',
+          (progress: SyncProgressDocument, next) => {
+            logger.debug(
+              `SyncProgress Post save hook:`,
+              progress.id,
+              progress._id,
+              progress.state,
+            );
+            // logger.debug(`emit sync:${progress.shop}:${progress._id}`, progress);
+            eventService.emit(
+              `sync:${progress.shop}:${progress._id}`,
+              progress,
+            );
+            // logger.debug(`emit sync`, progress.shop, progress);
+            eventService.emit(`sync`, progress.shop, progress);
+            if (progress.state !== 'running') {
+              // logger.debug(`emit sync-ended:${progress.shop}:${progress._id}`, progress);
+              eventService.emit(
+                `sync-ended:${progress.shop}:${progress._id}`,
+                progress,
+              );
+              // logger.debug(`emit sync-ended`, progress.shop, progress);
+              eventService.emit(`sync-ended`, progress.shop, progress);
+              switch (progress.state) {
+                case 'success':
+                  // logger.debug(`emit sync-success`, progress.shop, progress);
+                  eventService.emit(`sync-success`, progress.shop, progress);
+                  break;
+                case 'failed':
+                  // logger.debug(`emit sync-failed`, progress.shop, progress);
+                  eventService.emit(`sync-failed`, progress.shop, progress);
+                  break;
+                case 'cancelled':
+                  // logger.debug(`emit sync-cancelled`, progress.shop, progress);
+                  eventService.emit(`sync-cancelled`, progress.shop, progress);
+                  break;
+              }
             }
-          }
-          next(null);
-        });
-        return connection.model(`shopify_sync-progress`, SyncProgressSchema) as unknown as Model<SyncProgressDocument>;
+            next(null);
+          },
+        );
+        return connection.model(
+          `shopify_sync-progress`,
+          SyncProgressSchema,
+        ) as unknown as Model<SyncProgressDocument>;
       },
     },
   ];

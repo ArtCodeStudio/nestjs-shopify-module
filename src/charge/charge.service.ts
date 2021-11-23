@@ -11,11 +11,11 @@ import { IAvailableCharge } from './interfaces/availableCharge';
  * @see https://github.com/ArtCodeStudio/shopify-admin-api#create-a-recurring-charge
  */
 export class ChargeService {
-
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
-    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {}
 
   /**
@@ -23,7 +23,10 @@ export class ChargeService {
    * @param plan
    */
   getChargeById(user: IShopifyConnect, id: number) {
-    const recurringCharges = new RecurringCharges(user.myshopify_domain, user.accessToken);
+    const recurringCharges = new RecurringCharges(
+      user.myshopify_domain,
+      user.accessToken,
+    );
     return recurringCharges.get(id);
   }
 
@@ -32,7 +35,10 @@ export class ChargeService {
    * @param plan
    */
   listCharges(user: IShopifyConnect) {
-    const recurringCharges = new RecurringCharges(user.myshopify_domain, user.accessToken);
+    const recurringCharges = new RecurringCharges(
+      user.myshopify_domain,
+      user.accessToken,
+    );
     return recurringCharges.list();
   }
 
@@ -55,7 +61,10 @@ export class ChargeService {
    * @param plan
    */
   create(user: IShopifyConnect, plan) {
-    const recurringCharges = new RecurringCharges(user.myshopify_domain, user.accessToken);
+    const recurringCharges = new RecurringCharges(
+      user.myshopify_domain,
+      user.accessToken,
+    );
     return recurringCharges.create(plan);
   }
 
@@ -71,8 +80,7 @@ export class ChargeService {
     }
 
     // Check if the plan was already accepted
-    return this.listCharges(user)
-    .then(async (prevPlans) => {
+    return this.listCharges(user).then(async (prevPlans) => {
       for (const prevPlan of prevPlans) {
         if (
           plan.name === prevPlan.name &&
@@ -81,8 +89,7 @@ export class ChargeService {
           plan.return_url === prevPlan.return_url &&
           prevPlan.status === 'accepted'
         ) {
-          return this.activate(user, prevPlan.id)
-          .then(() => {
+          return this.activate(user, prevPlan.id).then(() => {
             return prevPlan;
           });
         }
@@ -98,12 +105,14 @@ export class ChargeService {
    * @param id charge id
    */
   async activate(user: IShopifyConnect, id?: number) {
-    const recurringCharges = new RecurringCharges(user.myshopify_domain, user.accessToken);
+    const recurringCharges = new RecurringCharges(
+      user.myshopify_domain,
+      user.accessToken,
+    );
     if (id) {
       return recurringCharges.activate(id);
     }
-    return recurringCharges.list()
-    .then(async (charges) => {
+    return recurringCharges.list().then(async (charges) => {
       for (const charge of charges) {
         if (charge.status === 'accepted') {
           return recurringCharges.activate(charge.id);
@@ -116,10 +125,14 @@ export class ChargeService {
   /**
    * Get the current active charge or null if no active charge is found.
    */
-  async active(user: IShopifyConnect): Promise<Interfaces.RecurringCharge | null> {
-    const charges = new RecurringCharges(user.myshopify_domain, user.accessToken);
-    return charges.list()
-    .then(async (chargesList) => {
+  async active(
+    user: IShopifyConnect,
+  ): Promise<Interfaces.RecurringCharge | null> {
+    const charges = new RecurringCharges(
+      user.myshopify_domain,
+      user.accessToken,
+    );
+    return charges.list().then(async (chargesList) => {
       for (const charge of chargesList) {
         if (charge.status === 'active') {
           return charge;
@@ -134,8 +147,7 @@ export class ChargeService {
    * @param all If true also hidden plans returned
    */
   async available(user: IShopifyConnect, all = false) {
-    return this.active(user)
-    .then((activePlan) => {
+    return this.active(user).then((activePlan) => {
       const plans: IAvailableCharge[] = [];
       for (const plan of this.shopifyModuleOptions.charges.plans) {
         const availablePlan: IAvailableCharge = {
@@ -164,6 +176,5 @@ export class ChargeService {
       }
       return plans;
     });
-
   }
 }

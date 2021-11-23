@@ -20,102 +20,158 @@ export class WebhooksService {
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
-    @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    private readonly shopifyModuleOptions: ShopifyModuleOptions,
     protected readonly eventService: EventService,
     protected readonly shopifyConnectService: ShopifyConnectService,
   ) {
-
     // always subscribe app/uninstalled
-    if (!this.shopifyModuleOptions.shopify.webhooks.autoSubscribe.includes('app/uninstalled')) {
-      this.shopifyModuleOptions.shopify.webhooks.autoSubscribe.push('app/uninstalled');
+    if (
+      !this.shopifyModuleOptions.shopify.webhooks.autoSubscribe.includes(
+        'app/uninstalled',
+      )
+    ) {
+      this.shopifyModuleOptions.shopify.webhooks.autoSubscribe.push(
+        'app/uninstalled',
+      );
     }
 
     // Recreate all auto subscripe webhooks from config on app start
-    shopifyConnectService.findAll()
-    .then((shopifyConnects: IShopifyConnect[]) => {
-      for (const shopifyConnect of shopifyConnects) {
-        for (const topic of this.shopifyModuleOptions.shopify.webhooks.autoSubscribe) {
-          this.logger.debug(`[${shopifyConnect.myshopify_domain}] Auto subscribe webhook ${topic}`);
-          this.create(shopifyConnect, topic)
-          .then((result) => {
-            this.logger.debug('result: %O', result);
-          })
-          .catch((error: WebhookError) => {
-            // Ignore if the webhook is already subscribed
-            if (error.statusCode === 422 && error.errors.address && error.errors.address[0].toLocaleLowerCase().includes("for this topic has already been taken")) {
-              // this.logger.debug(error);
-            } else {
-              this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`, error.errors);
-            }
-          });
+    shopifyConnectService
+      .findAll()
+      .then((shopifyConnects: IShopifyConnect[]) => {
+        for (const shopifyConnect of shopifyConnects) {
+          for (const topic of this.shopifyModuleOptions.shopify.webhooks
+            .autoSubscribe) {
+            this.logger.debug(
+              `[${shopifyConnect.myshopify_domain}] Auto subscribe webhook ${topic}`,
+            );
+            this.create(shopifyConnect, topic)
+              .then((result) => {
+                this.logger.debug('result: %O', result);
+              })
+              .catch((error: WebhookError) => {
+                // Ignore if the webhook is already subscribed
+                if (
+                  error.statusCode === 422 &&
+                  error.errors.address &&
+                  error.errors.address[0]
+                    .toLocaleLowerCase()
+                    .includes('for this topic has already been taken')
+                ) {
+                  // this.logger.debug(error);
+                } else {
+                  this.logger.error(
+                    `[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`,
+                    error.errors,
+                  );
+                }
+              });
+          }
         }
-      }
-    });
+      });
 
     // Auto subscripe webhooks from config on app install
     eventService.on('app/installed', (shopifyConnect: IShopifyConnect) => {
-      for (const topic of this.shopifyModuleOptions.shopify.webhooks.autoSubscribe) {
-        this.logger.debug(`[${shopifyConnect.myshopify_domain}] Auto subscribe webhook ${topic}`);
+      for (const topic of this.shopifyModuleOptions.shopify.webhooks
+        .autoSubscribe) {
+        this.logger.debug(
+          `[${shopifyConnect.myshopify_domain}] Auto subscribe webhook ${topic}`,
+        );
         this.create(shopifyConnect, topic)
-        .then((result) => {
-          this.logger.debug('app/installed result: %O', result);
-        })
-        .catch((error: WebhookError) => {
-          this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`, error.errors);
-        });
+          .then((result) => {
+            this.logger.debug('app/installed result: %O', result);
+          })
+          .catch((error: WebhookError) => {
+            this.logger.error(
+              `[${shopifyConnect.myshopify_domain}] Error on subscribe webhook ${topic}: ${error.message}`,
+              error.errors,
+            );
+          });
       }
     });
 
     // Auto unsubscripe webhooks from config on app uninstall
-    eventService.on('app/uninstalled', async (shopifyConnect: IShopifyConnect) => {
-      this.deleteAll(shopifyConnect)
-      .then((result) => {
-        this.logger.debug('unsubscribed webhooks', result);
-      })
-      .catch((error: WebhookError) => {
-        this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on unsubscribe webhooks: ${error.message}`, error.errors);
-      });
-    });
-
+    eventService.on(
+      'webhook:app/uninstalled',
+      async (myShopifyDomain: IShopifyConnect['shop']['myshopify_domain']) => {
+        this.deleteAllByDomain(myShopifyDomain)
+          .then((result) => {
+            this.logger.debug('unsubscribed webhooks', result);
+            return result;
+          })
+          .catch((error: WebhookError) => {
+            this.logger.error(
+              `[${myShopifyDomain}] Error on unsubscribe webhooks: ${error.message}`,
+              error.errors,
+            );
+          });
+      },
+    );
   }
 
-  public async create(shopifyConnect: IShopifyConnect, topic: Enums.WebhookTopic) {
-    const webhooks = new Webhooks(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
+  public async create(
+    shopifyConnect: IShopifyConnect,
+    topic: Enums.WebhookTopic,
+  ) {
+    const webhooks = new Webhooks(
+      shopifyConnect.myshopify_domain,
+      shopifyConnect.accessToken,
+    );
     const address = `https://${this.shopifyModuleOptions.app.host}/webhooks/${topic}`;
-    this.logger.debug("create with address: " + address);
+    this.logger.debug('create with address: ' + address);
     return webhooks.create({
       address,
       topic,
-      format: "json",
+      format: 'json',
     });
   }
 
   public async delete(shopifyConnect: IShopifyConnect, id: number) {
-    const webhooks = new Webhooks(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
+    const webhooks = new Webhooks(
+      shopifyConnect.myshopify_domain,
+      shopifyConnect.accessToken,
+    );
     return webhooks.delete(id);
   }
 
   public async deleteAll(shopifyConnect: IShopifyConnect) {
     const subscribedWebhooks = await this.list(shopifyConnect);
     for (const webhook of subscribedWebhooks) {
-      this.logger.debug(`[${shopifyConnect.myshopify_domain}] Auto unsubscribe webhook ${webhook.topic}`);
+      this.logger.debug(
+        `[${shopifyConnect.myshopify_domain}] Auto unsubscribe webhook ${webhook.topic}`,
+      );
       this.delete(shopifyConnect, webhook.id)
-      .then((result) => {
-        this.logger.debug('unsubscribed webhook', result);
-      })
-      .catch((error: WebhookError) => {
-        this.logger.error(`[${shopifyConnect.myshopify_domain}] Error on unsubscribe webhook ${webhook.topic} with id: ${webhook.id}: ${error.message}`, error.errors);
-      });
+        .then((result) => {
+          this.logger.debug('unsubscribed webhook', result);
+        })
+        .catch((error: WebhookError) => {
+          this.logger.error(
+            `[${shopifyConnect.myshopify_domain}] Error on unsubscribe webhook ${webhook.topic} with id: ${webhook.id}: ${error.message}`,
+            error.errors,
+          );
+        });
     }
   }
 
+  public async deleteAllByDomain(
+    myShopifyDomain: IShopifyConnect['shop']['myshopify_domain'],
+  ) {
+    const shopifyConnect = await this.shopifyConnectService.findByDomain(
+      myShopifyDomain,
+    );
+    return this.deleteAll(shopifyConnect);
+  }
 
   public async list(user: IShopifyConnect): Promise<Interfaces.Webhook[]> {
     const webhooks = new Webhooks(user.myshopify_domain, user.accessToken);
     return webhooks.list();
   }
 
-  public createWebsocket(client: SessionSocket, topic: Enums.WebhookTopic): Observable<WsResponse<any>> {
+  public createWebsocket(
+    client: SessionSocket,
+    topic: Enums.WebhookTopic,
+  ): Observable<WsResponse<any>> {
     const webhookEventName = `webhook:${client.handshake.session.currentShop}:${topic}`;
     const unscripeEventName = `${webhookEventName}:unsubscribe`;
     // // Return cached Observable when available
@@ -135,8 +191,7 @@ export class WebhooksService {
           this.logger.debug(unscripeEventName);
           observer.complete();
         });
-      })
-      .pipe<WsResponse<any>>(this.takeUntilOneDay()); // Stop after 24 hours
+      }).pipe<WsResponse<any>>(this.takeUntilOneDay()); // Stop after 24 hours
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -146,7 +201,10 @@ export class WebhooksService {
     // return WebhooksService.webhookObservables[webhookEventName];
   }
 
-  public deleteWebsocket(client: SessionSocket, topic: Enums.WebhookTopic): void {
+  public deleteWebsocket(
+    client: SessionSocket,
+    topic: Enums.WebhookTopic,
+  ): void {
     const webhookEventName = `webhook:${client.handshake.session.currentShop}:${topic}`;
     const unscripeEventName = `${webhookEventName}:unsubscribe`;
     // Emit unscripe event to complete the oberservable
@@ -332,5 +390,4 @@ export class WebhooksService {
   protected takeUntilOneDay(): MonoTypeOperatorFunction<WsResponse<any>> {
     return takeUntil<WsResponse<any>>(timer(1000 * 60 * 60 * 24));
   }
-
 }

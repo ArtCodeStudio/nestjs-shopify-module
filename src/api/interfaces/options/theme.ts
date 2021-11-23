@@ -1,5 +1,5 @@
 import { Options } from 'shopify-admin-api';
-import { ISyncOptions } from './sync'
+import { ISyncOptions } from './sync';
 
 /**
  * Custom filter implementation (Not supported by Shopify)
@@ -13,8 +13,12 @@ export interface IAppThemeListFilter {
   processing?: boolean;
 }
 
-export interface IShopifySyncThemeListOptions extends Options.ThemeListOptions, ISyncOptions {}
-export interface IShopifySyncThemeGetOptions extends Options.ThemeGetOptions, ISyncOptions {}
+export interface IShopifySyncThemeListOptions
+  extends Options.ThemeListOptions,
+    ISyncOptions {}
+export interface IShopifySyncThemeGetOptions
+  extends Options.ThemeGetOptions,
+    ISyncOptions {}
 
-export type IAppThemeListOptions = Options.ThemeListOptions
-export type IAppThemeGetOptions = Options.ThemeGetOptions
+export type IAppThemeListOptions = Options.ThemeListOptions;
+export type IAppThemeGetOptions = Options.ThemeGetOptions;

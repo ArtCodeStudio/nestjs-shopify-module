@@ -22,13 +22,12 @@ import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
 
 @Injectable()
 export class ThemesService extends ShopifyApiRootService<
-Interfaces.Theme, // ShopifyObjectType
-Themes, // ShopifyModelClass
-IShopifySyncThemeGetOptions, // GetOptions
-IShopifySyncThemeListOptions, // ListOptions
-ThemeDocument // DatabaseDocumentType
+  Interfaces.Theme, // ShopifyObjectType
+  Themes, // ShopifyModelClass
+  IShopifySyncThemeGetOptions, // GetOptions
+  IShopifySyncThemeListOptions, // ListOptions
+  ThemeDocument // DatabaseDocumentType
 > {
-
   resourceName: Resource = 'themes';
   subResourceNames: Resource[] = ['assets'];
 
@@ -38,9 +37,16 @@ ThemeDocument // DatabaseDocumentType
     private readonly eventService: EventService,
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
-    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(themeModel, Themes, eventService, syncProgressModel, shopifyModuleOptions);
+    super(
+      themeModel,
+      Themes,
+      eventService,
+      syncProgressModel,
+      shopifyModuleOptions,
+    );
   }
 
   /**
@@ -56,8 +62,7 @@ ThemeDocument // DatabaseDocumentType
     options?: IAppThemeListOptions,
     filter?: IAppThemeListFilter,
   ): Promise<Partial<Interfaces.Theme>[]> {
-    return super.listFromShopify(shopifyConnect, options)
-    .then((themes) => {
+    return super.listFromShopify(shopifyConnect, options).then((themes) => {
       if (!filter) {
         return themes;
       } else {
@@ -65,7 +70,7 @@ ThemeDocument // DatabaseDocumentType
           let matches = true;
           for (const key in filter) {
             if (filter[key]) {
-              matches = matches && (theme[key] === filter[key]);
+              matches = matches && theme[key] === filter[key];
             }
           }
           return matches;
@@ -80,9 +85,10 @@ ThemeDocument // DatabaseDocumentType
    * @param id theme id
    * @see https://help.shopify.com/en/api/reference/online-store/theme#show
    */
-  public async getActive(user: IShopifyConnect): Promise<Partial<Interfaces.Theme> | null> {
-    return this.listFromShopify(user, {}, { role: 'main' })
-    .then((themes) => {
+  public async getActive(
+    user: IShopifyConnect,
+  ): Promise<Partial<Interfaces.Theme> | null> {
+    return this.listFromShopify(user, {}, { role: 'main' }).then((themes) => {
       if (themes.length) {
         return themes[0];
       } else {

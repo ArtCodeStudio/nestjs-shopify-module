@@ -19,26 +19,34 @@ import { Resource } from '../../../interfaces';
 
 @Injectable()
 export class ProductVariantsService {
-
   resourceName: Resource = 'products';
   subResourceNames: Resource[] = [];
 
   constructor(
-    @Inject('ProductVariantModelToken') protected readonly productVariantModel: (shopName: string) => Model<ProductVariantDocument>,
+    @Inject('ProductVariantModelToken')
+    protected readonly productVariantModel: (
+      shopName: string,
+    ) => Model<ProductVariantDocument>,
     protected readonly eventService: EventService,
-  ) {
-    
-  }
+  ) {}
 
- /**
+  /**
    * Retrieves a single `ShopifyObjectType[]` directly from the shopify API
    * @param user
    * @param id
    * @param sync
    * @see https://help.shopify.com/en/api/reference/products/product#show
    */
-  public async getFromShopify(user: IShopifyConnect, parentId: number, id: number, options?: IShopifySyncProductVariantGetOptions): Promise<Partial<Interfaces.ProductVariant> | null> {
-    const shopifyModel = new ProductVariants(user.myshopify_domain, user.accessToken);
+  public async getFromShopify(
+    user: IShopifyConnect,
+    parentId: number,
+    id: number,
+    options?: IShopifySyncProductVariantGetOptions,
+  ): Promise<Partial<Interfaces.ProductVariant> | null> {
+    const shopifyModel = new ProductVariants(
+      user.myshopify_domain,
+      user.accessToken,
+    );
     delete options.syncToDb;
     return shopifyRetry(() => {
       return shopifyModel.get(parentId, options);
@@ -50,8 +58,15 @@ export class ProductVariantsService {
    * @param user
    * @param options
    */
-  public async listFromShopify(shopifyConnect: IShopifyConnect, parentId: number, options?: IShopifySyncProductVariantListOptions): Promise<Partial<Interfaces.ProductVariant>[]> {
-    const shopifyModel = new ProductVariants(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
+  public async listFromShopify(
+    shopifyConnect: IShopifyConnect,
+    parentId: number,
+    options?: IShopifySyncProductVariantListOptions,
+  ): Promise<Partial<Interfaces.ProductVariant>[]> {
+    const shopifyModel = new ProductVariants(
+      shopifyConnect.myshopify_domain,
+      shopifyConnect.accessToken,
+    );
     options = Object.assign({}, options);
     delete options.syncToDb;
     delete options.failOnSyncError;
@@ -59,14 +74,15 @@ export class ProductVariantsService {
     return shopifyRetry(() => {
       return shopifyModel.list(parentId, options);
     });
-
   }
 
   /**
    * Retrieves a list of product variants from the app's mongodb database.
    * @param user
    */
-  public async listFromDb(/*user: IShopifyConnect, options: IAppProductVariantListOptions = {}*/): Promise<Interfaces.ProductVariant[]> {
+  public async listFromDb(/*user: IShopifyConnect, options: IAppProductVariantListOptions = {}*/): Promise<
+    Interfaces.ProductVariant[]
+  > {
     return null; // super.listFromDb(user, query, basicOptions);
   }
 
@@ -75,8 +91,15 @@ export class ProductVariantsService {
    * @param user
    * @param productId
    */
-  public async createInShopify(user: IShopifyConnect, productId: number, product: Interfaces.ProductVariantCreate): Promise<Interfaces.ProductVariant> {
-    const productVariants = new ProductVariants(user.myshopify_domain, user.accessToken);
+  public async createInShopify(
+    user: IShopifyConnect,
+    productId: number,
+    product: Interfaces.ProductVariantCreate,
+  ): Promise<Interfaces.ProductVariant> {
+    const productVariants = new ProductVariants(
+      user.myshopify_domain,
+      user.accessToken,
+    );
     return shopifyRetry(() => productVariants.create(productId, product));
   }
 
@@ -86,8 +109,15 @@ export class ProductVariantsService {
    * @param id
    * @param product
    */
-  public async updateInShopify(user: IShopifyConnect, id: number, product: Interfaces.ProductVariantUpdate): Promise<Interfaces.ProductVariant> {
-    const productVariants = new ProductVariants(user.myshopify_domain, user.accessToken);
+  public async updateInShopify(
+    user: IShopifyConnect,
+    id: number,
+    product: Interfaces.ProductVariantUpdate,
+  ): Promise<Interfaces.ProductVariant> {
+    const productVariants = new ProductVariants(
+      user.myshopify_domain,
+      user.accessToken,
+    );
     return shopifyRetry(() => productVariants.update(id, product));
   }
 
@@ -97,17 +127,28 @@ export class ProductVariantsService {
    * @param productId
    * @param variantId
    */
-  public async deleteInShopify(user: IShopifyConnect, productId: number, variantId: number) {
-    const productVariants = new ProductVariants(user.myshopify_domain, user.accessToken);
+  public async deleteInShopify(
+    user: IShopifyConnect,
+    productId: number,
+    variantId: number,
+  ) {
+    const productVariants = new ProductVariants(
+      user.myshopify_domain,
+      user.accessToken,
+    );
     return shopifyRetry(() => productVariants.delete(productId, variantId));
   }
 
-
-  public async countFromShopify(shopifyConnect: IShopifyConnect, productId: number): Promise<number> {
-    const shopifyModel = new ProductVariants(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
+  public async countFromShopify(
+    shopifyConnect: IShopifyConnect,
+    productId: number,
+  ): Promise<number> {
+    const shopifyModel = new ProductVariants(
+      shopifyConnect.myshopify_domain,
+      shopifyConnect.accessToken,
+    );
     return shopifyRetry(() => {
       return shopifyModel.count(productId);
     });
   }
-
 }

@@ -1,4 +1,14 @@
-export type DiffType = 'string' | 'number' | 'boolean' | 'symbol' | 'undefined' | 'object' | 'function' | 'array' | 'date' | 'bigint';
+export type DiffType =
+  | 'string'
+  | 'number'
+  | 'boolean'
+  | 'symbol'
+  | 'undefined'
+  | 'object'
+  | 'function'
+  | 'array'
+  | 'date'
+  | 'bigint';
 
 export interface Change {
   path: string;
@@ -16,8 +26,10 @@ export function getDiff(a: any, b: any): Array<Change> {
   if (bType === 'object') {
     if (Array.isArray(b)) {
       bType = 'array';
-    } else if (Object.prototype.toString.call(b) === '[object Date]'
-              && !isNaN(b.getTime())) {
+    } else if (
+      Object.prototype.toString.call(b) === '[object Date]' &&
+      !isNaN(b.getTime())
+    ) {
       bType = 'date';
     }
   }
@@ -37,30 +49,37 @@ export function getDiff(a: any, b: any): Array<Change> {
         }
         for (let key = 0; key < minLen; key++) {
           getDiff(a[key], b[key]).forEach((change) => {
-            change.path = change.path !== '' ? key + '.' + change.path : key.toString();
+            change.path =
+              change.path !== '' ? key + '.' + change.path : key.toString();
             changes.push(change);
           });
         }
         if (aSmaller) {
           for (let key = minLen; key < maxLen; key++) {
-            changes.push({path: key.toString(), operation: 'add', value: b[key]});
+            changes.push({
+              path: key.toString(),
+              operation: 'add',
+              value: b[key],
+            });
           }
         } else {
           for (let key = minLen; key < maxLen; key++) {
-            changes.push({path: key.toString(), operation: 'delete'});
+            changes.push({ path: key.toString(), operation: 'delete' });
           }
         }
         return changes;
       } else {
-        return [{path: '', operation: 'update', value: b}];
+        return [{ path: '', operation: 'update', value: b }];
       }
-    } else if (Object.prototype.toString.call(a) === '[object Date]'
-              && !isNaN(a.getTime())) {
+    } else if (
+      Object.prototype.toString.call(a) === '[object Date]' &&
+      !isNaN(a.getTime())
+    ) {
       aType = 'date';
       if (bType === 'date' && b.toISOString() === a.toISOString()) {
         return [];
       }
-      return [{path: '', operation: 'update', value: b}];
+      return [{ path: '', operation: 'update', value: b }];
     } else if (a !== null && bType === 'object' && b !== null) {
       const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
       for (const key of keys) {
@@ -71,18 +90,18 @@ export function getDiff(a: any, b: any): Array<Change> {
               changes.push(change);
             });
           } else {
-            changes.push({path: key, operation: 'delete'});
+            changes.push({ path: key, operation: 'delete' });
           }
         } else if (key in b) {
-          changes.push({path: key, operation: 'add', value: b[key]});
+          changes.push({ path: key, operation: 'add', value: b[key] });
         }
       }
       return changes;
     } else {
-      return a === b ? [] : [{path: '', operation: 'update', value: b}];
+      return a === b ? [] : [{ path: '', operation: 'update', value: b }];
     }
   } else {
-    return a === b ? [] : [{path: '', operation: 'update', value: b}];
+    return a === b ? [] : [{ path: '', operation: 'update', value: b }];
   }
   // console.error(`This should not be happening...`);
 }

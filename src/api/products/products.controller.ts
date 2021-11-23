@@ -32,9 +32,7 @@ import { Interfaces } from 'shopify-admin-api';
 
 @Controller('shopify/api/products')
 export class ProductsController {
-  constructor(
-    protected readonly productsService: ProductsService,
-  ) {}
+  constructor(protected readonly productsService: ProductsService) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   /**
@@ -62,7 +60,8 @@ export class ProductsController {
     @Query('product_type') product_type?: string,
     @Query('published_at_max') published_at_max?: string,
     @Query('published_at_min') published_at_min?: string | undefined,
-    @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
+    @Query('published_status')
+    published_status?: 'published' | 'unpublished' | 'any',
     @Query('since_id') since_id?: number,
     @Query('title') title?: string,
     @Query('updated_at_max') updated_at_max?: string,
@@ -111,16 +110,26 @@ export class ProductsController {
     // ids = ids.replace(/("|')/g, '');
     // fields = fields.replace(/("|')/g, '');
 
-    this.logger.debug('[listFromShopify] ShopifySyncProductListOptions: %O', options);
-    return this.productsService.listFromShopify(req.session[`shopify-connect-${req.shop}`], options)
-    .then((products) => {
-      this.logger.debug('[listFromShopify] products.length: %d', products.length);
-      return products;
-    })
-    .catch((error) => {
-      this.logger.error(error);
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    });
+    this.logger.debug(
+      '[listFromShopify] ShopifySyncProductListOptions: %O',
+      options,
+    );
+    return this.productsService
+      .listFromShopify(req.session[`shopify-connect-${req.shop}`], options)
+      .then((products) => {
+        this.logger.debug(
+          '[listFromShopify] products.length: %d',
+          products.length,
+        );
+        return products;
+      })
+      .catch((error) => {
+        this.logger.error(error);
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
   }
 
   /**
@@ -148,7 +157,8 @@ export class ProductsController {
     @Query('product_type') product_type?: string,
     @Query('published_at_max') published_at_max?: string,
     @Query('published_at_min') published_at_min?: string,
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any' = 'any',
+    @Query('published_status')
+    published_status: 'published' | 'unpublished' | 'any' = 'any',
     @Query('since_id') since_id?: number,
     @Query('title') title?: string,
     @Query('updated_at_max') updated_at_max?: string,
@@ -195,10 +205,16 @@ export class ProductsController {
         sort_by,
         sort_dir,
       };
-      return await this.productsService.listFromDb(req.session[`shopify-connect-${req.shop}`], options);
+      return await this.productsService.listFromDb(
+        req.session[`shopify-connect-${req.shop}`],
+        options,
+      );
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException(error.generic ? error.generic : error.message, error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error.generic ? error.generic : error.message,
+        error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -230,7 +246,8 @@ export class ProductsController {
     @Query('product_type') product_type?: string,
     @Query('published_at_max') published_at_max?: string,
     @Query('published_at_min') published_at_min?: string,
-    @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
+    @Query('published_status')
+    published_status?: 'published' | 'unpublished' | 'any',
     @Query('since_id') since_id?: number,
     @Query('sync_to_db') sync_to_db?: boolean,
     @Query('title') title?: string,
@@ -238,29 +255,33 @@ export class ProductsController {
     @Query('updated_at_min') updated_at_min?: string,
     @Query('vendor') vendor?: string,
   ) {
-    this.productsService.listAllFromShopifyStream(req.session[`shopify-connect-${req.shop}`], {
-      collection_id,
-      created_at_max,
-      created_at_min,
-      ids,
-      page,
-      fields,
-      limit,
-      product_type,
-      published_at_max,
-      published_at_min,
-      published_status,
-      since_id,
-      syncToDb: sync_to_db,
-      title,
-      updated_at_max,
-      updated_at_min,
-      vendor,
-    })
-    .pipe(res)
-    .on('error', (error) => {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    });
+    this.productsService
+      .listAllFromShopifyStream(req.session[`shopify-connect-${req.shop}`], {
+        collection_id,
+        created_at_max,
+        created_at_min,
+        ids,
+        page,
+        fields,
+        limit,
+        product_type,
+        published_at_max,
+        published_at_min,
+        published_status,
+        since_id,
+        syncToDb: sync_to_db,
+        title,
+        updated_at_max,
+        updated_at_min,
+        vendor,
+      })
+      .pipe(res)
+      .on('error', (error) => {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
   }
 
   /**
@@ -281,7 +302,8 @@ export class ProductsController {
     @Query('product_type') product_type: string | undefined,
     @Query('published_at_max') published_at_max: string | undefined,
     @Query('published_at_min') published_at_min: string | undefined,
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any' | undefined,
+    @Query('published_status')
+    published_status: 'published' | 'unpublished' | 'any' | undefined,
     @Query('updated_at_max') updated_at_max: string | undefined,
     @Query('updated_at_min') updated_at_min: string | undefined,
     @Query('vendor') vendor: string | undefined,
@@ -290,21 +312,27 @@ export class ProductsController {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
       }
-      return await this.productsService.countFromDb(req.session[`shopify-connect-${req.shop}`], {
-        collection_id,
-        created_at_max,
-        created_at_min,
-        product_type,
-        published_at_max,
-        published_at_min,
-        published_status,
-        updated_at_max,
-        updated_at_min,
-        vendor,
-      });
+      return await this.productsService.countFromDb(
+        req.session[`shopify-connect-${req.shop}`],
+        {
+          collection_id,
+          created_at_max,
+          created_at_min,
+          product_type,
+          published_at_max,
+          published_at_min,
+          published_status,
+          updated_at_max,
+          updated_at_min,
+          vendor,
+        },
+      );
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException(error.generic ? error.generic : error.message, error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error.generic ? error.generic : error.message,
+        error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -322,7 +350,8 @@ export class ProductsController {
     @Query('created_at_max') created_at_max: string,
     @Query('created_at_min') created_at_min: string,
     @Query('product_type') product_type: string,
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any',
+    @Query('published_status')
+    published_status: 'published' | 'unpublished' | 'any',
     @Query('published_at_max') published_at_max: string,
     @Query('published_at_min') published_at_min: string,
     @Query('updated_at_max') updated_at_max: string,
@@ -345,10 +374,16 @@ export class ProductsController {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public products if the request comes not from a logged in user
       }
-      return await this.productsService.countFromShopify(req.session[`shopify-connect-${req.shop}`], options);
+      return await this.productsService.countFromShopify(
+        req.session[`shopify-connect-${req.shop}`],
+        options,
+      );
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException(error.generic ? error.generic : error.message, error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error.generic ? error.generic : error.message,
+        error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -359,14 +394,17 @@ export class ProductsController {
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('db/diff')
-  async diffSynced(
-    @Req() req: IUserRequest,
-  ) {
+  async diffSynced(@Req() req: IUserRequest) {
     try {
-      return await this.productsService.diffSynced(req.session[`shopify-connect-${req.shop}`]);
+      return await this.productsService.diffSynced(
+        req.session[`shopify-connect-${req.shop}`],
+      );
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException(error.generic ? error.generic : error.message, error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error.generic ? error.generic : error.message,
+        error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -386,10 +424,17 @@ export class ProductsController {
   ) {
     this.logger.debug('update product id: %d, product: %O', id, product);
     try {
-      return await this.productsService.updateInShopify(req.session[`shopify-connect-${req.shop}`], id, product);
+      return await this.productsService.updateInShopify(
+        req.session[`shopify-connect-${req.shop}`],
+        id,
+        product,
+      );
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException(error.generic ? error.generic : error.message, error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error.generic ? error.generic : error.message,
+        error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -408,10 +453,14 @@ export class ProductsController {
   ) {
     this.logger.debug('create product: %O', product);
     try {
-      return this.productsService.createInShopify(req.session[`shopify-connect-${req.shop}`], product)
-      .catch((error) => {
-        throw new HttpException(error.generic ? error.generic : error.message, error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
-      });
+      return this.productsService
+        .createInShopify(req.session[`shopify-connect-${req.shop}`], product)
+        .catch((error) => {
+          throw new HttpException(
+            error.generic ? error.generic : error.message,
+            error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        });
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -427,7 +476,9 @@ export class ProductsController {
   @Get('sync-progress/all')
   async listSyncProgress(@Req() req: IUserRequest) {
     try {
-      return await this.productsService.listSyncProgress(req.session[`shopify-connect-${req.shop}`]);
+      return await this.productsService.listSyncProgress(
+        req.session[`shopify-connect-${req.shop}`],
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -443,10 +494,15 @@ export class ProductsController {
   @Get('sync-progress')
   async getLastSyncProgress(@Req() req: IUserRequest) {
     try {
-      return await this.productsService.getLastSyncProgress(req.session[`shopify-connect-${req.shop}`]);
+      return await this.productsService.getLastSyncProgress(
+        req.session[`shopify-connect-${req.shop}`],
+      );
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException(error.generic ? error.generic : error.message, error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error.generic ? error.generic : error.message,
+        error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -463,10 +519,16 @@ export class ProductsController {
     @Param('product_id') id: number,
   ) {
     try {
-      return await this.productsService.deleteInShopify(req.session[`shopify-connect-${req.shop}`], id);
+      return await this.productsService.deleteInShopify(
+        req.session[`shopify-connect-${req.shop}`],
+        id,
+      );
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException(error.generic ? error.generic : error.message, error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error.generic ? error.generic : error.message,
+        error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -482,10 +544,16 @@ export class ProductsController {
   @Get(':id/db')
   async getFromDb(@Req() req: IUserRequest, @Param('id') id: number) {
     try {
-      return await this.productsService.getFromDb(req.session[`shopify-connect-${req.shop}`], id);
+      return await this.productsService.getFromDb(
+        req.session[`shopify-connect-${req.shop}`],
+        id,
+      );
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException(error.generic ? error.generic : error.message, error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error.generic ? error.generic : error.message,
+        error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -508,10 +576,17 @@ export class ProductsController {
       fields,
     };
     try {
-      return await this.productsService.getFromShopify(req.session[`shopify-connect-${req.shop}`], id, options);
+      return await this.productsService.getFromShopify(
+        req.session[`shopify-connect-${req.shop}`],
+        id,
+        options,
+      );
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException(error.generic ? error.generic : error.message, error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        error.generic ? error.generic : error.message,
+        error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

@@ -1,8 +1,7 @@
 import type { IPlan } from '../charge/interfaces/plan';
 import type { Enums } from 'shopify-admin-api';
 import type * as redisStore from 'cache-manager-ioredis';
-import type { Resource } from './resource'
-
+import type { Resource } from './resource';
 
 export interface ConfigApp {
   root: string;
@@ -69,7 +68,6 @@ export interface ConfigMongoDB {
   url?: string;
 }
 export interface ShopifyModuleOptions {
-
   app: ConfigApp;
 
   sync: ConfigSync;
@@ -87,5 +85,4 @@ export interface ShopifyModuleOptions {
   redis?: ConfigRedis;
 
   mongodb: ConfigMongoDB;
-
 }

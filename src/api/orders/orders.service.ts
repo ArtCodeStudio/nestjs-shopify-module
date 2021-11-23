@@ -33,8 +33,7 @@ export class OrdersService extends ShopifyApiRootCountableService<
   IShopifySyncOrderGetOptions, // GetOptions
   IShopifySyncOrderListOptions, // ListOptions
   OrderDocument // DatabaseDocumentType
-  > {
-
+> {
   resourceName: Resource = 'orders';
   subResourceNames: Resource[] = ['transactions'];
 
@@ -45,9 +44,16 @@ export class OrdersService extends ShopifyApiRootCountableService<
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
     private readonly transactionsService: TransactionsService,
-    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(orderModel, Orders, eventService, syncProgressModel, shopifyModuleOptions);
+    super(
+      orderModel,
+      Orders,
+      eventService,
+      syncProgressModel,
+      shopifyModuleOptions,
+    );
   }
 
   /**
@@ -70,11 +76,15 @@ export class OrdersService extends ShopifyApiRootCountableService<
     const lastOrder = orders[orders.length - 1];
     if (options.includeTransactions) {
       for (const order of orders) {
-        const transactions = await this.transactionsService.listFromShopify(shopifyConnect, order.id, {
-          syncToDb: options.syncToDb,
-        });
+        const transactions = await this.transactionsService.listFromShopify(
+          shopifyConnect,
+          order.id,
+          {
+            syncToDb: options.syncToDb,
+          },
+        );
         subProgress.syncedTransactionsCount += transactions.length;
-        subProgress.syncedCount ++;
+        subProgress.syncedCount++;
         subProgress.lastId = order.id;
         subProgress.info = order.name;
         await mongooseParallelRetry(() => {
@@ -92,9 +102,11 @@ export class OrdersService extends ShopifyApiRootCountableService<
    *
    * @param syncOptions
    */
-  protected getSyncCountOptions(syncOptions: IStartSyncOptions): IShopifySyncOrderCountOptions {
+  protected getSyncCountOptions(
+    syncOptions: IStartSyncOptions,
+  ): IShopifySyncOrderCountOptions {
     this.logger.debug(`getSyncCountOptions: %O`, syncOptions);
     this.logger.debug('status %o:', { status: 'any' });
-    return { status: 'any'};
+    return { status: 'any' };
   }
 }

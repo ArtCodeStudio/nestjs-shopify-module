@@ -1,4 +1,17 @@
-import { UseGuards, Controller, Post, Get, Req, Body, Query, Headers, Param, HttpCode, HttpStatus, HttpException } from '@nestjs/common';
+import {
+  UseGuards,
+  Controller,
+  Post,
+  Get,
+  Req,
+  Body,
+  Query,
+  Headers,
+  Param,
+  HttpCode,
+  HttpStatus,
+  HttpException,
+} from '@nestjs/common';
 import { ShopifyApiGuard } from '../guards/shopify-api.guard';
 import { Roles } from '../guards/roles.decorator';
 import { IUserRequest } from '../interfaces/user-request';
@@ -18,11 +31,12 @@ export class WebhooksController {
   @Roles('admin')
   @Get('')
   async listAllFromShopify(@Req() req: IUserRequest) {
-    const webhooks = await this.webhooksService.list(req.session[`shopify-connect-${req.shop}`]);
+    const webhooks = await this.webhooksService.list(
+      req.session[`shopify-connect-${req.shop}`],
+    );
     this.logger.debug(`webhooks`, webhooks);
     return webhooks;
   }
-
 
   /**
    * Create a webhook
@@ -30,12 +44,12 @@ export class WebhooksController {
   @UseGuards(ShopifyApiGuard)
   @Roles()
   @Get('create')
-  async createWebhook(
-    @Req() req: IUserRequest,
-    @Query('topic') topic,
-  ) {
+  async createWebhook(@Req() req: IUserRequest, @Query('topic') topic) {
     try {
-      const result = await this.webhooksService.create(req.session[`shopify-connect-${req.shop}`], topic);
+      const result = await this.webhooksService.create(
+        req.session[`shopify-connect-${req.shop}`],
+        topic,
+      );
       this.logger.debug(`Create webhook result`, result);
       return result;
     } catch (error) {

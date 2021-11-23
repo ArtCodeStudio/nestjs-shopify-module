@@ -29,10 +29,10 @@ export interface IAppListFilterOptions {
 /**
  * Basic list options wich should be implementated by listFromDb and listFromES
  */
-export interface IAppBasicListOptions extends
-  IAppListSortOptions,
-  IAppListFilterOptions,
-  Options.FieldOptions,
-  Options.BasicListOptions,
-  Options.DateOptions,
-  Options.PublishedOptions {}
+export interface IAppBasicListOptions
+  extends IAppListSortOptions,
+    IAppListFilterOptions,
+    Options.FieldOptions,
+    Options.BasicListOptions,
+    Options.DateOptions,
+    Options.PublishedOptions {}

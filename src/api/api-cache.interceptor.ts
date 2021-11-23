@@ -1,6 +1,7 @@
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { Inject,
+import {
+  Inject,
   Injectable,
   Optional,
   ExecutionContext,
@@ -9,7 +10,7 @@ import { Inject,
   NestInterceptor,
   CACHE_KEY_METADATA,
   CACHE_MANAGER,
-  CACHE_TTL_METADATA
+  CACHE_TTL_METADATA,
 } from '@nestjs/common';
 
 import { DebugService } from '../debug.service';
@@ -18,7 +19,8 @@ import { ShopifyAuthService } from '../auth/auth.service';
 const HTTP_ADAPTER_HOST = 'HttpAdapterHost';
 const REFLECTOR = 'Reflector';
 
-const isNil = (obj: any): obj is null | undefined => typeof obj === 'undefined' || obj === null;
+const isNil = (obj: any): obj is null | undefined =>
+  typeof obj === 'undefined' || obj === null;
 
 export interface HttpAdapterHost<T extends HttpServer = any> {
   httpAdapter: T;
@@ -56,14 +58,19 @@ export class ApiCacheInterceptor implements NestInterceptor {
         return of(value);
       }
       this.logger.debug(`cache miss for ${key}`);
-      const ttl = typeof ttlValueOrFactory === 'function'
-        ? await ttlValueOrFactory(context)
-        : ttlValueOrFactory;
+      const ttl =
+        typeof ttlValueOrFactory === 'function'
+          ? await ttlValueOrFactory(context)
+          : ttlValueOrFactory;
       return next.handle().pipe(
-        tap(response => {
-          if(!(response["response"] !== undefined && response["response"].errors)) {
-            const args = isNil(ttl) ? [key, response] : [key, response, { ttl }];
-            this.cacheManager.set(...args);  
+        tap((response) => {
+          if (
+            !(response['response'] !== undefined && response['response'].errors)
+          ) {
+            const args = isNil(ttl)
+              ? [key, response]
+              : [key, response, { ttl }];
+            this.cacheManager.set(...args);
           }
         }),
       );
@@ -91,7 +98,10 @@ export class ApiCacheInterceptor implements NestInterceptor {
     }
     let key = httpAdapter.getRequestUrl(request);
 
-    const shop = await this.shopifyAuthService.getMyShopifyDomainSecureForThemeClients(request);
+    const shop =
+      await this.shopifyAuthService.getMyShopifyDomainSecureForThemeClients(
+        request,
+      );
     key = `${shop}:${key}`;
     this.logger.debug(`trackBy cache by ${key}`);
     return key;

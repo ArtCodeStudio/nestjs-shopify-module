@@ -1,4 +1,12 @@
-import { Controller, Param, UseGuards, Req, Get, HttpStatus, HttpException } from '@nestjs/common';
+import {
+  Controller,
+  Param,
+  UseGuards,
+  Req,
+  Get,
+  HttpStatus,
+  HttpException,
+} from '@nestjs/common';
 import { Roles } from '../../../guards/roles.decorator';
 import { DebugService } from '../../../debug.service';
 import { AssetsService } from './assets.service';
@@ -8,9 +16,7 @@ import * as url from 'url';
 
 @Controller('shopify/api/themes')
 export class AssetsController {
-  constructor(
-    protected readonly assetsService: AssetsService,
-  ) {}
+  constructor(protected readonly assetsService: AssetsService) {}
 
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
@@ -26,11 +32,15 @@ export class AssetsController {
     @Req() req: IUserRequest,
     @Param('theme_id') themeId: number,
   ) {
-    return this.assetsService.list(req.session[`shopify-connect-${req.shop}`], themeId)
-    .catch((error: Error) => {
-      this.logger.error(error);
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    });
+    return this.assetsService
+      .list(req.session[`shopify-connect-${req.shop}`], themeId)
+      .catch((error: Error) => {
+        this.logger.error(error);
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
   }
 
   /**
@@ -49,11 +59,15 @@ export class AssetsController {
     @Param('filename') filename: string,
   ) {
     const key = 'assets/' + filename;
-    return this.assetsService.get(req.session[`shopify-connect-${req.shop}`], themeId, key)
-    .catch((error: Error) => {
-      this.logger.error(error);
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    });
+    return this.assetsService
+      .get(req.session[`shopify-connect-${req.shop}`], themeId, key)
+      .catch((error: Error) => {
+        this.logger.error(error);
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
   }
 
   /**
@@ -72,11 +86,15 @@ export class AssetsController {
     @Param('filename') filename: string,
   ) {
     const key = 'templates/' + filename;
-    return this.assetsService.get(req.session[`shopify-connect-${req.shop}`], themeId, key)
-    .catch((error: Error) => {
-      this.logger.error(error);
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    });
+    return this.assetsService
+      .get(req.session[`shopify-connect-${req.shop}`], themeId, key)
+      .catch((error: Error) => {
+        this.logger.error(error);
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
   }
 
   /**
@@ -95,11 +113,15 @@ export class AssetsController {
     @Param('filename') filename: string,
   ) {
     const key = 'snippets/' + filename;
-    return this.assetsService.get(req.session[`shopify-connect-${req.shop}`], themeId, key)
-    .catch((error: Error) => {
-      this.logger.error(error);
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    });
+    return this.assetsService
+      .get(req.session[`shopify-connect-${req.shop}`], themeId, key)
+      .catch((error: Error) => {
+        this.logger.error(error);
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
   }
 
   /**
@@ -122,10 +144,14 @@ export class AssetsController {
     const path = url.parse(req.url).pathname;
     key = path.substring(path.lastIndexOf(key));
 
-    return this.assetsService.get(req.session[`shopify-connect-${req.shop}`], themeId, key)
-    .catch((error: Error) => {
-      this.logger.error(error);
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    });
+    return this.assetsService
+      .get(req.session[`shopify-connect-${req.shop}`], themeId, key)
+      .catch((error: Error) => {
+        this.logger.error(error);
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
   }
 }

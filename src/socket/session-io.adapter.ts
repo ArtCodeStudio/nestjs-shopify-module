@@ -23,7 +23,7 @@ export class SessionIoAdapter extends IoAdapter {
      */
     this.socketSessionMiddleware = sharedsession(session, {
       autoSave: true,
-    });
+    }) as any; // TODO socket.io version conflict
   }
 
   public createIOServer(port: number, options?: any): any {

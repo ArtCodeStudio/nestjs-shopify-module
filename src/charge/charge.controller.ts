@@ -1,4 +1,14 @@
-import { Inject, Controller, Param, Get, Req, Res, HttpStatus, HttpException, Query } from '@nestjs/common';
+import {
+  Inject,
+  Controller,
+  Param,
+  Get,
+  Req,
+  Res,
+  HttpStatus,
+  HttpException,
+  Query,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { IUserRequest } from '../interfaces/user-request';
 import { ChargeService } from './charge.service';
@@ -11,13 +21,13 @@ import { SHOPIFY_MODULE_OPTIONS } from '../shopify.constants';
 
 @Controller('shopify/charge')
 export class ChargeController {
-
   protected logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
-    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
     protected readonly chargeService: ChargeService,
-  ){}
+  ) {}
 
   /**
    * Get a list of all created charges whether accepted or not
@@ -27,7 +37,7 @@ export class ChargeController {
    */
   @Get()
   @Roles('shopify-staff-member')
-  async list(@Req() req: IUserRequest ) {
+  async list(@Req() req: IUserRequest) {
     const user = req.user as IShopifyConnect;
     return this.chargeService.listCharges(user);
   }
@@ -55,8 +65,12 @@ export class ChargeController {
     try {
       const plans = await this.chargeService.available(user);
       this.logger.debug('available plans', plans);
-    } catch(error) {
-      throw new HttpException({message: 'Error on available charges', error}, HttpStatus.INTERNAL_SERVER_ERROR);
+      return plans;
+    } catch (error) {
+      throw new HttpException(
+        { message: 'Error on available charges', error },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -68,25 +82,38 @@ export class ChargeController {
    */
   @Get('/activate')
   @Roles('shopify-staff-member')
-  async activate(@Query('charge_id') chargeId, @Req() req: IUserRequest, @Res() res: Response) {
+  async activate(
+    @Query('charge_id') chargeId,
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+  ) {
     this.logger.debug('activate', chargeId);
     const user = req.user as IShopifyConnect;
-    return this.chargeService.getChargeById(user, chargeId)
-    .then(async (charge: Interfaces.RecurringCharge) => {
-      if (charge.status === 'accepted') {
-        return this.chargeService.activate(user, charge.id)
-        .then((result) => {
-          charge.status = 'active';
-          this.logger.debug('result', result);
-          return res.redirect(this.shopifyModuleOptions.charges.frontend_return_url);
-        });
-      } else {
-        return res.redirect(this.shopifyModuleOptions.charges.frontend_return_url);
-      }
-    })
-    .catch((error) => {
-      throw new HttpException({message: 'Error on activate charge', error}, HttpStatus.INTERNAL_SERVER_ERROR);
-    });
+
+    let charge: Interfaces.RecurringCharge;
+
+    try {
+      charge = await this.chargeService.getChargeById(user, chargeId);
+    } catch (error) {
+      throw new HttpException(
+        { message: 'Error on activate charge', error },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    if (charge.status === 'accepted') {
+      return this.chargeService.activate(user, charge.id).then((result) => {
+        charge.status = 'active';
+        this.logger.debug('result', result);
+        return res.redirect(
+          this.shopifyModuleOptions.charges.frontend_return_url,
+        );
+      });
+    } else {
+      return res.redirect(
+        this.shopifyModuleOptions.charges.frontend_return_url,
+      );
+    }
   }
 
   /**
@@ -97,21 +124,31 @@ export class ChargeController {
    */
   @Get('/create/:name')
   @Roles('shopify-staff-member')
-  async create(@Param('name') name: string, @Req() req: IUserRequest, @Res() res: Response) {
+  async create(
+    @Param('name') name: string,
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+  ) {
     this.logger.debug('req.user', req.user);
     const user = req.user as IShopifyConnect;
-    return this.chargeService.createByName(user, name)
-    .then((charge) => {
-      this.logger.debug('charge', charge);
-      if (charge) {
-        return res.redirect(charge.confirmation_url);
-      } else {
-        throw new HttpException({message: 'No charge returned!'}, HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-    })
-    .catch((error) => {
-      throw new HttpException({message: 'Error on create charge', error}, HttpStatus.INTERNAL_SERVER_ERROR);
-    });
-  }
+    let charge: Interfaces.RecurringCharge;
+    try {
+      charge = await this.chargeService.createByName(user, name);
+    } catch (error) {
+      throw new HttpException(
+        { message: 'Error on create charge', error },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
+    this.logger.debug('charge', charge);
+    if (charge) {
+      return res.redirect(charge.confirmation_url);
+    } else {
+      throw new HttpException(
+        { message: 'No charge returned!' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

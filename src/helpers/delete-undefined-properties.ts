@@ -3,7 +3,7 @@ export function deleteUndefinedProperties(object: any) {
   if (object) {
     for (const key in object) {
       if (object.hasOwnProperty(key)) {
-        if (typeof(object[key]) === 'undefined') {
+        if (typeof object[key] === 'undefined') {
           delete object[key];
         }
       }

@@ -6,7 +6,7 @@ import { debug, Debugger } from 'debug';
  */
 export class DebugService {
   private namespace: string;
-  private debugger:Debugger;
+  private debugger: Debugger;
   constructor(namespace: string) {
     this.namespace = namespace;
     this.debugger = debug(this.namespace);
@@ -15,13 +15,13 @@ export class DebugService {
   public log(...args: any[]) {
     Logger.log(
       args
-      .map((arg) => {
-        if (typeof arg === 'object') {
-          return JSON.stringify(arg, null, 2);
-        }
-        return arg;
-      })
-      .join(' '),
+        .map((arg) => {
+          if (typeof arg === 'object') {
+            return JSON.stringify(arg, null, 2);
+          }
+          return arg;
+        })
+        .join(' '),
       this.namespace,
     );
   }
@@ -34,13 +34,13 @@ export class DebugService {
   public warn(...args: any[]) {
     Logger.warn(
       args
-      .map((arg) => {
-        if (typeof arg === 'object') {
-          return JSON.stringify(arg, null, 2);
-        }
-        return arg;
-      })
-      .join('\n'),
+        .map((arg) => {
+          if (typeof arg === 'object') {
+            return JSON.stringify(arg, null, 2);
+          }
+          return arg;
+        })
+        .join('\n'),
       this.namespace,
     );
   }
@@ -64,7 +64,7 @@ export class DebugService {
     if (traces.length === 1) {
       trace = traces[0];
     } else if (traces.length > 1) {
-      trace = traces.map((t, i) => `[${i+1}] ${t}`).join('\n');
+      trace = traces.map((t, i) => `[${i + 1}] ${t}`).join('\n');
     }
     Logger.error(msgs.join('\n'), trace, this.namespace);
   }

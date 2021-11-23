@@ -10,26 +10,39 @@ import { Model, Document } from 'mongoose';
 
 import { IShopifyConnect } from '../auth/interfaces/connect';
 import { SyncProgressDocument, ShopifyModuleOptions } from '../interfaces';
-import { listAllCallback, ISyncOptions, ShopifyBaseObjectType, RootGet, RootList } from './interfaces';
+import {
+  listAllCallback,
+  ISyncOptions,
+  ShopifyBaseObjectType,
+  RootGet,
+  RootList,
+} from './interfaces';
 import { deleteUndefinedProperties } from '../helpers';
 import { EventService } from '../event.service';
 import { ShopifyApiBaseService } from './shopify-api-base.service';
 
 export abstract class ShopifyApiRootService<
   ShopifyObjectType extends ShopifyBaseObjectType,
-  ShopifyModelClass extends Infrastructure.BaseService & RootGet<ShopifyObjectType, GetOptions> & RootList<ShopifyObjectType, ListOptions>,
+  ShopifyModelClass extends Infrastructure.BaseService &
+    RootGet<ShopifyObjectType, GetOptions> &
+    RootList<ShopifyObjectType, ListOptions>,
   GetOptions extends ISyncOptions = ISyncOptions,
-  ListOptions extends ISyncOptions & Options.BasicListOptions = ISyncOptions & Options.BasicListOptions,
+  ListOptions extends ISyncOptions & Options.BasicListOptions = ISyncOptions &
+    Options.BasicListOptions,
   DatabaseDocumentType extends Document = ShopifyObjectType & Document,
 > extends ShopifyApiBaseService<
   ShopifyObjectType,
   ShopifyModelClass,
   DatabaseDocumentType
 > {
-
   constructor(
-    protected readonly dbModel: (shopName: string) => Model<DatabaseDocumentType>,
-    protected readonly ShopifyModel: new (shopDomain: string, accessToken: string) => ShopifyModelClass,
+    protected readonly dbModel: (
+      shopName: string,
+    ) => Model<DatabaseDocumentType>,
+    protected readonly ShopifyModel: new (
+      shopDomain: string,
+      accessToken: string,
+    ) => ShopifyModelClass,
     protected readonly events: EventService,
     protected readonly syncprogressModel: Model<SyncProgressDocument>,
     protected readonly shopifyModuleOptions: ShopifyModuleOptions,
@@ -44,8 +57,15 @@ export abstract class ShopifyApiRootService<
    * @param sync
    * @see https://help.shopify.com/en/api/reference/products/product#show
    */
-  public async getFromShopify(user: IShopifyConnect, id: number, options?: GetOptions): Promise<Partial<ShopifyObjectType> | null> {
-    const shopifyModel = new this.ShopifyModel(user.myshopify_domain, user.accessToken);
+  public async getFromShopify(
+    user: IShopifyConnect,
+    id: number,
+    options?: GetOptions,
+  ): Promise<Partial<ShopifyObjectType> | null> {
+    const shopifyModel = new this.ShopifyModel(
+      user.myshopify_domain,
+      user.accessToken,
+    );
     const syncToDb = options && options.syncToDb;
     if (options) {
       delete options.syncToDb;
@@ -55,12 +75,16 @@ export abstract class ShopifyApiRootService<
       return shopifyModel.get(id, options);
     });
 
-    if (this.shopifyModuleOptions.sync.enabled && this.shopifyModuleOptions.sync.autoSyncResources.includes(this.resourceName)) {
-      await this.updateOrCreateInApp(user, 'id', shopifyObj, syncToDb)
+    if (
+      this.shopifyModuleOptions.sync.enabled &&
+      this.shopifyModuleOptions.sync.autoSyncResources.includes(
+        this.resourceName,
+      )
+    ) {
+      await this.updateOrCreateInApp(user, 'id', shopifyObj, syncToDb);
     }
 
     return shopifyObj;
-
   }
 
   /**
@@ -68,12 +92,18 @@ export abstract class ShopifyApiRootService<
    * @param user
    * @param options
    */
-  public async listFromShopify(shopifyConnect: IShopifyConnect, options?: ListOptions): Promise<Partial<ShopifyObjectType>[]> {
+  public async listFromShopify(
+    shopifyConnect: IShopifyConnect,
+    options?: ListOptions,
+  ): Promise<Partial<ShopifyObjectType>[]> {
     // Delete undefined options
     deleteUndefinedProperties(options);
 
     this.logger.debug('[listFromShopify] %O', options);
-    const shopifyModel = new this.ShopifyModel(shopifyConnect.myshopify_domain, shopifyConnect.accessToken);
+    const shopifyModel = new this.ShopifyModel(
+      shopifyConnect.myshopify_domain,
+      shopifyConnect.accessToken,
+    );
     const syncToDb = options && options.syncToDb;
     options = Object.assign({}, options);
     const failOnSyncError = options && options.failOnSyncError;
@@ -82,26 +112,32 @@ export abstract class ShopifyApiRootService<
     delete options.cancelSignal; // TODO@Moritz?
     return shopifyRetry(async (count) => {
       this.logger.debug('[listFromShopify] retry count: %d' + count);
-      return shopifyModel.list(options)
-      .catch((error) => {
+      return shopifyModel.list(options).catch((error) => {
         this.logger.error(error);
         throw error;
       });
-    })
-    .then(async (shopifyObjects: ShopifyObjectType[]) => {
-      this.logger.debug('[listFromShopify] result length %d', shopifyObjects.length);
+    }).then(async (shopifyObjects: ShopifyObjectType[]) => {
+      this.logger.debug(
+        '[listFromShopify] result length %d',
+        shopifyObjects.length,
+      );
       this.logger.debug('[listFromShopify] updateOrCreateManyInApp');
-      return this.updateOrCreateManyInApp(shopifyConnect, 'id', shopifyObjects, syncToDb)
-      .then((/*syncResult*/) => {
-        return shopifyObjects;
-      })
-      .catch((error) => {
-        this.logger.error(error);
-        if (failOnSyncError) {
-          throw error;
-        }
-        return shopifyObjects;
-      });
+      return this.updateOrCreateManyInApp(
+        shopifyConnect,
+        'id',
+        shopifyObjects,
+        syncToDb,
+      )
+        .then((/*syncResult*/) => {
+          return shopifyObjects;
+        })
+        .catch((error) => {
+          this.logger.error(error);
+          if (failOnSyncError) {
+            throw error;
+          }
+          return shopifyObjects;
+        });
     });
   }
 
@@ -122,37 +158,42 @@ export abstract class ShopifyApiRootService<
     shopifyConnect: IShopifyConnect,
     options?: ListOptions,
     listAllPageCallback?: listAllCallback<Partial<ShopifyObjectType>>,
-  ): Promise<Partial<ShopifyObjectType>[]|void> {
+  ): Promise<Partial<ShopifyObjectType>[] | void> {
     // Delete undefined options
     deleteUndefinedProperties(options);
     this.logger.debug('[listAllFromShopify] %O', options);
 
     return this.listFromShopify(shopifyConnect, options)
-    .then((objects) => {
-      if (typeof (listAllPageCallback) === 'function') {
-        listAllPageCallback(null, {
-          pages: 1, page: 1, data: objects,
-        });
-        return;
-      } else {
-        return objects;
-      }
-    })
-    .catch((error) => {
-      if (typeof listAllPageCallback === 'function') {
-        listAllPageCallback(error, null);
-      } else {
-        throw error;
-      }
-    });
+      .then((objects) => {
+        if (typeof listAllPageCallback === 'function') {
+          listAllPageCallback(null, {
+            pages: 1,
+            page: 1,
+            data: objects,
+          });
+          return;
+        } else {
+          return objects;
+        }
+      })
+      .catch((error) => {
+        if (typeof listAllPageCallback === 'function') {
+          listAllPageCallback(error, null);
+        } else {
+          throw error;
+        }
+      });
   }
 
   /**
    * Gets a list of all of the shop's `ShopifyObjectType` directly from the shopify API as a stream
    * @param options Options for filtering the results.
    */
-  public listAllFromShopifyStream(shopifyConnect: IShopifyConnect, options?: ListOptions): Readable {
-    const stream = new Readable({objectMode: true, read: s => s});
+  public listAllFromShopifyStream(
+    shopifyConnect: IShopifyConnect,
+    options?: ListOptions,
+  ): Readable {
+    const stream = new Readable({ objectMode: true, read: (s) => s });
     stream.push('[\n');
     this.listAllFromShopify(shopifyConnect, options, (error, data) => {
       if (error) {
@@ -162,7 +203,9 @@ export abstract class ShopifyApiRootService<
         for (let j = 0; j < objects.length - 1; j++) {
           stream.push(JSON.stringify([objects[j]], null, 2).slice(2, -2) + ',');
         }
-        stream.push(JSON.stringify([objects[objects.length - 1]], null, 2).slice(2, -2));
+        stream.push(
+          JSON.stringify([objects[objects.length - 1]], null, 2).slice(2, -2),
+        );
         if (data.page === data.pages) {
           stream.push('\n]');
         } else {
@@ -170,12 +213,12 @@ export abstract class ShopifyApiRootService<
         }
       }
     })
-    .then(() => {
-      stream.push(null);
-    })
-    .catch((error) => {
-      stream.emit('error', error);
-    });
+      .then(() => {
+        stream.push(null);
+      })
+      .catch((error) => {
+        stream.emit('error', error);
+      });
     return stream;
   }
 
@@ -190,26 +233,28 @@ export abstract class ShopifyApiRootService<
   ): Observable<WsResponse<Partial<ShopifyObjectType>>> {
     // Delete undefined options
     deleteUndefinedProperties(options);
-    return Observable.create((observer: Observer<WsResponse<Partial<ShopifyObjectType>>>) => {
-      this.listAllFromShopify(user, options, (error, data) => {
-        if (error) {
-          observer.error(error);
-        } else {
-          const shopifyObjectTypes = data.data;
-          shopifyObjectTypes.forEach((shopifyObjectType) => {
-            observer.next({
-              event: eventName,
-              data: shopifyObjectType,
+    return Observable.create(
+      (observer: Observer<WsResponse<Partial<ShopifyObjectType>>>) => {
+        this.listAllFromShopify(user, options, (error, data) => {
+          if (error) {
+            observer.error(error);
+          } else {
+            const shopifyObjectTypes = data.data;
+            shopifyObjectTypes.forEach((shopifyObjectType) => {
+              observer.next({
+                event: eventName,
+                data: shopifyObjectType,
+              });
             });
+          }
+        })
+          .then(() => {
+            observer.complete();
+          })
+          .catch((error) => {
+            observer.error(error);
           });
-        }
-      })
-      .then(() => {
-        observer.complete();
-      })
-      .catch((error) => {
-        observer.error(error);
-      });
-    });
+      },
+    );
   }
 }

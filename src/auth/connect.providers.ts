@@ -6,7 +6,10 @@ const shopifyConnectProviders = (connection: Mongoose) => {
   return [
     {
       provide: 'ShopifyConnectModelToken',
-      useValue: connection.model('shopify_connect', ShopifyConnectSchema) as unknown as Model<IShopifyConnectDocument>,
+      useValue: connection.model(
+        'shopify_connect',
+        ShopifyConnectSchema,
+      ) as unknown as Model<IShopifyConnectDocument>,
     },
   ];
 };

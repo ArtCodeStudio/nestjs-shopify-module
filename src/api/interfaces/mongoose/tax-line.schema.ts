@@ -4,15 +4,18 @@ import { PriceSetSchema } from './price-set.schema';
 
 export type TaxLineDocument = DocumentDefinition<Interfaces.TaxLine> & Document;
 
-export const TaxLineSchema = new Schema({
-  price: Number,
-  rate: Number,
-  title: String,
-  price_set: PriceSetSchema,
-}, {
-  _id: false,
-  minimize: false,
-});
+export const TaxLineSchema = new Schema(
+  {
+    price: Number,
+    rate: Number,
+    title: String,
+    price_set: PriceSetSchema,
+  },
+  {
+    _id: false,
+    minimize: false,
+  },
+);
 /*
 TaxLineSchema.set('toJSON', {
   transform: function(doc, ret, options) {

@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, Inject } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  Inject,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 
 import { IUserRequest } from '../interfaces/user-request';
@@ -12,12 +17,13 @@ import { DebugService } from '../debug.service';
  */
 @Injectable()
 class ShopifyApiGuard implements CanActivate {
-
   protected logger = new DebugService('shopify:ShopifyApiGuard');
 
   constructor(
-    @Inject(ShopifyConnectService) private readonly shopifyConnectService: ShopifyConnectService,
-    @Inject(ShopifyAuthService) private readonly shopifyAuthService: ShopifyAuthService,
+    @Inject(ShopifyConnectService)
+    private readonly shopifyConnectService: ShopifyConnectService,
+    @Inject(ShopifyAuthService)
+    private readonly shopifyAuthService: ShopifyAuthService,
   ) {}
 
   canActivate(
@@ -70,7 +76,6 @@ class ShopifyApiGuard implements CanActivate {
 
     return false;
   }
-
 }
 
 export { ShopifyApiGuard };

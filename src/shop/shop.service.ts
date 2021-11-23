@@ -7,7 +7,6 @@ import { DebugService } from '../debug.service';
 
 @Injectable()
 export class ShopService {
-
   protected logger = new DebugService('shopify:ShopifyConnectService');
 
   constructor(
@@ -16,32 +15,35 @@ export class ShopService {
   ) {}
 
   async findAll(): Promise<IShopifyShop[]> {
-    return this.shopifyConnectModel.find().exec()
-    .then((connects: IShopifyConnectDocument[]) => {
-      const shops: IShopifyShop[] = [];
-      connects.forEach(connect => {
-        shops.push(connect.shop);
+    return this.shopifyConnectModel
+      .find()
+      .exec()
+      .then((connects: IShopifyConnectDocument[]) => {
+        const shops: IShopifyShop[] = [];
+        connects.forEach((connect) => {
+          shops.push(connect.shop);
+        });
+        return shops;
       });
-      return shops;
-    });
   }
 
   async findByShopifyID(id: number, fields?: string[]): Promise<IShopifyShop> {
-    return this.shopifyConnectModel.findOne({shopifyID: id}).exec()
-    .then((connect: IShopifyConnectDocument) => {
-      let shop;
-      if (fields) {
-        shop = {};
-        fields.forEach((property) => {
-          if (shop.hasOwnProperty(property)) {
-            shop[property] = connect.shop[property];
-          }
-        });
-      } else {
-        shop = connect.shop;
-      }
-      return shop;
-    });
+    return this.shopifyConnectModel
+      .findOne({ shopifyID: id })
+      .exec()
+      .then((connect: IShopifyConnectDocument) => {
+        let shop;
+        if (fields) {
+          shop = {};
+          fields.forEach((property) => {
+            if (shop.hasOwnProperty(property)) {
+              shop[property] = connect.shop[property];
+            }
+          });
+        } else {
+          shop = connect.shop;
+        }
+        return shop;
+      });
   }
-
 }

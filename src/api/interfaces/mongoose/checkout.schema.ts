@@ -9,10 +9,11 @@ import { ShippingLineSchema } from './shipping-line.schema';
 import { NoteAttributeSchema } from './note-attribute.schema';
 import { TaxLineSchema } from './tax-line.schema';
 
-export type CheckoutDocument = DocumentDefinition<Interfaces.Checkout> & Document;
+export type CheckoutDocument = DocumentDefinition<Interfaces.Checkout> &
+  Document;
 
 export const CheckoutOptionSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: { type: Number, index: { unique: true } },
   values: [String],
 });
 
@@ -20,7 +21,7 @@ export const CheckoutSchema = new Schema({
   /**
    * The ID for the checkout.
    */
-  id: {type: Number, index: {unique: true}},
+  id: { type: Number, index: { unique: true } },
   /**
    * The recovery URL that's sent to a customer so they can recover their checkout.
    */

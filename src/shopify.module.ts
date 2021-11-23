@@ -1,4 +1,11 @@
-import { Module, DynamicModule, NestModule, CacheModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import {
+  Module,
+  DynamicModule,
+  NestModule,
+  CacheModule,
+  MiddlewareConsumer,
+  RequestMethod,
+} from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { PassportStatic } from 'passport';
 import { Mongoose } from 'mongoose';
@@ -11,6 +18,8 @@ import { ShopifyAuthService } from './auth/auth.service';
 import { PassportService } from './auth/passport.service';
 
 // API
+import { AccessScopesController } from './api/access-scopes/access-scopes.controller';
+import { AccessScopesService } from './api/access-scopes/access-scopes.service';
 import { BlogsController } from './api/blogs/blogs.controller';
 import { BlogsService } from './api/blogs/blogs.service';
 import { ThemesService } from './api/themes/themes.service';
@@ -84,6 +93,7 @@ export * from './graphql-client';
 
 // Indirect exports
 export {
+  AccessScopesService,
   BlogsService,
   CheckoutsService,
   BodyParserJsonMiddleware,
@@ -125,6 +135,7 @@ export { RequestGuard } from './guards/request.guard';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
+    AccessScopesService,
     BlogsService,
     CheckoutsService,
     ChargeService,
@@ -154,6 +165,7 @@ export { RequestGuard } from './guards/request.guard';
     ExtProductsService,
   ],
   controllers: [
+    AccessScopesController,
     ShopifyAuthController,
     ChargeController,
     ShopController,
@@ -175,6 +187,7 @@ export { RequestGuard } from './guards/request.guard';
     ExtProductsController,
   ],
   exports: [
+    AccessScopesService,
     BlogsService,
     CheckoutsService,
     ShopifyConnectService,
@@ -203,8 +216,11 @@ export { RequestGuard } from './guards/request.guard';
   imports: [],
 })
 export class ShopifyModule implements NestModule {
-  static forRoot(options: ShopifyModuleOptions, database: Mongoose, passport: PassportStatic): DynamicModule {
-
+  static forRoot(
+    options: ShopifyModuleOptions,
+    database: Mongoose,
+    passport: PassportStatic,
+  ): DynamicModule {
     const shopifyModuleOptions = {
       provide: SHOPIFY_MODULE_OPTIONS,
       useValue: options,
@@ -223,9 +239,7 @@ export class ShopifyModule implements NestModule {
 
     return {
       module: ShopifyModule,
-      imports: [
-        cacheModule,
-      ],
+      imports: [cacheModule],
       providers: [
         passportProvider,
         shopifyModuleOptions,
@@ -288,8 +302,12 @@ export class ShopifyModule implements NestModule {
 
       .apply(GetUserMiddleware)
       .forRoutes({
-        path: '*', method: RequestMethod.ALL,
+        path: '*',
+        method: RequestMethod.ALL,
       })
+
+      .apply(GetShopifyConnectMiddleware)
+      .forRoutes(AccessScopesController)
 
       .apply(GetShopifyConnectMiddleware)
       .forRoutes(ShopifyAuthController)

@@ -9,14 +9,15 @@ import { ShopifyConnectService } from './connect.service';
 import * as ShopifyToken from 'shopify-token'; // https://github.com/lpinca/shopify-token
 import { Shops } from 'shopify-admin-api';
 import { Session } from '../interfaces/session';
-import { getSubdomain } from '../helpers';
+import { getSubdomain, getFullMyshopifyDomain } from '../helpers';
 
 @Injectable()
 export class ShopifyAuthService {
   constructor(
-    @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    private readonly shopifyModuleOptions: ShopifyModuleOptions,
     private readonly shopifyConnectService: ShopifyConnectService,
-  ){}
+  ) {}
   protected logger = new DebugService('shopify:AuthService');
 
   /**
@@ -24,13 +25,17 @@ export class ShopifyAuthService {
    * Used for auth with a clientsite redirect (needed in the shopify iframe).
    * @param req Express request object
    * @param myshopify_domain shop origin, e.g. myshop.myshopify.com
-   * @param redirectUri whitelisted redirect URI from Shopify Partner Dashboard
+   * @param scopes An optional array of strings or comma-separated string to specify the list of scopes. This allows you to override the default scopes.
    *
    * @see https://help.shopify.com/en/api/embedded-apps/embedded-app-sdk/oauth
    */
-  oAuthConnect(req: IUserRequest, myshopify_domain?: string) {
-
+  oAuthConnect(
+    req: IUserRequest,
+    myshopify_domain?: string,
+    scopes?: string[],
+  ) {
     this.logger.debug(`oAuthConnect for shop ${myshopify_domain}`);
+    scopes = scopes || this.shopifyModuleOptions.shopify.scope;
 
     if (!myshopify_domain) {
       myshopify_domain = this.getShopSecureForThemeClients(req);
@@ -40,16 +45,27 @@ export class ShopifyAuthService {
       throw new Error('myshopify_domain is required');
     }
 
-    const shopifyToken = new ShopifyToken({
+    const shopifyTokenOptions = {
       sharedSecret: this.shopifyModuleOptions.shopify.clientSecret,
       apiKey: this.shopifyModuleOptions.shopify.clientID,
-      scopes: this.shopifyModuleOptions.shopify.scope,
+      scopes: scopes,
       redirectUri: this.shopifyModuleOptions.shopify.iframeCallbackURL,
-    });
+    };
+
+    const shopifyToken = new ShopifyToken(shopifyTokenOptions);
 
     const nonce = shopifyToken.generateNonce();
     const shopName = getSubdomain(myshopify_domain);
-    const authUrl = shopifyToken.generateAuthUrl(shopName);
+    const authUrl = shopifyToken.generateAuthUrl(shopName, scopes, nonce);
+
+    this.logger.debug(
+      '[oAuthConnect] shopifyTokenOptions: %O',
+      shopifyTokenOptions,
+    );
+
+    this.logger.debug('[oAuthConnect] nonce: ' + nonce);
+    this.logger.debug('[oAuthConnect] authUrl: ' + authUrl);
+
     return {
       nonce,
       authUrl,
@@ -59,42 +75,45 @@ export class ShopifyAuthService {
   /**
    * Alternative for AuthStrategy.validate.
    * Used for auth with a clientsite redirect (needed in the shopify iframe).
-   * @param hmac
-   * @param signature
-   * @param state
-   * @param code
-   * @param shop
-   * @param timestamp
+   * @param shop string
+   * @param query { ...[key: string]: string }
    * @param session
    */
-  async oAuthCallback(hmac: string, signature: string, state: string, code: string, shop: string, timestamp: string, session: Session) {
+  async oAuthCallback(
+    shop: string,
+    query: { [key: string]: string },
+    session: Session,
+  ) {
+    shop = getFullMyshopifyDomain(shop);
     this.logger.debug(`oAuthCallback for shop ${shop}`);
-    const shopifyToken = new ShopifyToken({
+    const shopifyTokenOptions = {
       sharedSecret: this.shopifyModuleOptions.shopify.clientSecret,
       apiKey: this.shopifyModuleOptions.shopify.clientID,
       scopes: this.shopifyModuleOptions.shopify.scope,
       redirectUri: this.shopifyModuleOptions.shopify.iframeCallbackURL,
-    });
-    const ok = shopifyToken.verifyHmac({
-      hmac,
-      signature,
-      state,
-      code,
-      shop,
-      timestamp,
-    });
+    };
+    const shopifyToken = new ShopifyToken(shopifyTokenOptions);
+    const ok = shopifyToken.verifyHmac(query);
 
     if (!ok) {
+      this.logger.debug(
+        '[oAuthCallback] verifyHmac shopifyTokenOptions: %O',
+        shopifyTokenOptions,
+      );
+      this.logger.debug('[oAuthCallback] verifyHmac query: %O', query);
       throw new Error('unauthorized');
     }
 
     // TODO Fix type on https://github.com/lpinca/shopify-token see https://shopify.dev/tutorials/authenticate-with-oauth
-    return (shopifyToken.getAccessToken(shop, code) as Promise<{ access_token: string; scope: string }>)
-    .then(async (res) => {
+    return (
+      shopifyToken.getAccessToken(shop, query.code) as Promise<{
+        access_token: string;
+        scope: string;
+      }>
+    ).then(async (res) => {
       this.logger.debug('[getAccessToken] res: %O', res);
-      const shops = new Shops(shop, res.access_token); // // TODO NEST7 CHECKME also store returned scope?
-      return shops.get()
-      .then(async (shopObject) => {
+      const shops = new Shops(shop, res.access_token);
+      return shops.get().then(async (shopObject) => {
         const profile: IShopifyAuthProfile = {
           provider: 'shopify',
           _json: {
@@ -106,28 +125,35 @@ export class ShopifyAuthService {
           _raw: '',
         };
         this.logger.debug(`profile: %O`, profile);
-        return this.shopifyConnectService.connectOrUpdate(profile, res.access_token)
-        .then((user) => {
-          if (!user) {
-            throw new Error('Error on connect or update user');
-          }
-          this.logger.debug(`validate user, user.myshopify_domain: "%s"`, user.myshopify_domain);
-          // Passport stores the user in req.user
-          this.logger.debug('\n\nSet user: ',user);
-          session[`user-${user.myshopify_domain}`] = user;
+        return this.shopifyConnectService
+          .connectOrUpdate(profile, res.access_token)
+          .then((user) => {
+            if (!user) {
+              throw new Error('Error on connect or update user');
+            }
+            this.logger.debug(
+              `validate user, user.myshopify_domain: "%s"`,
+              user.myshopify_domain,
+            );
+            // Passport stores the user in req.user
+            this.logger.debug('\n\nSet user: ', user);
+            session[`user-${user.myshopify_domain}`] = user;
 
-          this.logger.debug(`session "user-${user.myshopify_domain}"`, session[`user-${user.myshopify_domain}`]);
+            this.logger.debug(
+              `session "user-${user.myshopify_domain}"`,
+              session[`user-${user.myshopify_domain}`],
+            );
 
-          // For fallback if no shop is set in request.headers
-          session.currentShop = user.myshopify_domain;
-          
-          return user;
-        })
-        .catch((err) => {
-          this.logger.debug('Error on oAuthCallback: %O', err);
-          this.logger.error(err);
-          throw err;
-        });
+            // For fallback if no shop is set in request.headers
+            session.currentShop = user.myshopify_domain;
+
+            return user;
+          })
+          .catch((err) => {
+            this.logger.debug('Error on oAuthCallback: %O', err);
+            this.logger.error(err);
+            throw err;
+          });
       });
     });
   }
@@ -144,27 +170,31 @@ export class ShopifyAuthService {
       myshopifyDomain: null as string | null,
     };
     const host = this.getClientHost(req);
-    this.logger.debug('host: %s app.host: %s', host, this.shopifyModuleOptions.app.host);
+    this.logger.debug(
+      'host: %s app.host: %s',
+      host,
+      this.shopifyModuleOptions.app.host,
+    );
     if (host === this.shopifyModuleOptions.app.host) {
       result.isAppBackendRequest = true;
-      return this.getMyShopifyDomainUnsecure(req)
-      .then((myshopifyDomain) => {
+      return this.getMyShopifyDomainUnsecure(req).then((myshopifyDomain) => {
         if (myshopifyDomain) {
           result.myshopifyDomain = myshopifyDomain;
         }
         return result;
       });
     } else {
-      return this.getMyShopifyDomainSecureForThemeClients(req)
-      .then((myshopifyDomain) => {
-        if (myshopifyDomain && myshopifyDomain.endsWith('.myshopify.com')) {
-          result.isThemeClientRequest = true;
-          result.myshopifyDomain = myshopifyDomain;
-        } else {
-          result.isUnknownClientRequest = true;
-        }
-        return result;
-      });
+      return this.getMyShopifyDomainSecureForThemeClients(req).then(
+        (myshopifyDomain) => {
+          if (myshopifyDomain && myshopifyDomain.endsWith('.myshopify.com')) {
+            result.isThemeClientRequest = true;
+            result.myshopifyDomain = myshopifyDomain;
+          } else {
+            result.isUnknownClientRequest = true;
+          }
+          return result;
+        },
+      );
     }
   }
 
@@ -176,43 +206,62 @@ export class ShopifyAuthService {
   public async getMyShopifyDomainSecureForThemeClients(req: IUserRequest) {
     const anyDomain = this.getShopSecureForThemeClients(req);
     if (!anyDomain) {
-      throw new Error('[getMyShopifyDomainSecureForThemeClients] Domain not found! ' + anyDomain);
+      throw new Error(
+        '[getMyShopifyDomainSecureForThemeClients] Domain not found! ' +
+          anyDomain,
+      );
     }
     if (anyDomain.endsWith('.myshopify.com')) {
       return anyDomain;
     }
-    return this.shopifyConnectService.findByDomain(anyDomain)
-    .then((shopifyConnect) => {
-      if (!shopifyConnect || !shopifyConnect.myshopify_domain) {
-        throw new Error('[getMyShopifyDomainSecureForThemeClients] Shop not found! ' + anyDomain);
-      }
-      this.logger.debug('getMyShopifyDomain: %s', shopifyConnect.myshopify_domain);
-      return shopifyConnect.myshopify_domain;
-    });
+    return this.shopifyConnectService
+      .findByDomain(anyDomain)
+      .then((shopifyConnect) => {
+        if (!shopifyConnect || !shopifyConnect.myshopify_domain) {
+          throw new Error(
+            '[getMyShopifyDomainSecureForThemeClients] Shop not found! ' +
+              anyDomain,
+          );
+        }
+        this.logger.debug(
+          'getMyShopifyDomain: %s',
+          shopifyConnect.myshopify_domain,
+        );
+        return shopifyConnect.myshopify_domain;
+      });
   }
 
   public getShopFromRequest(req: IUserRequest) {
     let shop;
     if (req.headers) {
-      shop = req.headers['x-shopify-shop-domain'] || req.headers['X-Shopify-Shop-Domain'] || req.headers?.shop || req.headers?.origin?.split('://')[1]
+      shop =
+        req.headers['x-shopify-shop-domain'] ||
+        req.headers['X-Shopify-Shop-Domain'] ||
+        req.headers?.shop ||
+        req.headers?.origin?.split('://')[1];
     }
 
     if (shop?.toString().endsWith('.myshopify.com')) {
       return shop;
     }
 
-    shop = (req.shop || req.query?.shop || req.session?.currentShop || req?.params?.shop || '').toString()
+    shop = (
+      req.shop ||
+      req.query?.shop ||
+      req.session?.currentShop ||
+      req?.params?.shop ||
+      ''
+    ).toString();
 
     if (shop?.toString().endsWith('.myshopify.com')) {
       return shop;
     }
 
-    this.logger.debug("Shop not found in request")
-    this.logger.debug("headers", req.headers)
-    this.logger.debug("params", req.params)
-    this.logger.debug("query", req.query)
-    this.logger.debug("session", req.session)
-    
+    this.logger.debug('Shop not found in request');
+    this.logger.debug('headers', req.headers);
+    this.logger.debug('params', req.params);
+    this.logger.debug('query', req.query);
+    this.logger.debug('session', req.session);
 
     return null;
   }
@@ -226,7 +275,11 @@ export class ShopifyAuthService {
     if (req.user || req.session[`user-${shop}`]) {
       return true;
     }
-    this.logger.debug(`is not logged in "${shop}"`, req.session[`user-${shop}`], req.session);
+    this.logger.debug(
+      `is not logged in "${shop}"`,
+      req.session[`user-${shop}`],
+      req.session,
+    );
     return false;
   }
 
@@ -280,7 +333,9 @@ export class ShopifyAuthService {
     }
 
     // if the host is the host of the app backend the user needs to be logged in
-    this.logger.debug(`compare "${host}" with "${this.shopifyModuleOptions.app.host}"`)
+    this.logger.debug(
+      `compare "${host}" with "${this.shopifyModuleOptions.app.host}"`,
+    );
     if (host === this.shopifyModuleOptions.app.host) {
       if (!this.isLoggedIn(req)) {
         return null;
@@ -319,13 +374,17 @@ export class ShopifyAuthService {
   protected async getMyShopifyDomainUnsecure(req: IUserRequest) {
     const shop = this._getMyShopifyDomainUnsecure(req);
 
-    return this.shopifyConnectService.findByDomain(shop)
-    .then((shopifyConnect) => {
-      if(shopifyConnect && shopifyConnect.myshopify_domain) {
-        this.logger.debug('getMyShopifyDomain: %s', shopifyConnect.myshopify_domain);
-        return shopifyConnect.myshopify_domain || null;
-      }
-      return null;
-    });
+    return this.shopifyConnectService
+      .findByDomain(shop)
+      .then((shopifyConnect) => {
+        if (shopifyConnect && shopifyConnect.myshopify_domain) {
+          this.logger.debug(
+            'getMyShopifyDomain: %s',
+            shopifyConnect.myshopify_domain,
+          );
+          return shopifyConnect.myshopify_domain || null;
+        }
+        return null;
+      });
   }
 }

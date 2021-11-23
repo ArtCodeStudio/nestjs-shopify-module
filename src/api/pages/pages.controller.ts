@@ -21,16 +21,11 @@ import { Roles } from '../../guards/roles.decorator';
 // Interfaces
 import { Interfaces } from 'shopify-admin-api';
 import { IUserRequest } from '../../interfaces/user-request';
-import {
-  IShopifySyncPageListOptions,
-} from '../interfaces';
+import { IShopifySyncPageListOptions } from '../interfaces';
 
 @Controller('shopify/api/pages')
 export class PagesController {
-
-  constructor(
-    protected readonly pagesService: PagesService,
-  ) {}
+  constructor(protected readonly pagesService: PagesService) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   /**
@@ -49,11 +44,12 @@ export class PagesController {
   ) {
     this.logger.debug('create page: %O', page);
     try {
-      return await this.pagesService.create(req.session[`shopify-connect-${req.shop}`], page)
-      .then((result) => {
-        this.logger.debug('result: %O', result);
-        return result;
-      });
+      return await this.pagesService
+        .create(req.session[`shopify-connect-${req.shop}`], page)
+        .then((result) => {
+          this.logger.debug('result: %O', result);
+          return result;
+        });
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -82,7 +78,8 @@ export class PagesController {
     @Query('limit') limit?: number,
     @Query('published_at_max') published_at_max?: string,
     @Query('published_at_min') published_at_min?: string,
-    @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
+    @Query('published_status')
+    published_status?: 'published' | 'unpublished' | 'any',
     @Query('since_id') since_id?: number,
     @Query('title') title?: string,
     @Query('updated_at_max') updated_at_max?: string,
@@ -119,7 +116,10 @@ export class PagesController {
       };
 
       this.logger.debug('PageListOptions: %O', options);
-      return await this.pagesService.list(req.session[`shopify-connect-${req.shop}`], options);
+      return await this.pagesService.list(
+        req.session[`shopify-connect-${req.shop}`],
+        options,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -139,7 +139,8 @@ export class PagesController {
     @Req() req: IUserRequest,
     @Query('created_at_max') created_at_max: string,
     @Query('created_at_min') created_at_min: string,
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any',
+    @Query('published_status')
+    published_status: 'published' | 'unpublished' | 'any',
     @Query('title') title: string,
     @Query('published_at_max') published_at_max: string,
     @Query('published_at_min') published_at_min: string,
@@ -150,16 +151,19 @@ export class PagesController {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public pages if the request comes not from a logged in user
       }
-      return await this.pagesService.count(req.session[`shopify-connect-${req.shop}`], {
-        created_at_max,
-        created_at_min,
-        published_at_max,
-        published_at_min,
-        published_status,
-        title,
-        updated_at_max,
-        updated_at_min,
-      });
+      return await this.pagesService.count(
+        req.session[`shopify-connect-${req.shop}`],
+        {
+          created_at_max,
+          created_at_min,
+          published_at_max,
+          published_at_min,
+          published_status,
+          title,
+          updated_at_max,
+          updated_at_min,
+        },
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -175,12 +179,12 @@ export class PagesController {
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
   @Get(':id')
-  async getFromShopify(
-    @Req() req: IUserRequest,
-    @Param('id') id: number,
-  ) {
+  async getFromShopify(@Req() req: IUserRequest, @Param('id') id: number) {
     try {
-      return await this.pagesService.get(req.session[`shopify-connect-${req.shop}`], id);
+      return await this.pagesService.get(
+        req.session[`shopify-connect-${req.shop}`],
+        id,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -201,7 +205,10 @@ export class PagesController {
     @Param('page_id') id: number,
   ) {
     try {
-      return await this.pagesService.delete(req.session[`shopify-connect-${req.shop}`], id);
+      return await this.pagesService.delete(
+        req.session[`shopify-connect-${req.shop}`],
+        id,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -225,11 +232,14 @@ export class PagesController {
   ) {
     this.logger.debug('update page id: %d, page: %O', id, page);
     try {
-      return await this.pagesService.update(req.session[`shopify-connect-${req.shop}`], id, page);
+      return await this.pagesService.update(
+        req.session[`shopify-connect-${req.shop}`],
+        id,
+        page,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
 }

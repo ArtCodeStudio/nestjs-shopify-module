@@ -8,7 +8,6 @@ import { ShopifyModuleOptions } from '../interfaces/shopify-module-options';
 import { PassportStatic } from 'passport';
 
 export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
-
   protected logger = new DebugService('shopify:ShopifyAuthStrategy');
 
   protected authController: ShopifyAuthController;
@@ -17,16 +16,14 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
     shop: string,
     private shopifyConnectService: ShopifyConnectService,
     private readonly shopifyModuleOptions: ShopifyModuleOptions,
-    private readonly passport: PassportStatic
+    private readonly passport: PassportStatic,
   ) {
-    super (
-      {
-        clientID: shopifyModuleOptions.shopify.clientID,
-        clientSecret: shopifyModuleOptions.shopify.clientSecret,
-        callbackURL: shopifyModuleOptions.shopify.callbackURL,
-        shop,
-      },
-    );
+    super({
+      clientID: shopifyModuleOptions.shopify.clientID,
+      clientSecret: shopifyModuleOptions.shopify.clientSecret,
+      callbackURL: shopifyModuleOptions.shopify.callbackURL,
+      shop,
+    });
   }
 
   /**
@@ -40,28 +37,35 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
    * @param profile
    * @param verifiedDone
    */
-  async validate(accessToken: string, refreshToken: string, profile: IShopifyAuthProfile/*, verifiedDone: (error?: Error | null, user?: any) => void*/) {
+  async validate(
+    accessToken: string,
+    refreshToken: string,
+    profile: IShopifyAuthProfile /*, verifiedDone: (error?: Error | null, user?: any) => void*/,
+  ) {
     this.logger.debug(`validate`);
     this.logger.debug(`accessToken: %s`, accessToken);
     this.logger.debug(`refreshToken: %s`, refreshToken);
     this.logger.debug(`profile.displayName: %s`, profile.displayName);
 
-    return this.shopifyConnectService.connectOrUpdate(profile, accessToken)
-    .then((user) => {
-      if (!user) {
-        throw new Error('Error on connect or update user');
-      }
-      this.logger.debug(`validate user, user.myshopify_domain: %s`, user.myshopify_domain);
-      // return verifiedDone(null, user);
-      return user; // see AuthStrategy -> serializeUser
-    })
-    .catch((err) => {
-      this.logger.error(err);
-      // return verifiedDone(err)
-      throw err;
-    });
+    return this.shopifyConnectService
+      .connectOrUpdate(profile, accessToken)
+      .then((user) => {
+        if (!user) {
+          throw new Error('Error on connect or update user');
+        }
+        this.logger.debug(
+          `validate user, user.myshopify_domain: %s`,
+          user.myshopify_domain,
+        );
+        // return verifiedDone(null, user);
+        return user; // see AuthStrategy -> serializeUser
+      })
+      .catch((err) => {
+        this.logger.error(err);
+        // return verifiedDone(err)
+        throw err;
+      });
   }
-
 
   public authenticate(req, options) {
     this.logger.debug(`authenticate`);
@@ -71,7 +75,5 @@ export class ShopifyAuthStrategy extends PassportStrategy(Strategy, 'shopify') {
       this.logger.error(error);
       throw error;
     }
-    
   }
-
 }

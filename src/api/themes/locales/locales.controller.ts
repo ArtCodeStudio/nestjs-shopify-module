@@ -1,5 +1,15 @@
 // nest
-import { Inject, Controller, Param, UseGuards, UseInterceptors, Req, Get, HttpStatus, HttpException } from '@nestjs/common';
+import {
+  Inject,
+  Controller,
+  Param,
+  UseGuards,
+  UseInterceptors,
+  Req,
+  Get,
+  HttpStatus,
+  HttpException,
+} from '@nestjs/common';
 
 // Third party
 import { Infrastructure } from 'shopify-admin-api';
@@ -22,7 +32,8 @@ export class LocalesController {
 
   constructor(
     protected readonly localesService: LocalesService,
-    @Inject(SHOPIFY_MODULE_OPTIONS) private readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    private readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {}
 
   /**
@@ -37,27 +48,28 @@ export class LocalesController {
     @Req() req: IUserRequest,
     @Param('theme_id') themeId: number,
   ) {
-    return this.localesService.get(req.session[`shopify-connect-${req.shop}`], themeId)
-    .catch((error: Infrastructure.ShopifyError) => {
-      this.logger.error(error);
-      if (error.statusCode === 404) {
-        error.message = `Locales in theme ${themeId} not found.`;
-      }
-      if (!error.statusCode) {
-        error.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-      }
-      const errorRes = {
-        name: error.name,
-        message: error.message,
-        statusCode: error.statusCode,
-        id: themeId,
-        stack: undefined,
-      };
-      if (this.shopifyModuleOptions.app.debug && error.stack) {
-        errorRes.stack = error.stack;
-      }
-      throw new HttpException(errorRes, error.statusCode);
-    });
+    return this.localesService
+      .get(req.session[`shopify-connect-${req.shop}`], themeId)
+      .catch((error: Infrastructure.ShopifyError) => {
+        this.logger.error(error);
+        if (error.statusCode === 404) {
+          error.message = `Locales in theme ${themeId} not found.`;
+        }
+        if (!error.statusCode) {
+          error.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        const errorRes = {
+          name: error.name,
+          message: error.message,
+          statusCode: error.statusCode,
+          id: themeId,
+          stack: undefined,
+        };
+        if (this.shopifyModuleOptions.app.debug && error.stack) {
+          errorRes.stack = error.stack;
+        }
+        throw new HttpException(errorRes, error.statusCode);
+      });
   }
 
   /**
@@ -71,22 +83,25 @@ export class LocalesController {
     @Req() req: IUserRequest,
     @Param('theme_id') themeId: number,
   ) {
-    return this.localesService.list(req.session[`shopify-connect-${req.shop}`], themeId)
-    .catch((error: Infrastructure.ShopifyError) => {
-      this.logger.error(error);
-      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
-      const errorRes = {
-        name: error.name,
-        message: error.message,
-        statusCode,
-        id: themeId,
-        stack: undefined,
-      };
-      if (this.shopifyModuleOptions.app.debug && error.stack) {
-        errorRes.stack = error.stack;
-      }
-      throw new HttpException(errorRes, statusCode);
-    });
+    return this.localesService
+      .list(req.session[`shopify-connect-${req.shop}`], themeId)
+      .catch((error: Infrastructure.ShopifyError) => {
+        this.logger.error(error);
+        const statusCode = error.statusCode
+          ? error.statusCode
+          : HttpStatus.INTERNAL_SERVER_ERROR;
+        const errorRes = {
+          name: error.name,
+          message: error.message,
+          statusCode,
+          id: themeId,
+          stack: undefined,
+        };
+        if (this.shopifyModuleOptions.app.debug && error.stack) {
+          errorRes.stack = error.stack;
+        }
+        throw new HttpException(errorRes, statusCode);
+      });
   }
 
   /**
@@ -105,25 +120,32 @@ export class LocalesController {
     // WORKAROUND to get full filename param
     const path = url.parse(req.url).pathname;
     filename = path.substring(path.lastIndexOf('/'));
-    return this.localesService.getLocalFile(req.session[`shopify-connect-${req.shop}`], themeId, filename)
-    .catch((error: Infrastructure.ShopifyError) => {
-      this.logger.error(error);
-      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
-      if (statusCode === 404) {
-        error.message = `Local file ${filename} in theme ${themeId} not found.`;
-      }
-      const errorRes = {
-        name: error.name,
-        message: error.message,
-        statusCode,
-        id: themeId,
-        stack: undefined,
-      };
-      if (this.shopifyModuleOptions.app.debug && error.stack) {
-        errorRes.stack = error.stack;
-      }
-      throw new HttpException(errorRes, statusCode);
-    });
+    return this.localesService
+      .getLocalFile(
+        req.session[`shopify-connect-${req.shop}`],
+        themeId,
+        filename,
+      )
+      .catch((error: Infrastructure.ShopifyError) => {
+        this.logger.error(error);
+        const statusCode = error.statusCode
+          ? error.statusCode
+          : HttpStatus.INTERNAL_SERVER_ERROR;
+        if (statusCode === 404) {
+          error.message = `Local file ${filename} in theme ${themeId} not found.`;
+        }
+        const errorRes = {
+          name: error.name,
+          message: error.message,
+          statusCode,
+          id: themeId,
+          stack: undefined,
+        };
+        if (this.shopifyModuleOptions.app.debug && error.stack) {
+          errorRes.stack = error.stack;
+        }
+        throw new HttpException(errorRes, statusCode);
+      });
   }
 
   /**
@@ -143,26 +165,33 @@ export class LocalesController {
     const path = url.parse(req.url).pathname;
     filename = path.substring(path.lastIndexOf('/'));
 
-    return this.localesService.getSectionFile(req.session[`shopify-connect-${req.shop}`], themeId, filename)
-    .catch((error: Infrastructure.ShopifyError) => {
-      this.logger.error(error);
-      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
-      if (statusCode === 404) {
-        error.message = `Section file ${filename} in theme ${themeId} not found.`;
-      }
-      const errorRes = {
-        name: error.name,
-        message: error.message,
-        statusCode,
-        id: themeId,
+    return this.localesService
+      .getSectionFile(
+        req.session[`shopify-connect-${req.shop}`],
+        themeId,
         filename,
-        stack: undefined,
-      };
-      if (this.shopifyModuleOptions.app.debug && error.stack) {
-        errorRes.stack = error.stack;
-      }
-      throw new HttpException(errorRes, statusCode);
-    });
+      )
+      .catch((error: Infrastructure.ShopifyError) => {
+        this.logger.error(error);
+        const statusCode = error.statusCode
+          ? error.statusCode
+          : HttpStatus.INTERNAL_SERVER_ERROR;
+        if (statusCode === 404) {
+          error.message = `Section file ${filename} in theme ${themeId} not found.`;
+        }
+        const errorRes = {
+          name: error.name,
+          message: error.message,
+          statusCode,
+          id: themeId,
+          filename,
+          stack: undefined,
+        };
+        if (this.shopifyModuleOptions.app.debug && error.stack) {
+          errorRes.stack = error.stack;
+        }
+        throw new HttpException(errorRes, statusCode);
+      });
   }
 
   /**
@@ -178,43 +207,46 @@ export class LocalesController {
     @Param('theme_id') themeId: number,
     @Param('property_path*') propertyPath: string,
   ) {
-
     const path = url.parse(req.url).pathname;
 
     const findStr = `${themeId}/locales/`;
     propertyPath = path.substring(path.lastIndexOf(findStr) + findStr.length);
     const properties = propertyPath.split('/');
 
-    return this.localesService.get(req.session[`shopify-connect-${req.shop}`], themeId, properties)
-    .then((locale) => {
-      // this.logger.debug(`assets: %O`, locale);
-      if (locale) {
-        return locale;
-      }
-      const error = new Error(`Locales with path ${propertyPath} in theme ${themeId} not found.`);
-      error.name = 'Not found';
-      (error as any).statusCode = 404;
-      throw error;
-    })
-    .catch((error: any) => {
-      this.logger.error(error);
-      const statusCode = error.statusCode ? error.statusCode : HttpStatus.INTERNAL_SERVER_ERROR;
-      if (statusCode === 404) {
-        error.message = `Locales with path ${propertyPath} in theme ${themeId} not found.`;
-      }
-      const errorRes = {
-        name: error.name,
-        message: error.message,
-        statusCode,
-        id: themeId,
-        path,
-        stack: undefined,
-      };
-      if (this.shopifyModuleOptions.app.debug && error.stack) {
-        errorRes.stack = error.stack;
-      }
-      throw new HttpException(errorRes, statusCode);
-    });
+    return this.localesService
+      .get(req.session[`shopify-connect-${req.shop}`], themeId, properties)
+      .then((locale) => {
+        // this.logger.debug(`assets: %O`, locale);
+        if (locale) {
+          return locale;
+        }
+        const error = new Error(
+          `Locales with path ${propertyPath} in theme ${themeId} not found.`,
+        );
+        error.name = 'Not found';
+        (error as any).statusCode = 404;
+        throw error;
+      })
+      .catch((error: any) => {
+        this.logger.error(error);
+        const statusCode = error.statusCode
+          ? error.statusCode
+          : HttpStatus.INTERNAL_SERVER_ERROR;
+        if (statusCode === 404) {
+          error.message = `Locales with path ${propertyPath} in theme ${themeId} not found.`;
+        }
+        const errorRes = {
+          name: error.name,
+          message: error.message,
+          statusCode,
+          id: themeId,
+          path,
+          stack: undefined,
+        };
+        if (this.shopifyModuleOptions.app.debug && error.stack) {
+          errorRes.stack = error.stack;
+        }
+        throw new HttpException(errorRes, statusCode);
+      });
   }
-
 }

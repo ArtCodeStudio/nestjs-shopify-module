@@ -18,10 +18,10 @@ export const ImageSchema = new Schema({
    * The image's src URL.
    */
   src: String,
-})
+});
 
 export const ArticleSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: { type: Number, index: { unique: true } },
   /**
    * The name of the author of this article
    */

@@ -1,2 +1,2 @@
 export * from './availableCharge';
-export * from './plan'
+export * from './plan';

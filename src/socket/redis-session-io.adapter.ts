@@ -4,7 +4,7 @@ import * as express from 'express';
 import Redis from 'ioredis';
 import { createAdapter } from 'socket.io-redis';
 import { Server } from 'socket.io';
-import { Adapter } from 'socket.io-adapter'
+import { Adapter } from 'socket.io-adapter';
 import { SessionIoAdapter } from './session-io.adapter';
 import { DebugService } from '../debug.service';
 
@@ -13,12 +13,16 @@ import { DebugService } from '../debug.service';
  * @see https://github.com/nestjs/nest/blob/master/packages/websockets/adapters/ws-adapter.ts
  */
 export class RedisSessionIoAdapter extends SessionIoAdapter {
-
   protected logger = new DebugService('shopify:SessionIoAdapter');
 
   protected redisAdapter: typeof Adapter;
 
-  constructor(session: express.RequestHandler, redisUrl: string, host: string, appOrHttpServer: INestApplicationContext | HttpServer) {
+  constructor(
+    session: express.RequestHandler,
+    redisUrl: string,
+    host: string,
+    appOrHttpServer: INestApplicationContext | HttpServer,
+  ) {
     super(session, appOrHttpServer);
 
     const pub = new Redis(redisUrl, { keyPrefix: host });
@@ -36,7 +40,7 @@ export class RedisSessionIoAdapter extends SessionIoAdapter {
 
   createIOServer(port: number, options?: any) {
     const server: Server = super.createIOServer(port, options);
-    server.adapter(this.redisAdapter);
+    server.adapter(this.redisAdapter as any); // TODO fix any
     return server;
   }
 }

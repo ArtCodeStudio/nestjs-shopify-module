@@ -11,7 +11,8 @@ import {
   IShopifySyncCollectGetOptions,
   IShopifySyncCollectListOptions,
 } from '../interfaces';
-import { SyncProgressDocument,
+import {
+  SyncProgressDocument,
   Resource,
   ShopifyModuleOptions,
 } from '../../interfaces';
@@ -25,8 +26,7 @@ export class CollectsService extends ShopifyApiRootCountableService<
   IShopifySyncCollectGetOptions, // GetOptions
   IShopifySyncCollectListOptions, // ListOptions
   CollectDocument // DatabaseDocumentType
-  > {
-
+> {
   resourceName: Resource = 'collects';
   subResourceNames: Resource[] = [];
 
@@ -36,8 +36,15 @@ export class CollectsService extends ShopifyApiRootCountableService<
     @Inject('SyncProgressModelToken')
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
-    @Inject(SHOPIFY_MODULE_OPTIONS) protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
   ) {
-    super(collectModel, Collects, eventService, syncProgressModel, shopifyModuleOptions);
+    super(
+      collectModel,
+      Collects,
+      eventService,
+      syncProgressModel,
+      shopifyModuleOptions,
+    );
   }
 }

@@ -5,7 +5,7 @@ import { MetafieldSchema } from './metafield.schema';
 export type PageDocument = DocumentDefinition<Interfaces.Page> & Document;
 
 export const PageSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: { type: Number, index: { unique: true } },
   author: String,
   body_html: String,
   created_at: String,

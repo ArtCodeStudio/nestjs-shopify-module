@@ -4,7 +4,7 @@
  * @param arr array to split
  * @param chunkSize Size of every group
  */
-export function chunkArray(arr: Array<any>, chunkSize: number){
+export function chunkArray(arr: Array<any>, chunkSize: number) {
   const tempArray = new Array<any>();
 
   for (let i = 0; i < arr.length; i += chunkSize) {

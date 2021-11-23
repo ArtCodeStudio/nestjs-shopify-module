@@ -9,4 +9,4 @@ export interface IPlan {
   return_url: string;
 }
 
-export interface IPlanDocument extends IPlan, Document {};
+export interface IPlanDocument extends IPlan, Document {}

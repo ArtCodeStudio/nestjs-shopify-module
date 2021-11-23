@@ -13,7 +13,13 @@ export interface ISubSyncProgress {
   createdAt: Date;
   updatedAt: Date;
   error: string | null;
-  state: 'starting' | 'running' | 'failed' | 'cancelling' | 'cancelled' | 'success';
+  state:
+    | 'starting'
+    | 'running'
+    | 'failed'
+    | 'cancelling'
+    | 'cancelled'
+    | 'success';
   continuedFromPrevious?: Types.ObjectId;
 }
 

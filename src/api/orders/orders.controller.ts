@@ -1,4 +1,15 @@
-import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus, HttpException, Header } from '@nestjs/common';
+import {
+  Controller,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+  Res,
+  Get,
+  HttpStatus,
+  HttpException,
+  Header,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { OrdersService } from './orders.service';
 import { DebugService } from '../../debug.service';
@@ -18,9 +29,7 @@ import {
 
 @Controller('shopify/api/orders')
 export class OrdersController {
-  constructor(
-    protected readonly ordersService: OrdersService,
-  ) {}
+  constructor(protected readonly ordersService: OrdersService) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   @UseGuards(ShopifyApiGuard)
@@ -34,8 +43,10 @@ export class OrdersController {
     @Query('created_at_max') created_at_max?: string,
     @Query('created_at_min') created_at_min?: string,
     @Query('fields') fields?: string,
-    @Query('financial_status') financial_status?: Interfaces.Order['financial_status'],
-    @Query('fulfillment_status') fulfillment_status?: Interfaces.Order['fulfillment_status'],
+    @Query('financial_status')
+    financial_status?: Interfaces.Order['financial_status'],
+    @Query('fulfillment_status')
+    fulfillment_status?: Interfaces.Order['fulfillment_status'],
     @Query('limit') limit?: number,
     @Query('page') page?: number,
     @Query('processed_at_max') processed_at_max?: string,
@@ -70,7 +81,10 @@ export class OrdersController {
         updated_at_max,
         updated_at_min,
       };
-      return await this.ordersService.listFromShopify(req.session[`shopify-connect-${req.shop}`], options);
+      return await this.ordersService.listFromShopify(
+        req.session[`shopify-connect-${req.shop}`],
+        options,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -88,7 +102,11 @@ export class OrdersController {
     @Query() options: IAppOrderListOptions,
   ) {
     try {
-      return await this.ordersService.listFromDb(req.session[`shopify-connect-${req.shop}`], options, {});
+      return await this.ordersService.listFromDb(
+        req.session[`shopify-connect-${req.shop}`],
+        options,
+        {},
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -99,16 +117,31 @@ export class OrdersController {
   @Roles('shopify-staff-member')
   @Get('all')
   @Header('Content-type', 'application/json')
-  listAllFromShopify(@Req() req: IUserRequest, @Res() res: Response, @Query() options: IShopifySyncOrderListOptions) {
-    this.ordersService.listAllFromShopifyStream(req.session[`shopify-connect-${req.shop}`], {...options, status: 'any'}).pipe(res);
+  listAllFromShopify(
+    @Req() req: IUserRequest,
+    @Res() res: Response,
+    @Query() options: IShopifySyncOrderListOptions,
+  ) {
+    this.ordersService
+      .listAllFromShopifyStream(req.session[`shopify-connect-${req.shop}`], {
+        ...options,
+        status: 'any',
+      })
+      .pipe(res);
   }
 
   @UseGuards(ShopifyApiGuard)
   @Roles('shopify-staff-member')
   @Get('db/count')
-  async countFromDb(@Req() req: IUserRequest, @Query() options: IShopifySyncOrderCountOptions) {
+  async countFromDb(
+    @Req() req: IUserRequest,
+    @Query() options: IShopifySyncOrderCountOptions,
+  ) {
     try {
-      return await this.ordersService.countFromDb(req.session[`shopify-connect-${req.shop}`], options);
+      return await this.ordersService.countFromDb(
+        req.session[`shopify-connect-${req.shop}`],
+        options,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -120,7 +153,9 @@ export class OrdersController {
   @Get('db/diff')
   async diffSynced(@Req() req: IUserRequest) {
     try {
-      return await this.ordersService.diffSynced(req.session[`shopify-connect-${req.shop}`]);
+      return await this.ordersService.diffSynced(
+        req.session[`shopify-connect-${req.shop}`],
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -135,7 +170,10 @@ export class OrdersController {
     @Query() options: IShopifySyncOrderCountOptions,
   ) {
     try {
-      return await this.ordersService.countFromShopify(req.session[`shopify-connect-${req.shop}`], options);
+      return await this.ordersService.countFromShopify(
+        req.session[`shopify-connect-${req.shop}`],
+        options,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -147,7 +185,10 @@ export class OrdersController {
   @Get(':id/db')
   async getFromDb(@Req() req: IUserRequest, @Param('id') id: number) {
     try {
-      return await this.ordersService.getFromDb(req.session[`shopify-connect-${req.shop}`], id);
+      return await this.ordersService.getFromDb(
+        req.session[`shopify-connect-${req.shop}`],
+        id,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -159,7 +200,9 @@ export class OrdersController {
   @Get('sync-progress/all')
   async listSyncProgress(@Req() req: IUserRequest) {
     try {
-      return await this.ordersService.listSyncProgress(req.session[`shopify-connect-${req.shop}`]);
+      return await this.ordersService.listSyncProgress(
+        req.session[`shopify-connect-${req.shop}`],
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -171,7 +214,9 @@ export class OrdersController {
   @Get('sync-progress')
   async getLastSyncProgress(@Req() req: IUserRequest) {
     try {
-      return await this.ordersService.getLastSyncProgress(req.session[`shopify-connect-${req.shop}`]);
+      return await this.ordersService.getLastSyncProgress(
+        req.session[`shopify-connect-${req.shop}`],
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -183,7 +228,10 @@ export class OrdersController {
   @Get(':id')
   async getFromShopify(@Req() req: IUserRequest, @Param('id') id: number) {
     try {
-      return await this.ordersService.getFromShopify(req.session[`shopify-connect-${req.shop}`], id);
+      return await this.ordersService.getFromShopify(
+        req.session[`shopify-connect-${req.shop}`],
+        id,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);

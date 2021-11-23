@@ -21,16 +21,11 @@ import { Roles } from '../../../guards/roles.decorator';
 // Interfaces
 import { Interfaces } from 'shopify-admin-api';
 import { IUserRequest } from '../../../interfaces/user-request';
-import {
-  IShopifySyncArticleListOptions,
-} from '../../interfaces';
+import { IShopifySyncArticleListOptions } from '../../interfaces';
 
 @Controller('shopify/api/blogs')
 export class ArticlesController {
-
-  constructor(
-    protected readonly articlesService: ArticlesService,
-  ) {}
+  constructor(protected readonly articlesService: ArticlesService) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   /**
@@ -49,11 +44,12 @@ export class ArticlesController {
   ) {
     this.logger.debug('create article: %O', article);
     try {
-      return this.articlesService.create(req.session[`shopify-connect-${req.shop}`], blogId, article)
-      .then((result) => {
-        this.logger.debug('result: %O', result);
-        return result;
-      });
+      return this.articlesService
+        .create(req.session[`shopify-connect-${req.shop}`], blogId, article)
+        .then((result) => {
+          this.logger.debug('result: %O', result);
+          return result;
+        });
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -83,7 +79,8 @@ export class ArticlesController {
     @Query('limit') limit?: number,
     @Query('published_at_max') published_at_max?: string,
     @Query('published_at_min') published_at_min?: string,
-    @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
+    @Query('published_status')
+    published_status?: 'published' | 'unpublished' | 'any',
     @Query('since_id') since_id?: number,
     @Query('tag') tag?: string,
     @Query('updated_at_max') updated_at_max?: string,
@@ -121,7 +118,11 @@ export class ArticlesController {
       };
 
       this.logger.debug('ArticleListOptions', options);
-      return await this.articlesService.list(req.session[`shopify-connect-${req.shop}`], blogId, options);
+      return await this.articlesService.list(
+        req.session[`shopify-connect-${req.shop}`],
+        blogId,
+        options,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -141,7 +142,8 @@ export class ArticlesController {
     @Param('blog_id') blogId: number,
     @Query('created_at_max') created_at_max: string,
     @Query('created_at_min') created_at_min: string,
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any',
+    @Query('published_status')
+    published_status: 'published' | 'unpublished' | 'any',
     @Query('published_at_max') published_at_max: string,
     @Query('published_at_min') published_at_min: string,
     @Query('updated_at_max') updated_at_max: string,
@@ -151,15 +153,19 @@ export class ArticlesController {
       if (req.session.isThemeClientRequest) {
         published_status = 'published'; // For security reasons, only return public articles if the request comes not from a logged in user
       }
-      return await this.articlesService.count(req.session[`shopify-connect-${req.shop}`], blogId, {
-        created_at_max,
-        created_at_min,
-        published_at_max,
-        published_at_min,
-        published_status,
-        updated_at_max,
-        updated_at_min,
-      });
+      return await this.articlesService.count(
+        req.session[`shopify-connect-${req.shop}`],
+        blogId,
+        {
+          created_at_max,
+          created_at_min,
+          published_at_max,
+          published_at_min,
+          published_status,
+          updated_at_max,
+          updated_at_min,
+        },
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -180,7 +186,11 @@ export class ArticlesController {
     @Param('id') id: number,
   ) {
     try {
-      return await this.articlesService.get(req.session[`shopify-connect-${req.shop}`], blogId, id);
+      return await this.articlesService.get(
+        req.session[`shopify-connect-${req.shop}`],
+        blogId,
+        id,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -201,7 +211,11 @@ export class ArticlesController {
     @Param('article_id') id: number,
   ) {
     try {
-      return await this.articlesService.delete(req.session[`shopify-connect-${req.shop}`], blogId, id);
+      return await this.articlesService.delete(
+        req.session[`shopify-connect-${req.shop}`],
+        blogId,
+        id,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -225,11 +239,15 @@ export class ArticlesController {
   ) {
     this.logger.debug('update article', id, article);
     try {
-      return await this.articlesService.update(req.session[`shopify-connect-${req.shop}`], blogId, id, article);
+      return await this.articlesService.update(
+        req.session[`shopify-connect-${req.shop}`],
+        blogId,
+        id,
+        article,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
 }

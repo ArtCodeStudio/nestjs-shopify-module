@@ -1,11 +1,11 @@
 import { Schema, Document, DocumentDefinition } from 'mongoose';
 import { Interfaces } from 'shopify-admin-api';
-import { ProductVariantSchema } from './product-variant.schema'
+import { ProductVariantSchema } from './product-variant.schema';
 
 export type ProductDocument = DocumentDefinition<Interfaces.Product> & Document;
 
 export const ProductOptionSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: { type: Number, index: { unique: true } },
   product_id: Number,
   name: String,
   position: Number,
@@ -13,7 +13,7 @@ export const ProductOptionSchema = new Schema({
 });
 
 export const ProductImageSchema = new Schema({
-  id: {type: Number, index: {unique: true, sparse: true}},
+  id: { type: Number, index: { unique: true, sparse: true } },
   admin_graphql_api_id: String,
   alt: String,
   created_at: String,
@@ -27,7 +27,7 @@ export const ProductImageSchema = new Schema({
 });
 
 export const ProductSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: { type: Number, index: { unique: true } },
   admin_graphql_api_id: String,
   body_html: String,
   created_at: String,

@@ -13,13 +13,12 @@ import { SessionSocket } from '../interfaces/session-socket';
  */
 @Injectable()
 export class RolesGuard implements CanActivate {
-
   protected logger = new DebugService('shopify:RolesGuard');
 
   constructor(
     private readonly reflector: Reflector,
     private readonly shopifyAuthService: ShopifyAuthService,
-    ) {}
+  ) {}
 
   canActivate(
     context: ExecutionContext,
@@ -54,7 +53,6 @@ export class RolesGuard implements CanActivate {
   }
 
   validateRequest(req: IUserRequest, roles?: TRoles) {
-
     // if no roles are passtthis route do not need any role so activate this with true
     if (!roles || roles.length === 0) {
       return true;
@@ -84,11 +82,17 @@ export class RolesGuard implements CanActivate {
     }
 
     // DO NOT USE request.session.user because this can always be set on theme requests
-    if (!this.hasRole(client.handshake.session[`user-${client.handshake.session.currentShop}`], roles)) {
+    if (
+      !this.hasRole(
+        client.handshake.session[
+          `user-${client.handshake.session.currentShop}`
+        ],
+        roles,
+      )
+    ) {
       return false;
     }
 
     return true;
   }
-
 }
