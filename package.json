@@ -89,7 +89,7 @@
     "@types/ioredis": "^4.28.1",
     "@types/jest": "^27.0.3",
     "@types/mongodb": "^3.6.20",
-    "@types/node": "^16.11.9",
+    "@types/node": "^16.11.10",
     "@types/node-fetch": "^3.0.3",
     "@types/passport": "^1.0.7",
     "@types/retry": "^0.12.1",
