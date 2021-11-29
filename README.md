@@ -1,4 +1,8 @@
-# nest-shopify
+# Nest Shopify Module
+
+## Example
+
+* [ParcelLab Shopify App](https://github.com/ArtCodeStudio/parcel-lab-shopify-app) for a real application build with the Nest Shopify Module
 
 ## License
 
