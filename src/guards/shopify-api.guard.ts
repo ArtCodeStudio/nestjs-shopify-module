@@ -1,28 +1,33 @@
-import { CanActivate, ExecutionContext, Injectable, Inject } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  Inject,
+} from "@nestjs/common";
+import { Observable } from "rxjs";
 
-import { IUserRequest } from '../interfaces/user-request';
-import { ShopifyConnectService } from '../auth/connect.service';
-import { ShopifyAuthService } from '../auth/auth.service';
-import { SessionSocket } from '../interfaces/session-socket';
-
-import { DebugService } from '../debug.service';
+import { IUserRequest } from "../interfaces/user-request";
+import { ShopifyConnectService } from "../auth/connect.service";
+import { ShopifyAuthService } from "../auth/auth.service";
+import { SessionSocket, IShopifyConnect } from "../interfaces";
+import { DebugService } from "../debug.service";
 
 /**
  *
  */
 @Injectable()
 class ShopifyApiGuard implements CanActivate {
-
-  protected logger = new DebugService('shopify:ShopifyApiGuard');
+  protected logger = new DebugService("shopify:ShopifyApiGuard");
 
   constructor(
-    @Inject(ShopifyConnectService) private readonly shopifyConnectService: ShopifyConnectService,
-    @Inject(ShopifyAuthService) private readonly shopifyAuthService: ShopifyAuthService,
+    @Inject(ShopifyConnectService)
+    private readonly shopifyConnectService: ShopifyConnectService,
+    @Inject(ShopifyAuthService)
+    private readonly shopifyAuthService: ShopifyAuthService
   ) {}
 
   canActivate(
-    context: ExecutionContext,
+    context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
     // this.logger.debug('context', context);
     const request = context.switchToHttp().getRequest() as IUserRequest;
@@ -43,28 +48,34 @@ class ShopifyApiGuard implements CanActivate {
   /**
    * @param request Validate http request
    */
-  validateRequest(request: IUserRequest) {
+  validateRequest(req: IUserRequest) {
     // See get-shopify-connect.middleware.ts
-    if (request.shopifyConnect) {
+    if (req.session[`shopify-connect-${req.shop}`]) {
       return true;
     }
     return false;
   }
 
   /**
-   *
+   * Uses https://github.com/oskosk/express-socket.io-session to get the session from handshake
    * @param client Validate websocket request
    */
   validateClient(client: SessionSocket) {
-    /**
-     * Use https://github.com/oskosk/express-socket.io-session to get the session from handshake
-     */
-    if (client.handshake && client.handshake.session && client.handshake.session.shopifyConnect) {
+    const shop = client.handshake.session.currentShop;
+    let shopifyConnect: IShopifyConnect;
+    if (shop) {
+      shopifyConnect = client.handshake.session[`shopify-connect-${shop}`];
+    }
+    if (!shopifyConnect) {
+      shopifyConnect = client.handshake.session.shopifyConnect; // DEPRECATED
+    }
+
+    if (shopifyConnect) {
       return true;
     }
+
     return false;
   }
-
 }
 
 export { ShopifyApiGuard };

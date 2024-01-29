@@ -1,5 +1,5 @@
-import { Models } from 'shopify-admin-api';
+import { Interfaces } from "shopify-admin-api";
 
-export interface IAppAsset extends Models.Asset {
+export interface IAppAsset extends Interfaces.Asset {
   json?: any;
 }

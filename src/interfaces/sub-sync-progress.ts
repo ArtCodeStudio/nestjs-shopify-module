@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import type { Types } from "mongoose";
 
 export interface ISubSyncProgress {
   /**
@@ -13,8 +13,14 @@ export interface ISubSyncProgress {
   createdAt: Date;
   updatedAt: Date;
   error: string | null;
-  state: 'starting' | 'running' | 'failed' | 'cancelling' | 'cancelled' | 'success';
-  continuedFromPrevious?: Schema.Types.ObjectId;
+  state:
+    | "starting"
+    | "running"
+    | "failed"
+    | "cancelling"
+    | "cancelled"
+    | "success";
+  continuedFromPrevious?: Types.ObjectId;
 }
 
 export interface IOrderSyncProgress extends ISubSyncProgress {

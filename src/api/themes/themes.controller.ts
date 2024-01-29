@@ -1,80 +1,68 @@
-import { Controller, Param, Query, UseGuards, Req, Res, Get, HttpStatus } from '@nestjs/common';
-import { Response } from 'express';
-import { Roles } from '../../guards/roles.decorator';
-import { DebugService } from './../../debug.service';
-import { ThemesService } from './themes.service';
-import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
-import { IUserRequest } from '../../interfaces/user-request';
-import { IShopifyConnect } from '../../auth/interfaces/connect';
+import {
+  Controller,
+  Param,
+  UseGuards,
+  Req,
+  Get,
+  HttpStatus,
+  HttpException,
+} from "@nestjs/common";
+import { Roles } from "../../guards/roles.decorator";
+import { DebugService } from "./../../debug.service";
+import { ThemesService } from "./themes.service";
+import { ShopifyApiGuard } from "../../guards/shopify-api.guard";
+import { IUserRequest } from "../../interfaces/user-request";
 
-@Controller('shopify/api/themes')
+@Controller("shopify/api/themes")
 export class ThemesController {
-
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
-  constructor(
-    protected readonly themesService: ThemesService,
-  ) {  }
+  constructor(protected readonly themesService: ThemesService) {}
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles("shopify-staff-member")
   @Get()
-  getThemes(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-  ) {
-    this.themesService.listFromShopify(req.user)
-    .then((themes) => {
-      // this.logger.debug(`themes`, themes);
-      return res.jsonp(themes);
-    })
-    .catch((error: Error) => {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
+  getThemes(@Req() req: IUserRequest) {
+    const shop = req.session.currentShop || req.shop;
+    return this.themesService
+      .listFromShopify(req.session[`user-${shop}`])
+      .catch((error: Error) => {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       });
-    });
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('active')
-  getActiveTheme(
-    @Req() req,
-    @Res() res: Response,
-  ) {
-    this.themesService.getActive(req.user)
-    .then((theme) => {
-      // this.logger.debug(`theme`, theme);
-      return res.jsonp(theme);
-    })
-    .catch((error: Error) => {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
+  @Roles("shopify-staff-member")
+  @Get("active")
+  getActiveTheme(@Req() req) {
+    const shop = req.session.currentShop || req.shop;
+    return this.themesService
+      .getActive(req.session[`user-${shop}`])
+      .catch((error: Error) => {
+        this.logger.error(error);
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       });
-    });
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get(':theme_id')
-  getTheme(
-    @Param('theme_id') themeId: number,
-    @Req() req,
-    @Res() res: Response,
-  ) {
-    this.themesService.getFromShopify(req.user, themeId)
-    .then((theme) => {
-      // this.logger.debug(`theme`, theme);
-      return res.jsonp(theme);
-    })
-    .catch((error: Error) => {
-      this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
+  @Roles("shopify-staff-member")
+  @Get(":theme_id")
+  getTheme(@Param("theme_id") themeId: number, @Req() req) {
+    const shop = req.session.currentShop || req.shop;
+    return this.themesService
+      .getFromShopify(req.session[`user-${shop}`], themeId)
+      .catch((error: Error) => {
+        this.logger.error(error);
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       });
-    });
   }
-
 }

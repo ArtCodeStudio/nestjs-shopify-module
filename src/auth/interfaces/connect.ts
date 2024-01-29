@@ -1,10 +1,10 @@
-import { TRoles } from './role';
-import { Document } from 'mongoose';
+import { TRoles } from "./role";
+import { Document, Types } from "mongoose";
 
-import { IShopifyShop } from '../../shop/interfaces/shop';
+import { IShopifyShop } from "../../shop/interfaces/shop";
 
 export interface IShopifyConnect {
-  _id: string;
+  _id: Types.ObjectId;
   shopifyID: number;
   myshopify_domain: string;
   accessToken: string;
@@ -15,12 +15,5 @@ export interface IShopifyConnect {
 }
 
 export interface IShopifyConnectDocument extends IShopifyConnect, Document {
-  _id: string;
-  shopifyID: number;
-  myshopify_domain: string;
-  accessToken: string;
-  createdAt: Date;
-  updatedAt: Date;
-  roles: TRoles;
-  shop: IShopifyShop;
+  _id: Types.ObjectId;
 }

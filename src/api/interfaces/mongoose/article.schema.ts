@@ -1,11 +1,27 @@
-import { Schema, Document } from 'mongoose';
-import { Article, MetaField } from 'shopify-admin-api/dist/models';
-import { MetafieldSchema } from './metafield.schema';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
 
-export type ArticleDocument = Article & Document;
+export type ArticleDocument = DocumentDefinition<Interfaces.Article> & Document;
+
+export const ImageSchema = new Schema({
+  /**
+   * A base64 image string only used when creating an image. It will be converted to the src property.
+   */
+  attachment: String,
+
+  /**
+   * The date and time the image was created.
+   */
+  created_at: String,
+
+  /**
+   * The image's src URL.
+   */
+  src: String,
+});
 
 export const ArticleSchema = new Schema({
-  id: {type: Number, index: {unique: true}},
+  id: { type: Number, index: { unique: true } },
   /**
    * The name of the author of this article
    */
@@ -34,22 +50,7 @@ export const ArticleSchema = new Schema({
   /**
    * The article image.
    */
-  image: {
-    /**
-     * A base64 image string only used when creating an image. It will be converted to the src property.
-     */
-    attachment: String,
-
-    /**
-     * The date and time the image was created.
-     */
-    created_at: String,
-
-    /**
-     * The image's src URL.
-     */
-    src: String,
-  },
+  image: ImageSchema,
 
   /**
    * States whether or not the article is visible.

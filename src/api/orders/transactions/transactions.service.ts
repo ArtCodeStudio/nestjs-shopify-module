@@ -1,85 +1,101 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { Transactions, Options } from 'shopify-admin-api';
-import { IShopifyConnect } from '../../../auth/interfaces';
-import { Transaction } from 'shopify-admin-api/dist/models';
+import { Inject, Injectable } from "@nestjs/common";
+import { Transactions } from "shopify-admin-api";
+import { IShopifyConnect } from "../../../auth/interfaces";
+import { Interfaces } from "shopify-admin-api";
 import {
   TransactionDocument,
-  IAppTransactionCountOptions,
-  IAppTransactionGetOptions,
-  IAppTransactionListOptions,
   IShopifySyncTransactionCountOptions,
   IShopifySyncTransactionGetOptions,
   IShopifySyncTransactionListOptions,
-} from '../../interfaces';
-import { ShopifyModuleOptions } from '../../../interfaces';
-import { Model } from 'mongoose';
-import { getDiff } from '../../../helpers/diff';
-import { ShopifyApiChildCountableService } from '../../shopify-api-child-countable.service';
-import { EventService } from '../../../event.service';
-import { ElasticsearchService } from '../../../elasticsearch.service';
-import { SwiftypeService } from '../../../swiftype.service';
+} from "../../interfaces";
+import { ShopifyModuleOptions, Resource } from "../../../interfaces";
+import { SHOPIFY_MODULE_OPTIONS } from "../../../shopify.constants";
+import { Model } from "mongoose";
+import { getDiff, shopifyRetry } from "../../../helpers";
+import { ShopifyApiChildCountableService } from "../../shopify-api-child-countable.service";
+import { EventService } from "../../../event.service";
 
 @Injectable()
 export class TransactionsService extends ShopifyApiChildCountableService<
-Transaction,
-Transactions,
-IShopifySyncTransactionCountOptions,
-IShopifySyncTransactionGetOptions,
-IShopifySyncTransactionListOptions
->
-{
-
-  resourceName = 'transactions';
-  subResourceNames = [];
+  Interfaces.Transaction,
+  Transactions,
+  IShopifySyncTransactionCountOptions,
+  IShopifySyncTransactionGetOptions,
+  IShopifySyncTransactionListOptions
+> {
+  resourceName: Resource = "transactions";
+  subResourceNames: Resource[] = [];
 
   constructor(
-    protected readonly esService: ElasticsearchService,
-    @Inject('TransactionModelToken')
-    private readonly transactionModel: (shopName: string) => Model<TransactionDocument>,
-    protected readonly swiftypeService: SwiftypeService,
+    @Inject("TransactionModelToken")
+    private readonly transactionModel: (
+      shopName: string
+    ) => Model<TransactionDocument>,
     private readonly eventService: EventService,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions
   ) {
-    super(esService, transactionModel, swiftypeService, Transactions, eventService);
+    super(transactionModel, Transactions, eventService, shopifyModuleOptions);
   }
 
   public async getFromShopify(
     user: IShopifyConnect,
     order_id: number,
     id: number,
-    options: IShopifySyncTransactionGetOptions = {},
-  ): Promise<Transaction|null> {
-    const transactions = new Transactions(user.myshopify_domain, user.accessToken);
+    options: IShopifySyncTransactionGetOptions = {}
+  ): Promise<Interfaces.Transaction | null> {
+    const transactions = new Transactions(
+      user.myshopify_domain,
+      user.accessToken
+    );
     const syncToDb = options && options.syncToDb;
-    const syncToSwiftype = options && options.syncToSwiftype;
-    const syncToEs = options && options.syncToEs;
-    return transactions.get(order_id, id)
-    .then(async (transaction) => {
-      return this.updateOrCreateInApp(user, 'id', transaction, syncToDb, syncToSwiftype, syncToEs)
-      .then((_) => {
-        return transaction;
-      });
+
+    const transaction = await shopifyRetry(() => {
+      return transactions.get(order_id, id);
     });
+
+    if (
+      this.shopifyModuleOptions.sync.enabled &&
+      this.shopifyModuleOptions.sync.autoSyncResources.includes(
+        this.resourceName
+      )
+    ) {
+      await this.updateOrCreateInApp(user, "id", transaction, syncToDb);
+    }
+
+    return transaction;
   }
 
-  public async countFromShopify(user: IShopifyConnect, orderId: number): Promise<number> {
-    const transactions = new Transactions(user.myshopify_domain, user.accessToken);
+  public async countFromShopify(
+    user: IShopifyConnect,
+    orderId: number
+  ): Promise<number> {
+    const transactions = new Transactions(
+      user.myshopify_domain,
+      user.accessToken
+    );
     return await transactions.count(orderId);
   }
 
-  public async diffSynced(user: IShopifyConnect, order_id: number): Promise<any> {
+  public async diffSynced(
+    user: IShopifyConnect,
+    order_id: number
+  ): Promise<any> {
     const fromDb = await this.listFromDb(user);
     const fromShopify = await this.listFromShopify(user, order_id);
     let dbObj;
-    return fromShopify.map((obj) =>
-      dbObj = fromDb.find((x) => {
-        return x.id === obj.id;
-      }) && {
-        [obj.id]: getDiff(obj, dbObj)
-        .filter((x) => {
-          return x.operation !== 'update' && !x.path.endsWith('._id');
-        }),
-      },
-    )
-    .reduce((a, c) => ({...a, ...c}), {});
+    return fromShopify
+      .map(
+        (obj) =>
+          (dbObj = fromDb.find((x) => {
+            // FIXME: should not be necessary to use "toString", as both should be integers. Something must be wrong in the transactionModel definition (Document, DocumentType)
+            return x.id.toString() === obj.id.toString();
+          }) && {
+            [obj.id]: getDiff(obj, dbObj).filter((x) => {
+              return x.operation !== "update" && !x.path.endsWith("._id");
+            }),
+          })
+      )
+      .reduce((a, c) => ({ ...a, ...c }), {});
   }
 }

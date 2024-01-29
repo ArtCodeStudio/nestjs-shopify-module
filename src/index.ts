@@ -1,15 +1,19 @@
-export * from './shopify.module';
+export * from "shopify-admin-api";
 
-export { SHOPIFY_MODULE_OPTIONS } from './shopify.constants';
+export * from "./shopify.module";
 
-export * from './interfaces';
-export * from './shop/interfaces';
-export * from './auth/interfaces';
-export * from './api/interfaces';
-export * from './charge/interfaces';
+export { SHOPIFY_MODULE_OPTIONS } from "./shopify.constants";
 
-export * from './middlewares';
+export * from "./interfaces";
+export * from "./shop/interfaces";
+export * from "./auth/interfaces";
+export * from "./api/interfaces";
+export * from "./charge/interfaces";
 
-export * from './guards';
+export * from "./middlewares";
+export * from "./guards";
+export * from "./socket";
 
-export { ShopifyShopSchema } from './shop/shop.schema';
+export { ShopifyShopSchema } from "./shop/shop.schema";
+
+export { DebugService } from "./debug.service";

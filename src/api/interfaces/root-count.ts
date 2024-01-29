@@ -1,3 +1,3 @@
-export interface RootCount<CountOptions extends object = {}> {
+export interface RootCount<CountOptions> {
   count(options: CountOptions): Promise<number>;
 }

@@ -1,56 +1,59 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { EventService } from '../../event.service';
-import { TransactionsService } from './transactions/transactions.service';
-import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
-import { ElasticsearchService } from '../../elasticsearch.service';
-import { SwiftypeService } from '../../swiftype.service';
+import { Inject, Injectable } from "@nestjs/common";
+import { EventService } from "../../event.service";
+import { TransactionsService } from "./transactions/transactions.service";
+import { ShopifyApiRootCountableService } from "../shopify-api-root-countable.service";
 
 // Interfaces
-import { Model } from 'mongoose';
-import { Order } from 'shopify-admin-api/dist/models';
-import { Orders } from 'shopify-admin-api';
+import { Model } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
+import { Orders } from "shopify-admin-api";
 import {
   OrderDocument,
   IShopifySyncOrderCountOptions,
   IShopifySyncOrderGetOptions,
   IShopifySyncOrderListOptions,
-  IAppOrderCountOptions,
-  IAppOrderGetOptions,
-  IAppOrderListOptions,
-} from '../interfaces';
+} from "../interfaces";
 import {
   SyncProgressDocument,
   IStartSyncOptions,
   OrderSyncProgressDocument,
-} from '../../interfaces';
-import { IListAllCallbackData } from '../../api/interfaces';
-import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { mongooseParallelRetry } from '../../helpers';
+  Resource,
+  ShopifyModuleOptions,
+} from "../../interfaces";
+import { IListAllCallbackData } from "../../api/interfaces";
+import { IShopifyConnect } from "../../auth/interfaces/connect";
+import { mongooseParallelRetry } from "../../helpers";
+import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 
 @Injectable()
 export class OrdersService extends ShopifyApiRootCountableService<
-  Order, // ShopifyObjectType
+  Interfaces.Order, // ShopifyObjectType
   Orders, // ShopifyModelClass
   IShopifySyncOrderCountOptions, // CountOptions
   IShopifySyncOrderGetOptions, // GetOptions
   IShopifySyncOrderListOptions, // ListOptions
   OrderDocument // DatabaseDocumentType
-  > {
-
-  resourceName = 'orders';
-  subResourceNames = ['transactions'];
+> {
+  resourceName: Resource = "orders";
+  subResourceNames: Resource[] = ["transactions"];
 
   constructor(
-    protected readonly esService: ElasticsearchService,
-    @Inject('OrderModelToken')
+    @Inject("OrderModelToken")
     private readonly orderModel: (shopName: string) => Model<OrderDocument>,
-    protected readonly swiftypeService: SwiftypeService,
-    @Inject('SyncProgressModelToken')
+    @Inject("SyncProgressModelToken")
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
     private readonly transactionsService: TransactionsService,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions
   ) {
-    super(esService, orderModel, swiftypeService, Orders, eventService, syncProgressModel);
+    super(
+      orderModel,
+      Orders,
+      eventService,
+      syncProgressModel,
+      shopifyModuleOptions
+    );
   }
 
   /**
@@ -67,19 +70,21 @@ export class OrdersService extends ShopifyApiRootCountableService<
     progress: SyncProgressDocument,
     subProgress: OrderSyncProgressDocument,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Order>,
+    data: IListAllCallbackData<Interfaces.Order>
   ): Promise<void> {
     const orders = data.data;
     const lastOrder = orders[orders.length - 1];
     if (options.includeTransactions) {
       for (const order of orders) {
-        const transactions = await this.transactionsService.listFromShopify(shopifyConnect, order.id, {
-          syncToDb: options.syncToDb,
-          syncToSwiftype: options.syncToSwiftype,
-          syncToEs: options.syncToEs,
-        });
+        const transactions = await this.transactionsService.listFromShopify(
+          shopifyConnect,
+          order.id,
+          {
+            syncToDb: options.syncToDb,
+          }
+        );
         subProgress.syncedTransactionsCount += transactions.length;
-        subProgress.syncedCount ++;
+        subProgress.syncedCount++;
         subProgress.lastId = order.id;
         subProgress.info = order.name;
         await mongooseParallelRetry(() => {
@@ -97,9 +102,11 @@ export class OrdersService extends ShopifyApiRootCountableService<
    *
    * @param syncOptions
    */
-  protected getSyncCountOptions(syncOptions: IStartSyncOptions): IShopifySyncOrderCountOptions {
-    this.logger.debug(`getSyncCountOptions`, syncOptions);
-    this.logger.debug({status: 'any'});
-    return { status: 'any'};
+  protected getSyncCountOptions(
+    syncOptions: IStartSyncOptions
+  ): IShopifySyncOrderCountOptions {
+    this.logger.debug(`getSyncCountOptions: %O`, syncOptions);
+    this.logger.debug("status %o:", { status: "any" });
+    return { status: "any" };
   }
 }

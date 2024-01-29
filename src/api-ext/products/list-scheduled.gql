@@ -1,0 +1,35 @@
+query listScheduled($first: Int!, $query: String!, $reverse: Boolean!, $sortKey: ProductSortKeys!, $after: String) {
+  products(query:$query, first:$first, reverse:$reverse, sortKey:$sortKey, after:$after) {
+    edges {
+      node {
+        legacyResourceId
+        handle
+        title
+        tags
+        priceRangeV2 {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        media(first: 2) {
+          edges {
+            node {
+              preview {
+                image {
+                  smallImage: transformedSrc(maxWidth: 370, maxHeight: 555, scale: 1)
+                  bigImage: transformedSrc(maxWidth: 740, maxHeight: 1110, scale: 1)
+                }
+              }
+              alt
+            }
+          }
+        }
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}

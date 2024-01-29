@@ -1,17 +1,22 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { Options, Models, Assets } from 'shopify-admin-api';
-import { AssetDocument, IAppAsset, IAppAssetListOptions } from '../../interfaces';
-import { IShopifyConnect } from '../../../auth/interfaces/connect';
-import { Model, Types } from 'mongoose';
-import { DebugService } from '../../../debug.service';
+import { Inject, Injectable } from "@nestjs/common";
+import { Options, Interfaces, Assets } from "shopify-admin-api";
+import {
+  AssetDocument,
+  IAppAsset,
+  IAppAssetListOptions,
+} from "../../interfaces";
+import { IShopifyConnect } from "../../../auth/interfaces/connect";
+import { Model } from "mongoose";
+import { DebugService } from "../../../debug.service";
 
 @Injectable()
 export class AssetsService {
-  constructor(
-    @Inject('AssetModelToken')
-    private readonly assetModel: Model<AssetDocument>,
-  ) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
+
+  constructor(
+    @Inject("AssetModelToken")
+    private readonly assetModel: Model<AssetDocument>
+  ) {}
 
   // https://stackoverflow.com/a/273810/1465919
   // https://stackoverflow.com/a/5440771/1465919
@@ -27,14 +32,30 @@ export class AssetsService {
   }
 
   private parseSection(asset: IAppAsset) {
-    const startSchema = this.regexIndexOf(asset.value, /{%\s*?schema\s*?%}/gm, false);
-    const endSchema = this.regexIndexOf(asset.value, /{%\s*?endschema\s*?%}/gm, true);
+    const startSchema = this.regexIndexOf(
+      asset.value,
+      /{%\s*?schema\s*?%}/gm,
+      false
+    );
+    const endSchema = this.regexIndexOf(
+      asset.value,
+      /{%\s*?endschema\s*?%}/gm,
+      true
+    );
     const startLiquid = 0;
-    const endLiquid = this.regexIndexOf(asset.value, /{%\s*?endschema\s*?%}/gm, true);
+    const endLiquid = this.regexIndexOf(
+      asset.value,
+      /{%\s*?endschema\s*?%}/gm,
+      true
+    );
     // this.logger.debug(`startSchema: ${startSchema} endSchema: ${endSchema}`);
     if (startSchema >= 0 && endSchema >= 0) {
-      const sectionSchemaString = asset.value.substring(startSchema, endSchema).trim();
-      const sectionLiquidString = asset.value.substring(startLiquid, endLiquid).trim();
+      const sectionSchemaString = asset.value
+        .substring(startSchema, endSchema)
+        .trim();
+      const sectionLiquidString = asset.value
+        .substring(startLiquid, endLiquid)
+        .trim();
       let sectionSchema;
       try {
         sectionSchema = asset.value = JSON.parse(sectionSchemaString);
@@ -52,28 +73,27 @@ export class AssetsService {
     return asset;
   }
 
-  private parseLocale(asset: IAppAsset) {
-    let sectionSchema;
-    try {
-      sectionSchema = JSON.parse(asset.value);
-    } catch (error) {
-      // if parse json fails return normal asset file
-      return asset;
-    }
-  }
-
-  async list(user: IShopifyConnect, id: number, options: IAppAssetListOptions = {}): Promise<Models.Asset[]> {
+  async list(
+    user: IShopifyConnect,
+    id: number,
+    options: IAppAssetListOptions = {}
+  ): Promise<Interfaces.Asset[]> {
     const assets = new Assets(user.myshopify_domain, user.accessToken);
-    return assets.list(id, options)
-    .then((assetData) => {
-      // this.logger.debug('assetData', assetData);
+    return assets.list(id, options).then((assetData) => {
+      // this.logger.debug('assetData: %O', assetData);
       assetData = assetData.filter((asset) => {
         let matches = true;
-        if (options.content_type && options.content_type !== asset.content_type) {
+        if (
+          options.content_type &&
+          options.content_type !== asset.content_type
+        ) {
           matches = false;
         }
 
-        if (options.key_starts_with && !asset.key.startsWith(options.key_starts_with)) {
+        if (
+          options.key_starts_with &&
+          !asset.key.startsWith(options.key_starts_with)
+        ) {
           matches = false;
         }
         return matches;
@@ -82,22 +102,25 @@ export class AssetsService {
     });
   }
 
-  async get(user: IShopifyConnect, id: number, key: string, options: Options.FieldOptions = {}) {
+  async get(
+    user: IShopifyConnect,
+    id: number,
+    key: string,
+    options: Options.FieldOptions = {}
+  ) {
     const assets = new Assets(user.myshopify_domain, user.accessToken);
-    return assets.get(id, key, options)
-    .then((assetData: IAppAsset) => {
-      // this.logger.debug(`assetData`, assetData);
-      if (assetData.content_type === 'application/json') {
+    return assets.get(id, key, options).then((assetData: IAppAsset) => {
+      // this.logger.debug(`assetData: %O`, assetData);
+      if (assetData.content_type === "application/json") {
         assetData.json = JSON.parse(assetData.value);
       }
 
-      if (assetData.content_type === 'text/x-liquid') {
-        if (assetData.key.startsWith('sections/')) {
+      if (assetData.content_type === "text/x-liquid") {
+        if (assetData.key.startsWith("sections/")) {
           assetData = this.parseSection(assetData);
         }
       }
       return assetData;
     });
   }
-
 }

@@ -4,41 +4,28 @@ import {
   Query,
   UseGuards,
   Req,
-  Res,
   Get,
   Put,
   Post,
   Delete,
   HttpStatus,
-  Header,
+  HttpException,
   Body,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
-import { PagesService } from './pages.service';
-import { DebugService } from '../../debug.service';
-import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
-import { Roles } from '../../guards/roles.decorator';
-import { Readable } from 'stream';
+import { PagesService } from "./pages.service";
+import { DebugService } from "../../debug.service";
+import { ShopifyApiGuard } from "../../guards/shopify-api.guard";
+import { Roles } from "../../guards/roles.decorator";
 
 // Interfaces
-import { Page } from 'shopify-admin-api/dist/models';
-import { IUserRequest } from '../../interfaces/user-request';
-import { Response } from 'express';
-import {
-  IAppPageCountOptions,
-  IAppPageGetOptions,
-  IAppPageListOptions,
-  IShopifySyncPageCountOptions,
-  IShopifySyncPageGetOptions,
-  IShopifySyncPageListOptions,
-} from '../interfaces';
+import { Interfaces } from "shopify-admin-api";
+import { IUserRequest } from "../../interfaces/user-request";
+import { IShopifySyncPageListOptions } from "../interfaces";
 
-@Controller('shopify/api/pages')
+@Controller("shopify/api/pages")
 export class PagesController {
-
-  constructor(
-    protected readonly pagesService: PagesService,
-  ) {}
+  constructor(protected readonly pagesService: PagesService) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   /**
@@ -49,23 +36,23 @@ export class PagesController {
    * @param page
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles("shopify-staff-member")
   @Post()
   async createInShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Body() page: Page,
+    @Body() page: Interfaces.Page
   ) {
-    this.logger.debug('create page', page);
+    this.logger.debug("create page: %O", page);
     try {
-      return this.pagesService.create(req.shopifyConnect, page)
-      .then((result) => {
-        this.logger.debug('result', result);
-        return res.jsonp(result);
-      });
+      return await this.pagesService
+        .create(req.session[`shopify-connect-${req.shop}`], page)
+        .then((result) => {
+          this.logger.debug("result: %O", result);
+          return result;
+        });
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -80,38 +67,34 @@ export class PagesController {
   @Get()
   async listFromShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     /*
      * Options from shopify
      */
-    @Query('created_at_max') created_at_max?: string,
-    @Query('created_at_min') created_at_min?: string,
-    @Query('page') page?: number,
-    @Query('fields') fields?: string,
-    @Query('handle') handle?: string,
-    @Query('limit') limit?: number,
-    @Query('published_at_max') published_at_max?: string,
-    @Query('published_at_min') published_at_min?: string,
-    @Query('published_status') published_status?: 'published' | 'unpublished' | 'any',
-    @Query('since_id') since_id?: number,
-    @Query('title') title?: string,
-    @Query('updated_at_max') updated_at_max?: string,
-    @Query('updated_at_min') updated_at_min?: string,
+    @Query("created_at_max") created_at_max?: string,
+    @Query("created_at_min") created_at_min?: string,
+    @Query("page") page?: number,
+    @Query("fields") fields?: string,
+    @Query("handle") handle?: string,
+    @Query("limit") limit?: number,
+    @Query("published_at_max") published_at_max?: string,
+    @Query("published_at_min") published_at_min?: string,
+    @Query("published_status")
+    published_status?: "published" | "unpublished" | "any",
+    @Query("since_id") since_id?: number,
+    @Query("title") title?: string,
+    @Query("updated_at_max") updated_at_max?: string,
+    @Query("updated_at_min") updated_at_min?: string,
     /**
      * Custom sync options
      */
-    @Query('sync_to_db') syncToDb?: boolean,
-    @Query('sync_to_search') syncToSwiftype?: boolean,
-    @Query('sync_to_es') syncToEs?: boolean,
-    @Query('cancel_signal') cancelSignal?: string,
-    @Query('fail_on_sync_error') failOnSyncError?: boolean,
+    @Query("sync_to_db") syncToDb?: boolean,
+    @Query("cancel_signal") cancelSignal?: string,
+    @Query("fail_on_sync_error") failOnSyncError?: boolean
   ) {
     try {
       if (req.session.isThemeClientRequest) {
-        published_status = 'published'; // For security reasons, only return public pages if the request comes not from a logged in user
+        published_status = "published"; // For security reasons, only return public pages if the request comes not from a logged in user
         syncToDb = false;
-        syncToSwiftype = false;
-        syncToEs = false;
       }
       const options: IShopifySyncPageListOptions = {
         created_at_max,
@@ -125,8 +108,6 @@ export class PagesController {
         published_status,
         since_id,
         syncToDb,
-        syncToSwiftype,
-        syncToEs,
         title,
         updated_at_max,
         updated_at_min,
@@ -134,11 +115,14 @@ export class PagesController {
         failOnSyncError,
       };
 
-      this.logger.debug('PageListOptions', options);
-      return res.jsonp(await this.pagesService.list(req.shopifyConnect, options));
+      this.logger.debug("PageListOptions: %O", options);
+      return await this.pagesService.list(
+        req.session[`shopify-connect-${req.shop}`],
+        options
+      );
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -150,36 +134,39 @@ export class PagesController {
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
-  @Get('count')
+  @Get("count")
   async countFromShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Query('created_at_max') created_at_max: string,
-    @Query('created_at_min') created_at_min: string,
-    @Query('published_status') published_status: 'published' | 'unpublished' | 'any',
-    @Query('title') title: string,
-    @Query('published_at_max') published_at_max: string,
-    @Query('published_at_min') published_at_min: string,
-    @Query('updated_at_max') updated_at_max: string,
-    @Query('updated_at_min') updated_at_min: string,
+    @Query("created_at_max") created_at_max: string,
+    @Query("created_at_min") created_at_min: string,
+    @Query("published_status")
+    published_status: "published" | "unpublished" | "any",
+    @Query("title") title: string,
+    @Query("published_at_max") published_at_max: string,
+    @Query("published_at_min") published_at_min: string,
+    @Query("updated_at_max") updated_at_max: string,
+    @Query("updated_at_min") updated_at_min: string
   ) {
     try {
       if (req.session.isThemeClientRequest) {
-        published_status = 'published'; // For security reasons, only return public pages if the request comes not from a logged in user
+        published_status = "published"; // For security reasons, only return public pages if the request comes not from a logged in user
       }
-      return res.jsonp(await this.pagesService.count(req.shopifyConnect, {
-        created_at_max,
-        created_at_min,
-        published_at_max,
-        published_at_min,
-        published_status,
-        title,
-        updated_at_max,
-        updated_at_min,
-      }));
+      return await this.pagesService.count(
+        req.session[`shopify-connect-${req.shop}`],
+        {
+          created_at_max,
+          created_at_min,
+          published_at_max,
+          published_at_min,
+          published_status,
+          title,
+          updated_at_max,
+          updated_at_min,
+        }
+      );
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -191,17 +178,16 @@ export class PagesController {
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
-  @Get(':id')
-  async getFromShopify(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Param('id') id: number,
-  ) {
+  @Get(":id")
+  async getFromShopify(@Req() req: IUserRequest, @Param("id") id: number) {
     try {
-      return res.jsonp(await this.pagesService.get(req.shopifyConnect, id));
+      return await this.pagesService.get(
+        req.session[`shopify-connect-${req.shop}`],
+        id
+      );
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -212,18 +198,20 @@ export class PagesController {
    * @param id Id of the page being deleted.
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Delete(':page_id')
+  @Roles("shopify-staff-member")
+  @Delete(":page_id")
   async deleteInShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Param('page_id') id: number,
+    @Param("page_id") id: number
   ) {
     try {
-      return res.jsonp(await this.pagesService.delete(req.shopifyConnect, id));
+      return await this.pagesService.delete(
+        req.session[`shopify-connect-${req.shop}`],
+        id
+      );
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -235,21 +223,23 @@ export class PagesController {
    * @param page
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Put(':page_id')
+  @Roles("shopify-staff-member")
+  @Put(":page_id")
   async updateInShopify(
     @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Param('page_id') id: number,
-    @Body() page: Partial<Page>,
+    @Param("page_id") id: number,
+    @Body() page: Partial<Interfaces.Page>
   ) {
-    this.logger.debug('update page', id, page);
+    this.logger.debug("update page id: %d, page: %O", id, page);
     try {
-      return res.jsonp(await this.pagesService.update(req.shopifyConnect, id, page));
+      return await this.pagesService.update(
+        req.session[`shopify-connect-${req.shop}`],
+        id,
+        page
+      );
     } catch (error) {
       this.logger.error(error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
 }

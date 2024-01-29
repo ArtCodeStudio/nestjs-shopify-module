@@ -1,15 +1,13 @@
 // nest
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from "@nestjs/common";
 
 // Third party
 // import * as pRetry from 'p-retry';
-import { shopifyRetry } from '../../helpers';
-import { GenericParams as ESGenericParams } from 'elasticsearch';
+import { shopifyRetry } from "../../helpers";
 
-import { IShopifyConnect } from '../../auth/interfaces';
-import { Products, Options } from 'shopify-admin-api';
-import { Product, ProductUpdateCreate } from 'shopify-admin-api/dist/models';
-import { Model } from 'mongoose';
+import { IShopifyConnect } from "../../auth/interfaces";
+import { Interfaces, Products } from "shopify-admin-api";
+import { Model } from "mongoose";
 import {
   ProductDocument,
   IListAllCallbackData,
@@ -17,47 +15,60 @@ import {
   IShopifySyncProductCountOptions,
   IShopifySyncProductGetOptions,
   IShopifySyncProductListOptions,
-  IAppProductCountOptions,
-  IAppProductGetOptions,
   IAppProductListOptions,
-} from '../interfaces';
-import { ElasticsearchService } from '../../elasticsearch.service';
+} from "../interfaces";
 
-import { EventService } from '../../event.service';
-import { SyncProgressDocument, SubSyncProgressDocument, IStartSyncOptions } from '../../interfaces';
-import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
-
-import { SwiftypeService } from '../../swiftype.service';
+import { EventService } from "../../event.service";
+import {
+  SyncProgressDocument,
+  SubSyncProgressDocument,
+  IStartSyncOptions,
+  Resource,
+  ShopifyModuleOptions,
+} from "../../interfaces";
+import { ShopifyApiRootCountableService } from "../shopify-api-root-countable.service";
+import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 
 @Injectable()
 export class ProductsService extends ShopifyApiRootCountableService<
-Product, // ShopifyObjectType
-Products, // ShopifyModelClass
-IShopifySyncProductCountOptions, // CountOptions
-IShopifySyncProductGetOptions, // GetOptions
-IShopifySyncProductListOptions, // ListOptions
-ProductDocument // DatabaseDocumentType
+  Interfaces.Product, // ShopifyObjectType
+  Products, // ShopifyModelClass
+  IShopifySyncProductCountOptions, // CountOptions
+  IShopifySyncProductGetOptions, // GetOptions
+  IShopifySyncProductListOptions, // ListOptions
+  ProductDocument // DatabaseDocumentType
 > {
-
-  resourceName = 'products';
-  subResourceNames = [];
+  resourceName: Resource = "products";
+  subResourceNames: Resource[] = [];
 
   constructor(
-    protected readonly esService: ElasticsearchService,
-    @Inject('ProductModelToken') protected readonly productModel: (shopName: string) => Model<ProductDocument>,
-    protected readonly swiftypeService: SwiftypeService,
-    @Inject('SyncProgressModelToken') protected readonly syncProgressModel: Model<SyncProgressDocument>,
+    @Inject("ProductModelToken")
+    protected readonly productModel: (
+      shopName: string
+    ) => Model<ProductDocument>,
+    @Inject("SyncProgressModelToken")
+    protected readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions
   ) {
-    super(esService, productModel, swiftypeService, Products, eventService, syncProgressModel);
+    super(
+      productModel,
+      Products,
+      eventService,
+      syncProgressModel,
+      shopifyModuleOptions
+    );
   }
 
   /**
    * Retrieves a list of products from the app's mongodb database.
    * @param user
    */
-  public async listFromDb(user: IShopifyConnect, options: IAppProductListOptions = {}): Promise<Product[]> {
-
+  public async listFromDb(
+    user: IShopifyConnect,
+    options: IAppProductListOptions = {}
+  ) {
     const query: any = {};
 
     /**
@@ -67,7 +78,7 @@ ProductDocument // DatabaseDocumentType
       // The shopify api also did a full text search here, so we do the same
       query.title = {
         $regex: options.title,
-        $options: 'i',
+        $options: "i",
       };
     }
 
@@ -119,235 +130,10 @@ ProductDocument // DatabaseDocumentType
        */
       sort_by: options.sort_by,
       sort_dir: options.sort_dir,
-      text:  options.text,
+      text: options.text,
     };
 
     return super.listFromDb(user, query, basicOptions);
-  }
-
-  /**
-   * Retrieves a list of products from elasticsearch.
-   * @param user
-   * @param body see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
-   * and https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html
-   */
-  public async listFromES(user: IShopifyConnect, options: IAppProductListOptions = {}): Promise<Product[]> {
-
-    const body = {
-      query: {
-        range: {},
-      } as any,
-    };
-
-    /**
-     * * `OR` is spelled `should`
-     * * `AND` is spelled `must`
-     * * `NOR` is spelled `should_not`
-     * @see https://stackoverflow.com/a/40755927/1465919
-     */
-    const and = []; // ~ query.bool.must = []
-    const or = []; // ~ query.bool.must[x].bool.should = []
-
-    /**
-     * Implements title search
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/full-text-queries.html
-     */
-    if (options.title) {
-      // The shopify api also did a full text search here, so we do the same
-      // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
-      body.query.match = body.query.match || {};
-      body.query.match.title = {
-        query: options.title,
-        operator: 'and',
-      };
-      // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query-phrase-prefix.html
-      // body.query.match_phrase_prefix = body.query.match_phrase_prefix || {};
-      // body.query.match_phrase_prefix.title = {
-      //   query: options.title,
-      //   operator: 'and',
-      // };
-    }
-
-    /**
-     * Implements filters
-     */
-    if (options.vendor) {
-      and.push({
-        term: {
-          vendor: options.vendor,
-        },
-      });
-    }
-    if (options.handle) {
-      and.push({
-        term: {
-          handle: options.handle,
-        },
-      });
-    }
-    if (options.product_type) {
-      and.push({
-        term: {
-          product_type: options.product_type,
-        },
-      });
-    }
-    if (options.collection_id) {
-      and.push({
-        term: {
-          collection_id: options.collection_id,
-        },
-      });
-    }
-
-    /*
-     * price min and max
-     */
-    if (options.price_max) {
-      body.query.range.price = body.query.range.price || {};
-      body.query.range.price.lte = options.price_max;
-    }
-    if (options.price_min) {
-      body.query.range.price =  body.query.range.price || {};
-      body.query.range.price.gte = options.price_min;
-    }
-
-    // Set or filter to query (as child of the and filter)
-    if (or.length > 0) {
-      and.push({
-        bool: {
-          should: or,
-        },
-      });
-    }
-
-    // Set and filter to query
-    if (and.length > 0) {
-      body.query.bool = body.query.bool || {};
-      body.query.bool.must = and;
-    }
-
-    const basicOptions: IAppBasicListOptions = {
-      /**
-       * Copied Options from shopify
-       */
-      fields: options.fields,
-      limit: options.limit,
-      page: options.page,
-      created_at_max: options.created_at_max,
-      created_at_min: options.created_at_min,
-      published_at_max: options.published_at_max,
-      published_at_min: options.published_at_min,
-      updated_at_max: options.updated_at_max,
-      updated_at_min: options.updated_at_min,
-      published_status: options.published_status,
-      ids: options.ids,
-      /**
-       * Custom basic options
-       */
-      sort_by: options.sort_by,
-      sort_dir: options.sort_dir,
-      text:  options.text,
-    };
-
-    return super.listFromES(user, body, basicOptions);
-  }
-
-  /**
-   * Retrieves a list of products from swiftype.
-   */
-  public async listFromSwiftype(user: IShopifyConnect, options: IAppProductListOptions = {}): Promise<Product[]> {
-    const swiftypeOptions: any = {};
-
-    const and = []; // ~ query.bool.must = []
-    const or = []; // ~ query.bool.must[x].bool.should = []
-
-    /**
-     * Implements title search
-     */
-    if (options.title) {
-      options.text = options.title;
-      swiftypeOptions.search_fields = {
-        title: {},
-      };
-    }
-
-    /**
-     * Implements filters
-     */
-    if (options.vendor) {
-      and.push({
-        vendor: options.vendor,
-      });
-    }
-    if (options.handle) {
-      and.push({
-        handle: options.handle,
-      });
-    }
-    if (options.product_type) {
-      and.push({
-        product_type: options.product_type,
-      });
-    }
-    if (options.collection_id) {
-      and.push({
-        collection_id: options.collection_id,
-      });
-    }
-
-    /*
-    * price min and max
-    */
-    if (options.price_max || options.price_min) {
-      const price: any = {};
-      if (options.price_max) {
-        price.to = options.price_max;
-      }
-      if (options.price_min) {
-        price.from = options.price_min;
-      }
-      and.push(price);
-    }
-
-    // Set `or` filter to query (as child of the and filter)
-    if (or.length > 0) {
-      and.push({
-        any: or,
-      });
-    }
-
-    // Set and filter to query
-    if (and.length > 0) {
-      swiftypeOptions.filters = swiftypeOptions.filters || {};
-      swiftypeOptions.filters.all = and;
-    }
-
-    const basicOptions: IAppBasicListOptions = {
-      /**
-       * Copied Options from shopify
-       */
-      fields: options.fields,
-      limit: options.limit,
-      page: options.page,
-      created_at_max: options.created_at_max,
-      created_at_min: options.created_at_min,
-      published_at_max: options.published_at_max,
-      published_at_min: options.published_at_min,
-      updated_at_max: options.updated_at_max,
-      updated_at_min: options.updated_at_min,
-      published_status: options.published_status,
-      ids: options.ids,
-      /**
-       * Custom basic options
-       */
-      sort_by: options.sort_by,
-      sort_dir: options.sort_dir,
-      text:  options.text,
-    };
-
-    return super.listFromSwiftype(user, swiftypeOptions, basicOptions);
   }
 
   /**
@@ -355,7 +141,10 @@ ProductDocument // DatabaseDocumentType
    * @param user
    * @param product
    */
-  public async createInShopify(user: IShopifyConnect, product: ProductUpdateCreate): Promise<Product> {
+  public async createInShopify(
+    user: IShopifyConnect,
+    product: Interfaces.ProductUpdateCreate
+  ): Promise<Interfaces.Product> {
     const products = new Products(user.myshopify_domain, user.accessToken);
     return shopifyRetry(() => products.create(product));
   }
@@ -366,7 +155,11 @@ ProductDocument // DatabaseDocumentType
    * @param id
    * @param product
    */
-  public async updateInShopify(user: IShopifyConnect, id: number, product: ProductUpdateCreate): Promise<Product> {
+  public async updateInShopify(
+    user: IShopifyConnect,
+    id: number,
+    product: Interfaces.ProductUpdateCreate
+  ): Promise<Interfaces.Product> {
     const products = new Products(user.myshopify_domain, user.accessToken);
     return shopifyRetry(() => products.update(id, product));
   }
@@ -394,7 +187,7 @@ ProductDocument // DatabaseDocumentType
     progress: SyncProgressDocument,
     subProgress: SubSyncProgressDocument,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Product>,
+    data: IListAllCallbackData<Interfaces.Product>
   ): Promise<void> {
     const products = data.data;
     subProgress.syncedCount += products.length;
@@ -402,5 +195,4 @@ ProductDocument // DatabaseDocumentType
     subProgress.lastId = lastProduct.id;
     subProgress.info = lastProduct.title;
   }
-
 }

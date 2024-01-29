@@ -1,35 +1,29 @@
 import {
   Controller,
-  Param,
   Query,
   Body,
   UseGuards,
   Req,
-  Res,
   Get,
   Delete,
   Post,
   HttpStatus,
-  Options,
-} from '@nestjs/common';
+  HttpException,
+} from "@nestjs/common";
 
-import { Response } from 'express';
+import { IUserRequest } from "../interfaces/user-request";
 
-import { IUserRequest } from '../interfaces/user-request';
+import { SyncService } from "./sync.service";
 
-import { SyncService } from './sync.service';
+import { IStartSyncOptions } from "../interfaces";
 
-import { IStartSyncOptions } from '../interfaces';
+import { ShopifyApiGuard } from "../guards/shopify-api.guard";
+import { Roles } from "../guards/roles.decorator";
+import { DebugService } from "../debug.service";
 
-import { ShopifyApiGuard } from '../guards/shopify-api.guard';
-import { Roles } from '../guards/roles.decorator';
-import { DebugService } from '../debug.service';
-
-@Controller('shopify/sync')
+@Controller("shopify/sync")
 export class SyncController {
-  constructor(
-    protected readonly syncService: SyncService,
-  ) {}
+  constructor(protected readonly syncService: SyncService) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   /**
@@ -44,62 +38,62 @@ export class SyncController {
    * @param cancelExisting
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles("shopify-staff-member")
   @Post()
   async start(
     @Req() req: IUserRequest,
-    @Res() res: Response,
     @Body() body: any,
-    @Body('syncToDb') syncToDb?: boolean | string,
-    @Body('syncToSwiftype') syncToSwiftype?: boolean | string,
-    @Body('syncToEs') syncToEs?: boolean | string,
-    @Body('includeOrders') includeOrders?: boolean | string,
-    @Body('includeTransactions') includeTransactions?: boolean | string,
-    @Body('includeProducts') includeProducts?: boolean | string,
-    @Body('includePages') includePages?: boolean | string,
-    @Body('includeSmartCollections') includeSmartCollections?: boolean | string,
-    @Body('includeCustomCollections') includeCustomCollections?: boolean | string,
-    @Body('resync') resync?: boolean | string,
-    @Body('cancelExisting') cancelExisting?: boolean | string,
+    @Body("syncToDb") syncToDb?: boolean | string,
+    @Body("includeOrders") includeOrders?: boolean | string,
+    @Body("includeTransactions") includeTransactions?: boolean | string,
+    @Body("includeProducts") includeProducts?: boolean | string,
+    @Body("includePages") includePages?: boolean | string,
+    @Body("includeSmartCollections") includeSmartCollections?: boolean | string,
+    @Body("includeCustomCollections")
+    includeCustomCollections?: boolean | string,
+    @Body("resync") resync?: boolean | string,
+    @Body("cancelExisting") cancelExisting?: boolean | string
   ) {
-    this.logger.debug({
-      syncToDb,
-      syncToSwiftype,
-      syncToEs,
-      includeOrders,
-      includeTransactions,
-      includeProducts,
-      includePages,
-      includeSmartCollections,
-      includeCustomCollections,
-      resync,
-      cancelExisting,
-    });
+    this.logger.debug(
+      "syncToDb: %O; includeOrders: %O; includeTransactions: %O; includeProducts: %O; includePages: %O; includeSmartCollections: %O; includeCustomCollections: %O; resync: %O; cancelExisting: %O;",
+      {
+        syncToDb,
+        includeOrders,
+        includeTransactions,
+        includeProducts,
+        includePages,
+        includeSmartCollections,
+        includeCustomCollections,
+        resync,
+        cancelExisting,
+      }
+    );
     const options: IStartSyncOptions = {
-      syncToDb: syncToDb === 'true' || syncToDb === true,
-      syncToSwiftype: syncToSwiftype === 'true' || syncToSwiftype === true,
-      syncToEs: syncToEs === 'true' || syncToEs === true,
-      includeOrders: includeOrders === 'true' || includeOrders === true,
-      includeTransactions: includeTransactions === 'true' || includeTransactions === true,
-      includeProducts: includeProducts === 'true' || includeProducts === true,
-      includePages: includePages === 'true' || includePages === true,
-      includeSmartCollections: includeSmartCollections === 'true' || includeSmartCollections === true,
-      includeCustomCollections: includeCustomCollections === 'true' || includeCustomCollections === true,
-      resync: resync === 'true' || resync === true,
-      cancelExisting: cancelExisting === 'true' || cancelExisting === true,
+      syncToDb: syncToDb === "true" || syncToDb === true,
+      includeOrders: includeOrders === "true" || includeOrders === true,
+      includeTransactions:
+        includeTransactions === "true" || includeTransactions === true,
+      includeProducts: includeProducts === "true" || includeProducts === true,
+      includePages: includePages === "true" || includePages === true,
+      includeSmartCollections:
+        includeSmartCollections === "true" || includeSmartCollections === true,
+      includeCustomCollections:
+        includeCustomCollections === "true" ||
+        includeCustomCollections === true,
+      resync: resync === "true" || resync === true,
+      cancelExisting: cancelExisting === "true" || cancelExisting === true,
     };
     // this.logger.debug('startSync body', body)
     this.logger.debug(`startSync`, options);
-    return this.syncService.startSync(req.shopifyConnect, options)
-    .then((progress) => {
-      res.jsonp(progress);
-    })
-    .catch((error) => {
-      this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
+    return this.syncService
+      .startSync(req.session[`shopify-connect-${req.shop}`], options)
+      .catch((error) => {
+        this.logger.error(error);
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       });
-    });
   }
 
   /**
@@ -113,45 +107,39 @@ export class SyncController {
    * @param cancelExisting
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('start')
+  @Roles("shopify-staff-member")
+  @Get("start")
   async startSync(
     @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Query('sync_to_db') syncToDb?: boolean,
-    @Query('sync_to_search') syncToSwiftype?: boolean,
-    @Query('sync_to_es') syncToEs?: boolean,
-    @Query('include_orders') includeOrders?: boolean,
-    @Query('include_transactions') includeTransactions?: boolean,
-    @Query('include_products') includeProducts?: boolean,
-    @Query('include_pages') includePages?: boolean,
-    @Query('include_smart_collections') includeSmartCollections?: boolean,
-    @Query('include_custom_collections') includeCustomCollections?: boolean,
-    @Query('resync') resync?: boolean,
-    @Query('cancel_existing') cancelExisting?: boolean,
+    @Query("sync_to_db") syncToDb?: boolean,
+    @Query("include_orders") includeOrders?: boolean,
+    @Query("include_transactions") includeTransactions?: boolean,
+    @Query("include_products") includeProducts?: boolean,
+    @Query("include_pages") includePages?: boolean,
+    @Query("include_smart_collections") includeSmartCollections?: boolean,
+    @Query("include_custom_collections") includeCustomCollections?: boolean,
+    @Query("resync") resync?: boolean,
+    @Query("cancel_existing") cancelExisting?: boolean
   ) {
-    return this.syncService.startSync(req.shopifyConnect, {
-      syncToDb,
-      syncToSwiftype,
-      syncToEs,
-      includeOrders,
-      includeTransactions,
-      includeProducts,
-      includePages,
-      includeSmartCollections,
-      includeCustomCollections,
-      resync,
-      cancelExisting,
-    })
-    .then((progress) => {
-      res.jsonp(progress);
-    })
-    .catch((error) => {
-      this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
+    return this.syncService
+      .startSync(req.session[`shopify-connect-${req.shop}`], {
+        syncToDb,
+        includeOrders,
+        includeTransactions,
+        includeProducts,
+        includePages,
+        includeSmartCollections,
+        includeCustomCollections,
+        resync,
+        cancelExisting,
+      })
+      .catch((error) => {
+        this.logger.error(error);
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       });
-    });
   }
 
   /**
@@ -161,23 +149,18 @@ export class SyncController {
    * @param id
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles("shopify-staff-member")
   @Delete()
-  async cancel(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Query('id') id: string,
-  ) {
-    return this.syncService.cancelShopSync(req.shopifyConnect, id)
-    .then((result) => {
-      res.jsonp(result);
-    })
-    .catch((error) => {
-      this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
+  async cancel(@Req() req: IUserRequest, @Query("id") id: string) {
+    return this.syncService
+      .cancelShopSync(req.session[`shopify-connect-${req.shop}`], id)
+      .catch((error) => {
+        this.logger.error(error);
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       });
-    });
   }
 
   /**
@@ -187,14 +170,10 @@ export class SyncController {
    * @param id
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('cancel')
-  async cancelSync(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Query('id') id: string,
-  ) {
-    return this.cancel(req, res, id);
+  @Roles("shopify-staff-member")
+  @Get("cancel")
+  async cancelSync(@Req() req: IUserRequest, @Query("id") id: string) {
+    return this.cancel(req, id);
   }
 
   /**
@@ -204,27 +183,21 @@ export class SyncController {
    * @param query
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('latest')
-  async latestFromShop(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-  ) {
-
+  @Roles("shopify-staff-member")
+  @Get("latest")
+  async latestFromShop(@Req() req: IUserRequest) {
     const query = {
-      shop: req.shopifyConnect.shop.myshopify_domain,
+      shop: req.shop, // req.shopifyConnect.shop.myshopify_domain,
     };
 
-    return this.syncService.findOne(query, { sort: { createdAt: -1} })
-    .then((progress) => {
-      res.jsonp(progress);
-    })
-    .catch((error) => {
-      this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
+    return this.syncService
+      .findOne(query, { sort: { createdAt: -1 } })
+      .catch((error) => {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       });
-    });
   }
 
   /**
@@ -233,67 +206,41 @@ export class SyncController {
    * @param res
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles("shopify-staff-member")
   @Get()
-  async listFromShop(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-  ) {
-
+  async listFromShop(@Req() req: IUserRequest) {
     const query = {
-      shop: req.shopifyConnect.shop.myshopify_domain,
+      shop: req.shop, // req.shopifyConnect.shop.myshopify_domain,
     };
 
-    return this.syncService.find(query, { sort: { createdAt: -1} })
-    .then((progress) => {
-      res.jsonp(progress);
-    })
-    .catch((error) => {
-      this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
+    return this.syncService
+      .find(query, { sort: { createdAt: -1 } })
+      .catch((error) => {
+        this.logger.error(error);
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       });
+  }
+
+  @UseGuards(ShopifyApiGuard)
+  @Roles("admin")
+  @Get("findOne")
+  async findOne(@Query() query) {
+    return this.syncService.findOne(query).catch((error) => {
+      this.logger.error(error);
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('admin')
-  @Get('findOne')
-  async findOne(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Query() query,
-  ) {
-    return this.syncService.findOne(query)
-    .then((progress) => {
-      res.jsonp(progress);
-    })
-    .catch((error) => {
+  @Roles("admin")
+  @Get("find")
+  async find(@Query() query) {
+    return this.syncService.find(query).catch((error) => {
       this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     });
   }
-
-  @UseGuards(ShopifyApiGuard)
-  @Roles('admin')
-  @Get('find')
-  async find(
-    @Req() req: IUserRequest,
-    @Res() res: Response,
-    @Query() query,
-  ) {
-    return this.syncService.find(query)
-    .then((progress) => {
-      res.jsonp(progress);
-    })
-    .catch((error) => {
-      this.logger.error(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).jsonp({
-        message: error.message,
-      });
-    });
-  }
-
 }

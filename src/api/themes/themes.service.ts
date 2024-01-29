@@ -1,48 +1,52 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { Themes, Options } from 'shopify-admin-api'; // https://github.com/nozzlegear/Shopify-Prime
-import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Theme } from 'shopify-admin-api/dist/models';
-import { ThemeDocument } from '../interfaces/mongoose/theme.schema';
-import { Model } from 'mongoose';
-import { ShopifyApiRootService } from '../shopify-api-root.service';
-import { EventService } from '../../event.service';
-import { ElasticsearchService } from '../../elasticsearch.service';
-import { SwiftypeService } from '../../swiftype.service';
+import { Inject, Injectable } from "@nestjs/common";
+import { Themes } from "shopify-admin-api"; // https://github.com/ArtCodeStudio/shopify-admin-api
+import { IShopifyConnect } from "../../auth/interfaces/connect";
+import { Interfaces } from "shopify-admin-api";
+import { ThemeDocument } from "../interfaces/mongoose/theme.schema";
+import { Model } from "mongoose";
+import { ShopifyApiRootService } from "../shopify-api-root.service";
+import { EventService } from "../../event.service";
 
 import {
   SyncProgressDocument,
   ShopifyModuleOptions,
-} from '../../interfaces';
+  Resource,
+} from "../../interfaces";
 import {
   IShopifySyncThemeGetOptions,
   IShopifySyncThemeListOptions,
-  IAppThemeGetOptions,
   IAppThemeListOptions,
   IAppThemeListFilter,
-} from '../interfaces';
+} from "../interfaces";
+import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 
 @Injectable()
 export class ThemesService extends ShopifyApiRootService<
-Theme, // ShopifyObjectType
-Themes, // ShopifyModelClass
-IShopifySyncThemeGetOptions, // GetOptions
-IShopifySyncThemeListOptions, // ListOptions
-ThemeDocument // DatabaseDocumentType
+  Interfaces.Theme, // ShopifyObjectType
+  Themes, // ShopifyModelClass
+  IShopifySyncThemeGetOptions, // GetOptions
+  IShopifySyncThemeListOptions, // ListOptions
+  ThemeDocument // DatabaseDocumentType
 > {
-
-  resourceName = 'themes';
-  subResourceNames = ['assets'];
+  resourceName: Resource = "themes";
+  subResourceNames: Resource[] = ["assets"];
 
   constructor(
-    protected readonly esService: ElasticsearchService,
-    @Inject('ThemeModelToken')
+    @Inject("ThemeModelToken")
     private readonly themeModel: (shopName: string) => Model<ThemeDocument>,
-    protected readonly swiftypeService: SwiftypeService,
     private readonly eventService: EventService,
-    @Inject('SyncProgressModelToken')
+    @Inject("SyncProgressModelToken")
     private readonly syncProgressModel: Model<SyncProgressDocument>,
+    @Inject(SHOPIFY_MODULE_OPTIONS)
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions
   ) {
-    super(esService, themeModel, swiftypeService, Themes, eventService, syncProgressModel);
+    super(
+      themeModel,
+      Themes,
+      eventService,
+      syncProgressModel,
+      shopifyModuleOptions
+    );
   }
 
   /**
@@ -56,10 +60,9 @@ ThemeDocument // DatabaseDocumentType
   public async listFromShopify(
     shopifyConnect: IShopifyConnect,
     options?: IAppThemeListOptions,
-    filter?: IAppThemeListFilter,
-  ): Promise<Partial<Theme>[]> {
-    return super.listFromShopify(shopifyConnect, options)
-    .then((themes) => {
+    filter?: IAppThemeListFilter
+  ): Promise<Partial<Interfaces.Theme>[]> {
+    return super.listFromShopify(shopifyConnect, options).then((themes) => {
       if (!filter) {
         return themes;
       } else {
@@ -67,7 +70,7 @@ ThemeDocument // DatabaseDocumentType
           let matches = true;
           for (const key in filter) {
             if (filter[key]) {
-              matches = matches && (theme[key] === filter[key]);
+              matches = matches && theme[key] === filter[key];
             }
           }
           return matches;
@@ -82,9 +85,10 @@ ThemeDocument // DatabaseDocumentType
    * @param id theme id
    * @see https://help.shopify.com/en/api/reference/online-store/theme#show
    */
-  public async getActive(user: IShopifyConnect): Promise<Partial<Theme> | null> {
-    return this.listFromShopify(user, {}, { role: 'main' })
-    .then((themes) => {
+  public async getActive(
+    user: IShopifyConnect
+  ): Promise<Partial<Interfaces.Theme> | null> {
+    return this.listFromShopify(user, {}, { role: "main" }).then((themes) => {
       if (themes.length) {
         return themes[0];
       } else {

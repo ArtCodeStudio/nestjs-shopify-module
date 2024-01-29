@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { TransactionsService } from './transactions.service';
 
 import { ShopifyModule } from '../../../shopify.module';

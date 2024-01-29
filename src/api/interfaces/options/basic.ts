@@ -1,20 +1,4 @@
-import { Options } from 'shopify-admin-api';
-
-export interface ISwiftypeDocument {
-  shop: string;
-  resource: string;
-}
-
-export interface ISwiftypeListSortOptions {
-  /**
-   * Property to sort by
-   */
-  sort_by?: string;
-  /**
-   * Sort direction
-   */
-  sort_dir?: 'asc' | 'desc';
-}
+import { Options } from "shopify-admin-api";
 
 /**
  * Sort options for listFromDb and listFromES methods
@@ -27,7 +11,7 @@ export interface IAppListSortOptions {
   /**
    * Sort direction
    */
-  sort_dir?: 'asc' | 'desc';
+  sort_dir?: "asc" | "desc";
 }
 
 export interface IAppListFilterOptions {
@@ -45,10 +29,10 @@ export interface IAppListFilterOptions {
 /**
  * Basic list options wich should be implementated by listFromDb and listFromES
  */
-export interface IAppBasicListOptions extends
-  IAppListSortOptions,
-  IAppListFilterOptions,
-  Options.FieldOptions,
-  Options.BasicListOptions,
-  Options.DateOptions,
-  Options.PublishedOptions {}
+export interface IAppBasicListOptions
+  extends IAppListSortOptions,
+    IAppListFilterOptions,
+    Options.FieldOptions,
+    Options.BasicListOptions,
+    Options.DateOptions,
+    Options.PublishedOptions {}

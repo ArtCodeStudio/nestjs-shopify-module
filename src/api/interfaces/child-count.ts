@@ -1,3 +1,3 @@
-export interface ChildCount<CountOptions extends object = {}> {
+export interface ChildCount<CountOptions> {
   count(parentId: number, options: CountOptions): Promise<number>;
 }

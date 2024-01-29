@@ -1,9 +1,6 @@
-import { Document } from 'mongoose';
-import { Models } from 'shopify-admin-api';
+import { Document } from "mongoose";
 
-export interface IShopifyShop {
-  id: number;
-
+export interface ShopifyShopWithoutId {
   /**
    * The shop's street address.
    */
@@ -209,6 +206,10 @@ export interface IShopifyShop {
   has_gift_cards?: boolean;
 }
 
-export interface IShopifyShopDocument extends IShopifyShop, Document {
+export interface IShopifyShop extends ShopifyShopWithoutId {
   id: number;
+}
+
+export interface IShopifyShopDocument extends ShopifyShopWithoutId, Document {
+  id: string;
 }

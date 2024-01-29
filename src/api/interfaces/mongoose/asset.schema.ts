@@ -1,18 +1,21 @@
-import { Schema, Document } from 'mongoose';
-import { Asset } from 'shopify-admin-api/dist/models';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
 
-export type AssetDocument = Asset & Document;
+export type AssetDocument = DocumentDefinition<Interfaces.Asset> & Document;
 
-export const AssetSchema = new Schema({
-  attachment: String,
-  content_type: String,
-  created_at: String,
-  key: String,
-  public_url: String,
-  size: Number,
-  theme_id: Number,
-  updated_at: String,
-  value: String,
-}, {
-  minimize: false,
-});
+export const AssetSchema = new Schema(
+  {
+    attachment: String,
+    content_type: String,
+    created_at: String,
+    key: String,
+    public_url: String,
+    size: Number,
+    theme_id: Number,
+    updated_at: String,
+    value: String,
+  },
+  {
+    minimize: false,
+  }
+);
