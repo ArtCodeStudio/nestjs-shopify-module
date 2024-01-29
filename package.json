@@ -59,7 +59,7 @@
     "graphql": "^16.2.0",
     "graphql-request": "^3.7.0",
     "ioredis": "^4.28.3",
-    "mongoose": "5.13.14",
+    "mongoose": "5.13.20",
     "node-fetch": "^3.3.2",
     "p-map": "^4.0.0",
     "p-queue": "^6.6.2",
