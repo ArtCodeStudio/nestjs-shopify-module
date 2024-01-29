@@ -7,7 +7,7 @@ dist/
 src/config.service.ts
 test/config.*.ts
 
-# Yarn 2 https://yarnpkg.com/advanced/qa#which-files-should-be-gitignored
+# Yarn https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
 .yarn/*
 !.yarn/releases
 !.yarn/plugins
