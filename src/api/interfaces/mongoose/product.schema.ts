@@ -1,6 +1,6 @@
-import { Schema, Document, DocumentDefinition } from 'mongoose';
-import { Interfaces } from 'shopify-admin-api';
-import { ProductVariantSchema } from './product-variant.schema';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
+import { ProductVariantSchema } from "./product-variant.schema";
 
 export type ProductDocument = DocumentDefinition<Interfaces.Product> & Document;
 

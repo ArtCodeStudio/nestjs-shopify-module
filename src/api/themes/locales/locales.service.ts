@@ -1,19 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { AssetsService } from '../assets/assets.service';
+import { Injectable } from "@nestjs/common";
+import { AssetsService } from "../assets/assets.service";
 import {
   IAppAssetListOptions,
   IAppAsset,
   IAppLocaleFile,
   IAppLocaleListOptions,
   IAppLocales,
-} from '../../interfaces';
-import { IShopifyConnect } from '../../../auth/interfaces';
-import { Options } from 'shopify-admin-api';
-import { DebugService } from './../../../debug.service';
+} from "../../interfaces";
+import { IShopifyConnect } from "../../../auth/interfaces";
+import { Options } from "shopify-admin-api";
+import { DebugService } from "./../../../debug.service";
 
-import * as pMap from 'p-map';
-import * as path from 'path';
-import * as merge from 'deepmerge';
+import * as pMap from "p-map";
+import * as path from "path";
+import * as merge from "deepmerge";
 
 @Injectable()
 export class LocalesService {
@@ -33,7 +33,7 @@ export class LocalesService {
     user: IShopifyConnect,
     id: number,
     filename: string,
-    options: Options.FieldOptions = {},
+    options: Options.FieldOptions = {}
   ): Promise<IAppLocaleFile> {
     const key = `locales/${filename}`;
     // this.logger.debug('getLocalFile: %s', filename);
@@ -53,10 +53,10 @@ export class LocalesService {
   async listSections(
     user: IShopifyConnect,
     id: number,
-    options: IAppAssetListOptions = {},
+    options: IAppAssetListOptions = {}
   ): Promise<IAppLocaleFile[]> {
-    options.content_type = 'text/x-liquid';
-    options.key_starts_with = 'sections/';
+    options.content_type = "text/x-liquid";
+    options.key_starts_with = "sections/";
     return this.assetsService.list(user, id, options).then((assets) => {
       // this.logger.debug('assets: %O', assets);
       const locales: IAppLocaleFile[] = assets;
@@ -77,7 +77,7 @@ export class LocalesService {
     user: IShopifyConnect,
     id: number,
     filename: string,
-    options: IAppAssetListOptions = {},
+    options: IAppAssetListOptions = {}
   ): Promise<IAppLocaleFile> {
     const key = `sections/${filename}`;
     return this.assetsService
@@ -106,7 +106,7 @@ export class LocalesService {
   private async getSectionAll(
     user: IShopifyConnect,
     id: number,
-    options: IAppAssetListOptions = {},
+    options: IAppAssetListOptions = {}
   ): Promise<IAppLocales> {
     // get locales from sections/*.liquid files
     return (
@@ -158,7 +158,7 @@ export class LocalesService {
     user: IShopifyConnect,
     id: number,
     langCode: string,
-    options: Options.FieldOptions = {},
+    options: Options.FieldOptions = {}
   ): Promise<IAppLocaleFile> {
     let filename = `${langCode}.json`;
     return (
@@ -172,7 +172,7 @@ export class LocalesService {
           return this.getLocalFile(user, id, filename, options).then(
             (locale) => {
               return locale;
-            },
+            }
           );
         })
     );
@@ -186,7 +186,7 @@ export class LocalesService {
   async getAll(
     user: IShopifyConnect,
     id: number,
-    options: IAppLocaleListOptions = {},
+    options: IAppLocaleListOptions = {}
   ): Promise<IAppLocales> {
     return (
       this.list(user, id, options)
@@ -219,7 +219,7 @@ export class LocalesService {
     user: IShopifyConnect,
     id: number,
     properties?: string[],
-    options: Options.FieldOptions = {},
+    options: Options.FieldOptions = {}
   ) {
     return (
       this.getAll(user, id, options)
@@ -228,7 +228,7 @@ export class LocalesService {
             async (mergedSectionLocales) => {
               // this.logger.debug('merge section: %O : %O', mergedSectionLocales.en.sections, mergedLocales.en.sections);
               return merge(mergedSectionLocales, mergedLocales);
-            },
+            }
           );
         })
         // applay filter
@@ -258,10 +258,10 @@ export class LocalesService {
   async list(
     user: IShopifyConnect,
     id: number,
-    options: IAppLocaleListOptions = {},
+    options: IAppLocaleListOptions = {}
   ): Promise<IAppLocaleFile[]> {
-    options.content_type = 'application/json';
-    options.key_starts_with = 'locales/';
+    options.content_type = "application/json";
+    options.key_starts_with = "locales/";
     return (
       this.assetsService
         .list(user, id, options)
@@ -293,13 +293,13 @@ export class LocalesService {
   }
 
   private parseLangCode(locale: IAppLocaleFile) {
-    if (locale.key.indexOf('sections/') >= 0) {
+    if (locale.key.indexOf("sections/") >= 0) {
       locale.is_default = true;
       locale.lang_code = null;
       return null;
     }
     locale.lang_code = locale.key.slice(8, -5); // remove path and extension
-    const defaultStrIndex = locale.lang_code.indexOf('.default');
+    const defaultStrIndex = locale.lang_code.indexOf(".default");
     if (defaultStrIndex >= 0) {
       locale.is_default = true;
       locale.lang_code = locale.lang_code.slice(0, -8); // remove .default

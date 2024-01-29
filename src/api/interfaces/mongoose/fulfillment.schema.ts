@@ -1,6 +1,6 @@
-import { Schema, Document, DocumentDefinition } from 'mongoose';
-import { Interfaces } from 'shopify-admin-api';
-import { LineItemSchema } from './line-item.schema';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
+import { LineItemSchema } from "./line-item.schema";
 
 export type FulfillmentDocument = DocumentDefinition<Interfaces.Fulfillment> &
   Document;
@@ -29,5 +29,5 @@ export const FulfillmentSchema = new Schema(
   },
   {
     minimize: false,
-  },
+  }
 );

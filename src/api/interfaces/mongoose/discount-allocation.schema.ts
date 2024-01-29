@@ -1,6 +1,6 @@
-import { Schema, Document, DocumentDefinition } from 'mongoose';
-import { Interfaces } from 'shopify-admin-api';
-import { PriceSetSchema } from './price-set.schema';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
+import { PriceSetSchema } from "./price-set.schema";
 
 export type DiscountAllocationDocument =
   DocumentDefinition<Interfaces.DiscountAllocation> & Document;
@@ -14,5 +14,5 @@ export const DiscountAllocationSchema = new Schema(
   {
     _id: false,
     minimize: false,
-  },
+  }
 );

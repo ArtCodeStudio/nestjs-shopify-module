@@ -1,9 +1,8 @@
-import * as pRetry from 'p-retry';
-import { Infrastructure } from 'shopify-admin-api';
-import { OperationOptions } from 'retry';
-import { FetchError } from 'node-fetch';
+import * as pRetry from "p-retry";
+import { Infrastructure } from "shopify-admin-api";
+import { FetchError } from "node-fetch";
 
-import { Error as MongooseError } from 'mongoose';
+import { Error as MongooseError } from "mongoose";
 
 /**
  * wrap pRetry to handle Shopify API requests
@@ -22,7 +21,7 @@ export function shopifyRetry(
   retryHttpCodes: number[] = [429],
   // default options are filled in by retry module
   // @see https://github.com/tim-kos/node-retry#retryoperationoptions
-  options: OperationOptions = {},
+  options: pRetry.Options = {}
 ) {
   return pRetry(async (n?: number) => {
     return promiseFn(n).catch((e: Error) => {
@@ -32,7 +31,7 @@ export function shopifyRetry(
           throw new pRetry.AbortError(e);
         }
       } else if (e instanceof FetchError) {
-        if ((e as any).code !== 'EAI_AGAIN') {
+        if ((e as any).code !== "EAI_AGAIN") {
           throw new pRetry.AbortError(e);
         }
       }
@@ -54,14 +53,14 @@ export function shopifyRetry(
  */
 export function mongooseParallelRetry(
   promiseFn: (attempt?: number) => Promise<any>,
-  options: OperationOptions = {},
+  options: pRetry.Options = {}
 ) {
   return pRetry(async (n?: number) => {
     return promiseFn(n).catch((e: Error) => {
       if (
         !(
           e instanceof MongooseError.ParallelSaveError ||
-          e.name === 'ParallelSaveError'
+          e.name === "ParallelSaveError"
         )
       ) {
         // this will abort the pRetry chain and make pRetry reject with the original error.

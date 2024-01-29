@@ -1,16 +1,15 @@
-import type { IPlan } from '../charge/interfaces/plan';
-import type { Enums } from 'shopify-admin-api';
-import type * as redisStore from 'cache-manager-ioredis';
-import type { Resource } from './resource';
+import type { IPlan } from "../charge/interfaces/plan";
+import type { Enums } from "shopify-admin-api";
+import type { Resource } from "./resource";
 
 export interface ConfigApp {
   root: string;
-  protocol: 'https' | 'http';
+  protocol: "https" | "http";
   host: string;
   port: number;
   debug: boolean;
   test: boolean;
-  environment: 'production' | 'development' | 'test';
+  environment: "production" | "development" | "test";
 }
 
 export interface ConfigSync {
@@ -44,18 +43,10 @@ export interface ConfigCharges {
 }
 
 export interface ConfigCache {
-  store: 'memory' | typeof redisStore;
+  store: "memory";
   ttl: number;
   max: number;
   [Key: string]: any;
-}
-
-export interface ConfigRedis {
-  host?: string;
-  auth_pass?: string;
-  username?: string;
-  port?: number;
-  url?: string;
 }
 
 export interface ConfigMongoDB {
@@ -81,8 +72,6 @@ export interface ShopifyModuleOptions {
    * @see https://github.com/BryanDonovan/node-cache-manager
    */
   cache: ConfigCache;
-
-  redis?: ConfigRedis;
 
   mongodb: ConfigMongoDB;
 }

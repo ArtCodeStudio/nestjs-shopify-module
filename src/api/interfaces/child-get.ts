@@ -1,11 +1,11 @@
-import { ISyncOptions } from './options';
+import { ISyncOptions } from "./options";
 export interface ChildGet<
   ShopifyObjectType,
-  GetOptions extends ISyncOptions = ISyncOptions,
+  GetOptions extends ISyncOptions = ISyncOptions
 > {
   get(
     parentId: number,
     id: number,
-    options?: GetOptions,
+    options?: GetOptions
   ): Promise<ShopifyObjectType | null>;
 }

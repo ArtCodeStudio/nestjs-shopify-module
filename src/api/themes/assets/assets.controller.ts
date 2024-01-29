@@ -6,15 +6,15 @@ import {
   Get,
   HttpStatus,
   HttpException,
-} from '@nestjs/common';
-import { Roles } from '../../../guards/roles.decorator';
-import { DebugService } from '../../../debug.service';
-import { AssetsService } from './assets.service';
-import { ShopifyApiGuard } from '../../../guards/shopify-api.guard';
-import { IUserRequest } from '../../../interfaces/user-request';
-import * as url from 'url';
+} from "@nestjs/common";
+import { Roles } from "../../../guards/roles.decorator";
+import { DebugService } from "../../../debug.service";
+import { AssetsService } from "./assets.service";
+import { ShopifyApiGuard } from "../../../guards/shopify-api.guard";
+import { IUserRequest } from "../../../interfaces/user-request";
+import * as url from "url";
 
-@Controller('shopify/api/themes')
+@Controller("shopify/api/themes")
 export class AssetsController {
   constructor(protected readonly assetsService: AssetsService) {}
 
@@ -26,11 +26,11 @@ export class AssetsController {
    * @param themeId
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get(':theme_id/assets')
+  @Roles("shopify-staff-member")
+  @Get(":theme_id/assets")
   async listThemeAssets(
     @Req() req: IUserRequest,
-    @Param('theme_id') themeId: number,
+    @Param("theme_id") themeId: number
   ) {
     return this.assetsService
       .list(req.session[`shopify-connect-${req.shop}`], themeId)
@@ -38,7 +38,7 @@ export class AssetsController {
         this.logger.error(error);
         throw new HttpException(
           error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          HttpStatus.INTERNAL_SERVER_ERROR
         );
       });
   }
@@ -52,20 +52,20 @@ export class AssetsController {
    * @param key
    */
   @UseGuards(ShopifyApiGuard)
-  @Get(':theme_id/assets/assets/:filename')
+  @Get(":theme_id/assets/assets/:filename")
   async getThemeAssetAsset(
     @Req() req: IUserRequest,
-    @Param('theme_id') themeId: number,
-    @Param('filename') filename: string,
+    @Param("theme_id") themeId: number,
+    @Param("filename") filename: string
   ) {
-    const key = 'assets/' + filename;
+    const key = "assets/" + filename;
     return this.assetsService
       .get(req.session[`shopify-connect-${req.shop}`], themeId, key)
       .catch((error: Error) => {
         this.logger.error(error);
         throw new HttpException(
           error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          HttpStatus.INTERNAL_SERVER_ERROR
         );
       });
   }
@@ -79,20 +79,20 @@ export class AssetsController {
    * @param key
    */
   @UseGuards(ShopifyApiGuard)
-  @Get(':theme_id/assets/templates/:filename')
+  @Get(":theme_id/assets/templates/:filename")
   async getThemeAssetTemplate(
     @Req() req: IUserRequest,
-    @Param('theme_id') themeId: number,
-    @Param('filename') filename: string,
+    @Param("theme_id") themeId: number,
+    @Param("filename") filename: string
   ) {
-    const key = 'templates/' + filename;
+    const key = "templates/" + filename;
     return this.assetsService
       .get(req.session[`shopify-connect-${req.shop}`], themeId, key)
       .catch((error: Error) => {
         this.logger.error(error);
         throw new HttpException(
           error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          HttpStatus.INTERNAL_SERVER_ERROR
         );
       });
   }
@@ -106,20 +106,20 @@ export class AssetsController {
    * @param key
    */
   @UseGuards(ShopifyApiGuard)
-  @Get(':theme_id/assets/snippets/:filename')
+  @Get(":theme_id/assets/snippets/:filename")
   async getThemeAssetSnippets(
     @Req() req: IUserRequest,
-    @Param('theme_id') themeId: number,
-    @Param('filename') filename: string,
+    @Param("theme_id") themeId: number,
+    @Param("filename") filename: string
   ) {
-    const key = 'snippets/' + filename;
+    const key = "snippets/" + filename;
     return this.assetsService
       .get(req.session[`shopify-connect-${req.shop}`], themeId, key)
       .catch((error: Error) => {
         this.logger.error(error);
         throw new HttpException(
           error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          HttpStatus.INTERNAL_SERVER_ERROR
         );
       });
   }
@@ -133,12 +133,12 @@ export class AssetsController {
    * @param key
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get(':theme_id/assets/:key*')
+  @Roles("shopify-staff-member")
+  @Get(":theme_id/assets/:key*")
   async getThemeAsset(
     @Req() req: IUserRequest,
-    @Param('theme_id') themeId: number,
-    @Param('key') key: string,
+    @Param("theme_id") themeId: number,
+    @Param("key") key: string
   ) {
     // WORKAROUND to get full key param
     const path = url.parse(req.url).pathname;
@@ -150,7 +150,7 @@ export class AssetsController {
         this.logger.error(error);
         throw new HttpException(
           error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          HttpStatus.INTERNAL_SERVER_ERROR
         );
       });
   }

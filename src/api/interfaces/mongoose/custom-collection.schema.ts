@@ -1,6 +1,6 @@
-import { Schema, Document, DocumentDefinition } from 'mongoose';
-import { Interfaces } from 'shopify-admin-api';
-import { CollectionImageSchema } from './collection-image.schema';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
+import { CollectionImageSchema } from "./collection-image.schema";
 
 export type CustomCollectionDocument =
   DocumentDefinition<Interfaces.CustomCollection> & Document;

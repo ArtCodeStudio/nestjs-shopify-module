@@ -1,8 +1,8 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import * as bodyParser from 'body-parser';
-import { IUserRequest } from '../interfaces/user-request';
-import { NextFunction } from 'express';
-import type { ServerResponse } from 'http';
+import { Injectable, NestMiddleware } from "@nestjs/common";
+import * as bodyParser from "body-parser";
+import { IUserRequest } from "../interfaces/user-request";
+import { NextFunction } from "express";
+import type { ServerResponse } from "http";
 
 /**
  * Body parser urlencoded middleware to use the middleware if you have disabled the default nest paser middleware

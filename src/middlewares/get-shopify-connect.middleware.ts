@@ -1,8 +1,8 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { ShopifyConnectService } from '../auth/connect.service';
-import { DebugService } from '../debug.service';
-import { IUserRequest } from '../interfaces/user-request';
-import { Response, NextFunction } from 'express';
+import { Injectable, NestMiddleware } from "@nestjs/common";
+import { ShopifyConnectService } from "../auth/connect.service";
+import { DebugService } from "../debug.service";
+import { IUserRequest } from "../interfaces/user-request";
+import { Response, NextFunction } from "express";
 
 @Injectable()
 export class GetShopifyConnectMiddleware implements NestMiddleware {

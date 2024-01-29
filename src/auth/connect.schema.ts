@@ -1,5 +1,5 @@
-import { Schema } from 'mongoose';
-import { ShopifyShopSchema } from '../shop/shop.schema';
+import { Schema } from "mongoose";
+import { ShopifyShopSchema } from "../shop/shop.schema";
 
 export const ShopifyConnectSchema = new Schema({
   shopifyID: Number,

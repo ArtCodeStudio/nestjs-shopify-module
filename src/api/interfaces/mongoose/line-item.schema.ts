@@ -1,9 +1,9 @@
-import { Schema, Document, DocumentDefinition } from 'mongoose';
-import { Interfaces } from 'shopify-admin-api';
-import { TaxLineSchema } from './tax-line.schema';
-import { PriceSetSchema } from './price-set.schema';
-import { LocationSchema } from './location.schema';
-import { DiscountAllocationSchema } from './discount-allocation.schema';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
+import { TaxLineSchema } from "./tax-line.schema";
+import { PriceSetSchema } from "./price-set.schema";
+import { LocationSchema } from "./location.schema";
+import { DiscountAllocationSchema } from "./discount-allocation.schema";
 
 export type LineItemPropertyDocument =
   DocumentDefinition<Interfaces.LineItemProperty> & Document;
@@ -51,5 +51,5 @@ export const LineItemSchema = new Schema(
   },
   {
     minimize: false,
-  },
+  }
 );

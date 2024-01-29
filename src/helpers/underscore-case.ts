@@ -4,6 +4,6 @@
 export function underscoreCase(str: string) {
   return str
     .split(/(?=[A-Z])/)
-    .join('_')
+    .join("_")
     .toLowerCase();
 }

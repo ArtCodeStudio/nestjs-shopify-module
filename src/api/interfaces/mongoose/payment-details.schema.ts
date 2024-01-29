@@ -1,5 +1,5 @@
-import { Schema, Document, DocumentDefinition } from 'mongoose';
-import { Interfaces } from 'shopify-admin-api';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
 
 export type PaymentDetailsDocument =
   DocumentDefinition<Interfaces.PaymentDetails> & Document;
@@ -14,5 +14,5 @@ export const PaymentDetailsSchema = new Schema(
   },
   {
     minimize: false,
-  },
+  }
 );

@@ -1,19 +1,19 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { Transactions } from 'shopify-admin-api';
-import { IShopifyConnect } from '../../../auth/interfaces';
-import { Interfaces } from 'shopify-admin-api';
+import { Inject, Injectable } from "@nestjs/common";
+import { Transactions } from "shopify-admin-api";
+import { IShopifyConnect } from "../../../auth/interfaces";
+import { Interfaces } from "shopify-admin-api";
 import {
   TransactionDocument,
   IShopifySyncTransactionCountOptions,
   IShopifySyncTransactionGetOptions,
   IShopifySyncTransactionListOptions,
-} from '../../interfaces';
-import { ShopifyModuleOptions, Resource } from '../../../interfaces';
-import { SHOPIFY_MODULE_OPTIONS } from '../../../shopify.constants';
-import { Model } from 'mongoose';
-import { getDiff, shopifyRetry } from '../../../helpers';
-import { ShopifyApiChildCountableService } from '../../shopify-api-child-countable.service';
-import { EventService } from '../../../event.service';
+} from "../../interfaces";
+import { ShopifyModuleOptions, Resource } from "../../../interfaces";
+import { SHOPIFY_MODULE_OPTIONS } from "../../../shopify.constants";
+import { Model } from "mongoose";
+import { getDiff, shopifyRetry } from "../../../helpers";
+import { ShopifyApiChildCountableService } from "../../shopify-api-child-countable.service";
+import { EventService } from "../../../event.service";
 
 @Injectable()
 export class TransactionsService extends ShopifyApiChildCountableService<
@@ -23,17 +23,17 @@ export class TransactionsService extends ShopifyApiChildCountableService<
   IShopifySyncTransactionGetOptions,
   IShopifySyncTransactionListOptions
 > {
-  resourceName: Resource = 'transactions';
+  resourceName: Resource = "transactions";
   subResourceNames: Resource[] = [];
 
   constructor(
-    @Inject('TransactionModelToken')
+    @Inject("TransactionModelToken")
     private readonly transactionModel: (
-      shopName: string,
+      shopName: string
     ) => Model<TransactionDocument>,
     private readonly eventService: EventService,
     @Inject(SHOPIFY_MODULE_OPTIONS)
-    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions
   ) {
     super(transactionModel, Transactions, eventService, shopifyModuleOptions);
   }
@@ -42,11 +42,11 @@ export class TransactionsService extends ShopifyApiChildCountableService<
     user: IShopifyConnect,
     order_id: number,
     id: number,
-    options: IShopifySyncTransactionGetOptions = {},
+    options: IShopifySyncTransactionGetOptions = {}
   ): Promise<Interfaces.Transaction | null> {
     const transactions = new Transactions(
       user.myshopify_domain,
-      user.accessToken,
+      user.accessToken
     );
     const syncToDb = options && options.syncToDb;
 
@@ -57,10 +57,10 @@ export class TransactionsService extends ShopifyApiChildCountableService<
     if (
       this.shopifyModuleOptions.sync.enabled &&
       this.shopifyModuleOptions.sync.autoSyncResources.includes(
-        this.resourceName,
+        this.resourceName
       )
     ) {
-      await this.updateOrCreateInApp(user, 'id', transaction, syncToDb);
+      await this.updateOrCreateInApp(user, "id", transaction, syncToDb);
     }
 
     return transaction;
@@ -68,18 +68,18 @@ export class TransactionsService extends ShopifyApiChildCountableService<
 
   public async countFromShopify(
     user: IShopifyConnect,
-    orderId: number,
+    orderId: number
   ): Promise<number> {
     const transactions = new Transactions(
       user.myshopify_domain,
-      user.accessToken,
+      user.accessToken
     );
     return await transactions.count(orderId);
   }
 
   public async diffSynced(
     user: IShopifyConnect,
-    order_id: number,
+    order_id: number
   ): Promise<any> {
     const fromDb = await this.listFromDb(user);
     const fromShopify = await this.listFromShopify(user, order_id);
@@ -92,9 +92,9 @@ export class TransactionsService extends ShopifyApiChildCountableService<
             return x.id.toString() === obj.id.toString();
           }) && {
             [obj.id]: getDiff(obj, dbObj).filter((x) => {
-              return x.operation !== 'update' && !x.path.endsWith('._id');
+              return x.operation !== "update" && !x.path.endsWith("._id");
             }),
-          }),
+          })
       )
       .reduce((a, c) => ({ ...a, ...c }), {});
   }

@@ -1,4 +1,4 @@
-import { Document, Model, Mongoose, Schema } from 'mongoose';
+import { Document, Model, Mongoose, Schema } from "mongoose";
 import {
   AccessScopeSchema,
   AccessScopeDocument,
@@ -30,17 +30,17 @@ import {
   SmartCollectionDocument,
   CollectSchema,
   CollectDocument,
-} from './interfaces';
+} from "./interfaces";
 
-import { ResourceSignular } from '../interfaces';
+import { ResourceSignular } from "../interfaces";
 
-import { underscoreCase, getSubdomain } from '../helpers';
+import { underscoreCase, getSubdomain } from "../helpers";
 
 function getDbModel<DocumentType extends Document>(
   connection: Mongoose,
   myShopifyDomain: string,
   resourceName: ResourceSignular,
-  schema: Schema,
+  schema: Schema
 ) {
   const shopName = getSubdomain(myShopifyDomain);
 
@@ -50,7 +50,7 @@ function getDbModel<DocumentType extends Document>(
   } catch (e) {
     return connection.model(
       modelName,
-      schema,
+      schema
     ) as unknown as Model<DocumentType>;
   }
 }
@@ -58,167 +58,167 @@ function getDbModel<DocumentType extends Document>(
 export const shopifyApiProviders = (connection: Mongoose) => {
   return [
     {
-      provide: 'AccessScopeModelToken',
+      provide: "AccessScopeModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<AccessScopeDocument>(
           connection,
           myshopifyDomain,
-          'accessScope',
-          AccessScopeSchema,
+          "accessScope",
+          AccessScopeSchema
         );
       },
     },
     {
-      provide: 'OrderModelToken',
+      provide: "OrderModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<OrderDocument>(
           connection,
           myshopifyDomain,
-          'order',
-          OrderSchema,
+          "order",
+          OrderSchema
         );
       },
     },
     {
-      provide: 'ProductModelToken',
+      provide: "ProductModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<ProductDocument>(
           connection,
           myshopifyDomain,
-          'product',
-          ProductSchema,
+          "product",
+          ProductSchema
         );
       },
     },
     {
-      provide: 'ProductVariantModelToken',
+      provide: "ProductVariantModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<ProductVariantDocument>(
           connection,
           myshopifyDomain,
-          'product_variant',
-          ProductVariantSchema,
+          "product_variant",
+          ProductVariantSchema
         );
       },
     },
     {
-      provide: 'CheckoutModelToken',
+      provide: "CheckoutModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<CheckoutDocument>(
           connection,
           myshopifyDomain,
-          'checkout',
-          CheckoutSchema,
+          "checkout",
+          CheckoutSchema
         );
       },
     },
     {
-      provide: 'CustomerModelToken',
+      provide: "CustomerModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<CustomerDocument>(
           connection,
           myshopifyDomain,
-          'customer',
-          CustomerSchema,
+          "customer",
+          CustomerSchema
         );
       },
     },
     {
-      provide: 'TransactionModelToken',
+      provide: "TransactionModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<TransactionDocument>(
           connection,
           myshopifyDomain,
-          'transaction',
-          TransactionSchema,
+          "transaction",
+          TransactionSchema
         );
       },
     },
     {
-      provide: 'ThemeModelToken',
+      provide: "ThemeModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<ThemeDocument>(
           connection,
           myshopifyDomain,
-          'theme',
-          ThemeSchema,
+          "theme",
+          ThemeSchema
         );
       },
     },
     {
-      provide: 'AssetModelToken',
+      provide: "AssetModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<AssetDocument>(
           connection,
           myshopifyDomain,
-          'asset',
-          AssetSchema,
+          "asset",
+          AssetSchema
         );
       },
     },
     {
-      provide: 'PageModelToken',
+      provide: "PageModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<PageDocument>(
           connection,
           myshopifyDomain,
-          'page',
-          PageSchema,
+          "page",
+          PageSchema
         );
       },
     },
     {
-      provide: 'BlogModelToken',
+      provide: "BlogModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<BlogDocument>(
           connection,
           myshopifyDomain,
-          'blog',
-          BlogSchema,
+          "blog",
+          BlogSchema
         );
       },
     },
     {
-      provide: 'ArticleModelToken',
+      provide: "ArticleModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<ArticleDocument>(
           connection,
           myshopifyDomain,
-          'article',
-          ArticleSchema,
+          "article",
+          ArticleSchema
         );
       },
     },
     {
-      provide: 'CustomCollectionModelToken',
+      provide: "CustomCollectionModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<CustomCollectionDocument>(
           connection,
           myshopifyDomain,
-          'custom_collection',
-          CustomCollectionSchema,
+          "custom_collection",
+          CustomCollectionSchema
         );
       },
     },
     {
-      provide: 'SmartCollectionModelToken',
+      provide: "SmartCollectionModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<SmartCollectionDocument>(
           connection,
           myshopifyDomain,
-          'smart_collection',
-          SmartCollectionSchema,
+          "smart_collection",
+          SmartCollectionSchema
         );
       },
     },
     {
-      provide: 'CollectModelToken',
+      provide: "CollectModelToken",
       useValue: (myshopifyDomain: string) => {
         return getDbModel<CollectDocument>(
           connection,
           myshopifyDomain,
-          'collect',
-          CollectSchema,
+          "collect",
+          CollectSchema
         );
       },
     },

@@ -1,27 +1,27 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { deleteUndefinedProperties } from '../../../helpers';
-import { EventService } from '../../../event.service';
-import { ShopifyApiChildCountableService } from '../../shopify-api-child-countable.service';
+import { Inject, Injectable } from "@nestjs/common";
+import { deleteUndefinedProperties } from "../../../helpers";
+import { EventService } from "../../../event.service";
+import { ShopifyApiChildCountableService } from "../../shopify-api-child-countable.service";
 
 // Interfaces
-import { Model } from 'mongoose';
-import { IShopifyConnect } from '../../../auth/interfaces/connect';
-import { Interfaces, Articles, Options } from 'shopify-admin-api';
+import { Model } from "mongoose";
+import { IShopifyConnect } from "../../../auth/interfaces/connect";
+import { Interfaces, Articles, Options } from "shopify-admin-api";
 import {
   ArticleDocument,
   IListAllCallbackData,
   IShopifySyncArticleCountOptions,
   IShopifySyncArticleGetOptions,
   IShopifySyncArticleListOptions,
-} from '../../interfaces';
+} from "../../interfaces";
 import {
   SyncProgressDocument,
   ISubSyncProgress,
   IStartSyncOptions,
   ShopifyModuleOptions,
   Resource,
-} from '../../../interfaces';
-import { SHOPIFY_MODULE_OPTIONS } from '../../../shopify.constants';
+} from "../../../interfaces";
+import { SHOPIFY_MODULE_OPTIONS } from "../../../shopify.constants";
 
 @Injectable()
 export class ArticlesService extends ShopifyApiChildCountableService<
@@ -32,17 +32,17 @@ export class ArticlesService extends ShopifyApiChildCountableService<
   IShopifySyncArticleListOptions, // ListOptions
   ArticleDocument // DatabaseDocumentType
 > {
-  resourceName: Resource = 'articles';
+  resourceName: Resource = "articles";
   subResourceNames: Resource[] = [];
 
   constructor(
-    @Inject('ArticleModelToken')
+    @Inject("ArticleModelToken")
     private readonly articleModel: (shopName: string) => Model<ArticleDocument>,
     private readonly eventService: EventService,
-    @Inject('SyncProgressModelToken')
+    @Inject("SyncProgressModelToken")
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     @Inject(SHOPIFY_MODULE_OPTIONS)
-    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions
   ) {
     super(articleModel, Articles, eventService, shopifyModuleOptions);
   }
@@ -56,7 +56,7 @@ export class ArticlesService extends ShopifyApiChildCountableService<
   public async create(
     user: IShopifyConnect,
     blogId: number,
-    article: Partial<Interfaces.Article>,
+    article: Partial<Interfaces.Article>
   ): Promise<Interfaces.Article> {
     const articles = new Articles(user.myshopify_domain, user.accessToken);
     return articles.create(blogId, article).then((articleObj) => {
@@ -75,7 +75,7 @@ export class ArticlesService extends ShopifyApiChildCountableService<
     user: IShopifyConnect,
     blogId: number,
     id: number,
-    options?: Options.FieldOptions,
+    options?: Options.FieldOptions
   ): Promise<Partial<Interfaces.Article>> {
     const articles = new Articles(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
@@ -95,7 +95,7 @@ export class ArticlesService extends ShopifyApiChildCountableService<
     user: IShopifyConnect,
     blogId: number,
     id: number,
-    article: Partial<Interfaces.Article>,
+    article: Partial<Interfaces.Article>
   ): Promise<Interfaces.Article> {
     const articles = new Articles(user.myshopify_domain, user.accessToken);
     return articles.update(blogId, id, article).then((articleObj) => {
@@ -112,7 +112,7 @@ export class ArticlesService extends ShopifyApiChildCountableService<
   public async list(
     user: IShopifyConnect,
     blogId: number,
-    options?: Options.ArticleListOptions,
+    options?: Options.ArticleListOptions
   ): Promise<Partial<Interfaces.Article>[]> {
     const articles = new Articles(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
@@ -130,11 +130,11 @@ export class ArticlesService extends ShopifyApiChildCountableService<
   public async count(
     user: IShopifyConnect,
     blogId: number,
-    options?: Options.ArticleCountOptions,
+    options?: Options.ArticleCountOptions
   ): Promise<number> {
     const articles = new Articles(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
-    this.logger.debug('count options: %O', options);
+    this.logger.debug("count options: %O", options);
     return articles.count(blogId, options).then((count) => {
       return count;
     });
@@ -149,7 +149,7 @@ export class ArticlesService extends ShopifyApiChildCountableService<
   public async delete(
     user: IShopifyConnect,
     blogId: number,
-    id: number,
+    id: number
   ): Promise<void> {
     const articles = new Articles(user.myshopify_domain, user.accessToken);
     return articles.delete(blogId, id).then((result) => {
@@ -169,7 +169,7 @@ export class ArticlesService extends ShopifyApiChildCountableService<
     progress: SyncProgressDocument,
     subProgress: ISubSyncProgress,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Interfaces.Article>,
+    data: IListAllCallbackData<Interfaces.Article>
   ): Promise<void> {
     const articles = data.data;
     subProgress.syncedCount += articles.length;

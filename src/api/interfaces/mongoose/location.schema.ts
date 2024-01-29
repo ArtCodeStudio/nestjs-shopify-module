@@ -1,5 +1,5 @@
-import { Schema, Document, DocumentDefinition } from 'mongoose';
-import { Interfaces } from 'shopify-admin-api';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
 
 export type LocationDocument = DocumentDefinition<Interfaces.Location> &
   Document;
@@ -17,5 +17,5 @@ export const LocationSchema = new Schema(
   },
   {
     minimize: false,
-  },
+  }
 );

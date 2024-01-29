@@ -1,24 +1,24 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { Themes } from 'shopify-admin-api'; // https://github.com/ArtCodeStudio/shopify-admin-api
-import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Interfaces } from 'shopify-admin-api';
-import { ThemeDocument } from '../interfaces/mongoose/theme.schema';
-import { Model } from 'mongoose';
-import { ShopifyApiRootService } from '../shopify-api-root.service';
-import { EventService } from '../../event.service';
+import { Inject, Injectable } from "@nestjs/common";
+import { Themes } from "shopify-admin-api"; // https://github.com/ArtCodeStudio/shopify-admin-api
+import { IShopifyConnect } from "../../auth/interfaces/connect";
+import { Interfaces } from "shopify-admin-api";
+import { ThemeDocument } from "../interfaces/mongoose/theme.schema";
+import { Model } from "mongoose";
+import { ShopifyApiRootService } from "../shopify-api-root.service";
+import { EventService } from "../../event.service";
 
 import {
   SyncProgressDocument,
   ShopifyModuleOptions,
   Resource,
-} from '../../interfaces';
+} from "../../interfaces";
 import {
   IShopifySyncThemeGetOptions,
   IShopifySyncThemeListOptions,
   IAppThemeListOptions,
   IAppThemeListFilter,
-} from '../interfaces';
-import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
+} from "../interfaces";
+import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 
 @Injectable()
 export class ThemesService extends ShopifyApiRootService<
@@ -28,24 +28,24 @@ export class ThemesService extends ShopifyApiRootService<
   IShopifySyncThemeListOptions, // ListOptions
   ThemeDocument // DatabaseDocumentType
 > {
-  resourceName: Resource = 'themes';
-  subResourceNames: Resource[] = ['assets'];
+  resourceName: Resource = "themes";
+  subResourceNames: Resource[] = ["assets"];
 
   constructor(
-    @Inject('ThemeModelToken')
+    @Inject("ThemeModelToken")
     private readonly themeModel: (shopName: string) => Model<ThemeDocument>,
     private readonly eventService: EventService,
-    @Inject('SyncProgressModelToken')
+    @Inject("SyncProgressModelToken")
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     @Inject(SHOPIFY_MODULE_OPTIONS)
-    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions
   ) {
     super(
       themeModel,
       Themes,
       eventService,
       syncProgressModel,
-      shopifyModuleOptions,
+      shopifyModuleOptions
     );
   }
 
@@ -60,7 +60,7 @@ export class ThemesService extends ShopifyApiRootService<
   public async listFromShopify(
     shopifyConnect: IShopifyConnect,
     options?: IAppThemeListOptions,
-    filter?: IAppThemeListFilter,
+    filter?: IAppThemeListFilter
   ): Promise<Partial<Interfaces.Theme>[]> {
     return super.listFromShopify(shopifyConnect, options).then((themes) => {
       if (!filter) {
@@ -86,9 +86,9 @@ export class ThemesService extends ShopifyApiRootService<
    * @see https://help.shopify.com/en/api/reference/online-store/theme#show
    */
   public async getActive(
-    user: IShopifyConnect,
+    user: IShopifyConnect
   ): Promise<Partial<Interfaces.Theme> | null> {
-    return this.listFromShopify(user, {}, { role: 'main' }).then((themes) => {
+    return this.listFromShopify(user, {}, { role: "main" }).then((themes) => {
       if (themes.length) {
         return themes[0];
       } else {

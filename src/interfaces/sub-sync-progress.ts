@@ -1,4 +1,4 @@
-import type { Types } from 'mongoose';
+import type { Types } from "mongoose";
 
 export interface ISubSyncProgress {
   /**
@@ -14,12 +14,12 @@ export interface ISubSyncProgress {
   updatedAt: Date;
   error: string | null;
   state:
-    | 'starting'
-    | 'running'
-    | 'failed'
-    | 'cancelling'
-    | 'cancelled'
-    | 'success';
+    | "starting"
+    | "running"
+    | "failed"
+    | "cancelling"
+    | "cancelled"
+    | "success";
   continuedFromPrevious?: Types.ObjectId;
 }
 

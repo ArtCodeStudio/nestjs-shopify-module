@@ -9,28 +9,28 @@ import {
   HttpStatus,
   HttpException,
   Header,
-} from '@nestjs/common';
-import { Response } from 'express';
-import { IUserRequest } from '../../interfaces/user-request';
+} from "@nestjs/common";
+import { Response } from "express";
+import { IUserRequest } from "../../interfaces/user-request";
 
-import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
-import { Roles } from '../../guards/roles.decorator';
-import { DebugService } from '../../debug.service';
+import { ShopifyApiGuard } from "../../guards/shopify-api.guard";
+import { Roles } from "../../guards/roles.decorator";
+import { DebugService } from "../../debug.service";
 import {
   IShopifySyncSmartCollectionListOptions,
   IShopifySyncSmartCollectionGetOptions,
   IShopifySyncSmartCollectionCountOptions,
   IAppSmartCollectionListOptions,
-} from '../interfaces';
+} from "../interfaces";
 
-import { SmartCollectionsService } from './smart-collections.service';
+import { SmartCollectionsService } from "./smart-collections.service";
 
-@Controller('shopify/api/smart-collections')
+@Controller("shopify/api/smart-collections")
 export class SmartCollectionsController {
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   constructor(
-    protected readonly smartCollectionsService: SmartCollectionsService,
+    protected readonly smartCollectionsService: SmartCollectionsService
   ) {}
 
   /**
@@ -46,59 +46,59 @@ export class SmartCollectionsController {
     /**
      * The number of results to show.
      */
-    @Query('limit') limit = 50,
+    @Query("limit") limit = 50,
     /**
      * The page of results to show.
      */
-    @Query('page') page = 1,
+    @Query("page") page = 1,
     /**
      * Show only the results specified in this comma-separated list of IDs.
      */
-    @Query('ids') ids?: string,
+    @Query("ids") ids?: string,
     /**
      * Restrict results to after the specified ID.
      */
-    @Query('since_id') since_id?: number,
+    @Query("since_id") since_id?: number,
     /**
      * Show smart collections with the specified title.
      */
-    @Query('title') title?: string,
+    @Query("title") title?: string,
     /**
      * Show smart collections that includes the specified product.
      */
-    @Query('product_id') product_id?: number,
+    @Query("product_id") product_id?: number,
     /**
      * Filter results by smart collection handle.
      */
-    @Query('handle') handle?: string,
+    @Query("handle") handle?: string,
     /**
      * Show smart collections last updated after this date. (format: 2014-04-25T16:15:47-04:00)
      */
-    @Query('updated_at_min') updated_at_min?: string,
+    @Query("updated_at_min") updated_at_min?: string,
     /**
      * Show smart collections last updated before this date. (format: 2014-04-25T16:15:47-04:00)
      */
-    @Query('updated_at_max') updated_at_max?: string,
+    @Query("updated_at_max") updated_at_max?: string,
     /**
      * Show smart collections published after this date. (format: 2014-04-25T16:15:47-04:00)
      */
-    @Query('published_at_min') published_at_min?: string,
+    @Query("published_at_min") published_at_min?: string,
     /**
      * Show smart collections published before this date. (format: 2014-04-25T16:15:47-04:00)
      */
-    @Query('published_at_max') published_at_max?: string,
+    @Query("published_at_max") published_at_max?: string,
     /**
      * Filter results based on the published status of smart collections.
      */
-    @Query('published_status')
-    published_status: 'published' | 'unpublished' | 'any' = 'any',
+    @Query("published_status")
+    published_status: "published" | "unpublished" | "any" = "any",
     /**
      * Show only certain fields, specified by a comma-separated list of field names.
      */
-    @Query('fields') fields?: string,
+    @Query("fields") fields?: string
   ) {
     if (req.session.isThemeClientRequest) {
-      published_status = 'published'; // For security reasons, only return public smart collections if the request comes not from a logged in user
+      published_status = "published"; // For security reasons, only return public smart collections if the request comes not from a logged in user
     }
 
     const options: IShopifySyncSmartCollectionListOptions = {
@@ -120,7 +120,7 @@ export class SmartCollectionsController {
     try {
       return await this.smartCollectionsService.listFromShopify(
         req.session[`shopify-connect-${req.shop}`],
-        options,
+        options
       );
     } catch (error) {
       this.logger.error(error);
@@ -134,33 +134,33 @@ export class SmartCollectionsController {
    * @param options
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('db')
+  @Roles("shopify-staff-member")
+  @Get("db")
   async listFromDb(
     @Req() req: IUserRequest,
     /*
      * Options from shopify
      */
-    @Query('fields') fields?: string,
-    @Query('handle') handle?: string,
-    @Query('limit') limit?: number,
-    @Query('page') page?: number,
-    @Query('product_id') product_id?: number,
-    @Query('published_at_max') published_at_max?: string,
-    @Query('published_at_min') published_at_min?: string,
-    @Query('published_status')
-    published_status?: 'published' | 'unpublished' | 'any',
-    @Query('since_id') since_id?: number,
-    @Query('title') title?: string,
-    @Query('updated_at_max') updated_at_max?: string,
-    @Query('updated_at_min') updated_at_min?: string,
-    @Query('vendor') vendor?: string,
+    @Query("fields") fields?: string,
+    @Query("handle") handle?: string,
+    @Query("limit") limit?: number,
+    @Query("page") page?: number,
+    @Query("product_id") product_id?: number,
+    @Query("published_at_max") published_at_max?: string,
+    @Query("published_at_min") published_at_min?: string,
+    @Query("published_status")
+    published_status?: "published" | "unpublished" | "any",
+    @Query("since_id") since_id?: number,
+    @Query("title") title?: string,
+    @Query("updated_at_max") updated_at_max?: string,
+    @Query("updated_at_min") updated_at_min?: string,
+    @Query("vendor") vendor?: string,
     /*
      * Custom app options
      */
-    @Query('ids') ids?: string,
-    @Query('sort_by') sort_by?: string,
-    @Query('sort_dir') sort_dir?: 'asc' | 'desc',
+    @Query("ids") ids?: string,
+    @Query("sort_by") sort_by?: string,
+    @Query("sort_dir") sort_dir?: "asc" | "desc"
   ) {
     try {
       const options: IAppSmartCollectionListOptions = {
@@ -189,7 +189,7 @@ export class SmartCollectionsController {
       return await this.smartCollectionsService.listFromDb(
         req.session[`shopify-connect-${req.shop}`],
         options,
-        {},
+        {}
       );
     } catch (error) {
       this.logger.error(error);
@@ -204,33 +204,33 @@ export class SmartCollectionsController {
    * @param options
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('all')
-  @Header('Content-type', 'application/json')
+  @Roles("shopify-staff-member")
+  @Get("all")
+  @Header("Content-type", "application/json")
   listAllFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Query() options: IShopifySyncSmartCollectionListOptions,
+    @Query() options: IShopifySyncSmartCollectionListOptions
   ) {
     this.smartCollectionsService
       .listAllFromShopifyStream(
         req.session[`shopify-connect-${req.shop}`],
-        options,
+        options
       )
       .pipe(res);
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('db/count')
+  @Roles("shopify-staff-member")
+  @Get("db/count")
   async countFromDb(
     @Req() req: IUserRequest,
-    @Query() options: IShopifySyncSmartCollectionCountOptions,
+    @Query() options: IShopifySyncSmartCollectionCountOptions
   ) {
     try {
       return await this.smartCollectionsService.countFromDb(
         req.session[`shopify-connect-${req.shop}`],
-        options,
+        options
       );
     } catch (error) {
       this.logger.error(error);
@@ -239,12 +239,12 @@ export class SmartCollectionsController {
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('db/diff')
+  @Roles("shopify-staff-member")
+  @Get("db/diff")
   async diffSynced(@Req() req: IUserRequest) {
     try {
       return await this.smartCollectionsService.diffSynced(
-        req.session[`shopify-connect-${req.shop}`],
+        req.session[`shopify-connect-${req.shop}`]
       );
     } catch (error) {
       this.logger.error(error);
@@ -259,38 +259,38 @@ export class SmartCollectionsController {
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Empty == Allowed from shop frontend and backend
-  @Get('count')
+  @Get("count")
   async countFromShopify(
     @Req() req: IUserRequest,
     /**
      * Show smart collections with the specified title.
      */
-    @Query('title') title?: string,
+    @Query("title") title?: string,
     /**
      * Show smart collections that include the specified product.
      */
-    @Query('product_id') product_id?: number,
+    @Query("product_id") product_id?: number,
     /**
      * Show smart collections last updated after this date. (format: 2014-04-25T16:15:47-04:00)
      */
-    @Query('updated_at_min') updated_at_min?: string,
+    @Query("updated_at_min") updated_at_min?: string,
     /**
      * Show smart collections last updated before this date. (format: 2014-04-25T16:15:47-04:00)
      */
-    @Query('updated_at_max') updated_at_max?: string,
+    @Query("updated_at_max") updated_at_max?: string,
     /**
      * Show smart collections published after this date. (format: 2014-04-25T16:15:47-04:00)
      */
-    @Query('published_at_min') published_at_min?: string,
+    @Query("published_at_min") published_at_min?: string,
     /**
      * Show smart collections published before this date. (format: 2014-04-25T16:15:47-04:00)
      */
-    @Query('published_at_max') published_at_max?: string,
+    @Query("published_at_max") published_at_max?: string,
     /**
      * Filter results based on the published status of smart collections.
      */
-    @Query('published_status')
-    published_status: 'published' | 'unpublished' | 'any' = 'any',
+    @Query("published_status")
+    published_status: "published" | "unpublished" | "any" = "any"
   ) {
     const options: IShopifySyncSmartCollectionCountOptions = {
       title,
@@ -304,7 +304,7 @@ export class SmartCollectionsController {
     try {
       return await this.smartCollectionsService.countFromShopify(
         req.session[`shopify-connect-${req.shop}`],
-        options,
+        options
       );
     } catch (error) {
       this.logger.error(error);
@@ -313,13 +313,13 @@ export class SmartCollectionsController {
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get(':id/db')
-  async getFromDb(@Req() req: IUserRequest, @Param('id') id: number) {
+  @Roles("shopify-staff-member")
+  @Get(":id/db")
+  async getFromDb(@Req() req: IUserRequest, @Param("id") id: number) {
     try {
       return await this.smartCollectionsService.getFromDb(
         req.session[`shopify-connect-${req.shop}`],
-        id,
+        id
       );
     } catch (error) {
       this.logger.error(error);
@@ -334,11 +334,11 @@ export class SmartCollectionsController {
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Empty == Allowed from shop frontend and backend
-  @Get(':id')
+  @Get(":id")
   async getFromShopify(
     @Req() req: IUserRequest,
-    @Param('id') id: number,
-    @Query('fields') fields: string,
+    @Param("id") id: number,
+    @Query("fields") fields: string
   ) {
     const options: IShopifySyncSmartCollectionGetOptions = {
       fields,
@@ -347,7 +347,7 @@ export class SmartCollectionsController {
       return await this.smartCollectionsService.getFromShopify(
         req.session[`shopify-connect-${req.shop}`],
         id,
-        options,
+        options
       );
     } catch (error) {
       this.logger.error(error);

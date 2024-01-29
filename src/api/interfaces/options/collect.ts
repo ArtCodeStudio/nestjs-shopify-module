@@ -1,6 +1,6 @@
-import { Options } from 'shopify-admin-api';
-import { ISyncOptions } from './sync';
-import { IAppListSortOptions, IAppListFilterOptions } from './basic';
+import { Options } from "shopify-admin-api";
+import { ISyncOptions } from "./sync";
+import { IAppListSortOptions, IAppListFilterOptions } from "./basic";
 
 /**
  * Order options to get a list of collects from shopify

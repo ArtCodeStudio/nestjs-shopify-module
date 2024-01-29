@@ -1,5 +1,5 @@
-import { Schema, Document, DocumentDefinition } from 'mongoose';
-import { Interfaces } from 'shopify-admin-api';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
 
 export type AssetDocument = DocumentDefinition<Interfaces.Asset> & Document;
 
@@ -17,5 +17,5 @@ export const AssetSchema = new Schema(
   },
   {
     minimize: false,
-  },
+  }
 );

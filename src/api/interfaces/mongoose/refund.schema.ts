@@ -1,8 +1,8 @@
-import { Schema, Document, DocumentDefinition } from 'mongoose';
-import { Interfaces } from 'shopify-admin-api';
-import { TransactionSchema } from './transaction.schema';
-import { LineItemSchema } from './line-item.schema';
-import { PriceSetSchema } from './price-set.schema';
+import { Schema, Document, DocumentDefinition } from "mongoose";
+import { Interfaces } from "shopify-admin-api";
+import { TransactionSchema } from "./transaction.schema";
+import { LineItemSchema } from "./line-item.schema";
+import { PriceSetSchema } from "./price-set.schema";
 
 export type OrderAdjustmentDocument =
   DocumentDefinition<Interfaces.OrderAdjustment> & Document;
@@ -26,7 +26,7 @@ export const OrderAdjustmentSchema = new Schema(
   },
   {
     minimize: false,
-  },
+  }
 );
 
 export const RefundLineItemSchema = new Schema(
@@ -44,7 +44,7 @@ export const RefundLineItemSchema = new Schema(
   },
   {
     minimize: false,
-  },
+  }
 );
 
 export const RefundSchema = new Schema(
@@ -63,5 +63,5 @@ export const RefundSchema = new Schema(
   },
   {
     minimize: false,
-  },
+  }
 );

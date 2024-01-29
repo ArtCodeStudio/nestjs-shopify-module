@@ -1,4 +1,4 @@
-import { Options } from 'shopify-admin-api';
+import { Options } from "shopify-admin-api";
 
 /**
  * Sort options for listFromDb and listFromES methods
@@ -11,7 +11,7 @@ export interface IAppListSortOptions {
   /**
    * Sort direction
    */
-  sort_dir?: 'asc' | 'desc';
+  sort_dir?: "asc" | "desc";
 }
 
 export interface IAppListFilterOptions {

@@ -1,43 +1,43 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { IShopifyAuthProfile } from './interfaces/profile';
-import { DebugService } from '../debug.service';
-import { IShopifyConnect, IShopifyConnectDocument } from './interfaces/connect';
-import { EventService } from '../event.service';
+import { Injectable, Inject } from "@nestjs/common";
+import { Model } from "mongoose";
+import { IShopifyAuthProfile } from "./interfaces/profile";
+import { DebugService } from "../debug.service";
+import { IShopifyConnect, IShopifyConnectDocument } from "./interfaces/connect";
+import { EventService } from "../event.service";
 
 @Injectable()
 export class ShopifyConnectService {
-  protected logger = new DebugService('shopify:ShopifyConnectService');
+  protected logger = new DebugService("shopify:ShopifyConnectService");
 
   constructor(
-    @Inject('ShopifyConnectModelToken')
+    @Inject("ShopifyConnectModelToken")
     private readonly shopifyConnectModel: Model<IShopifyConnectDocument>,
-    private readonly eventService: EventService,
+    private readonly eventService: EventService
   ) {
     // Delete connected shop on app uninstall
     this.eventService.on(
-      'webhook:app/uninstalled',
-      async (myShopifyDomain: IShopifyConnect['shop']['myshopify_domain']) => {
-        this.logger.warn('webhook:app/uninstalled:', myShopifyDomain);
+      "webhook:app/uninstalled",
+      async (myShopifyDomain: IShopifyConnect["shop"]["myshopify_domain"]) => {
+        this.logger.warn("webhook:app/uninstalled:", myShopifyDomain);
         this.deleteByDomain(myShopifyDomain)
           .then((result) => {
-            this.logger.debug('Delete connected shop result:', result);
+            this.logger.debug("Delete connected shop result:", result);
           })
           .catch((error: Error) => {
             this.logger.error(
               `[${myShopifyDomain}] Error on delete connected shop: ${error.message}`,
-              error,
+              error
             );
           });
-      },
+      }
     );
   }
 
   async connectOrUpdate(userProfile: IShopifyAuthProfile, accessToken: string) {
-    this.logger.debug('connectOrUpdate', userProfile.username);
+    this.logger.debug("connectOrUpdate", userProfile.username);
     const now = new Date();
     if (userProfile.id.toString() !== userProfile._json.shop.id.toString()) {
-      throw new Error('Invalid shopify id! ' + userProfile.id);
+      throw new Error("Invalid shopify id! " + userProfile.id);
     }
     const newShopifyConnect = new this.shopifyConnectModel({
       // _id: Types.ObjectId(userProfile.id),
@@ -47,7 +47,7 @@ export class ShopifyConnectService {
       accessToken,
       updatedAt: now,
       createdAt: now,
-      roles: ['shopify-staff-member'],
+      roles: ["shopify-staff-member"],
     });
 
     return this.findByDomain(newShopifyConnect.myshopify_domain).then(
@@ -56,7 +56,7 @@ export class ShopifyConnectService {
         if (user) {
           this.logger.debug(
             `update newShopifyConnect.myshopify_domain:`,
-            newShopifyConnect.myshopify_domain,
+            newShopifyConnect.myshopify_domain
           );
           return this.shopifyConnectModel
             .updateOne(
@@ -66,7 +66,7 @@ export class ShopifyConnectService {
                 accessToken: newShopifyConnect.accessToken,
                 updatedAt: newShopifyConnect.updatedAt,
                 // roles: newShopifyConnect.roles,
-              },
+              }
             )
             .exec()
             .then((updateResult) => {
@@ -79,10 +79,10 @@ export class ShopifyConnectService {
         return this.shopifyConnectModel
           .create(newShopifyConnect)
           .then((shopifyConnect) => {
-            this.eventService.emit('app/installed', shopifyConnect);
+            this.eventService.emit("app/installed", shopifyConnect);
             return shopifyConnect;
           });
-      },
+      }
     );
   }
 
@@ -98,11 +98,11 @@ export class ShopifyConnectService {
     if (!domain) {
       return null;
     }
-    if (domain.endsWith('.myshopify.com')) {
-      const query = { 'shop.myshopify_domain': domain };
+    if (domain.endsWith(".myshopify.com")) {
+      const query = { "shop.myshopify_domain": domain };
       return this.shopifyConnectModel.findOne(query).exec();
     } else {
-      const query: any = { 'shop.domain': domain };
+      const query: any = { "shop.domain": domain };
       return this.shopifyConnectModel.findOne(query).exec();
     }
   }

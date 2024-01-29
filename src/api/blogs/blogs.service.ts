@@ -1,30 +1,30 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { deleteUndefinedProperties } from '../../helpers';
-import { EventService } from '../../event.service';
-import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
-import { mongooseParallelRetry } from '../../helpers';
+import { Inject, Injectable } from "@nestjs/common";
+import { deleteUndefinedProperties } from "../../helpers";
+import { EventService } from "../../event.service";
+import { ShopifyApiRootCountableService } from "../shopify-api-root-countable.service";
+import { mongooseParallelRetry } from "../../helpers";
 
 // Interfaces
-import { Model } from 'mongoose';
-import { IShopifyConnect } from '../../auth/interfaces/connect';
-import { Interfaces } from 'shopify-admin-api';
-import { Blogs, Options } from 'shopify-admin-api';
-import { ArticlesService } from './articles/articles.service';
+import { Model } from "mongoose";
+import { IShopifyConnect } from "../../auth/interfaces/connect";
+import { Interfaces } from "shopify-admin-api";
+import { Blogs, Options } from "shopify-admin-api";
+import { ArticlesService } from "./articles/articles.service";
 import {
   BlogDocument,
   IListAllCallbackData,
   IShopifySyncBlogCountOptions,
   IShopifySyncBlogGetOptions,
   IShopifySyncBlogListOptions,
-} from '../interfaces';
+} from "../interfaces";
 import {
   SyncProgressDocument,
   IStartSyncOptions,
   ShopifyModuleOptions,
   BlogSyncProgressDocument,
   Resource,
-} from '../../interfaces';
-import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
+} from "../../interfaces";
+import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 
 @Injectable()
 export class BlogsService extends ShopifyApiRootCountableService<
@@ -35,25 +35,25 @@ export class BlogsService extends ShopifyApiRootCountableService<
   IShopifySyncBlogListOptions, // ListOptions
   BlogDocument // DatabaseDocumentType
 > {
-  resourceName: Resource = 'blogs';
+  resourceName: Resource = "blogs";
   subResourceNames: Resource[] = [];
 
   constructor(
-    @Inject('BlogModelToken')
+    @Inject("BlogModelToken")
     private readonly blogModel: (shopName: string) => Model<BlogDocument>,
     private readonly eventService: EventService,
-    @Inject('SyncProgressModelToken')
+    @Inject("SyncProgressModelToken")
     private readonly syncProgressModel: Model<SyncProgressDocument>,
     private readonly articlesService: ArticlesService,
     @Inject(SHOPIFY_MODULE_OPTIONS)
-    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions
   ) {
     super(
       blogModel,
       Blogs,
       eventService,
       syncProgressModel,
-      shopifyModuleOptions,
+      shopifyModuleOptions
     );
   }
 
@@ -64,7 +64,7 @@ export class BlogsService extends ShopifyApiRootCountableService<
    */
   public async create(
     user: IShopifyConnect,
-    blog: Partial<Interfaces.Blog>,
+    blog: Partial<Interfaces.Blog>
   ): Promise<Interfaces.Blog> {
     const blogs = new Blogs(user.myshopify_domain, user.accessToken);
     return blogs.create(blog).then((blogObj) => {
@@ -81,7 +81,7 @@ export class BlogsService extends ShopifyApiRootCountableService<
   public async get(
     user: IShopifyConnect,
     id: number,
-    options?: Options.FieldOptions,
+    options?: Options.FieldOptions
   ): Promise<Partial<Interfaces.Blog>> {
     const blogs = new Blogs(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
@@ -99,7 +99,7 @@ export class BlogsService extends ShopifyApiRootCountableService<
   public async update(
     user: IShopifyConnect,
     id: number,
-    blog: Partial<Interfaces.Blog>,
+    blog: Partial<Interfaces.Blog>
   ): Promise<Interfaces.Blog> {
     const blogs = new Blogs(user.myshopify_domain, user.accessToken);
     return blogs.update(id, blog).then((blogObj) => {
@@ -114,7 +114,7 @@ export class BlogsService extends ShopifyApiRootCountableService<
    */
   public async list(
     user: IShopifyConnect,
-    options?: Options.FieldOptions,
+    options?: Options.FieldOptions
   ): Promise<Partial<Interfaces.Blog>[]> {
     const blogs = new Blogs(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
@@ -130,11 +130,11 @@ export class BlogsService extends ShopifyApiRootCountableService<
    */
   public async count(
     user: IShopifyConnect,
-    options?: Options.BlogCountOptions,
+    options?: Options.BlogCountOptions
   ): Promise<number> {
     const blogs = new Blogs(user.myshopify_domain, user.accessToken);
     options = deleteUndefinedProperties(options);
-    this.logger.debug('count options: %O', options);
+    this.logger.debug("count options: %O", options);
     return blogs.count(options).then((count) => {
       return count;
     });
@@ -166,7 +166,7 @@ export class BlogsService extends ShopifyApiRootCountableService<
     progress: SyncProgressDocument,
     subProgress: BlogSyncProgressDocument,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Interfaces.Blog>,
+    data: IListAllCallbackData<Interfaces.Blog>
   ): Promise<void> {
     const blogs = data.data;
     const lastBlog = blogs[blogs.length - 1];
@@ -177,7 +177,7 @@ export class BlogsService extends ShopifyApiRootCountableService<
           blog.id,
           {
             syncToDb: options.syncToDb,
-          },
+          }
         );
         subProgress.syncedArticlesCount += articles.length;
         subProgress.syncedCount++;

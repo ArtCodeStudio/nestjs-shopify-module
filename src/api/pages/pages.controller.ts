@@ -11,19 +11,19 @@ import {
   HttpStatus,
   HttpException,
   Body,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
-import { PagesService } from './pages.service';
-import { DebugService } from '../../debug.service';
-import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
-import { Roles } from '../../guards/roles.decorator';
+import { PagesService } from "./pages.service";
+import { DebugService } from "../../debug.service";
+import { ShopifyApiGuard } from "../../guards/shopify-api.guard";
+import { Roles } from "../../guards/roles.decorator";
 
 // Interfaces
-import { Interfaces } from 'shopify-admin-api';
-import { IUserRequest } from '../../interfaces/user-request';
-import { IShopifySyncPageListOptions } from '../interfaces';
+import { Interfaces } from "shopify-admin-api";
+import { IUserRequest } from "../../interfaces/user-request";
+import { IShopifySyncPageListOptions } from "../interfaces";
 
-@Controller('shopify/api/pages')
+@Controller("shopify/api/pages")
 export class PagesController {
   constructor(protected readonly pagesService: PagesService) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
@@ -36,18 +36,18 @@ export class PagesController {
    * @param page
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles("shopify-staff-member")
   @Post()
   async createInShopify(
     @Req() req: IUserRequest,
-    @Body() page: Interfaces.Page,
+    @Body() page: Interfaces.Page
   ) {
-    this.logger.debug('create page: %O', page);
+    this.logger.debug("create page: %O", page);
     try {
       return await this.pagesService
         .create(req.session[`shopify-connect-${req.shop}`], page)
         .then((result) => {
-          this.logger.debug('result: %O', result);
+          this.logger.debug("result: %O", result);
           return result;
         });
     } catch (error) {
@@ -70,30 +70,30 @@ export class PagesController {
     /*
      * Options from shopify
      */
-    @Query('created_at_max') created_at_max?: string,
-    @Query('created_at_min') created_at_min?: string,
-    @Query('page') page?: number,
-    @Query('fields') fields?: string,
-    @Query('handle') handle?: string,
-    @Query('limit') limit?: number,
-    @Query('published_at_max') published_at_max?: string,
-    @Query('published_at_min') published_at_min?: string,
-    @Query('published_status')
-    published_status?: 'published' | 'unpublished' | 'any',
-    @Query('since_id') since_id?: number,
-    @Query('title') title?: string,
-    @Query('updated_at_max') updated_at_max?: string,
-    @Query('updated_at_min') updated_at_min?: string,
+    @Query("created_at_max") created_at_max?: string,
+    @Query("created_at_min") created_at_min?: string,
+    @Query("page") page?: number,
+    @Query("fields") fields?: string,
+    @Query("handle") handle?: string,
+    @Query("limit") limit?: number,
+    @Query("published_at_max") published_at_max?: string,
+    @Query("published_at_min") published_at_min?: string,
+    @Query("published_status")
+    published_status?: "published" | "unpublished" | "any",
+    @Query("since_id") since_id?: number,
+    @Query("title") title?: string,
+    @Query("updated_at_max") updated_at_max?: string,
+    @Query("updated_at_min") updated_at_min?: string,
     /**
      * Custom sync options
      */
-    @Query('sync_to_db') syncToDb?: boolean,
-    @Query('cancel_signal') cancelSignal?: string,
-    @Query('fail_on_sync_error') failOnSyncError?: boolean,
+    @Query("sync_to_db") syncToDb?: boolean,
+    @Query("cancel_signal") cancelSignal?: string,
+    @Query("fail_on_sync_error") failOnSyncError?: boolean
   ) {
     try {
       if (req.session.isThemeClientRequest) {
-        published_status = 'published'; // For security reasons, only return public pages if the request comes not from a logged in user
+        published_status = "published"; // For security reasons, only return public pages if the request comes not from a logged in user
         syncToDb = false;
       }
       const options: IShopifySyncPageListOptions = {
@@ -115,10 +115,10 @@ export class PagesController {
         failOnSyncError,
       };
 
-      this.logger.debug('PageListOptions: %O', options);
+      this.logger.debug("PageListOptions: %O", options);
       return await this.pagesService.list(
         req.session[`shopify-connect-${req.shop}`],
-        options,
+        options
       );
     } catch (error) {
       this.logger.error(error);
@@ -134,22 +134,22 @@ export class PagesController {
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
-  @Get('count')
+  @Get("count")
   async countFromShopify(
     @Req() req: IUserRequest,
-    @Query('created_at_max') created_at_max: string,
-    @Query('created_at_min') created_at_min: string,
-    @Query('published_status')
-    published_status: 'published' | 'unpublished' | 'any',
-    @Query('title') title: string,
-    @Query('published_at_max') published_at_max: string,
-    @Query('published_at_min') published_at_min: string,
-    @Query('updated_at_max') updated_at_max: string,
-    @Query('updated_at_min') updated_at_min: string,
+    @Query("created_at_max") created_at_max: string,
+    @Query("created_at_min") created_at_min: string,
+    @Query("published_status")
+    published_status: "published" | "unpublished" | "any",
+    @Query("title") title: string,
+    @Query("published_at_max") published_at_max: string,
+    @Query("published_at_min") published_at_min: string,
+    @Query("updated_at_max") updated_at_max: string,
+    @Query("updated_at_min") updated_at_min: string
   ) {
     try {
       if (req.session.isThemeClientRequest) {
-        published_status = 'published'; // For security reasons, only return public pages if the request comes not from a logged in user
+        published_status = "published"; // For security reasons, only return public pages if the request comes not from a logged in user
       }
       return await this.pagesService.count(
         req.session[`shopify-connect-${req.shop}`],
@@ -162,7 +162,7 @@ export class PagesController {
           title,
           updated_at_max,
           updated_at_min,
-        },
+        }
       );
     } catch (error) {
       this.logger.error(error);
@@ -178,12 +178,12 @@ export class PagesController {
    */
   @UseGuards(ShopifyApiGuard)
   @Roles() // Allowed from shop frontend
-  @Get(':id')
-  async getFromShopify(@Req() req: IUserRequest, @Param('id') id: number) {
+  @Get(":id")
+  async getFromShopify(@Req() req: IUserRequest, @Param("id") id: number) {
     try {
       return await this.pagesService.get(
         req.session[`shopify-connect-${req.shop}`],
-        id,
+        id
       );
     } catch (error) {
       this.logger.error(error);
@@ -198,16 +198,16 @@ export class PagesController {
    * @param id Id of the page being deleted.
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Delete(':page_id')
+  @Roles("shopify-staff-member")
+  @Delete(":page_id")
   async deleteInShopify(
     @Req() req: IUserRequest,
-    @Param('page_id') id: number,
+    @Param("page_id") id: number
   ) {
     try {
       return await this.pagesService.delete(
         req.session[`shopify-connect-${req.shop}`],
-        id,
+        id
       );
     } catch (error) {
       this.logger.error(error);
@@ -223,19 +223,19 @@ export class PagesController {
    * @param page
    */
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Put(':page_id')
+  @Roles("shopify-staff-member")
+  @Put(":page_id")
   async updateInShopify(
     @Req() req: IUserRequest,
-    @Param('page_id') id: number,
-    @Body() page: Partial<Interfaces.Page>,
+    @Param("page_id") id: number,
+    @Body() page: Partial<Interfaces.Page>
   ) {
-    this.logger.debug('update page id: %d, page: %O', id, page);
+    this.logger.debug("update page id: %d, page: %O", id, page);
     try {
       return await this.pagesService.update(
         req.session[`shopify-connect-${req.shop}`],
         id,
-        page,
+        page
       );
     } catch (error) {
       this.logger.error(error);

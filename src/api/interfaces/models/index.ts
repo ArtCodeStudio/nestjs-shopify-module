@@ -1,2 +1,2 @@
-export * from './assets';
-export * from './locales';
+export * from "./assets";
+export * from "./locales";

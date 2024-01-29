@@ -1,34 +1,34 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { Reflector } from '@nestjs/core';
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import { Observable } from "rxjs";
+import { Reflector } from "@nestjs/core";
 
-import { IUserRequest } from '../interfaces/user-request';
-import { Session } from '../interfaces/session';
-import { TRequestTypes } from '../auth/interfaces/request-type';
-import { DebugService } from '../debug.service';
-import { ShopifyAuthService } from '../auth/auth.service';
-import { SessionSocket } from '../interfaces/session-socket';
+import { IUserRequest } from "../interfaces/user-request";
+import { Session } from "../interfaces/session";
+import { TRequestTypes } from "../auth/interfaces/request-type";
+import { DebugService } from "../debug.service";
+import { ShopifyAuthService } from "../auth/auth.service";
+import { SessionSocket } from "../interfaces/session-socket";
 
 /**
  * Guard to check where the request comes from (an registed shopify theme or the app backend)
  */
 @Injectable()
 export class RequestGuard implements CanActivate {
-  protected logger = new DebugService('shopify:RequestGuard');
+  protected logger = new DebugService("shopify:RequestGuard");
 
   constructor(
     private readonly reflector: Reflector,
-    private readonly shopifyAuthService: ShopifyAuthService,
+    private readonly shopifyAuthService: ShopifyAuthService
   ) {}
 
   canActivate(
-    context: ExecutionContext,
+    context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
     // this.logger.debug('context', context);
     // TODO NEST7 CHECKME
     const types = this.reflector.get<TRequestTypes>(
-      'request',
-      context.getHandler(),
+      "request",
+      context.getHandler()
     );
     const request = context.switchToHttp().getRequest() as IUserRequest;
     // this.logger.debug('request', request);
@@ -50,10 +50,10 @@ export class RequestGuard implements CanActivate {
   hasType(session: Session, types: TRequestTypes) {
     let hasType = false;
     types.forEach((type) => {
-      if (type === 'app-backend' && session.isAppBackendRequest) {
+      if (type === "app-backend" && session.isAppBackendRequest) {
         hasType = true;
       }
-      if (type === 'theme-client' && session.isThemeClientRequest) {
+      if (type === "theme-client" && session.isThemeClientRequest) {
         hasType = true;
       }
     });

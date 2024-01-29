@@ -1,16 +1,16 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { ShopifyAuthService } from '../auth/auth.service';
-import { ShopifyConnectService } from '../auth/connect.service';
-import { DebugService } from '../debug.service';
-import { IUserRequest, IShopifyConnect } from '../interfaces/user-request';
-import { Response, NextFunction } from 'express';
+import { Injectable, NestMiddleware } from "@nestjs/common";
+import { ShopifyAuthService } from "../auth/auth.service";
+import { ShopifyConnectService } from "../auth/connect.service";
+import { DebugService } from "../debug.service";
+import { IUserRequest, IShopifyConnect } from "../interfaces/user-request";
+import { Response, NextFunction } from "express";
 
 @Injectable()
 export class GetUserMiddleware implements NestMiddleware {
   logger = new DebugService(`shopify:${this.constructor.name}`);
   constructor(
     private readonly shopifyAuthService: ShopifyAuthService,
-    private readonly shopifyConnectService: ShopifyConnectService,
+    private readonly shopifyConnectService: ShopifyConnectService
   ) {}
 
   protected setShop(req: IUserRequest, shop: string) {
@@ -30,8 +30,8 @@ export class GetUserMiddleware implements NestMiddleware {
       .catch((error: Error) => {
         if (
           error &&
-          typeof error.message === 'string' &&
-          error.message.toLowerCase().includes('shop not found')
+          typeof error.message === "string" &&
+          error.message.toLowerCase().includes("shop not found")
         ) {
           // DO nothing
           this.logger.debug(error.message);
@@ -76,7 +76,7 @@ export class GetUserMiddleware implements NestMiddleware {
      * ```
      */
     if (!shop) {
-      this.logger.warn('[GetUserMiddleware] Shop not found!');
+      this.logger.warn("[GetUserMiddleware] Shop not found!");
       return next();
     }
 
@@ -96,7 +96,7 @@ export class GetUserMiddleware implements NestMiddleware {
     if (req.user) {
       const user = req.user;
       // set to session (for websockets)
-      this.logger.debug('\n\nSet user: ', user);
+      this.logger.debug("\n\nSet user: ", user);
       req.session[`user-${shop}`] = user;
       req.session.isLoggedInToAppBackend = true;
       return next();
@@ -111,7 +111,7 @@ export class GetUserMiddleware implements NestMiddleware {
             // set to request (for passport and co)
             req.user = user;
             // set to session (for websockets)
-            this.logger.debug('\n\nSet user: ', user);
+            this.logger.debug("\n\nSet user: ", user);
             req.session[`user-${shop}`] = user;
             req.session.isLoggedInToAppBackend = true;
             return next();

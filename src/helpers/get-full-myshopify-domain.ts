@@ -1,4 +1,4 @@
-import { getSubdomain } from './get-subdomain';
+import { getSubdomain } from "./get-subdomain";
 
 /**
  * bestshopever -> bestshopever.myshopify.com
@@ -6,5 +6,5 @@ import { getSubdomain } from './get-subdomain';
  */
 export function getFullMyshopifyDomain(domain: string) {
   const subdomain = getSubdomain(domain);
-  return subdomain + '.myshopify.com';
+  return subdomain + ".myshopify.com";
 }

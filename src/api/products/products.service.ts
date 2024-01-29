@@ -1,13 +1,13 @@
 // nest
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from "@nestjs/common";
 
 // Third party
 // import * as pRetry from 'p-retry';
-import { shopifyRetry } from '../../helpers';
+import { shopifyRetry } from "../../helpers";
 
-import { IShopifyConnect } from '../../auth/interfaces';
-import { Interfaces, Products } from 'shopify-admin-api';
-import { Model } from 'mongoose';
+import { IShopifyConnect } from "../../auth/interfaces";
+import { Interfaces, Products } from "shopify-admin-api";
+import { Model } from "mongoose";
 import {
   ProductDocument,
   IListAllCallbackData,
@@ -16,18 +16,18 @@ import {
   IShopifySyncProductGetOptions,
   IShopifySyncProductListOptions,
   IAppProductListOptions,
-} from '../interfaces';
+} from "../interfaces";
 
-import { EventService } from '../../event.service';
+import { EventService } from "../../event.service";
 import {
   SyncProgressDocument,
   SubSyncProgressDocument,
   IStartSyncOptions,
   Resource,
   ShopifyModuleOptions,
-} from '../../interfaces';
-import { ShopifyApiRootCountableService } from '../shopify-api-root-countable.service';
-import { SHOPIFY_MODULE_OPTIONS } from '../../shopify.constants';
+} from "../../interfaces";
+import { ShopifyApiRootCountableService } from "../shopify-api-root-countable.service";
+import { SHOPIFY_MODULE_OPTIONS } from "../../shopify.constants";
 
 @Injectable()
 export class ProductsService extends ShopifyApiRootCountableService<
@@ -38,26 +38,26 @@ export class ProductsService extends ShopifyApiRootCountableService<
   IShopifySyncProductListOptions, // ListOptions
   ProductDocument // DatabaseDocumentType
 > {
-  resourceName: Resource = 'products';
+  resourceName: Resource = "products";
   subResourceNames: Resource[] = [];
 
   constructor(
-    @Inject('ProductModelToken')
+    @Inject("ProductModelToken")
     protected readonly productModel: (
-      shopName: string,
+      shopName: string
     ) => Model<ProductDocument>,
-    @Inject('SyncProgressModelToken')
+    @Inject("SyncProgressModelToken")
     protected readonly syncProgressModel: Model<SyncProgressDocument>,
     protected readonly eventService: EventService,
     @Inject(SHOPIFY_MODULE_OPTIONS)
-    protected readonly shopifyModuleOptions: ShopifyModuleOptions,
+    protected readonly shopifyModuleOptions: ShopifyModuleOptions
   ) {
     super(
       productModel,
       Products,
       eventService,
       syncProgressModel,
-      shopifyModuleOptions,
+      shopifyModuleOptions
     );
   }
 
@@ -67,7 +67,7 @@ export class ProductsService extends ShopifyApiRootCountableService<
    */
   public async listFromDb(
     user: IShopifyConnect,
-    options: IAppProductListOptions = {},
+    options: IAppProductListOptions = {}
   ) {
     const query: any = {};
 
@@ -78,7 +78,7 @@ export class ProductsService extends ShopifyApiRootCountableService<
       // The shopify api also did a full text search here, so we do the same
       query.title = {
         $regex: options.title,
-        $options: 'i',
+        $options: "i",
       };
     }
 
@@ -143,7 +143,7 @@ export class ProductsService extends ShopifyApiRootCountableService<
    */
   public async createInShopify(
     user: IShopifyConnect,
-    product: Interfaces.ProductUpdateCreate,
+    product: Interfaces.ProductUpdateCreate
   ): Promise<Interfaces.Product> {
     const products = new Products(user.myshopify_domain, user.accessToken);
     return shopifyRetry(() => products.create(product));
@@ -158,7 +158,7 @@ export class ProductsService extends ShopifyApiRootCountableService<
   public async updateInShopify(
     user: IShopifyConnect,
     id: number,
-    product: Interfaces.ProductUpdateCreate,
+    product: Interfaces.ProductUpdateCreate
   ): Promise<Interfaces.Product> {
     const products = new Products(user.myshopify_domain, user.accessToken);
     return shopifyRetry(() => products.update(id, product));
@@ -187,7 +187,7 @@ export class ProductsService extends ShopifyApiRootCountableService<
     progress: SyncProgressDocument,
     subProgress: SubSyncProgressDocument,
     options: IStartSyncOptions,
-    data: IListAllCallbackData<Interfaces.Product>,
+    data: IListAllCallbackData<Interfaces.Product>
   ): Promise<void> {
     const products = data.data;
     subProgress.syncedCount += products.length;

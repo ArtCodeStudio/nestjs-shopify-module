@@ -9,58 +9,58 @@ import {
   HttpStatus,
   HttpException,
   Header,
-} from '@nestjs/common';
-import { Response } from 'express';
-import { OrdersService } from './orders.service';
-import { DebugService } from '../../debug.service';
+} from "@nestjs/common";
+import { Response } from "express";
+import { OrdersService } from "./orders.service";
+import { DebugService } from "../../debug.service";
 
-import { ShopifyApiGuard } from '../../guards/shopify-api.guard';
-import { Roles } from '../../guards/roles.decorator';
+import { ShopifyApiGuard } from "../../guards/shopify-api.guard";
+import { Roles } from "../../guards/roles.decorator";
 
-import { Interfaces } from 'shopify-admin-api';
+import { Interfaces } from "shopify-admin-api";
 
 // Interfaces
-import { IUserRequest } from '../../interfaces/user-request';
+import { IUserRequest } from "../../interfaces/user-request";
 import {
   IAppOrderListOptions,
   IShopifySyncOrderCountOptions,
   IShopifySyncOrderListOptions,
-} from '../interfaces';
+} from "../interfaces";
 
-@Controller('shopify/api/orders')
+@Controller("shopify/api/orders")
 export class OrdersController {
   constructor(protected readonly ordersService: OrdersService) {}
   logger = new DebugService(`shopify:${this.constructor.name}`);
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
+  @Roles("shopify-staff-member")
   @Get()
   async listFromShopify(
     @Req() req: IUserRequest,
     /*
      * Options from shopify
      */
-    @Query('created_at_max') created_at_max?: string,
-    @Query('created_at_min') created_at_min?: string,
-    @Query('fields') fields?: string,
-    @Query('financial_status')
-    financial_status?: Interfaces.Order['financial_status'],
-    @Query('fulfillment_status')
-    fulfillment_status?: Interfaces.Order['fulfillment_status'],
-    @Query('limit') limit?: number,
-    @Query('page') page?: number,
-    @Query('processed_at_max') processed_at_max?: string,
-    @Query('processed_at_min') processed_at_min?: string,
-    @Query('since_id') since_id?: number,
-    @Query('status') status = 'any',
-    @Query('updated_at_max') updated_at_max?: string,
-    @Query('updated_at_min') updated_at_min?: string,
+    @Query("created_at_max") created_at_max?: string,
+    @Query("created_at_min") created_at_min?: string,
+    @Query("fields") fields?: string,
+    @Query("financial_status")
+    financial_status?: Interfaces.Order["financial_status"],
+    @Query("fulfillment_status")
+    fulfillment_status?: Interfaces.Order["fulfillment_status"],
+    @Query("limit") limit?: number,
+    @Query("page") page?: number,
+    @Query("processed_at_max") processed_at_max?: string,
+    @Query("processed_at_min") processed_at_min?: string,
+    @Query("since_id") since_id?: number,
+    @Query("status") status = "any",
+    @Query("updated_at_max") updated_at_max?: string,
+    @Query("updated_at_min") updated_at_min?: string,
     /**
      * Custom sync options
      */
-    @Query('sync_to_db') syncToDb?: boolean,
-    @Query('cancel_signal') cancelSignal?: string,
-    @Query('fail_on_sync_error') failOnSyncError?: boolean,
+    @Query("sync_to_db") syncToDb?: boolean,
+    @Query("cancel_signal") cancelSignal?: string,
+    @Query("fail_on_sync_error") failOnSyncError?: boolean
   ) {
     try {
       const options: IShopifySyncOrderListOptions = {
@@ -83,7 +83,7 @@ export class OrdersController {
       };
       return await this.ordersService.listFromShopify(
         req.session[`shopify-connect-${req.shop}`],
-        options,
+        options
       );
     } catch (error) {
       this.logger.error(error);
@@ -92,20 +92,20 @@ export class OrdersController {
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('db')
+  @Roles("shopify-staff-member")
+  @Get("db")
   async listFromDb(
     @Req() req: IUserRequest,
     /*
      * Options from shopify
      */
-    @Query() options: IAppOrderListOptions,
+    @Query() options: IAppOrderListOptions
   ) {
     try {
       return await this.ordersService.listFromDb(
         req.session[`shopify-connect-${req.shop}`],
         options,
-        {},
+        {}
       );
     } catch (error) {
       this.logger.error(error);
@@ -114,33 +114,33 @@ export class OrdersController {
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('all')
-  @Header('Content-type', 'application/json')
+  @Roles("shopify-staff-member")
+  @Get("all")
+  @Header("Content-type", "application/json")
   listAllFromShopify(
     @Req() req: IUserRequest,
     @Res() res: Response,
-    @Query() options: IShopifySyncOrderListOptions,
+    @Query() options: IShopifySyncOrderListOptions
   ) {
     this.ordersService
       .listAllFromShopifyStream(req.session[`shopify-connect-${req.shop}`], {
         ...options,
-        status: 'any',
+        status: "any",
       })
       .pipe(res);
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('db/count')
+  @Roles("shopify-staff-member")
+  @Get("db/count")
   async countFromDb(
     @Req() req: IUserRequest,
-    @Query() options: IShopifySyncOrderCountOptions,
+    @Query() options: IShopifySyncOrderCountOptions
   ) {
     try {
       return await this.ordersService.countFromDb(
         req.session[`shopify-connect-${req.shop}`],
-        options,
+        options
       );
     } catch (error) {
       this.logger.error(error);
@@ -149,12 +149,12 @@ export class OrdersController {
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('db/diff')
+  @Roles("shopify-staff-member")
+  @Get("db/diff")
   async diffSynced(@Req() req: IUserRequest) {
     try {
       return await this.ordersService.diffSynced(
-        req.session[`shopify-connect-${req.shop}`],
+        req.session[`shopify-connect-${req.shop}`]
       );
     } catch (error) {
       this.logger.error(error);
@@ -163,16 +163,16 @@ export class OrdersController {
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('count')
+  @Roles("shopify-staff-member")
+  @Get("count")
   async countFromShopify(
     @Req() req: IUserRequest,
-    @Query() options: IShopifySyncOrderCountOptions,
+    @Query() options: IShopifySyncOrderCountOptions
   ) {
     try {
       return await this.ordersService.countFromShopify(
         req.session[`shopify-connect-${req.shop}`],
-        options,
+        options
       );
     } catch (error) {
       this.logger.error(error);
@@ -181,13 +181,13 @@ export class OrdersController {
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get(':id/db')
-  async getFromDb(@Req() req: IUserRequest, @Param('id') id: number) {
+  @Roles("shopify-staff-member")
+  @Get(":id/db")
+  async getFromDb(@Req() req: IUserRequest, @Param("id") id: number) {
     try {
       return await this.ordersService.getFromDb(
         req.session[`shopify-connect-${req.shop}`],
-        id,
+        id
       );
     } catch (error) {
       this.logger.error(error);
@@ -196,12 +196,12 @@ export class OrdersController {
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('sync-progress/all')
+  @Roles("shopify-staff-member")
+  @Get("sync-progress/all")
   async listSyncProgress(@Req() req: IUserRequest) {
     try {
       return await this.ordersService.listSyncProgress(
-        req.session[`shopify-connect-${req.shop}`],
+        req.session[`shopify-connect-${req.shop}`]
       );
     } catch (error) {
       this.logger.error(error);
@@ -210,12 +210,12 @@ export class OrdersController {
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get('sync-progress')
+  @Roles("shopify-staff-member")
+  @Get("sync-progress")
   async getLastSyncProgress(@Req() req: IUserRequest) {
     try {
       return await this.ordersService.getLastSyncProgress(
-        req.session[`shopify-connect-${req.shop}`],
+        req.session[`shopify-connect-${req.shop}`]
       );
     } catch (error) {
       this.logger.error(error);
@@ -224,13 +224,13 @@ export class OrdersController {
   }
 
   @UseGuards(ShopifyApiGuard)
-  @Roles('shopify-staff-member')
-  @Get(':id')
-  async getFromShopify(@Req() req: IUserRequest, @Param('id') id: number) {
+  @Roles("shopify-staff-member")
+  @Get(":id")
+  async getFromShopify(@Req() req: IUserRequest, @Param("id") id: number) {
     try {
       return await this.ordersService.getFromShopify(
         req.session[`shopify-connect-${req.shop}`],
-        id,
+        id
       );
     } catch (error) {
       this.logger.error(error);
